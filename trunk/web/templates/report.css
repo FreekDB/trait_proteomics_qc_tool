@@ -1,0 +1,83 @@
+div#description {
+	position:relative;
+	height:125px; 
+	width:100%;
+	display:block;
+	overflow:auto;
+}
+
+div#logos {
+	position: relative;
+	float: left;
+	width:20%;
+	color: gray;
+	font-size: x-small;
+}
+
+div#title {
+	position: relative;
+	float:left;
+	height: 100%;
+	width: 60%;
+	line-height: 50px;
+}
+
+div#stats {
+	position: relative;
+	float: left;
+	height: 100%;
+	width:20%
+}
+
+div#metrics {
+	width:30%;
+	height: 100%;
+	float:left; 
+	position:relative; 
+}
+
+div#graphics {
+	position: relative; 
+	width:70%;
+	height: 100%;
+	float:right;
+}
+
+div#heatmap {
+	background-color:#86AFD0;
+	width: 100%;
+	height: 700%;
+	position: relative;
+	float: top;
+}
+
+div#ions {
+	background-color:#66AFD0;
+	width: 100%;
+	height: 30%;
+	position: relative;
+	float: bottom;
+}
+
+th {
+	background-color: #CCCCCC;
+}
+
+tr {
+	font-size:large;	
+}
+
+tr.generic td {
+	color: black;
+}
+
+tr.msdata td {
+	color: green;
+}
+
+tr.ions td {
+	color: purple;
+}
+tr.peptide td {
+	color: red;
+}
