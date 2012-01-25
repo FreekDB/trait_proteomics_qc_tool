@@ -14,18 +14,18 @@
 <body>
 <div id="description">
 	<div id="logos">
-		<img src="ctmm_logo.gif" height="65"> <br/>
+		<img src="../images/ctmm_logo.gif" height="65"> <br/>
 		<em>Powered by:</em><br />
-		<img src="nbic_logo.png" height="25">
+		<img src="../images/nbic_logo.png" height="25">
 	</div>
 	<div id="title">
-		<h2>QC-report on: '<em>SOMEFILE.RAW</em>'</h2>
+		<h2>QC-report on: '<em>${raw_file}</em>'</h2>
 	</div>
 	<div id="stats">
 		<strong>Measured</strong><br />
-		<em>24-01-2012 - 13:10</em><br/>
+		<em>${date} - ${time}</em><br/>
 		<br/><strong>QC Runtime</strong><br/>
-		<em>1h40m</em>
+		<em>${runtime}</em>
 	</div>
 </div>
 	
@@ -36,49 +36,47 @@
 			<th colspan="2">Metrics</th>
 	    <tr class="generic">
 	      <td>File Size</td>
-	      <td>$m_fs</td>
+	      <td>${m_fs}</td>
 	    </tr>
 	    <tr class="msdata">
 	      <td>MS1 Scans</td>
-	      <td>$m_ms1_scans</td>
+	      <td>${m_ms1_scans}</td>
 	    </tr>
 	    <tr class="msdata">
 	      <td>MS2 Scans</td>
-	      <td>$m_ms2_scans</td>
+	      <td>${m_ms2_scans}</td>
 	    </tr>
 	    <tr class="msdata">
 	      <td>First MS1 RT (min)</td>
-	      <td>$m_f_ms1_rt</td>
+	      <td>${m_f_ms1_rt}</td>
 	    </tr>
 	    <tr class="msdata">
 	      <td>Last MS1 RT (min)</td>
-	      <td>$m_l_ms1_rt</td>
+	      <td>${m_l_ms1_rt}</td>
 	    </tr>
 	    <tr class="msdata">
 	      <td>Median Peak Width (sec)</td>
-	      <td>$m_m_p_w</td>
+	      <td>${m_m_p_w}</td>
 	    </tr>
 	    <tr class="ions">
-	      <td>Ion Injection Times for IDs
-			(MS1 median, ms)</td>
-	      <td>$m_i_i_t_ms1</td>
+	      <td>Ion Injection Times for IDs<br />(MS1 median, ms)</td>
+	      <td>${m_i_i_t_ms1}</td>
 	    </tr>
 	    <tr class="ions">
-	      <td>	Ion Injection Times for IDs
-			(MS2 median, ms)</td>
-	      <td>$m_i_i_t_ms2</td>
+	      <td>	Ion Injection Times for IDs<br />(MS2 median, ms)</td>
+	      <td>${m_i_i_t_ms2}</td>
 	    </tr>
 	    <tr class="peptide">
 	      <td>Peptide Counts (Peptides)</td>
-	      <td>$m_p_c_pep</td>
+	      <td>${m_p_c_pep}</td>
 	    </tr>
 	    <tr class="peptide">
 	      <td>Peptide Counts (Ions)</td>
-	      <td>$m_p_c_ion</td>
+	      <td>${m_p_c_ion}</td>
 	    </tr>
 	    <tr class="peptide">
 	      <td>Peptide Counts (Identifications)</td>
-	      <td>$m_p_c_ids</td>
+	      <td>${m_p_c_ids}</td>
 	    </tr>
 	    <tr class="peptide">
 	      <td></td>
@@ -89,10 +87,10 @@
 </div>
 <div id="graphics">
 	<div id="heatmap">
-		Heatmap
+		<img src="${heatmap_img}">
 	</div>
 	<div id="ions">
-		Ions
+		<img src="${ions_img}">
 	</div>
 </div>
 </body>

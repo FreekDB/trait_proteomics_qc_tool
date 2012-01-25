@@ -1,5 +1,7 @@
 import sys
 import os
+import re
+from string import Template
 from argparse import ArgumentParser
 from subprocess import Popen, PIPE
 #from watchdog.observers import Observer
@@ -9,10 +11,24 @@ from subprocess import Popen, PIPE
 _RAW_FILE = ''
 _BASE_NAME = ''
 _R_GRAPHICS = 'r_ms_graphics.R'
-_METRICS = { # All metrics to extract from the NIST metrics output
-	'': '',
-	'': '',
-	'': ''
+# Compiles all metrics to extract from the NIST metrics output
+# Each value is a list of 3 holding the line to match (to get the line number),
+# the offset from that line that holds the value of interest and the regex to
+# retrieve this value.
+_METRICS = {
+	# Experiment details
+	'ms1_scans': ['', 0, re.compile('')],
+	'ms2_scans': ['', 0, re.compile('')],
+	'f_ms1_rt': ['First and Last MS1 RT', 1, re.compile('First MS1\s+([0-9\.]+)')],
+	'l_ms1_rt': ['First and Last MS1 RT', 2, re.compile('Last MS1\s+([0-9\.]+)')],
+	'm_p_w': ['', 0, re.compile()],
+	# Ion details
+	'i_i_t_ms1': ['Ion Injection Times for IDs', 1, re.compile('MS1 Median\s+([0-9\.]+)')],
+	'i_i_t_ms2': ['Ion Injection Times for IDs', 3, re.compile('MS2 Median\s+([0-9\.]+)')],
+	# Peptide details
+	'p_c_pep': ['', 0, re.compile('')],
+	'p_c_ion': ['', 0, re.compile('')],
+	'p_c_ids': ['', 0, re.compile('')]	
 }
 
 # Paths
@@ -118,16 +134,60 @@ def _run_R_script():
 def _create_metrics():
 	""" Parses NIST metrics output file extracting relevant metrics subset """
 	metrics_file = os.path.normpath('{0}\\{1}_report.msqc'.format(_OUT_DIR, _BASE_NAME))
+	metrics_log_file = os.path.normpath('{0}.LOG'.format(metrics_file))
 	print "\n### Metrics File: ", metrics_file
+
+	# Extracting metrics from NIST report file
+	with open(metrics_file, 'r') as f:
+		nist_metrics = f.readlines()
+		
+	for metric in _METRICS.keys():
+		index = next((num for num, line in enumerate(nist_metrics) if _METRICS[metric][0] in line), None)
+		if index != None:
+			print index
+			result = _METRICS[metric][-1].search(nist_metrics[index + _METRICS[metric][1]])
+			_METRICS[metric] = result.group(1)
+			
+	# Extracting metrics (MS1, MS2 scans) from NIST log file
+	with open(metrics_log_file, 'f') as f:
+		nist_metrics_log = f.readlines()
+		
+	_METRICS['ms1_spectra'] = re.search('([0-9]+) ms1 spectra').group(1)
+	_METRICS['ms2_spectra'] = re.search('([0-9]+) ms2 spectra').group(1)
 	
+	# Other generic metrics
+	_METRICS['f_size'] = "%0.1f" % (os.stat(_RAW_FILE).st_size/(1024*1024.0))
+
 def _create_report():
 	# Graphics to include
 	heatmap = '{0}_heatmap.pdf'.format(_BASE_NAME)
 	ion_cnt = '{0}_ions.pdf'.format(_BASE_NAME)
 
-	# Metrics
+	# Place values and graphics in template HTML file
+	with open('../web/templates/report.html', 'r') as f:
+		template = f.readlines()
 	
-	# Combine into PDF
+	report_template = Template(template)
+	report_updated = report_template.safe_substitute(# General
+													raw_file=_RAW_FILE,
+													date='',
+													time='',
+													runtime='',
+													# Metrics
+													m_fs=_METRICS['f_size'],
+													m_ms1_scans=_METRICS['ms1_spectra'],
+													m_ms2_scans=_METRICS['ms2_spectra'],
+													m_f_ms1_rt=_METRICS['f_ms1_rt'],
+													m_l_ms1_rt=_METRICS['l_ms1_rt'],
+													m_m_p_w=_METRICS['m_p_w'],
+													m_i_i_t_ms1=_METRICS['i_i_t_ms1'],
+													m_i_i_t_ms2=_METRICS['i_i_t_ms2'],
+													m_p_c_pep=_METRICS['p_c_pep'],
+													m_p_c_ion=_METRICS['p_c_ion'],
+													m_p_c_ids=_METRICS['p_c_ids'],
+													# Figures
+													heatmap_img=heatmap,
+													ions_img=ion_cnt)
 	
 	
 def _parse_robocopy_log(files):
@@ -166,7 +226,7 @@ def _run_msconvert():
 	print "\tConverting to MGF.."
 	_run_command(MGF_cmd)
 	
-	""" 
+	""" NO NEED, adapted the R package reading in the mzXML file (does not check for version anymore)
 	# Change mzXML schema from 3.1 to 2
 	# TODO: copies the complete file, need to do an inplace replace!
 	print "\tChanging mzXML header to v2.0.."
