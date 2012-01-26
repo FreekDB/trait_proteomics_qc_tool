@@ -20,6 +20,7 @@ div#title {
 	height: 100%;
 	width: 60%;
 	line-height: 50px;
+	font-size: 1.25em;
 }
 
 div#stats {
@@ -64,7 +65,7 @@ th {
 }
 
 tr {
-	font-size: large;	
+	font-size: 1.05em;	
 }
 
 tr.generic td {

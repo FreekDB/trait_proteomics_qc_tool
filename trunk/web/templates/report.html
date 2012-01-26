@@ -20,7 +20,7 @@
 		<img src="../images/nbic_logo.png" height="25">
 	</div>
 	<div id="title">
-		<h2>QC-report on: '<em>${raw_file}</em>'</h2>
+		QC-report on: '<em>${raw_file}</em>'
 	</div>
 	<div id="stats">
 		<strong>Measured</strong><br />
@@ -39,6 +39,10 @@
 	      <td>File Size</td>
 	      <td>${m_fs}</td>
 	    </tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
 	    <tr class="msdata">
 	      <td>MS1 Scans</td>
 	      <td>${m_ms1_scans}</td>
@@ -59,14 +63,22 @@
 	      <td>Median Peak Width (sec)</td>
 	      <td>${m_m_p_w}</td>
 	    </tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
 	    <tr class="ions">
 	      <td>Ion Injection Times for IDs<br />(MS1 median, ms)</td>
 	      <td>${m_i_i_t_ms1}</td>
 	    </tr>
 	    <tr class="ions">
-	      <td>	Ion Injection Times for IDs<br />(MS2 median, ms)</td>
+	      <td>Ion Injection Times for IDs<br />(MS2 median, ms)</td>
 	      <td>${m_i_i_t_ms2}</td>
 	    </tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
 	    <tr class="peptide">
 	      <td>Peptide Counts (Peptides)</td>
 	      <td>${m_p_c_pep}</td>
@@ -88,10 +100,14 @@
 </div>
 <div id="graphics">
 	<div id="heatmap">
-		<img src="${heatmap_img}">
+		<a href="./images/${heatmap_pdf}">	
+			<img border="0" src="${heatmap_img}" width="480", heigth="480">
+		</a>
 	</div>
 	<div id="ions">
-		<img src="${ions_img}">
+		<a href="./images/${ions_pdf}">
+			<img border="0" src="${ions_img}" width="480" height="240">
+		</a>
 	</div>
 </div>
 </body>

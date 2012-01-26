@@ -54,7 +54,7 @@ bin.plot <- function(m, s, n, PDF=FALSE) {
 	b <- seq(low[3], high[3], len=50)
 	pallette <- rgb(r, g, b)
 	if (PDF != FALSE)
-		pdf(paste(PDF, '_heatmap.pdf', sep=''))
+		png(paste(PDF, '_heatmap.png', sep=''), width = 800, height = 800)
 	
 	## Create image with legend
 	image.plot(s, n, log(t(m)), xlab="mass", ylab="Scan number")
@@ -72,7 +72,7 @@ ion_count <- function(mzXML, PDF, mslevel) {
 	}
 	
 	if (PDF != FALSE)
-		pdf(paste(PDF, '_ions.pdf', sep=''))
+		png(paste(PDF, '_ions.png', sep=''), width = 800, height = 400)
 	
 	plot(ions, type='l', xlab="Scans (RT)", ylab="Total Ion Count")
 	
