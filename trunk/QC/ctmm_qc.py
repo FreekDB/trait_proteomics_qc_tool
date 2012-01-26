@@ -21,7 +21,7 @@ _METRICS = {
 	'ms2_scans': ['', 0, re.compile('')],
 	'f_ms1_rt': ['First and Last MS1 RT', 1, re.compile('First MS1\s+([0-9\.]+)')],
 	'l_ms1_rt': ['First and Last MS1 RT', 2, re.compile('Last MS1\s+([0-9\.]+)')],
-	'm_p_w': ['', 0, re.compile()],
+	'm_p_w': ['', 0, re.compile('')],
 	# Ion details
 	'i_i_t_ms1': ['Ion Injection Times for IDs', 1, re.compile('MS1 Median\s+([0-9\.]+)')],
 	'i_i_t_ms2': ['Ion Injection Times for IDs', 3, re.compile('MS2 Median\s+([0-9\.]+)')],
@@ -31,16 +31,17 @@ _METRICS = {
 	'p_c_ids': ['', 0, re.compile('')]	
 }
 
-# Paths
+# Paths (They should be adapted for the system they run on)
 _IN_DIR = ''
 _OUT_DIR = ''
 _COPY_LOG = ''
-_NIST = os.path.normpath('C:\\Users\\nbic\\Documents\\NISTMSQCv1_2_0')
+_WEB_ROOT = os.path.normpath(r'E:\Web')
+_NIST = os.path.normpath(r'C:\Users\nbic\Documents\NISTMSQCv1_2_0')
 _PROGRES_LOG = 'qc_status.log'
-_QC_HOME = os.path.normpath("X:\\\\brs2011p09_ctmm\\QC")
+_QC_HOME = os.path.normpath(r'E:\QC')
 
 def monitor_input():
-	print 'Version 0.0.1'
+	print 'Version 0.0.2'
 	"""Checks input directory for new RAW files to analyze, keeping track
 	of all processed files. Once a new RAW file has been placed in this directory
 	a report will be generated with this file as input."""
@@ -52,6 +53,9 @@ def monitor_input():
 	files = _parse_robocopy_log(files)
 
 	#sys.exit('Files: {0}'.format(files))
+	if not files:
+		sys.exit('No files to proces..')
+		
 	for f, status in files.iteritems():
 		if status == 'new':
 			print "-----------\nProcessing:\n\t", f, "\n-----------\n"
@@ -110,6 +114,7 @@ def _run_NIST():
 	print "\tRunning NIST pipeline.."
 	nist_library = 'human_2011_05_26_it'
 	instrument = 'LTQ'
+	
 	# Run NIST pipeline
 	# TODO: validate parameters, check if in- and out-dir can be the same
 	NIST_exe = 'perl {0}\\scripts\\run_NISTMSQC_pipeline.pl'.format(_NIST)
@@ -127,8 +132,8 @@ def _run_R_script():
 	"""After running the NIST metrics workflow, the mzXML file created can be read in R
 	and processed further (graphics and basic metrics)"""
 	# Execute Rscript (arguments: input mzXML, output PDF prefix, MSlevel)
-	in_out_path = '{0}\\{1}'.format(_OUT_DIR, _BASE_NAME)
-	Rcmd = 'Rscript {0} {1} {2} {3}'.format(_R_GRAPHICS, '{0}.RAW.mzXML'.format(in_out_path), in_out_path, 1)
+	Rcmd = 'Rscript {0} {1} {2} {3}'.format(_R_GRAPHICS, '{0}\\{1}'.format(_OUT_DIR, _BASE_NAME), 
+											'{0}\\images\\{1}'.format(_WEB_ROOT, _BASE_NAME), 1)
 	_run_command(Rcmd)
 	
 def _create_metrics():
@@ -189,7 +194,10 @@ def _create_report():
 													heatmap_img=heatmap,
 													ions_img=ion_cnt)
 	
-	
+	# Write report file to directory holding all reports
+	with open('{0}/{1}_report.html'.format(_WEB_ROOT, _BASE_NAME), 'w') as f:
+		f.writelines(report_updated)
+
 def _parse_robocopy_log(files):
 	""" Check Robocopy logfile for new files copied """
 	with open(_COPY_LOG, 'r') as logfile:
