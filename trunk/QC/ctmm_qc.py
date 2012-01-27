@@ -4,6 +4,9 @@ from argparse import ArgumentParser
 from datetime import date
 from string import Template
 from subprocess import Popen, PIPE
+from os.path import normpath, splitext
+from os import makedirs
+
 #from watchdog.observers import Observer
 #from watchdog.events import LoggingEventHandler
 import sys
@@ -34,10 +37,10 @@ _METRICS = {
 }
 
 # Paths (These should be adapted for the system they run on)
-_WEB_DIR = os.path.normpath('E:/Web')
-_NIST = os.path.normpath('C:/Users/nbic/Documents/NISTMSQCv1_2_0')
+_WEB_DIR = normpath('E:/Web')
+_NIST = normpath('C:/Users/nbic/Documents/NISTMSQCv1_2_0')
 _PROGRES_LOG = 'qc_status.log'
-_QC_HOME = os.path.normpath('E:/QC')
+_QC_HOME = normpath('E:/QC')
 
 # Command line arguments
 _IN_DIR = ''
@@ -66,9 +69,9 @@ def monitor_input():
 
         print "-----------\nProcessing:\n\t", f, "\n-----------\n"
         # Set for current file
-        raw_file = r'{0}\{1}'.format(_IN_DIR, f)
-        basename = os.path.splitext(f)[0]
-        outdir = r'{0}\{1}_QC\\'.format(_OUT_DIR, basename)
+        raw_file = normpath('{0}/{1}'.format(_IN_DIR, f))
+        basename = splitext(f)[0]
+        outdir = normpath('{0}/{1}/QC'.format(_OUT_DIR, basename))
 
         # Create folders for storing temp output as well as web output
         os.makedirs(outdir)
@@ -137,12 +140,12 @@ def _log_progress():
 def _manage_paths(basename, outdir):
     # Create directory on webserver part for storing images and the report
     today = date.today()
-    tree = os.path.normpath('{root}/{year}/{month}/{day}/{base}'.format(root=_WEB_DIR,
-                                                                        year=today.year,
-                                                                        month=today.month,
-                                                                        day=today.day,
-                                                                        base=basename))
-    os.makedirs(tree)
+    tree = normpath('{root}/{year}/{month}/{day}/{base}'.format(root=_WEB_DIR,
+                                                                year=today.year,
+                                                                month=today.month,
+                                                                day=today.day,
+                                                                base=basename))
+    makedirs(tree)
     return tree
 
 
@@ -175,12 +178,12 @@ def _run_NIST(rawfile, outdir):
 def _run_R_script(rawfile, webdir, basename):
     """After running the NIST metrics workflow, the mzXML file created can be read in R
     and processed further (graphics and basic metrics)"""
-    # Execute Rscript (arguments: input mzXML, output PDF prefix, MSlevel)
+    # Execute Rscript
     Rcmd = 'Rscript {0} {1} {2} {3}'.format(_R_GRAPHICS,
                                             # input mzXML
                                             rawfile,
-                                            # output PDF prefix
-                                            r'{0}\{1}'.format(webdir, basename),
+                                            # output image filename prefix
+                                            normpath('{0}/{1}'.format(webdir, basename)),
                                             # MSlevel
                                             1)
     _run_command(Rcmd)
@@ -188,8 +191,8 @@ def _run_R_script(rawfile, webdir, basename):
 
 def _create_metrics(rawfile, outdir, basename):
     """ Parses NIST metrics output file extracting relevant metrics subset """
-    metrics_file = os.path.normpath('{0}/{1}_report.msqc'.format(outdir, basename))
-    metrics_log_file = os.path.normpath('{0}.LOG'.format(metrics_file))
+    metrics_file = normpath('{0}/{1}_report.msqc'.format(outdir, basename))
+    metrics_log_file = '{0}.LOG'.format(metrics_file)
     print "\n### Metrics File: ", metrics_file
 
     # Extracting metrics from NIST report file
@@ -216,7 +219,7 @@ def _create_metrics(rawfile, outdir, basename):
 
 def _create_report(rawfile, webdir, basename):
     # Graphics to include
-    heatmap = r'{0}\{1}_heatmap.pdf'.format(webdir, basename)
+    heatmap = normpath('{0}/{1}_heatmap.pdf'.format(webdir, basename))
     ion_cnt = '{0}_ions.pdf'.format(basename)
 
     # Place values and graphics in template HTML file
@@ -224,39 +227,38 @@ def _create_report(rawfile, webdir, basename):
         template = f.readlines()
 
     report_template = Template(template)
-    report_updated = report_template.safe_substitute(
-        # General
-        raw_file=rawfile,
-        date='',
-        time='',
-        runtime='',
-        # Metrics
-        m_fs=_METRICS['f_size'],
-        m_ms1_scans=_METRICS['ms1_spectra'],
-        m_ms2_scans=_METRICS['ms2_spectra'],
-        m_f_ms1_rt=_METRICS['f_ms1_rt'],
-        m_l_ms1_rt=_METRICS['l_ms1_rt'],
-        m_m_p_w=_METRICS['m_p_w'],
-        m_i_i_t_ms1=_METRICS['i_i_t_ms1'],
-        m_i_i_t_ms2=_METRICS['i_i_t_ms2'],
-        m_p_c_pep=_METRICS['p_c_pep'],
-        m_p_c_ion=_METRICS['p_c_ion'],
-        m_p_c_ids=_METRICS['p_c_ids'],
-        # Figures
-        heatmap_img=heatmap,
-        ions_img=ion_cnt)
+    report_updated = report_template.safe_substitute(# General
+                                                     raw_file=rawfile,
+                                                     date='',
+                                                     time='',
+                                                     runtime='',
+                                                     # Metrics
+                                                     m_fs=_METRICS['f_size'],
+                                                     m_ms1_scans=_METRICS['ms1_spectra'],
+                                                     m_ms2_scans=_METRICS['ms2_spectra'],
+                                                     m_f_ms1_rt=_METRICS['f_ms1_rt'],
+                                                     m_l_ms1_rt=_METRICS['l_ms1_rt'],
+                                                     m_m_p_w=_METRICS['m_p_w'],
+                                                     m_i_i_t_ms1=_METRICS['i_i_t_ms1'],
+                                                     m_i_i_t_ms2=_METRICS['i_i_t_ms2'],
+                                                     m_p_c_pep=_METRICS['p_c_pep'],
+                                                     m_p_c_ion=_METRICS['p_c_ion'],
+                                                     m_p_c_ids=_METRICS['p_c_ids'],
+                                                     # Figures
+                                                     heatmap_img=heatmap,
+                                                     ions_img=ion_cnt)
 
     # Write report file to directory holding all reports
-    with open('{0}/{1}_report.html'.format(webdir, basename), 'w') as f:
+    with open(normpath('{0}/{1}_report.html'.format(webdir, basename)), 'w') as f:
         f.writelines(report_updated)
 
 
 # --- Temporary (workaround) functions ---
 def _run_msconvert(raw_file, outdir):
-    msconvert = r'{0}\bin\2562\msconvert.exe'.format(_NIST)
+    msconvert = normpath('{0}/bin/2562/msconvert.exe'.format(_NIST))
     # Both mzXML and MGF files need to be created
-    mzXML_cmd = r'{0} {1} -o {2} --mzXML -e .RAW.mzXML'.format(msconvert, raw_file, outdir)
-    MGF_cmd = r'{0} {1} -o {2} --mgf -e .RAW.MGF'.format(msconvert, raw_file, outdir)
+    mzXML_cmd = '{0} {1} -o {2} --mzXML -e .RAW.mzXML'.format(msconvert, raw_file, outdir)
+    MGF_cmd = '{0} {1} -o {2} --mgf -e .RAW.MGF'.format(msconvert, raw_file, outdir)
 
     # Execute msconvert for both output files
     print "\tConverting to mzXML.."
