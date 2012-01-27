@@ -87,9 +87,15 @@ read_mzXML <- function(mzXML) {
 
 ####
 args  = commandArgs(TRUE)
+
+cat("\n\n")
+print(args)
+cat("\n\n")
 mzXML = args[1] # Input mzXML filename
 o_PDF = args[2] # PDF path prefix
 msl   = args[3] # MS level
+
+
 
 data = read_mzXML(mzXML)
 
