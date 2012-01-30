@@ -22,18 +22,18 @@ _R_GRAPHICS = 'r_ms_graphics.R'
 # retrieve this value.
 _METRICS = {
     # Experiment details
-    'ms1_scans': ['', 0, re.compile('')],
-    'ms2_scans': ['', 0, re.compile('')],
+    #'ms1_scans': ['', 0, re.compile('')],
+    #'ms2_scans': ['', 0, re.compile('')],
     'f_ms1_rt': ['First and Last MS1 RT', 1, re.compile('First MS1\s+([0-9\.]+)')],
     'l_ms1_rt': ['First and Last MS1 RT', 2, re.compile('Last MS1\s+([0-9\.]+)')],
-    'm_p_w': ['', 0, re.compile('')],
+    #'m_p_w': ['', 0, re.compile('')],
     # Ion details
     'i_i_t_ms1': ['Ion Injection Times for IDs', 1, re.compile('MS1 Median\s+([0-9\.]+)')],
     'i_i_t_ms2': ['Ion Injection Times for IDs', 3, re.compile('MS2 Median\s+([0-9\.]+)')],
     # Peptide details
-    'p_c_pep': ['', 0, re.compile('')],
-    'p_c_ion': ['', 0, re.compile('')],
-    'p_c_ids': ['', 0, re.compile('')]
+    #'p_c_pep': ['', 0, re.compile('')],
+    #'p_c_ion': ['', 0, re.compile('')],
+    #'p_c_ids': ['', 0, re.compile('')]
 }
 
 # Paths (These should be adapted for the system they run on)
@@ -71,10 +71,11 @@ def monitor_input():
         # Set for current file and move file to output directory
 
         basename = splitext(f)[0]
-        dirname = '{0}_{1}_QC'.format(basename, int(random.random()*10000))
+        dirname = '{0}_{1}_QC'.format(basename, 3207)#int(random.random()*10000))
         outdir = normpath('{0}/{1}'.format(_OUT_DIR, dirname))
         metrics = _METRICS
         
+        """
         # Create folders for storing temp output as well as web output
         if not isdir(outdir):
             makedirs(outdir)
@@ -82,6 +83,7 @@ def monitor_input():
         # TODO: instead of moving the file, find out if NIST accepts a file as input
         # instead of a directory containing *.RAW files.
         move(normpath('{0}/{1}'.format(_IN_DIR, f)), outdir)
+        """
         raw_file = normpath('{0}/{1}'.format(outdir, f))
         webdir = _manage_paths(basename, outdir)
 
@@ -89,13 +91,13 @@ def monitor_input():
 
         # Run QC workflow
         print "Running NIST.."
-        _run_NIST(raw_file, outdir)
+        #_run_NIST(raw_file, outdir)
         print "Creating Graphics.."
-        _run_R_script(outdir, webdir, basename)
+        #_run_R_script(outdir, webdir, basename)
         print "Creating metrics.."
-        metrics = _create_metrics(raw_file, outdir, metrics, dirname)
+        metrics = _create_metrics(raw_file, outdir, metrics, dirname, basename)
         print "Creating report.."
-        _create_report(raw_file, webdir, basename, metrics)
+        #_create_report(raw_file, webdir, basename, metrics)
 
         # Once completed, update status and logfile
         files[f] = 'completed'
@@ -167,14 +169,15 @@ def _run_NIST(rawfile, outdir):
     _run_msconvert(rawfile, outdir)  # DONE
     print "\tRunning NIST pipeline.."
     nist_library = 'human_2011_05_26_it'
+    fasta = normpath('{0}/libs/{1}.fasta'.format(_NIST, nist_library))
     instrument = 'LTQ'
 
     # Run NIST pipeline
     # TODO: validate parameters, check if in- and out-dir can be the same
-    NIST_exe = normpath('perl {0}\scripts\run_NISTMSQC_pipeline.pl'.format(_NIST))
-    NIST_cmd = '{0} --in_dir {1} --out_dir {2} --library {3} --instrument_type {4} {5} {6} {7} {8}'.format(NIST_exe,
+    NIST_exe = normpath('perl {0}/scripts/run_NISTMSQC_pipeline.pl'.format(_NIST))
+    NIST_cmd = '{0} --in_dir {1} --out_dir {2} --library {3} --instrument_type {4} --fasta {5} {6} {7} {8} {9}'.format(NIST_exe,
                 #FIXME Separate runs of NIST should perhaps not use the same out dir
-                outdir, outdir, nist_library, instrument, '--overwrite_searches', '--pro_ms', '--log_file', '--mode lite')
+                outdir, outdir, nist_library, instrument, fasta, '--overwrite_searches', '--pro_ms', '--log_file', '--mode lite')
     #sys.exit("NIST_cmd: \n----------\n\n{0}\n\n".format(NIST_cmd))
 
     # TODOs:
@@ -188,22 +191,23 @@ def _run_R_script(outdir, webdir, basename):
     """After running the NIST metrics workflow, the mzXML file created can be read in R
     and processed further (graphics and basic metrics)"""
         # Execute Rscript
-    Rcmd = 'Rscript {0} "{1}/{2}.RAW.mzXML" "{3}" {4}'.format(_R_GRAPHICS,
+    Rcmd = normpath('Rscript {0} "{1}/{2}.RAW.mzXML" "{3}" {4} "{5}"'.format(_R_GRAPHICS,
                                             # input mzXML
                                             outdir,
                                             basename,
                                             # output image filename prefix
                                             normpath('{0}/{1}'.format(webdir, basename)),
                                             # MSlevel
-                                            1)
+                                            1,
+                                            # Logfile
+                                            normpath('{0}/{1}.RLOG'.format(outdir, basename))))
     print "R Command:\n\t", Rcmd
     _run_command(Rcmd)
 
 
-def _create_metrics(rawfile, outdir, metrics, dirname):
+def _create_metrics(rawfile, outdir, metrics, dirname, basename):
     """ Parses NIST metrics output file extracting relevant metrics subset """
     metrics_file = normpath('{0}/{1}_report.msqc'.format(outdir, dirname))
-    metrics_log_file = '{0}.LOG'.format(metrics_file)
     print "\n### Metrics File: ", metrics_file
 
     # Extracting metrics from NIST report file
@@ -215,18 +219,20 @@ def _create_metrics(rawfile, outdir, metrics, dirname):
         if index != None:
             result = metrics[metric][-1].search(nist_metrics[index + metrics[metric][1]])
             metrics[metric] = result.group(1)
-
-    # Extracting metrics (MS1, MS2 scans) from NIST log file
-    with open(metrics_log_file, 'r') as f:
-        nist_metrics_log = f.readlines()
+    print metrics
+    
+    # Extracting metrics (MS1, MS2 scans) from R log file
+    Rlogfile = normpath('{0}/{1}.RLOG'.format(outdir, basename))
+    with open(Rlogfile, 'r') as f:
+        Rlog = ''.join(f.readlines())
 
     # TODO: error handling
-    metrics['ms1_spectra'] = re.search('([0-9]+) ms1 spectra', nist_metrics_log).group(1)
-    metrics['ms2_spectra'] = re.search('([0-9]+) ms2 spectra', nist_metrics_log).group(1)
+    metrics['ms1_spectra'] = re.search('number of MS1 scans: ([0-9]+)', Rlog).group(1)
+    metrics['ms2_spectra'] = re.search('number of MS2 scans: ([0-9]+)', Rlog).group(1)
 
     # Other generic metrics
     metrics['f_size'] = "%0.1f" % (os.stat(rawfile).st_size / (1024 * 1024.0))
-    
+    print metrics
     return metrics
 
 
@@ -306,9 +312,9 @@ def _cleanup():
 
 def main(args):
     global _IN_DIR, _OUT_DIR, _COPY_LOG
-    _IN_DIR = args.in_folder
-    _OUT_DIR = args.out_folder
-    _COPY_LOG = args.copy_log
+    _IN_DIR = normpath('C:/Users/nbic/Documents/QC/input')#args.in_folder
+    _OUT_DIR = normpath('C:/Users/nbic/Documents/QC')#args.out_folder
+    _COPY_LOG = 'robocopy.log' #args.copy_log
 
     # Start monitoring
     monitor_input()
