@@ -49,7 +49,7 @@ _COPY_LOG = ''
 
 
 def monitor_input():
-    print 'Version 0.0.2'
+    print 'Version 0.0.3'
     """Checks input directory for new RAW files to analyze, keeping track
     of all processed files. Once a new RAW file has been placed in this directory
     a report will be generated with this file as input."""
@@ -71,11 +71,10 @@ def monitor_input():
         # Set for current file and move file to output directory
 
         basename = splitext(f)[0]
-        dirname = '{0}_{1}_QC'.format(basename, 3207)#int(random.random()*10000))
+        dirname = '{0}_{1}_QC'.format(basename, int(random.random()*10000))
         outdir = normpath('{0}/{1}'.format(_OUT_DIR, dirname))
         metrics = _METRICS
         
-        """
         # Create folders for storing temp output as well as web output
         if not isdir(outdir):
             makedirs(outdir)
@@ -83,7 +82,7 @@ def monitor_input():
         # TODO: instead of moving the file, find out if NIST accepts a file as input
         # instead of a directory containing *.RAW files.
         move(normpath('{0}/{1}'.format(_IN_DIR, f)), outdir)
-        """
+
         raw_file = normpath('{0}/{1}'.format(outdir, f))
         webdir = _manage_paths(basename, outdir)
 
@@ -91,13 +90,13 @@ def monitor_input():
 
         # Run QC workflow
         print "Running NIST.."
-        #_run_NIST(raw_file, outdir)
+        _run_NIST(raw_file, outdir)
         print "Creating Graphics.."
-        #_run_R_script(outdir, webdir, basename)
+        _run_R_script(outdir, webdir, basename)
         print "Creating metrics.."
         metrics = _create_metrics(raw_file, outdir, metrics, dirname, basename)
         print "Creating report.."
-        #_create_report(raw_file, webdir, basename, metrics)
+        _create_report(raw_file, webdir, basename, metrics)
 
         # Once completed, update status and logfile
         files[f] = 'completed'
@@ -167,6 +166,7 @@ def _run_NIST(rawfile, outdir):
     # ReAd4W2Mascot is not working on the VM, using 'msconvert' for the conversion
     # of RAW to mzXML, which needs to be done manually as well as fixing the mzXML header
     _run_msconvert(rawfile, outdir)  # DONE
+
     print "\tRunning NIST pipeline.."
     nist_library = 'human_2011_05_26_it'
     fasta = normpath('{0}/libs/{1}.fasta'.format(_NIST, nist_library))
@@ -219,7 +219,6 @@ def _create_metrics(rawfile, outdir, metrics, dirname, basename):
         if index != None:
             result = metrics[metric][-1].search(nist_metrics[index + metrics[metric][1]])
             metrics[metric] = result.group(1)
-    print metrics
     
     # Extracting metrics (MS1, MS2 scans) from R log file
     Rlogfile = normpath('{0}/{1}.RLOG'.format(outdir, basename))
@@ -227,12 +226,14 @@ def _create_metrics(rawfile, outdir, metrics, dirname, basename):
         Rlog = ''.join(f.readlines())
 
     # TODO: error handling
-    metrics['ms1_spectra'] = re.search('number of MS1 scans: ([0-9]+)', Rlog).group(1)
-    metrics['ms2_spectra'] = re.search('number of MS2 scans: ([0-9]+)', Rlog).group(1)
+    metrics['ms1_spectra'] = '{0} ({1})'.format(re.search('Number of MS1 scans: ([0-9]+)', Rlog).group(1),
+	                                            re.search('MS1 scans containing peaks: ([0-9]+)', Rlog).group(1))
+    metrics['ms2_spectra'] = '{0} ({1})'.format(re.search('Number of MS2 scans: ([0-9]+)', Rlog).group(1),
+	                                            re.search('MS2 scans containing peaks: ([0-9]+)', Rlog).group(1))
 
     # Other generic metrics
     metrics['f_size'] = "%0.1f" % (os.stat(rawfile).st_size / (1024 * 1024.0))
-    print metrics
+
     return metrics
 
 

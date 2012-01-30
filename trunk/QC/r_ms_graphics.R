@@ -24,7 +24,7 @@ ms_image <- function(mzXML, PDF, bins=100, min.mz=300, max.mz=2000, mslevel=1, p
 	
 	logger(paste("Done preparing data..", sep=""))
 	
-	bin.plot(m, s, n, PDF)
+    bin.plot(m, s, n, PDF)
 }
 
 bin.scan <- function(scan, bins, window, min.mz, max.mz, method) {
@@ -56,14 +56,18 @@ bin.plot <- function(m, s, n, PDF=FALSE) {
 	g <- seq(low[2], high[2], len=50)
 	b <- seq(low[3], high[3], len=50)
 	pallette <- rgb(r, g, b)
+
 	if (PDF != FALSE)
 		png(paste(PDF, '_heatmap.png', sep=''), width = 800, height = 800)
 	
+	## Change margins
+	par(mar=c(4, 4, 2, 1))
 	## Create image with legend
-	image.plot(s, n, log(t(m)), xlab="mass", ylab="Scan number")
+	image.plot(n, s, log(m), xlab="Scan number (RT)", ylab="mass", main="")
 	
 	if (PDF != FALSE)
 		dev.off()
+		
 	logger(paste("Done creating heatmap, saved as ", PDF, "_heatmap.png", sep=""))
 }
 
@@ -72,14 +76,16 @@ ion_count <- function(mzXML, PDF, mslevel) {
 	ions = c()
 	for (scan in 1:length(mzXML)) {
 		# Only plot scans with at least one peak
-		if (mzXML[[scan]]$metaData$peaksCount > 1)
+		if (mzXML[[scan]]$metaData$peaksCount > 1 & 
+			mzXML[[scan]]$metaData$msLevel == mslevel)
 			ions = c(ions, sum(mzXML[[scan]]$spectrum$intensity))
 	}
 	
 	if (PDF != FALSE)
 		png(paste(PDF, '_ions.png', sep=''), width = 800, height = 400)
-	
-	plot(ions, type='l', xlab="Scans (RT)", ylab="Total Ion Count")
+	## Change margins
+	par(mar=c(4,4,2,2))
+	plot(ions, type='l', xlab="Scan number (RT)", ylab="Total Ion Count", main="Ion count per scan")
 	
 	if (PDF != FALSE)
 		dev.off()
@@ -95,12 +101,17 @@ read_mzXML <- function(mzXML) {
 }
 
 ms_metrics <- function(mzXML) {
+	logger("## Metrics ##")
     # Retrieve all MS levels from the nested list into a single list
-    msLevel = unlist(lapply(mzXML, function(x) lapply(x, function(y) y$msLevel)))
+    msLevel = unlist(lapply(mzXML, function(x) lapply(x, function(y) c(y$msLevel, y$peaksCount))))
+	msLevel = matrix(msLevel, ncol=2, byrow=T)
     # Count MS levels
-    logger("## Metrics ##")
-    logger(paste("number of MS1 scans: ", length(which(msLevel == 1)), sep=""))
-    logger(paste("number of MS2 scans: ", length(which(msLevel == 2)), sep=""))    
+    ms1 = msLevel[which(msLevel[,1] == 1),]
+	ms2 = msLevel[which(msLevel[,1] == 2),]
+    logger(paste("Number of MS1 scans: ", length(ms1[,1]), sep=""))
+	logger(paste("\tMS1 scans containing peaks: ", length(which(ms1[,2] > 0)), sep=""))
+    logger(paste("Number of MS2 scans: ", length(ms2[,1]), sep=""))
+	logger(paste("\tMS2 scans containing peaks: ", length(which(ms2[,2] > 0)), sep=""))
 }
 
 logger <- function(logdata) {
