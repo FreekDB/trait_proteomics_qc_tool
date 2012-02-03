@@ -1,8 +1,7 @@
-from argparse import ArgumentParser
-from time import gmtime, strftime
+from time import gmtime, strftime, time
 from string import Template
 from subprocess import Popen, PIPE
-from os.path import normpath, splitext, isdir
+from os.path import normpath, splitext, isdir, exists
 from os import makedirs
 from shutil import move
 
@@ -24,12 +23,12 @@ _METRICS = {
     # Experiment details
     #'ms1_scans': ['', 0, re.compile('')],
     #'ms2_scans': ['', 0, re.compile('')],
-    'f_ms1_rt': ['First and Last MS1 RT', 1, re.compile('First MS1\s+([0-9\.]+)')],
-    'l_ms1_rt': ['First and Last MS1 RT', 2, re.compile('Last MS1\s+([0-9\.]+)')],
+    'f_ms1_rt': ['First and Last MS1 RT', 1, re.compile(r'First MS1\s+([0-9\.]+)')],
+    'l_ms1_rt': ['First and Last MS1 RT', 2, re.compile(r'Last MS1\s+([0-9\.]+)')],
     #'m_p_w': ['', 0, re.compile('')],
     # Ion details
-    'i_i_t_ms1': ['Ion Injection Times for IDs', 1, re.compile('MS1 Median\s+([0-9\.]+)')],
-    'i_i_t_ms2': ['Ion Injection Times for IDs', 3, re.compile('MS2 Median\s+([0-9\.]+)')],
+    'i_i_t_ms1': ['Ion Injection Times for IDs', 1, re.compile(r'MS1 Median\s+([0-9\.]+)')],
+    'i_i_t_ms2': ['Ion Injection Times for IDs', 3, re.compile(r'MS2 Median\s+([0-9\.]+)')],
     # Peptide details
     #'p_c_pep': ['', 0, re.compile('')],
     #'p_c_ion': ['', 0, re.compile('')],
@@ -42,23 +41,18 @@ _NIST = normpath('C:/Users/nbic/Documents/NISTMSQCv1_2_0')
 _PROGRES_LOG = 'qc_status.log'
 _QC_HOME = normpath('E:/QC')
 
-# Command line arguments
-_IN_DIR = ''
-_OUT_DIR = ''
-_COPY_LOG = ''
-
-
-def monitor_input():
-    print 'Version 0.0.3'
+def monitor_input(in_dir, out_dir, copy_log):
+    print 'Version 0.0.4'
+    
     """Checks input directory for new RAW files to analyze, keeping track
     of all processed files. Once a new RAW file has been placed in this directory
     a report will be generated with this file as input."""
     files = _read_logfile(_PROGRES_LOG)
-    files = _parse_robocopy_log(files)
+    files = _parse_robocopy_log(copy_log, files)
 
     # The following code should (preferably) be threaded, one thread to monitor for new files
     # and another thread for each file to be processed
-
+    return
     #sys.exit('Files: {0}'.format(files))
     if not files:
         sys.exit('No files to process..')
@@ -68,11 +62,13 @@ def monitor_input():
             continue
 
         print "-----------\nProcessing:\n\t", f, "\n-----------\n"
+        ## For calculating runtimes
+        t_start = time()
         # Set for current file and move file to output directory
 
         basename = splitext(f)[0]
-        dirname = '{0}_{1}_QC'.format(basename, int(random.random()*10000))
-        outdir = normpath('{0}/{1}'.format(_OUT_DIR, dirname))
+        dirname = '{0}_{1}_QC'.format(basename, 6835)#int(random.random()*10000))
+        outdir = normpath('{0}/{1}'.format(out_dir, dirname))
         metrics = _METRICS
         
         # Create folders for storing temp output as well as web output
@@ -81,7 +77,7 @@ def monitor_input():
         
         # TODO: instead of moving the file, find out if NIST accepts a file as input
         # instead of a directory containing *.RAW files.
-        move(normpath('{0}/{1}'.format(_IN_DIR, f)), outdir)
+        #move(normpath('{0}/{1}'.format(_IN_DIR, f)), outdir)
 
         raw_file = normpath('{0}/{1}'.format(outdir, f))
         webdir = _manage_paths(basename, outdir)
@@ -92,9 +88,9 @@ def monitor_input():
         print "Running NIST.."
         _run_NIST(raw_file, outdir)
         print "Creating Graphics.."
-        _run_R_script(outdir, webdir, basename)
+        #_run_R_script(outdir, webdir, basename)
         print "Creating metrics.."
-        metrics = _create_metrics(raw_file, outdir, metrics, dirname, basename)
+        metrics = _create_metrics(raw_file, outdir, metrics, dirname, basename, t_start)
         print "Creating report.."
         _create_report(raw_file, webdir, basename, metrics)
 
@@ -102,7 +98,7 @@ def monitor_input():
         files[f] = 'completed'
 
         # Update logfile showing completed analysis
-        _log_progress()
+        _log_progress()        
 
 
 def _read_logfile(logfile):
@@ -116,9 +112,9 @@ def _read_logfile(logfile):
     return files
 
 
-def _parse_robocopy_log(files):
+def _parse_robocopy_log(copy_log, files):
     """ Check Robocopy logfile for new files copied """
-    with open(_COPY_LOG, 'r') as logfile:
+    with open(copy_log, 'r') as logfile:
         log = logfile.readlines()
 
     # Parsing a file 'block'
@@ -165,7 +161,7 @@ def _run_NIST(rawfile, outdir):
     # -WORKAROUND-
     # ReAd4W2Mascot is not working on the VM, using 'msconvert' for the conversion
     # of RAW to mzXML, which needs to be done manually as well as fixing the mzXML header
-    _run_msconvert(rawfile, outdir)  # DONE
+    #_run_msconvert(rawfile, outdir)  # DONE
 
     print "\tRunning NIST pipeline.."
     nist_library = 'human_2011_05_26_it'
@@ -176,9 +172,8 @@ def _run_NIST(rawfile, outdir):
     # TODO: validate parameters, check if in- and out-dir can be the same
     NIST_exe = normpath('perl {0}/scripts/run_NISTMSQC_pipeline.pl'.format(_NIST))
     NIST_cmd = '{0} --in_dir {1} --out_dir {2} --library {3} --instrument_type {4} --fasta {5} {6} {7} {8} {9}'.format(NIST_exe,
-                #FIXME Separate runs of NIST should perhaps not use the same out dir
                 outdir, outdir, nist_library, instrument, fasta, '--overwrite_searches', '--pro_ms', '--log_file', '--mode lite')
-    #sys.exit("NIST_cmd: \n----------\n\n{0}\n\n".format(NIST_cmd))
+    sys.exit("NIST_cmd: \n----------\n\n{0}\n\n".format(NIST_cmd))
 
     # TODOs:
     #     - error handling
@@ -205,42 +200,72 @@ def _run_R_script(outdir, webdir, basename):
     _run_command(Rcmd)
 
 
-def _create_metrics(rawfile, outdir, metrics, dirname, basename):
+def _create_metrics(rawfile, outdir, metrics, dirname, basename, t_start):
     """ Parses NIST metrics output file extracting relevant metrics subset """
     metrics_file = normpath('{0}/{1}_report.msqc'.format(outdir, dirname))
-    print "\n### Metrics File: ", metrics_file
-
+    Rlogfile = normpath('{0}/{1}.RLOG'.format(outdir, basename))
     # Extracting metrics from NIST report file
-    with open(metrics_file, 'r') as f:
-        nist_metrics = f.readlines()
+    if exists(metrics_file):
+            metrics = _nist_metrics(metrics, metrics_file)
 
+    if exists(Rlogfile):
+            metrics = _generic_metrics(metrics, Rlogfile)
+
+    return metrics
+            
+def _nist_metrics(metrics, metrics_file):
+    try:
+        with open(metrics_file, 'r') as f:
+            nist_metrics = f.readlines()
+    except IOError:
+        for metric in metrics.keys():
+            metrics[metric] = 'NIST Failed'
+        return metrics
+        
     for metric in metrics.keys():
         index = next((num for num, line in enumerate(nist_metrics) if metrics[metric][0] in line), None)
         if index != None:
-            result = metrics[metric][-1].search(nist_metrics[index + metrics[metric][1]])
-            metrics[metric] = result.group(1)
+            result = metrics[metric][-1].match(nist_metrics[index + metrics[metric][1]])
+            metrics[metric] = result.group(1) if result else  "NIST Failed"
+    return metrics
     
+def _generic_metrics(metrics, logfile):
     # Extracting metrics (MS1, MS2 scans) from R log file
-    Rlogfile = normpath('{0}/{1}.RLOG'.format(outdir, basename))
-    with open(Rlogfile, 'r') as f:
-        Rlog = ''.join(f.readlines())
+    try:
+        with open(logfile, 'r') as f:
+            Rlog = ''.join(f.readlines())
+    except IOError:
+        return metrics
 
-    # TODO: error handling
-    metrics['ms1_spectra'] = '{0} ({1})'.format(re.search('Number of MS1 scans: ([0-9]+)', Rlog).group(1),
-	                                            re.search('MS1 scans containing peaks: ([0-9]+)', Rlog).group(1))
-    metrics['ms2_spectra'] = '{0} ({1})'.format(re.search('Number of MS2 scans: ([0-9]+)', Rlog).group(1),
-	                                            re.search('MS2 scans containing peaks: ([0-9]+)', Rlog).group(1))
+    
+    ms1_num = re.match('Number of MS1 scans: ([0-9]+)', Rlog)
+    ms1_peaks = re.match('MS1 scans containing peaks: ([0-9]+)', Rlog)
+    ms1_num = ms1_num.group(1) if ms1_num else "NA"
+    ms1_peaks = ms1_peaks.group(1) if ms1_peaks else "NA"
+    metrics['ms1_spectra'] = '{0} ({1})'.format(ms1_num, ms1_peaks)
+    
+    ms2_num = re.match('Number of MS2 scans: ([0-9]+)', Rlog)
+    ms2_peaks = re.match('MS2 scans containing peaks: ([0-9]+)', Rlog)
+    ms2_num = ms2_num.group(1) if ms2_num else "NA"
+    ms2_peaks = ms2_peaks.group(1) if ms2_peaks else "NA"
+    metrics['ms2_spectra'] = '{0} ({1})'.format(ms2_num, ms2_peaks)   
 
     # Other generic metrics
+    time = gmtime()
     metrics['f_size'] = "%0.1f" % (os.stat(rawfile).st_size / (1024 * 1024.0))
-
+    metrics['runtime'] = _convert_time(time() - t_start)
+    metrics['date'] = '{year}/{month}/{day} - {hour}:{min}'.format(year=strftime("%Y", time),
+                                                                   month=strftime("%b", time),
+                                                                   day=strftime("%d", time),
+                                                                   hour=strftime("%H", time),
+                                                                   min=strftime("%M",time))
     return metrics
 
 
 def _create_report(rawfile, webdir, basename, metrics):
     # Graphics to include
-    heatmap = normpath('{0}/{1}_heatmap.pdf'.format(webdir, basename))
-    ion_cnt = '{0}_ions.pdf'.format(basename)
+    heatmap = normpath('{0}/{1}_heatmap.png'.format(webdir, basename))
+    ion_cnt = '{0}/{1}_ions.png'.format(webdir, basename)
 
     # Place values and graphics in template HTML file
     with open('../web/templates/report.html', 'r') as f:
@@ -249,9 +274,8 @@ def _create_report(rawfile, webdir, basename, metrics):
     report_template = Template(template)
     report_updated = report_template.safe_substitute(# General
                                                      raw_file=rawfile,
-                                                     date='',
-                                                     time='',
-                                                     runtime='',
+                                                     date=metrics['date'],
+                                                     runtime=metrics['runtime'],
                                                      # Metrics
                                                      m_fs=metrics['f_size'],
                                                      m_ms1_scans=metrics['ms1_spectra'],
@@ -286,18 +310,6 @@ def _run_msconvert(raw_file, outdir):
     print "\tConverting to MGF.."
     _run_command(MGF_cmd)
 
-    """ NO NEED, adapted the R package reading in the mzXML file (does not check for version anymore)
-    # Change mzXML schema from 3.1 to 2
-    # TODO: copies the complete file, need to do an inplace replace!
-    print "\tChanging mzXML header to v2.0.."
-    mzXMLFile = '{0}{1}.RAW.mzXML'.format(_OUT_DIR, _BASE_NAME)
-    for line in fileinput.FileInput(mzXMLFile, inplace=1):
-        if 'http://sashimi.sourceforge.net/schema_revision/mzXML_3.1' in line:
-            print line.replace('3.0', '2.0'),
-        else:
-            print line,
-    """
-
 
 def _run_command(cmd):
     # Runs a single command, no output is returned
@@ -311,25 +323,14 @@ def _cleanup():
     pass
 
 
-def main(args):
-    global _IN_DIR, _OUT_DIR, _COPY_LOG
-    _IN_DIR = normpath('C:/Users/nbic/Documents/QC/input')#args.in_folder
-    _OUT_DIR = normpath('C:/Users/nbic/Documents/QC')#args.out_folder
-    _COPY_LOG = 'robocopy.log' #args.copy_log
-
-    # Start monitoring
-    monitor_input()
-
-
-if __name__ == "__main__":
-    # Create and parse commandline arguments
-    parser = ArgumentParser(description="QC-workflow for MS data using NIST metrics")
-    parser.add_argument('in_folder', type=str, help='Input folder containing (Thermo) RAW files outputted by a mass-spectrometer')
-    parser.add_argument('out_folder', type=str, help='Folder in which output (report) PDF files will be written')
-    parser.add_argument('copy_log', type=str, help='Logfile (local) that Robocopy uses to write status')
-
-    args = parser.parse_args()
-    sys.exit(main(args))
+def _convert_time(seconds):
+    hours = seconds / 3600
+    seconds -= 3600*hours
+    minutes = seconds / 60
+    seconds -= 60*minutes
+    if hours == 0:
+        return "%02d:%02d" % (minutes, seconds)
+    return "%02d:%02d:%02d" % (hours, minutes, seconds)
 
 
 """ *NOTES*

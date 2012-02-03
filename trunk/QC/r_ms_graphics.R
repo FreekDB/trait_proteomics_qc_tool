@@ -63,7 +63,7 @@ bin.plot <- function(m, s, n, PDF=FALSE) {
 	## Change margins
 	par(mar=c(4, 4, 2, 1))
 	## Create image with legend
-	image.plot(n, s, log(m), xlab="Scan number (RT)", ylab="mass", main="")
+	image.plot(n, s, log(m), xlab="Scan number (RT)", ylab="mass", main="Spectra overview")
 	
 	if (PDF != FALSE)
 		dev.off()
@@ -107,11 +107,11 @@ ms_metrics <- function(mzXML) {
 	msLevel = matrix(msLevel, ncol=2, byrow=T)
     # Count MS levels
     ms1 = msLevel[which(msLevel[,1] == 1),]
-	ms2 = msLevel[which(msLevel[,1] == 2),]
+    ms2 = msLevel[which(msLevel[,1] == 2),]
     logger(paste("Number of MS1 scans: ", length(ms1[,1]), sep=""))
-	logger(paste("\tMS1 scans containing peaks: ", length(which(ms1[,2] > 0)), sep=""))
+    logger(paste("\tMS1 scans containing peaks: ", length(which(ms1[,2] > 0)), sep=""))
     logger(paste("Number of MS2 scans: ", length(ms2[,1]), sep=""))
-	logger(paste("\tMS2 scans containing peaks: ", length(which(ms2[,2] > 0)), sep=""))
+    logger(paste("\tMS2 scans containing peaks: ", length(which(ms2[,2] > 0)), sep=""))
 }
 
 logger <- function(logdata) {
