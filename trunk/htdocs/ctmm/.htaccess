@@ -1,0 +1,19 @@
+#Enable indices 
+Options Indexes
+IndexOptions FancyIndexing
+IndexOptions FoldersFirst
+IndexOptions HTMLTable
+IndexOptions ScanHTMLTitles
+IndexOptions TrackModified
+IndexOptions VersionSort
+
+#Initially sort by mod date, or February would precede January
+IndexOrderDefault Ascending Date
+
+#Styling
+HeaderName /ctmm/header.html
+IndexStyleSheet /ctmm/style.css
+ReadmeName /ctmm/footer.html
+
+#Hide style files
+IndexIgnore header.html style.css footer.html
