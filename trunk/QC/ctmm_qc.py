@@ -4,9 +4,6 @@ from subprocess import Popen, PIPE
 from os.path import normpath, splitext, isdir, exists
 from os import makedirs
 from shutil import move
-
-#from watchdog.observers import Observer
-#from watchdog.events import LoggingEventHandler
 import random
 import sys
 import os
@@ -50,12 +47,9 @@ def monitor_input(in_dir, out_dir, copy_log):
     files = _read_logfile(_PROGRES_LOG)
     files = _parse_robocopy_log(copy_log, files)
 
-    # The following code should (preferably) be threaded, one thread to monitor for new files
-    # and another thread for each file to be processed
-    return
-    #sys.exit('Files: {0}'.format(files))
     if not files:
-        sys.exit('No files to process..')
+        print "No files to process"
+        return
 
     for f, status in files.iteritems():
         if status != 'new':
@@ -107,8 +101,11 @@ def _read_logfile(logfile):
     files = dict()
     with open(logfile, 'r') as logfile:
         for line in logfile:
-            name, status = line.split('\t')[0:2]
-            files[name] = status
+			try:
+				name, status = line.split('\t')[0:2]
+				files[name] = status
+			except:
+				return files
     return files
 
 
@@ -132,7 +129,6 @@ def _parse_robocopy_log(copy_log, files):
                             if f not in files:
                                 files[f] = 'new'
                     break
-
     return files
 
 

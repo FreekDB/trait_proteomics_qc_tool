@@ -17,13 +17,14 @@ class FileMonitor(FileSystemEventHandler):
         QC workflow on the newly copied file"""
         
         # A file modification also triggers a directory change, is ignored
-        if not event.__dict__['_is_directory']:
+        if not event.__dict__['_is_directory'] and \
+		'robocopy' in event.__dict__['_src_path']:
             t =  gmtime()
             print 'New event: {hour}:{min}:{sec}'.format(hour=strftime("%H", t), 
                                               min=strftime("%M",t), 
                                               sec=strftime("%S", t))
             print '#########################'
-            ctmm_qc.monitor_input(self.in_dir, self.out_dir, self.copy_log)
+            ctmm_qc.monitor_input(self.in_dir, self.out_dir, event.__dict__['_src_path'])
             print '#########################'
         else:
             return
@@ -60,7 +61,7 @@ if __name__ == "__main__":
     parser = ArgumentParser(description="QC-workflow monitor for MS data using NIST metrics")
     parser.add_argument('in_folder', type=str, help='Input folder containing (Thermo) RAW files outputted by a mass-spectrometer')
     parser.add_argument('out_folder', type=str, help='Folder in which output (report) PDF files will be written')
-    parser.add_argument('copy_log', type=str, help='Logfile (local) that Robocopy uses to write status')
+    parser.add_argument('copy_log', type=str, help='Logfile location (local) that Robocopy uses to write status (looking for "robocopy.log"')
 
     args = parser.parse_args()
     monitor(args)
