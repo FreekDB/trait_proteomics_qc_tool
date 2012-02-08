@@ -35,9 +35,9 @@ _METRICS = {
 
 # Paths (These should be adapted for the system they run on)
 _WEB_DIR = normpath('C:/Program Files (x86)/Apache Software Foundation/Apache2.2/htdocs/ctmm')
-_NIST = normpath('C:/ctmm/NISTMSQCv1_2_0')
+_NIST = normpath('C:/ctmm/NISTMSQCv1_2_0_CTMM')
 _PROGRES_LOG = 'qc_status.log'
-_QC_HOME = normpath('C:/ctmm/QC')
+_QC_HOME = normpath('C:/ctmm/')
 
 def monitor_input(indir, out_dir, copy_log):
     print 'Version 0.0.4'
@@ -87,7 +87,7 @@ def monitor_input(indir, out_dir, copy_log):
         print "Creating metrics.."
         metrics = _create_metrics(raw_file, outdir, metrics, dirname, basename, t_start)
         print "Creating report.."
-        _create_report(raw_file, webdir, basename, metrics)
+        #_create_report(raw_file, webdir, basename, metrics)
 
         # Once completed, update status and logfile
         files[f] = 'completed'
@@ -164,7 +164,7 @@ def _run_NIST(rawfile, outdir):
     # -WORKAROUND-
     # ReAd4W2Mascot is not working on the VM, using 'msconvert' for the conversion
     # of RAW to mzXML, which needs to be done manually as well as fixing the mzXML header
-    #_run_msconvert(rawfile, outdir)  # DONE
+    _run_msconvert(rawfile, outdir)  # DONE
 
     print "\tRunning NIST pipeline.."
     nist_library = 'hsa'
@@ -228,7 +228,7 @@ def _nist_metrics(metrics, metrics_file):
     for metric in metrics.keys():
         index = next((num for num, line in enumerate(nist_metrics) if metrics[metric][0] in line), None)
         if index:
-            result = metrics[metric][-1].match(nist_metrics[index + metrics[metric][1]])
+            result = metrics[metric][-1].search(nist_metrics[index + metrics[metric][1]])
             metrics[metric] = result.group(1) if result else "NIST Failed"
     return metrics
     
@@ -240,18 +240,18 @@ def _generic_metrics(metrics, rawfile, t_start, logfile):
     except IOError:
         return metrics
 
-    ms1_num = re.match('Number of MS1 scans: ([0-9]+)', Rlog)
-    ms1_peaks = re.match('MS1 scans containing peaks: ([0-9]+)', Rlog)
+    ms1_num = re.search('Number of MS1 scans: ([0-9]+)', Rlog)
+    ms1_peaks = re.search('MS1 scans containing peaks: ([0-9]+)', Rlog)
     ms1_num = ms1_num.group(1) if ms1_num else "NA"
     ms1_peaks = ms1_peaks.group(1) if ms1_peaks else "NA"
     metrics['ms1_spectra'] = '{0} ({1})'.format(ms1_num, ms1_peaks)
     
-    ms2_num = re.match('Number of MS2 scans: ([0-9]+)', Rlog)
-    ms2_peaks = re.match('MS2 scans containing peaks: ([0-9]+)', Rlog)
+    ms2_num = re.search('Number of MS2 scans: ([0-9]+)', Rlog)
+    ms2_peaks = re.search('MS2 scans containing peaks: ([0-9]+)', Rlog)
     ms2_num = ms2_num.group(1) if ms2_num else "NA"
     ms2_peaks = ms2_peaks.group(1) if ms2_peaks else "NA"
     metrics['ms2_spectra'] = '{0} ({1})'.format(ms2_num, ms2_peaks)   
-
+    
     # Other generic metrics
     metrics['f_size'] = "%0.1f" % (os.stat(rawfile).st_size / (1024 * 1024.0))
     metrics['runtime'] = _convert_time((time() - t_start))
@@ -268,7 +268,7 @@ def _create_report(rawfile, webdir, basename, metrics):
     print metrics
 
     # Place values and graphics in template HTML file
-    with open('../web/templates/report.html', 'r') as f:
+    with open(normpath('templates/report.html'), 'r') as f:
         template = f.readlines()
 
     report_template = Template(''.join(template))

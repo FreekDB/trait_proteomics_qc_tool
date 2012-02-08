@@ -9,15 +9,15 @@
 	<meta name="author" content="Marcel Kempenaar, BRS NBIC">
 	<!-- Date: 2012-01-23 -->
 </head>
-<link rel="stylesheet" type="text/css" href="/report/css/report.css" />
+<link rel="stylesheet" type="text/css" href="/ctmm/report/css/report.css" />
 <!-- Overriding placement of some divs for mobile devices -->
-<link rel="stylesheet" type="text/css" media="only screen and (max-device-width: 600px)" href="/report/css/report_small.css" />
+<link rel="stylesheet" type="text/css" media="only screen and (max-device-width: 600px)" href="/ctmm/report/css/report_small.css" />
 <body>
 <div id="description">
 	<div id="logos">
-		<img src="/report/images/ctmm_logo.gif" height="65"> <br/>
+		<img src="/ctmm/report/images/ctmm_logo.gif" height="65"> <br/>
 		<em>Powered by:</em><br />
-		<img src="/report/images/nbic_logo.png" height="25">
+		<img src="/ctmm/report/images/nbic_logo.png" height="25">
 	</div>
 	<div id="title">
 		QC-report on: '<em>${raw_file}</em>'
@@ -100,12 +100,12 @@
 </div>
 <div id="graphics">
 	<div id="heatmap">
-		<a href="./images/${heatmap_pdf}">	
+		<a href="${heatmap_pdf}">	
 			<img border="0" src="${heatmap_img}" width="480", heigth="480">
 		</a>
 	</div>
 	<div id="ions">
-		<a href="./images/${ions_pdf}">
+		<a href="${ions_pdf}">
 			<img border="0" src="${ions_img}" width="480" height="240">
 		</a>
 	</div>
