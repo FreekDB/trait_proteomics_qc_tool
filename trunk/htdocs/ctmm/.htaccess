@@ -3,6 +3,7 @@ Options Indexes
 IndexOptions FancyIndexing
 IndexOptions FoldersFirst
 IndexOptions HTMLTable
+IndexOptions NameWidth=*
 IndexOptions ScanHTMLTitles
 IndexOptions TrackModified
 IndexOptions VersionSort
@@ -15,5 +16,5 @@ HeaderName /ctmm/header.html
 IndexStyleSheet /ctmm/style.css
 ReadmeName /ctmm/footer.html
 
-#Hide style files
-IndexIgnore header.html style.css footer.html
+#Hide style files and report folder
+IndexIgnore header.html style.css footer.html report
