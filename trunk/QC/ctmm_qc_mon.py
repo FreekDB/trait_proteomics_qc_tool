@@ -19,20 +19,26 @@ class FileMonitor(FileSystemEventHandler):
         # A file modification also triggers a directory change, is ignored
         if not event.__dict__['_is_directory'] and \
 		'robocopy' in event.__dict__['_src_path']:
-            t =  gmtime()
-            print 'New event: {hour}:{min}:{sec}'.format(hour=strftime("%H", t), 
-                                              min=strftime("%M",t), 
-                                              sec=strftime("%S", t))
-            print '#########################'
-            ctmm_qc.monitor_input(self.in_dir, self.out_dir, event.__dict__['_src_path'])
-            print '#########################'
+            print "\n{0} New robocopy event".format(self.get_time())
+            print '### RUNNING CTMM QC ###'
+            ctmm_qc.qc_pipeline(self.in_dir, self.out_dir, event.__dict__['_src_path'])
+            print '#######################'
         else:
             return
 
+        """
         print event
         for key in sorted(event.__dict__):
             print key, event.__dict__[key]
-        print
+        """
+        print "\n{0} Monitoring for new RAW files..".format(self.get_time())
+
+    def get_time(self):
+        t = gmtime()
+        return "{hour}:{min}:{sec}".format(hour=strftime("%H", t), 
+                                           min=strftime("%M",t), 
+                                           sec=strftime("%S", t))
+
 
 def monitor(args):
     in_dir = args.in_folder

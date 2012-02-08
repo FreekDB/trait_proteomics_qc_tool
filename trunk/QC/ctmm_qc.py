@@ -5,6 +5,7 @@ from os.path import normpath, splitext, isdir, exists
 from os import makedirs
 from shutil import copy#move
 from argparse import ArgumentParser
+from datetime import timedelta
 import random
 import sys
 import os
@@ -19,18 +20,16 @@ _R_GRAPHICS = 'r_ms_graphics.R'
 # retrieve this value.
 _METRICS = {
     # Experiment details
-    #'ms1_scans': ['', 0, re.compile('')],
-    #'ms2_scans': ['', 0, re.compile('')],
     'f_ms1_rt': ['First and Last MS1 RT', 1, re.compile(r'First MS1\s+([0-9\.]+)')],
     'l_ms1_rt': ['First and Last MS1 RT', 2, re.compile(r'Last MS1\s+([0-9\.]+)')],
-    #'m_p_w': ['', 0, re.compile('')],
+    'm_p_w': ['Peak Width at Half Height for IDs', 1, re.compile('Median Value\s+([0-9\.]+)')],
     # Ion details
     'i_i_t_ms1': ['Ion Injection Times for IDs', 1, re.compile(r'MS1 Median\s+([0-9\.]+)')],
     'i_i_t_ms2': ['Ion Injection Times for IDs', 3, re.compile(r'MS2 Median\s+([0-9\.]+)')],
     # Peptide details
-    #'p_c_pep': ['', 0, re.compile('')],
-    #'p_c_ion': ['', 0, re.compile('')],
-    #'p_c_ids': ['', 0, re.compile('')]
+    'p_c_pep': ['Tryptic Peptide Counts', 1, re.compile('Peptides\s+([0-9\.]+)')],
+    'p_c_ion': ['Tryptic Peptide Counts', 2, re.compile('Ions\s+([0-9\.]+)')],
+    'p_c_ids': ['Tryptic Peptide Counts', 3, re.compile('Identifications\s+([0-9\.]+)')]
 }
 
 # Paths (These should be adapted for the system they run on)
@@ -39,8 +38,8 @@ _NIST = normpath('C:/ctmm/NISTMSQCv1_2_0_CTMM')
 _PROGRES_LOG = 'qc_status.log'
 _QC_HOME = normpath('C:/ctmm/')
 
-def monitor_input(indir, out_dir, copy_log):
-    print 'Version 0.0.4'
+def qc_pipeline(indir, out_dir, copy_log):
+    print 'Version 0.0.6f'
     
     """Checks input directory for new RAW files to analyze, keeping track
     of all processed files. Once a new RAW file has been placed in this directory
@@ -60,9 +59,8 @@ def monitor_input(indir, out_dir, copy_log):
         ## For calculating runtimes
         t_start = time()
         # Set for current file and move file to output directory
-
         basename = splitext(f)[0]
-        dirname = '{0}_{1}_QC'.format(basename, 4261)#int(random.random()*10000))
+        dirname = '{0}_{1}_QC'.format(basename, int(random.random()*10000))
         outdir = normpath('{0}/{1}'.format(out_dir, dirname))
         metrics = _METRICS
         
@@ -72,7 +70,7 @@ def monitor_input(indir, out_dir, copy_log):
         
         # TODO: instead of moving the file, find out if NIST accepts a (single) file as input
         # instead of a directory containing *.RAW files.
-        #copy(normpath('{0}/{1}'.format(indir, f)), outdir)
+        copy(normpath('{0}/{1}'.format(indir, f)), outdir)
 
         raw_file = normpath('{0}/{1}'.format(outdir, f))
         webdir = _manage_paths(basename, outdir)
@@ -81,13 +79,13 @@ def monitor_input(indir, out_dir, copy_log):
 
         # Run QC workflow
         print "Running NIST.."
-        #_run_NIST(raw_file, outdir)
+        _run_NIST(raw_file, outdir)
         print "Creating Graphics.."
-        #_run_R_script(outdir, webdir, basename)
+        _run_R_script(outdir, webdir, basename)
         print "Creating metrics.."
         metrics = _create_metrics(raw_file, outdir, metrics, dirname, basename, t_start)
         print "Creating report.."
-        #_create_report(raw_file, webdir, basename, metrics)
+        _create_report(raw_file, webdir, basename, metrics)
 
         # Once completed, update status and logfile
         files[f] = 'completed'
@@ -102,11 +100,11 @@ def _read_logfile(logfile):
     files = dict()
     with open(logfile, 'r') as logfile:
         for line in logfile:
-			try:
-				name, status = line.split('\t')[0:2]
-				files[name] = status
-			except:
-				return files
+            try:
+                name, status = line.split('\t')[0:2]
+                files[name] = status
+            except:
+                continue
     return files
 
 
@@ -199,7 +197,7 @@ def _run_R_script(outdir, webdir, basename):
                                             1,
                                             # Logfile
                                             normpath('{0}/{1}.RLOG'.format(outdir, basename))))
-    print "R Command:\n\t", Rcmd
+    #print "R Command:\n\t", Rcmd
     _run_command(Rcmd)
 
 
@@ -254,7 +252,7 @@ def _generic_metrics(metrics, rawfile, t_start, logfile):
     
     # Other generic metrics
     metrics['f_size'] = "%0.1f" % (os.stat(rawfile).st_size / (1024 * 1024.0))
-    metrics['runtime'] = _convert_time((time() - t_start))
+    metrics['runtime'] = str(timedelta(seconds=round(time() - t_start)))
     t = gmtime()
     metrics['date'] = '{year}/{month}/{day} - {hour}:{min}'.format(year=strftime("%Y", t),
                                                                    month=strftime("%b", t),
@@ -265,15 +263,13 @@ def _generic_metrics(metrics, rawfile, t_start, logfile):
 
 
 def _create_report(rawfile, webdir, basename, metrics):
-    print metrics
-
     # Place values and graphics in template HTML file
     with open(normpath('templates/report.html'), 'r') as f:
         template = f.readlines()
 
     report_template = Template(''.join(template))
     report_updated = report_template.safe_substitute(# General
-                                                     raw_file=rawfile,
+                                                     raw_file='{0}.RAW'.format(basename),
                                                      date=metrics['date'],
                                                      runtime=metrics['runtime'],
                                                      # Metrics
@@ -282,12 +278,12 @@ def _create_report(rawfile, webdir, basename, metrics):
                                                      m_ms2_scans=metrics['ms2_spectra'],
                                                      m_f_ms1_rt=metrics['f_ms1_rt'],
                                                      m_l_ms1_rt=metrics['l_ms1_rt'],
-                                                     #m_m_p_w=metrics['m_p_w'],
+                                                     m_m_p_w=metrics['m_p_w'],
                                                      m_i_i_t_ms1=metrics['i_i_t_ms1'],
                                                      m_i_i_t_ms2=metrics['i_i_t_ms2'],
-                                                     #m_p_c_pep=metrics['p_c_pep'],
-                                                     #m_p_c_ion=metrics['p_c_ion'],
-                                                     #m_p_c_ids=metrics['p_c_ids'],
+                                                     m_p_c_pep=metrics['p_c_pep'],
+                                                     m_p_c_ion=metrics['p_c_ion'],
+                                                     m_p_c_ids=metrics['p_c_ids'],
                                                      # Figures
                                                      heatmap_img='{0}_heatmap.png'.format(basename),
                                                      ions_img='{0}_ions.png'.format(basename),
@@ -295,7 +291,7 @@ def _create_report(rawfile, webdir, basename, metrics):
                                                      ions_pdf='{0}_ions.pdf'.format(basename))
 
     # Write report file to directory holding all reports
-    with open(normpath('{0}/{1}_report.html'.format(webdir, basename)), 'w') as f:
+    with open(normpath('{0}/index.html'.format(webdir)), 'w') as f:
         f.writelines(report_updated)
 
 
@@ -323,16 +319,6 @@ def _run_command(cmd):
 
 def _cleanup():
     pass
-
-
-def _convert_time(seconds):
-    hours = seconds / 3600
-    seconds -= 3600*hours
-    minutes = seconds / 60
-    seconds -= 60*minutes
-    if hours == 0:
-        return "%02d:%02d" % (minutes, seconds)
-    return "%02d:%02d:%02d" % (hours, minutes, seconds)
 
 
 if __name__ == "__main__":
