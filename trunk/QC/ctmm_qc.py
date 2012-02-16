@@ -6,6 +6,7 @@ from os import makedirs
 from shutil import copy#move
 from argparse import ArgumentParser
 from datetime import timedelta
+from parse_metrics import create_metrics
 import random
 import sys
 import os
@@ -14,23 +15,6 @@ import re
 # Globals
 _R_GRAPHICS = 'r_ms_graphics.R'
 
-# Compiles all metrics to extract from the NIST metrics output
-# Each value is a list of 3 holding the line to match (to get the line number),
-# the offset from that line that holds the value of interest and the regex to
-# retrieve this value.
-_METRICS = {
-    # Experiment details
-    'f_ms1_rt': ['First and Last MS1 RT', 1, re.compile(r'First MS1\s+([0-9\.]+)')],
-    'l_ms1_rt': ['First and Last MS1 RT', 2, re.compile(r'Last MS1\s+([0-9\.]+)')],
-    'm_p_w': ['Peak Width at Half Height for IDs', 1, re.compile('Median Value\s+([0-9\.]+)')],
-    # Ion details
-    'i_i_t_ms1': ['Ion Injection Times for IDs', 1, re.compile(r'MS1 Median\s+([0-9\.]+)')],
-    'i_i_t_ms2': ['Ion Injection Times for IDs', 3, re.compile(r'MS2 Median\s+([0-9\.]+)')],
-    # Peptide details
-    'p_c_pep': ['Tryptic Peptide Counts', 1, re.compile('Peptides\s+([0-9\.]+)')],
-    'p_c_ion': ['Tryptic Peptide Counts', 2, re.compile('Ions\s+([0-9\.]+)')],
-    'p_c_ids': ['Tryptic Peptide Counts', 3, re.compile('Identifications\s+([0-9\.]+)')]
-}
 
 # Paths (These should be adapted for the system they run on)
 _WEB_DIR = normpath('C:/Program Files (x86)/Apache Software Foundation/Apache2.2/htdocs/ctmm')
@@ -83,7 +67,7 @@ def qc_pipeline(indir, out_dir, copy_log):
         print "Creating Graphics.."
         _run_R_script(outdir, webdir, basename)
         print "Creating metrics.."
-        metrics = _create_metrics(raw_file, outdir, metrics, dirname, basename, t_start)
+        metrics = create_metrics(raw_file, outdir, metrics, dirname, basename, t_start)
         print "Creating report.."
         _create_report(raw_file, webdir, basename, metrics)
 
@@ -199,67 +183,6 @@ def _run_R_script(outdir, webdir, basename):
                                             normpath('{0}/{1}.RLOG'.format(outdir, basename))))
     #print "R Command:\n\t", Rcmd
     _run_command(Rcmd)
-
-
-def _create_metrics(rawfile, outdir, metrics, dirname, basename, t_start):
-    """ Parses NIST metrics output file extracting relevant metrics subset """
-    metrics_file = normpath('{0}/{1}_report.msqc'.format(outdir, dirname))
-    Rlogfile = normpath('{0}/{1}.RLOG'.format(outdir, basename))
-    # Extracting metrics from NIST report file
-    if exists(metrics_file):
-            metrics = _nist_metrics(metrics, metrics_file)
-
-    if exists(Rlogfile):
-            metrics = _generic_metrics(metrics, rawfile, t_start, Rlogfile)
-
-    return metrics
-            
-def _nist_metrics(metrics, metrics_file):
-    try:
-        with open(metrics_file, 'r') as f:
-            nist_metrics = f.readlines()
-    except IOError:
-        for metric in metrics.keys():
-            metrics[metric] = 'NIST Failed'
-        return metrics
-        
-    for metric in metrics.keys():
-        index = next((num for num, line in enumerate(nist_metrics) if metrics[metric][0] in line), None)
-        if index:
-            result = metrics[metric][-1].search(nist_metrics[index + metrics[metric][1]])
-            metrics[metric] = result.group(1) if result else "NIST Failed"
-    return metrics
-    
-def _generic_metrics(metrics, rawfile, t_start, logfile):
-    # Extracting metrics (MS1, MS2 scans) from R log file
-    try:
-        with open(logfile, 'r') as f:
-            Rlog = ''.join(f.readlines())
-    except IOError:
-        return metrics
-
-    ms1_num = re.search('Number of MS1 scans: ([0-9]+)', Rlog)
-    ms1_peaks = re.search('MS1 scans containing peaks: ([0-9]+)', Rlog)
-    ms1_num = ms1_num.group(1) if ms1_num else "NA"
-    ms1_peaks = ms1_peaks.group(1) if ms1_peaks else "NA"
-    metrics['ms1_spectra'] = '{0} ({1})'.format(ms1_num, ms1_peaks)
-    
-    ms2_num = re.search('Number of MS2 scans: ([0-9]+)', Rlog)
-    ms2_peaks = re.search('MS2 scans containing peaks: ([0-9]+)', Rlog)
-    ms2_num = ms2_num.group(1) if ms2_num else "NA"
-    ms2_peaks = ms2_peaks.group(1) if ms2_peaks else "NA"
-    metrics['ms2_spectra'] = '{0} ({1})'.format(ms2_num, ms2_peaks)   
-    
-    # Other generic metrics
-    metrics['f_size'] = "%0.1f" % (os.stat(rawfile).st_size / (1024 * 1024.0))
-    metrics['runtime'] = str(timedelta(seconds=round(time() - t_start)))
-    t = gmtime()
-    metrics['date'] = '{year}/{month}/{day} - {hour}:{min}'.format(year=strftime("%Y", t),
-                                                                   month=strftime("%b", t),
-                                                                   day=strftime("%d", t),
-                                                                   hour=strftime("%H", t),
-                                                                   min=strftime("%M",t))
-    return metrics
 
 
 def _create_report(rawfile, webdir, basename, metrics):

@@ -2,8 +2,58 @@ from watchdog.observers import Observer
 from watchdog.events import LoggingEventHandler, FileSystemEventHandler
 from time import gmtime, strftime, sleep
 from argparse import ArgumentParser
-import ctmm_qc
+import pythoncom
+import win32serviceutil
+import win32service
+import win32event
+import servicemanager
+import socket
 import sys
+# QC pipeline
+import ctmm_qc
+
+class AppServerSvc(win32serviceutil.ServiceFramework):
+    _svc_name = "CTMM_QC_Monitor"
+    _svc_display_name = "CTMM QC Monitor"
+    
+    def __init__(self, args):
+        win32serviceutil.ServiceFramework.__init__(self,args)
+        self.hWaitStop = win32event.CreateEvent(None,0,0,None)
+        socket.setdefaulttimeout(60)
+
+    def SvcStop(self):
+        self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
+        win32event.SetEvent(self.hWaitStop)
+
+    def SvcDoRun(self):
+        servicemanager.LogMsg(servicemanager.EVENTLOG_INFORMATION_TYPE,
+                              servicemanager.PYS_SERVICE_STARTED,
+                              (self._svc_name_,''))
+        self.main()
+
+    def main(self):
+        in_dir = normpath('C:/Users/brs/Documents/CTMM/Data')
+        out_dir = normpath('C:/Users/brs/Documents/CTMM/')
+        copy_log = normpath('C:/ctmm/')
+
+        print "Monitoring:  ", copy_log
+        print "Input Dir:   ", in_dir
+        print "Output Dir:  ", out_dir
+
+        # Create new FileMonitor that starts the QC workflow on file modification
+        event_handler = FileMonitor(in_dir, out_dir, copy_log)
+
+        observer = Observer()
+        observer.schedule(event_handler, copy_log, recursive=True)
+        observer.start()
+        try:
+            while True:
+                sleep(1)
+        except KeyboardInterrupt:
+            observer.stop()
+        observer.join()
+        pass
+        
 
 class FileMonitor(FileSystemEventHandler):
 
@@ -40,34 +90,5 @@ class FileMonitor(FileSystemEventHandler):
                                            sec=strftime("%S", t))
 
 
-def monitor(args):
-    in_dir = args.in_folder
-    out_dir = args.out_folder
-    copy_log = args.copy_log
-
-    print "Monitoring:  ", copy_log
-    print "Input Dir:   ", in_dir
-    print "Output Dir:  ", out_dir
-        
-    # Create new FileMonitor that starts the QC workflow on file modification
-    event_handler = FileMonitor(in_dir, out_dir, copy_log)
-    
-    observer = Observer()
-    observer.schedule(event_handler, copy_log, recursive=True)
-    observer.start()
-    try:
-        while True:
-            sleep(1)
-    except KeyboardInterrupt:
-        observer.stop()
-    observer.join()
-
 if __name__ == "__main__":
-    # Create and parse commandline arguments
-    parser = ArgumentParser(description="QC-workflow monitor for MS data using NIST metrics")
-    parser.add_argument('in_folder', type=str, help='Input folder containing (Thermo) RAW files outputted by a mass-spectrometer')
-    parser.add_argument('out_folder', type=str, help='Folder in which output (report) PDF files will be written')
-    parser.add_argument('copy_log', type=str, help='Logfile location (local) that Robocopy uses to write status (looking for "robocopy.log"')
-
-    args = parser.parse_args()
-    monitor(args)
+    win32serviceutil.HandleCommandLine(AppServerSvc)
