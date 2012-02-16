@@ -1,0 +1,12 @@
+2012-02-09 14:28:45	Reading mzXML file: C:\Users\brs\Documents\CTMM\LTQ_110101_ABC_HeLa_100ng_unlabeled_8399_QC\LTQ_110101_ABC_HeLa_100ng_unlabeled.RAW.mzXML
+2012-02-09 14:29:31	Done processing mzXML file, read 1 scans
+2012-02-09 14:29:31	Creating heatmap image..
+2012-02-09 14:29:43	Done preparing data..
+2012-02-09 14:29:43	Done creating heatmap, saved as C:\Program Files (x86)\Apache Software Foundation\Apache2.2\htdocs\ctmm\2012\Feb\09\LTQ_110101_ABC_HeLa_100ng_unlabeled\LTQ_110101_ABC_HeLa_100ng_unlabeled_heatmap.png
+2012-02-09 14:29:43	Creating total Ion count graph
+2012-02-09 14:29:44	Done creating total Ion count graph, saved as C:\Program Files (x86)\Apache Software Foundation\Apache2.2\htdocs\ctmm\2012\Feb\09\LTQ_110101_ABC_HeLa_100ng_unlabeled\LTQ_110101_ABC_HeLa_100ng_unlabeled_ions.png
+2012-02-09 14:29:44	## Metrics ##
+2012-02-09 14:29:44	Number of MS1 scans: 6349
+2012-02-09 14:29:44		MS1 scans containing peaks: 4135
+2012-02-09 14:29:44	Number of MS2 scans: 1871
+2012-02-09 14:29:44		MS2 scans containing peaks: 1871

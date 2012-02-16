@@ -1,0 +1,28 @@
+------------------------------------------------------------------------------
+
+  Started : Thu Jan 19 11:08:10 2012
+
+	                   6	F:\Backup\BRS\BRS2011P09\Data\E2\
+	    New File  		 211.2 m	110215_13.RAW
+
+  Monitor : Waiting for 1 minutes and 1 changes...
+
+
+------------------------------------------------------------------------------
+
+  Started : Thu Jan 19 11:10:10 2012
+
+	                   7	F:\Backup\BRS\BRS2011P09\Data\E2\
+	    New File  		 227.5 m	110308_02.RAW
+
+  Monitor : Waiting for 1 minutes and 1 changes...
+
+
+------------------------------------------------------------------------------
+
+  Started : Thu Jan 19 11:11:10 2012
+
+	                   4	F:\Backup\BRS\BRS2011P09\Data\E2\
+	    New File  		   1.6 g	U87_10mg_B.raw
+
+  Monitor : Waiting for 1 minutes and 1 changes...
