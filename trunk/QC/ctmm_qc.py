@@ -338,20 +338,4 @@ Mirror, 10 retries, waiting 30sec, monitor every 1min, display output, no progre
 -robocopy "source_path" "\\destination_path" / Mir / R:10 / W:30 / Log + :"\\log_path\logfile.txt" / mot:1 / tee / np / njh / njs
 - Note: replace \mir with \e if removing files from source but need to be kept in destination
 
-Graphics:
-- time/scan on horizontal (flip the axis)
-- projection to one axis (vertical total ion-count)
-- maxquant also has heatmap.
-- linegraph showing total ion-count per scan (histogram)
- -data might be in the pipeline already
-- heatmap for both MS1 and MS2
-
-Metrics:
-- Red metrics are based on library searching
-- OMMSA is database searching
-- Switch OMMSA with Mascot (if possible)
-- Add total time of the experiment (combine First / Last MS1)
-
-Notes:
-- Optimizing mzXML generation (speed)
 """
