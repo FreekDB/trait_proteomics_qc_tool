@@ -155,7 +155,7 @@ cat("\t\tCreating heatmap image..\n")
 ms_image(data, o_file, mslevel=msl)
 ## Creating total ion count plot of all data
 cat("\t\tCreating total Ion count plot..\n")
-#ion_count(data, o_file, mslevel=msl) 
+ion_count(data, o_file, mslevel=msl) 
 ## Generating metrics
 cat("\t\tGenerating metrics..\n")
 ms_metrics(data)
