@@ -86,7 +86,7 @@ def _read_logfile(logfile):
         for line in logfile:
             try:
                 name, status = line.split('\t')[0:2]
-                files[name] = status
+                files[name] = status.strip()
             except:
                 continue
     return files
@@ -130,10 +130,9 @@ def _log_progress(logfile, rawfile):
 def _manage_paths(basename, outdir):
     # Create directory on webserver part for storing images and the report
     time = gmtime()
-    tree = normpath('{root}/{year}/{month}/{day}/{base}'.format(root=_WEB_DIR,
+    tree = normpath('{root}/{year}/{month}/{base}'.format(root=_WEB_DIR,
                                                                 year=strftime("%Y", time),
                                                                 month=strftime("%b", time),
-                                                                day=strftime("%d", time),
                                                                 base=basename))
     if not isdir(tree):
         makedirs(tree)
