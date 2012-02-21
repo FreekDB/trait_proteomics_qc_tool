@@ -19,12 +19,14 @@ ms_image <- function(mzXML, pfile=FALSE, min.rt=NULL, max.rt=NULL, n.bins=100, m
 	m = matrix(ncol=length(s))
 	r = c()
 	rt = c()
+	n = c()
 	for (scan in 1:length(mzXML)) {
 	    ## Get data for all scans for the given ms level and with a minimum number of 'n.peaks' peaks. 
 		if (mzXML[[scan]]$metaData$peaksCount > n.peaks & 
 			mzXML[[scan]]$metaData$msLevel == mslevel) {
 			r = bin.scan(mzXML[[scan]]$spectrum, s, window, min.rt, max.rt, method)
 			m = rbind(m, r)
+			n = c(n, scan)
 			## Register all retention times used for x-axis
 			rt = c(rt, mzXML[[scan]]$metaData$retentionTime)
 		}
@@ -33,7 +35,7 @@ ms_image <- function(mzXML, pfile=FALSE, min.rt=NULL, max.rt=NULL, n.bins=100, m
 	
 	logger(paste("Done preparing data..", sep=""))
 	print("Creating image")
-    bin.plot(m, s, rt, pfile)
+    bin.plot(m, s, n, pfile)
 }
 
 bin.scan <- function(scan, bins, window, min.rt, max.rt, method) {

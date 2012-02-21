@@ -6,7 +6,7 @@ from os import makedirs
 from shutil import copy#move
 from argparse import ArgumentParser
 from datetime import timedelta
-from parse_metrics import create_metrics
+from parse_metrics import METRICS, create_metrics
 import random
 import sys
 import os
@@ -46,7 +46,7 @@ def qc_pipeline(indir, out_dir, copy_log):
         basename = splitext(f)[0]
         dirname = '{0}_{1}_QC'.format(basename, int(random.random()*10000))
         outdir = normpath('{0}/{1}'.format(out_dir, dirname))
-        metrics = _METRICS
+        metrics = METRICS
         
         # Create folders for storing temp output as well as web output
         if not isdir(outdir):

@@ -3,8 +3,8 @@ import re
 # Compiles all metrics to extract from the NIST metrics output
 # Each value is a list of 3 holding the line to match (to get the line number),
 # the offset from that line that holds the value of interest and the regex to
-# retrieve this value.
-_METRICS = {
+# retrieve this value. 
+METRICS = {
     # MS1
     'ms1-1': ['Ion Injection Times for IDs', 1, re.compile(r'MS1 Median\s+([0-9\.]+)')],
     'ms1-2a': ['MS1 During Middle', 1, re.compile(r'S/N Median\s+([0-9\.]+)')],
@@ -118,4 +118,4 @@ def _generic_metrics(metrics, rawfile, t_start, logfile):
     return metrics
 
 if __name__ == '__main__':
-    print _METRICS
+    print METRICS
