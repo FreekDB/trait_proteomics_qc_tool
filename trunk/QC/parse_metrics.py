@@ -6,10 +6,10 @@ import re
 import time
 
 
-def create_metrics(rawfile, dirname, t_start):
+def create_metrics(abs_rawfile, t_start):
     """
     Parses NIST metrics output file extracting relevant metrics subset
-    @param rawfile: filename of the raw results from the mass spectrometry device
+    @param abs_rawfile: absolute path to the raw results file from the mass spectrometry device
     @param dirname: the folder within the working directory
     @param t_start: timepoint at which QC pipeline started
     """
@@ -17,13 +17,12 @@ def create_metrics(rawfile, dirname, t_start):
     metrics = {}
 
     #Add basic metrics that do not require any log files
-    metrics.update(_extract_generic_metrics(rawfile, t_start))
+    metrics.update(_extract_generic_metrics(abs_rawfile, t_start))
 
     #Determine paths to log files
-    outdir, basename = os.path.split(rawfile)
-    basename = os.path.splitext(basename)[0]
-    metrics_file = os.path.normpath('{0}/{1}_report.msqc'.format(outdir, dirname))
-    Rlogfile = os.path.normpath('{0}/{1}.RLOG'.format(outdir, basename))
+    rawfilebase = os.path.splitext(abs_rawfile)[0]
+    metrics_file = rawfilebase + '.msqc'
+    Rlogfile = rawfilebase + '.RLOG'
 
     if os.path.exists(metrics_file):
         #Update metrics with values from NIST pipeline
