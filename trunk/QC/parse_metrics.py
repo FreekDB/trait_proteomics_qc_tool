@@ -1,4 +1,5 @@
 """Module to extract metrics from logfiles."""
+
 import datetime
 import os
 import re

@@ -1,3 +1,7 @@
+"""
+Module to monitor a robocopy log file for changes, and act on those changes by invoking CTMM QC pipeline.
+"""
+
 from argparse import ArgumentParser
 from ctmm_qc import qc_pipeline
 from ctmm_service import Service, instart

@@ -1,3 +1,7 @@
+"""
+Module to install and run the robocopy monitor as a Windows service.
+"""
+
 #TODO LICENSE!!!
 
 from os.path import splitext, abspath

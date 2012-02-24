@@ -1,3 +1,7 @@
+"""
+Module to.. TODO
+"""
+
 from argparse import ArgumentParser
 from os import makedirs
 from os.path import normpath, splitext, isdir
