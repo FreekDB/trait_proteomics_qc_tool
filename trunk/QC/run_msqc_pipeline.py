@@ -2,15 +2,16 @@
 Module to.. TODO
 """
 
-from argparse import ArgumentParser
 from os import makedirs
 from os.path import normpath, splitext, isdir
 from parse_metrics import create_metrics
-from shutil import copy  # move
+from shutil import copy # move
 from string import Template
 from subprocess import Popen, PIPE
 from time import gmtime, strftime, time
-import random
+import os.path
+import tempfile
+from shutil import move
 
 # Globals
 _R_GRAPHICS = 'r_ms_graphics.R'
@@ -36,46 +37,42 @@ def qc_pipeline(indir, out_dir, copy_log):
         print "No files to process"
         return
 
-    for f, status in files.iteritems():
+    for rawfile, status in files.iteritems():
         if status != 'new':
             continue
 
-        print "-----------\nProcessing:\n\t", f, "\n-----------\n"
+        print "-----------\nProcessing:\n\t", rawfile, "\n-----------\n"
         ## For calculating runtimes
         t_start = time()
         # Set for current file and move file to output directory
-        basename = splitext(f)[0]
-        dirname = '{0}_{1}_QC'.format(basename, int(random.random() * 10000))
-        outdir = normpath('{0}/{1}'.format(out_dir, dirname))
-
-        # Create folders for storing temp output as well as web output
-        if not isdir(outdir):
-            makedirs(outdir)
+        basename = splitext(rawfile)[0]
+        working_dir = tempfile.mkdtemp(suffix='_QC', prefix=basename, dir=out_dir)
 
         # TODO: instead of moving the file, find out if NIST accepts a (single) file as input
         # instead of a directory containing *.RAW files.
-        copy(normpath('{0}/{1}'.format(indir, f)), outdir)
+        original_path = normpath('{0}/{1}'.format(indir, rawfile))
+        abs_rawfile_path = normpath('{0}/{1}'.format(working_dir, rawfile))
+        copy(original_path, abs_rawfile_path)
 
-        raw_file = normpath('{0}/{1}'.format(outdir, f))
-        webdir = _manage_paths(basename, outdir)
+        webdir = _manage_paths(basename, working_dir)
 
-        files[f] = 'processing'
+        files[rawfile] = 'processing'
 
         # Run QC workflow
         print "Running NIST.."
-        _run_NIST(raw_file, outdir)
+        _run_NIST(abs_rawfile_path, working_dir)
         print "Creating Graphics.."
-        _run_R_script(outdir, webdir, basename)
+        _run_R_script(working_dir, webdir, basename)
         print "Creating metrics.."
-        metrics = create_metrics(raw_file, dirname, t_start)
+        metrics = create_metrics(abs_rawfile_path, t_start)
         print "Creating report.."
-        _create_report(raw_file, webdir, basename, metrics)
+        _create_report(abs_rawfile_path, webdir, basename, metrics)
 
         # Once completed, update status and logfile
-        files[f] = 'completed'
+        files[rawfile] = 'completed'
 
         # Update logfile showing completed analysis
-        _log_progress(_PROGRES_LOG, f)
+        _log_progress(_PROGRES_LOG, rawfile)
 
 
 def _read_logfile(logfile):
@@ -164,6 +161,13 @@ def _run_NIST(rawfile, outdir):
     #     - 'nistms_metrics.exe' has a tendency to hang if something is wrong, process should
     #       resume after a set amount of time
     _run_command(NIST_cmd)
+
+    #Rename .msqc file here, as it assumes the name of the containing folder, which is now some random file path
+    foldername = os.path.split(outdir)[1]
+    rawfilename = os.path.split(os.path.splitext(rawfile)[0])[1]
+    msqc_original = os.path.join(outdir, foldername + '_report.msqc')
+    msqc_destination = os.path.join(outdir, rawfilename + '.msqc')
+    move(msqc_original, msqc_destination)
 
 
 def _run_R_script(outdir, webdir, basename):
