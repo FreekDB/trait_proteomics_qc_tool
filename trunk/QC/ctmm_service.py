@@ -21,6 +21,7 @@ class Service(win32serviceutil.ServiceFramework):
     def log(self, msg):
         import servicemanager
         servicemanager.LogInfoMsg(str(msg))
+
         def sleep(self, sec):
                 win32api.Sleep(sec * 1000, True)
 
