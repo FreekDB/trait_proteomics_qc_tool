@@ -80,7 +80,7 @@ def qc_pipeline(indir, out_dir, copy_log):
 
 def _read_logfile(logfile):
     # Logfile layout:
-    # Filename    Status    Report_path
+    # Filename    Status
     files = dict()
     with open(logfile, 'r') as logfile:
         for line in logfile:

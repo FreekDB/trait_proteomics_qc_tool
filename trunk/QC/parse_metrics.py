@@ -15,19 +15,19 @@ METRICS = {
     'ms1-5b': ['Precursor m/z - Peptide Ion m/z', 3, re.compile(r'Mean Asolute\s+([0-9\.]+)')],
     'ms1-5c': ['Precursor m/z - Peptide Ion m/z', 4, re.compile(r'ppm Median\s+([0-9\.]+)')],
     'ms1-5d': ['Precursor m/z - Peptide Ion m/z', 5, re.compile(r'ppm InterQ\s+([0-9\.]+)')],
-
+    
     # MS2
     'ms2-1': ['Ion Injection Times for IDs', 3, re.compile(r'MS2 Median\s+([0-9\.]+)')],
     'ms2-2': ['MS2 ID Spectra', 3, re.compile(r'S/N Median\s+([0-9\.]+)')],
     'ms2-3': ['MS2 ID Spectra', 1, re.compile(r'NPeaks Median\s+([0-9\.]+)')],
-
+    
     # Peptide Identification
     'p-1': ['MS2 ID Spectra', 5, re.compile(r'ID Score Median\s+([0-9\.]+)')],
     'p-2a': ['Tryptic Peptide Counts', 3, re.compile(r'Identifications\s+([0-9\.]+)')],
     'p-2b': ['Tryptic Peptide Counts', 2, re.compile(r'Ions\s+([0-9\.]+)')],
     'p-2c': ['Tryptic Peptide Counts', 1, re.compile(r'Peptides\s+([0-9\.]+)')],
     'p-3': ['Peptide Counts', 4, re.compile(r'Semi/Tryp Peps\s+([0-9\.]+)')],
-
+    
     # Chromatography
     'c-1a': ['Fraction of Repeat Peptide IDs with Divergent', 1, re.compile(r'- 4 min\s+([0-9\.]+)')],
     'c-1b': ['Fraction of Repeat Peptide IDs with Divergent', 2, re.compile(r'\+ 4 min\s+([0-9\.]+)')],
@@ -46,7 +46,7 @@ METRICS = {
     'is-3a': ['Ion IDs by Charge State', 1, re.compile(r'Charge \+1\s+([0-9\.]+)')],
     'is-3b': ['Ion IDs by Charge State', 3, re.compile(r'Charge \+3\s+([0-9\.]+)')],
     'is-3c': ['Ion IDs by Charge State', 4, re.compile(r'Charge \+4\s+([0-9\.]+)')],
-
+    
     # Dynamic Sampling
     'ds-1a': ['Ratios of Peptide Ions IDed', 1, re.compile(r'Once/Twice\s+([0-9\.]+)')],
     'ds-1b': ['Ratios of Peptide Ions IDed', 2, re.compile(r'Twice/Thrice\s+([0-9\.]+)')],
@@ -64,12 +64,13 @@ def create_metrics(rawfile, outdir, metrics, dirname, basename, t_start):
     # Extracting metrics from NIST report file
     if exists(metrics_file):
             metrics = _nist_metrics(metrics, metrics_file)
-
+    
     if exists(Rlogfile):
             metrics = _generic_metrics(metrics, rawfile, t_start, Rlogfile)
-
+    
     return metrics
-            
+
+    
 def _nist_metrics(metrics, metrics_file):
     try:
         with open(metrics_file, 'r') as f:
@@ -78,14 +79,15 @@ def _nist_metrics(metrics, metrics_file):
         for metric in metrics.keys():
             metrics[metric] = 'NIST Failed'
         return metrics
-        
+    
     for metric in metrics.keys():
         index = next((num for num, line in enumerate(nist_metrics) if metrics[metric][0] in line), None)
         if index:
             result = metrics[metric][-1].search(nist_metrics[index + metrics[metric][1]])
             metrics[metric] = result.group(1) if result else "NIST Failed"
     return metrics
-    
+
+
 def _generic_metrics(metrics, rawfile, t_start, logfile):
     # Extracting metrics (MS1, MS2 scans) from R log file
     try:
