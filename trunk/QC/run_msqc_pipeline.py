@@ -5,13 +5,13 @@ Module to.. TODO
 from os import makedirs
 from os.path import normpath, splitext, isdir
 from parse_metrics import create_metrics
-from shutil import copy # move
+from shutil import move, copy # move
 from string import Template
 from subprocess import Popen, PIPE
 from time import gmtime, strftime, time
+import logging
 import os.path
 import tempfile
-from shutil import move
 
 # Globals
 _R_GRAPHICS = 'r_ms_graphics.R'
@@ -25,11 +25,12 @@ _QC_HOME = normpath('C:/ctmm/')
 
 
 def qc_pipeline(indir, out_dir, copy_log):
-    print 'Version 0.0.6f'
-
     """Checks input directory for new RAW files to analyze, keeping track
     of all processed files. Once a new RAW file has been placed in this directory
     a report will be generated with this file as input."""
+
+    print 'Version 0.0.6f'
+
     files = _read_logfile(_PROGRES_LOG)
     files = _parse_robocopy_log(copy_log, files)
 
@@ -48,16 +49,18 @@ def qc_pipeline(indir, out_dir, copy_log):
         basename = splitext(rawfile)[0]
         working_dir = tempfile.mkdtemp(suffix='_QC', prefix=basename, dir=out_dir)
 
-        # TODO: instead of moving the file, find out if NIST accepts a (single) file as input
+        # TODO instead of moving the file, find out if NIST accepts a (single) file as input
         # instead of a directory containing *.RAW files.
         original_path = normpath('{0}/{1}'.format(indir, rawfile))
         abs_rawfile_path = normpath('{0}/{1}'.format(working_dir, rawfile))
         copy(original_path, abs_rawfile_path)
 
-        webdir = _manage_paths(basename, working_dir)
+        #Create folder to contain html report
+        webdir = _manage_paths(basename)
 
         files[rawfile] = 'processing'
 
+        #TODO Change all print statements to use logging
         # Run QC workflow
         print "Running NIST.."
         _run_NIST(abs_rawfile_path, working_dir)
@@ -76,56 +79,83 @@ def qc_pipeline(indir, out_dir, copy_log):
 
 
 def _read_logfile(logfile):
+    """
+    Parse our own logfile of previously processed files. Return dictionary mapping filename to status.
+    @param logfile:
+    """
     # Logfile layout:
     # Filename    Status
     files = dict()
     with open(logfile, 'r') as logfile:
         for line in logfile:
-            try:
-                name, status = line.split('\t')[0:2]
-                files[name] = status.strip()
-            except:
+            #Split line
+            splitted = line.split('\t')
+            if len(splitted) != 2:
                 continue
+
+            #Get filename and status
+            name, status = splitted
+            files[name] = status.strip()
+
     return files
 
 
 def _parse_robocopy_log(copy_log, files):
     """ Check Robocopy logfile for new files copied """
     with open(copy_log, 'r') as logfile:
-        log = logfile.readlines()
+        loglines = logfile.readlines()
+
+    #Premise: Look between Started and Monitor lines for new files
+    #  Started : Thu Jan 19 11:08:10 2012
+    #
+    #                       6    F:\Backup\BRS\BRS2011P09\Data\E2\
+    #        New File           211.2 m    110215_13.RAW
+    #
+    #  Monitor : Waiting for 1 minutes and 1 changes...
 
     # Parsing a file 'block'
     # TODOs:
     #     - use regex
     #    - test with other valid file names
-    for i, j in enumerate(log):
-        if 'Started' in j:
-            for k, l in enumerate(log[i:]):
-                if 'Monitor' in l:
-                    for n in log[i:k + i]:
-                        if 'New File' in n:
-                            f = n.split("\t")[-1].split(' ')[-1].strip()
-                            # If a new file has been found, set status to 'new'
-                            if f not in files:
-                                files[f] = 'new'
-                    break
+    for lnr_start, logline in enumerate(loglines):
+        if 'Started' not in logline:
+            continue
+
+        #We found the start of a new robocopy log
+        for lnr_block, logline in enumerate(loglines[lnr_start:]):
+            if 'Monitor' not in logline:
+                continue
+
+            #All files completed between lnr_start & lnr_start + lnr_block finished copying
+            for logline in loglines[lnr_start:lnr_block + lnr_start]:
+                if 'New File' not in logline:
+                    continue
+
+                #Handle new files
+                newfile = logline.split('\t')[-1].strip()
+                # If a new file has been found, set status to 'new'
+                if newfile not in files:
+                    files[newfile] = 'new'
+            break
     return files
 
 
 def _log_progress(logfile, rawfile):
-    """Keeps track of processed RAW files, this logfile is used to create a
-    simple status report through a webserver.
-    TODO:
-    - add information (realtime update, completion date, etc.)
     """
-    log = "{0}\t{1}\n".format(rawfile, 'completed')
+    Keeps track of processed RAW files, this logfile is used to create a
+    simple status report through a webserver.
+    TODO add information (realtime update, completion date, etc.)
+    """
+    log = '{0}\t{1}'.format(rawfile, 'completed')
     with open(logfile, 'a') as f:
-        f.write(log)
-    pass
+        f.writeln(log)
 
 
-def _manage_paths(basename, outdir):
-    # Create directory on webserver part for storing images and the report
+def _manage_paths(basename):
+    """
+    Create directory on webserver part for storing images and the report.
+    @param basename: name of the .RAW file without extension
+    """
     time = gmtime()
     tree = normpath('{root}/{year}/{month}/{base}'.format(root=_WEB_DIR,
                                                                 year=strftime("%Y", time),
@@ -142,9 +172,9 @@ def _run_NIST(rawfile, outdir):
     # -WORKAROUND-
     # ReAd4W2Mascot is not working on the VM, using 'msconvert' for the conversion
     # of RAW to mzXML, which needs to be done manually as well as fixing the mzXML header
-    _run_msconvert(rawfile, outdir)  # DONE
+    _raw_format_conversions(rawfile, outdir)  # DONE
 
-    print "\tRunning NIST pipeline.."
+    logging.info("Running NIST pipeline..")
     nist_library = 'hsa'
     fasta = normpath('{0}/libs/{1}.fasta'.format(_NIST, nist_library))
     instrument = 'LTQ'
@@ -152,14 +182,20 @@ def _run_NIST(rawfile, outdir):
     # Run NIST pipeline
     # TODO: validate parameters, check if in- and out-dir can be the same
     NIST_exe = normpath('perl {0}/scripts/run_NISTMSQC_pipeline.pl'.format(_NIST))
-    NIST_cmd = '{0} --in_dir {1} --out_dir {2} --library {3} --instrument_type {4} --fasta {5} {6} {7} {8} {9}'.format(NIST_exe,
-                outdir, outdir, nist_library, instrument, fasta, '--overwrite_searches', '--pro_ms', '--log_file', '--mode lite')
-    #sys.exit("NIST_cmd: \n----------\n\n{0}\n\n".format(NIST_cmd))
+    NIST_cmd = '{0} --in_dir {1} --out_dir {2} --library {3} --instrument_type {4} --fasta {5} {6} {7} {8} {9}'\
+        .format(NIST_exe,
+                outdir,
+                outdir,
+                nist_library,
+                instrument,
+                fasta,
+                '--overwrite_searches',
+                '--pro_ms',
+                '--log_file',
+                '--mode lite')
 
-    # TODOs:
-    #     - error handling
-    #     - 'nistms_metrics.exe' has a tendency to hang if something is wrong, process should
-    #       resume after a set amount of time
+    # TODO error handling
+    # TODO 'nistms_metrics.exe' tends to hang if something is wrong, process should resume after a set amount of time
     _run_command(NIST_cmd)
 
     #Rename .msqc file here, as it assumes the name of the containing folder, which is now some random file path
@@ -173,17 +209,21 @@ def _run_NIST(rawfile, outdir):
 def _run_R_script(outdir, webdir, basename):
     """After running the NIST metrics workflow, the mzXML file created can be read in R
     and processed further (graphics and basic metrics)"""
+    #TODO There are a lot of weird path handling things here.
+    #I would just use raw_file+'.mzXML', run Rscript in a tempfolder, and move that tempfolder to the webdir at the end
+
     # Execute Rscript
-    Rcmd = normpath('Rscript {0} "{1}/{2}.RAW.mzXML" "{3}" {4} "{5}"'.format(_R_GRAPHICS,
-                                            # input mzXML
-                                            outdir,
-                                            basename,
-                                            # output image filename prefix
-                                            normpath('{0}/{1}'.format(webdir, basename)),
-                                            # MSlevel
-                                            1,
-                                            # Logfile
-                                            normpath('{0}/{1}.RLOG'.format(outdir, basename))))
+    Rcmd = normpath('Rscript {0} "{1}/{2}.RAW.mzXML" "{3}" {4} "{5}"'.format(
+                         _R_GRAPHICS,
+                         # input mzXML
+                         outdir,
+                         basename,
+                         # output image filename prefix
+                         normpath('{0}/{1}'.format(webdir, basename)),
+                         # MSlevel
+                         1,
+                         # Logfile
+                         normpath('{0}/{1}.RLOG'.format(outdir, basename))))
     #print "R Command:\n\t", Rcmd
     _run_command(Rcmd)
 
@@ -222,7 +262,10 @@ def _create_report(rawfile, webdir, basename, metrics):
 
 
 # --- Temporary (workaround) functions ---
-def _run_msconvert(raw_file, outdir):
+def _raw_format_conversions(raw_file, outdir):
+    """
+    Convert the .RAW file both to .mzXMl and to .MGF for compatibility with other tools.
+    """
     msconvert = normpath('{0}/converter/msconvert.exe'.format(_NIST))
     # Both mzXML and MGF files need to be created
     mzXML_cmd = '{0} {1} -o {2} --mzXML -e .RAW.mzXML'.format(msconvert, raw_file, outdir)
@@ -236,6 +279,7 @@ def _run_msconvert(raw_file, outdir):
 
 
 def _run_command(cmd):
+    #TODO Explain to me (Tim) what this method has to offer over the standard check_call method?
     # Runs a single command, no output is returned
     run = Popen(cmd, stdout=PIPE, stderr=PIPE)
     err = run.communicate()[1]
