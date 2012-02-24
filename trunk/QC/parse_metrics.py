@@ -1,10 +1,48 @@
+"""Module to extract metrics from logfiles."""
+import datetime
+import os
 import re
+import time
 
-# Compiles all metrics to extract from the NIST metrics output
-# Each value is a list of 3 holding the line to match (to get the line number),
-# the offset from that line that holds the value of interest and the regex to
-# retrieve this value. 
-METRICS = {
+
+def create_metrics(rawfile, dirname, t_start):
+    """
+    Parses NIST metrics output file extracting relevant metrics subset
+    @param rawfile: filename of the raw results from the mass spectrometry device
+    @param dirname: the folder within the working directory
+    @param t_start: timepoint at which QC pipeline started
+    """
+    #Start with and empty base
+    metrics = {}
+
+    #Add basic metrics that do not require any log files
+    metrics.update(_extract_generic_metrics(rawfile, t_start))
+
+    #Determine paths to log files
+    outdir, basename = os.path.split(rawfile)
+    basename = os.path.splitext(basename)[0]
+    metrics_file = os.path.normpath('{0}/{1}_report.msqc'.format(outdir, dirname))
+    Rlogfile = os.path.normpath('{0}/{1}.RLOG'.format(outdir, basename))
+
+    if os.path.exists(metrics_file):
+        #Update metrics with values from NIST pipeline
+        metrics.update(_extract_nist_metrics(metrics_file))
+
+    if os.path.exists(Rlogfile):
+        #Update metrics with some generic metrics
+        metrics.update(_extract_rlog_metrics(Rlogfile))
+
+    return metrics
+
+
+def _get_default_nist_metrics():
+    """
+    Compiles all metrics to extract from the NIST metrics output
+    Each value is a list of 3 holding the line to match (to get the line number),
+    the offset from that line that holds the value of interest and the regex to
+    retrieve this value.
+    """
+    return {
     # MS1
     'ms1-1': ['Ion Injection Times for IDs', 1, re.compile(r'MS1 Median\s+([0-9\.]+)')],
     'ms1-2a': ['MS1 During Middle', 1, re.compile(r'S/N Median\s+([0-9\.]+)')],
@@ -15,19 +53,19 @@ METRICS = {
     'ms1-5b': ['Precursor m/z - Peptide Ion m/z', 3, re.compile(r'Mean Asolute\s+([0-9\.]+)')],
     'ms1-5c': ['Precursor m/z - Peptide Ion m/z', 4, re.compile(r'ppm Median\s+([0-9\.]+)')],
     'ms1-5d': ['Precursor m/z - Peptide Ion m/z', 5, re.compile(r'ppm InterQ\s+([0-9\.]+)')],
-    
+
     # MS2
     'ms2-1': ['Ion Injection Times for IDs', 3, re.compile(r'MS2 Median\s+([0-9\.]+)')],
     'ms2-2': ['MS2 ID Spectra', 3, re.compile(r'S/N Median\s+([0-9\.]+)')],
     'ms2-3': ['MS2 ID Spectra', 1, re.compile(r'NPeaks Median\s+([0-9\.]+)')],
-    
+
     # Peptide Identification
     'p-1': ['MS2 ID Spectra', 5, re.compile(r'ID Score Median\s+([0-9\.]+)')],
     'p-2a': ['Tryptic Peptide Counts', 3, re.compile(r'Identifications\s+([0-9\.]+)')],
     'p-2b': ['Tryptic Peptide Counts', 2, re.compile(r'Ions\s+([0-9\.]+)')],
     'p-2c': ['Tryptic Peptide Counts', 1, re.compile(r'Peptides\s+([0-9\.]+)')],
     'p-3': ['Peptide Counts', 4, re.compile(r'Semi/Tryp Peps\s+([0-9\.]+)')],
-    
+
     # Chromatography
     'c-1a': ['Fraction of Repeat Peptide IDs with Divergent', 1, re.compile(r'- 4 min\s+([0-9\.]+)')],
     'c-1b': ['Fraction of Repeat Peptide IDs with Divergent', 2, re.compile(r'\+ 4 min\s+([0-9\.]+)')],
@@ -38,7 +76,7 @@ METRICS = {
     'c-4a': ['Peak Widths at Half Max over', 1, re.compile(r'First Decile\s+([0-9\.]+)')],
     'c-4b': ['Peak Widths at Half Max over', 3, re.compile(r'Last Decile\s+([0-9\.]+)')],
     'c-4c': ['Peak Widths at Half Max over', 2, re.compile(r'Median Value\s+([0-9\.]+)')],
-    
+
     # Ion Source
     'is-1a': ['MS1 During Middle', 14, re.compile(r'MS1 Jumps \>10x\s+([0-9\.]+)')],
     'is-1b': ['MS1 During Middle', 15, re.compile(r'MS1 Falls \<\.1x\s+([0-9\.]+)')],
@@ -46,7 +84,7 @@ METRICS = {
     'is-3a': ['Ion IDs by Charge State', 1, re.compile(r'Charge \+1\s+([0-9\.]+)')],
     'is-3b': ['Ion IDs by Charge State', 3, re.compile(r'Charge \+3\s+([0-9\.]+)')],
     'is-3c': ['Ion IDs by Charge State', 4, re.compile(r'Charge \+4\s+([0-9\.]+)')],
-    
+
     # Dynamic Sampling
     'ds-1a': ['Ratios of Peptide Ions IDed', 1, re.compile(r'Once/Twice\s+([0-9\.]+)')],
     'ds-1b': ['Ratios of Peptide Ions IDed', 2, re.compile(r'Twice/Thrice\s+([0-9\.]+)')],
@@ -54,70 +92,67 @@ METRICS = {
     'ds-2b': ['Middle Peptide Retention Time Period', 5, re.compile(r'MS2 Scans\s+([0-9\.]+)')],
     'ds-3a': ['MS1max/MS1sampled Abundance', 1, re.compile(r'Median All IDs\s+([0-9\.]+)')],
     'ds-3b': ['MS1max/MS1sampled Abundance', 7, re.compile(r'Med Bottom 1/2\s+([0-9\.]+)')]
-}
+    }
 
 
-def create_metrics(rawfile, outdir, metrics, dirname, basename, t_start):
-    """ Parses NIST metrics output file extracting relevant metrics subset """
-    metrics_file = normpath('{0}/{1}_report.msqc'.format(outdir, dirname))
-    Rlogfile = normpath('{0}/{1}.RLOG'.format(outdir, basename))
-    # Extracting metrics from NIST report file
-    if exists(metrics_file):
-            metrics = _nist_metrics(metrics, metrics_file)
-    
-    if exists(Rlogfile):
-            metrics = _generic_metrics(metrics, rawfile, t_start, Rlogfile)
-    
-    return metrics
+def _extract_generic_metrics(rawfile, t_start):
+    """
+    Return dictionary with generic metrics based on raw file name and runtime.
+    @param rawfile: the raw filename, only used to determine filesize
+    @param t_start: starttime of the QC run, used to determine runtime
+    """
+    generic_metrics = {}
+    # Other generic metrics
+    generic_metrics['f_size'] = "%0.1f" % (os.stat(rawfile).st_size / (1024 * 1024.0))
+    generic_metrics['runtime'] = str(datetime.timedelta(seconds=round(time.time() - t_start)))
+    t = time.gmtime()
+    generic_metrics['date'] = '{year}/{month}/{day} - {hour}:{min}'.format(year=time.strftime("%Y", t),
+                                                                           month=time.strftime("%b", t),
+                                                                           day=time.strftime("%d", t),
+                                                                           hour=time.strftime("%H", t),
+                                                                           min=time.strftime("%M", t))
+    return generic_metrics
 
-    
-def _nist_metrics(metrics, metrics_file):
-    try:
-        with open(metrics_file, 'r') as f:
-            nist_metrics = f.readlines()
-    except IOError:
-        for metric in metrics.keys():
-            metrics[metric] = 'NIST Failed'
-        return metrics
-    
-    for metric in metrics.keys():
-        index = next((num for num, line in enumerate(nist_metrics) if metrics[metric][0] in line), None)
+
+def _extract_nist_metrics(metrics_file):
+    """
+    Return dictionary with the values found in the metrics file based upon patterns defined in default nist metrics.
+    @param metrics_file: NIST metrics file
+    """
+    nist_metrics = _get_default_nist_metrics()
+    with open(metrics_file, 'r') as f:
+        lines = f.readlines()
+    #Loop over keys in default nist nist_metrics to find them in logfile
+    for metric in nist_metrics.keys():
+        index = next((num for num, line in enumerate(lines) if nist_metrics[metric][0] in line), None)
         if index:
-            result = metrics[metric][-1].search(nist_metrics[index + metrics[metric][1]])
-            metrics[metric] = result.group(1) if result else "NIST Failed"
-    return metrics
+            result = nist_metrics[metric][-1].search(lines[index + nist_metrics[metric][1]])
+            nist_metrics[metric] = result.group(1) if result else "NIST Failed"
+    return nist_metrics
 
 
-def _generic_metrics(metrics, rawfile, t_start, logfile):
+def _extract_rlog_metrics(logfile):
+    """
+    Return dictionary of values extracted from R logfile.
+    @param logfile: R-logfile to scan for # of scans, # of peaks and other generic metrics
+    """
+    rlog_metrics = {}
+
     # Extracting metrics (MS1, MS2 scans) from R log file
-    try:
-        with open(logfile, 'r') as f:
-            Rlog = ''.join(f.readlines())
-    except IOError:
-        return metrics
+    with open(logfile, 'r') as f:
+        Rlog = ''.join(f.readlines())
 
+    #TODO extract these patterns to an external dictionary, analogous to get_default_nist_metrics
     ms1_num = re.search('Number of MS1 scans: ([0-9]+)', Rlog)
     ms1_peaks = re.search('MS1 scans containing peaks: ([0-9]+)', Rlog)
     ms1_num = ms1_num.group(1) if ms1_num else "NA"
     ms1_peaks = ms1_peaks.group(1) if ms1_peaks else "NA"
-    metrics['ms1_spectra'] = '{0} ({1})'.format(ms1_num, ms1_peaks)
-    
+    rlog_metrics['ms1_spectra'] = '{0} ({1})'.format(ms1_num, ms1_peaks)
+
     ms2_num = re.search('Number of MS2 scans: ([0-9]+)', Rlog)
     ms2_peaks = re.search('MS2 scans containing peaks: ([0-9]+)', Rlog)
     ms2_num = ms2_num.group(1) if ms2_num else "NA"
     ms2_peaks = ms2_peaks.group(1) if ms2_peaks else "NA"
-    metrics['ms2_spectra'] = '{0} ({1})'.format(ms2_num, ms2_peaks)   
-    
-    # Other generic metrics
-    metrics['f_size'] = "%0.1f" % (os.stat(rawfile).st_size / (1024 * 1024.0))
-    metrics['runtime'] = str(timedelta(seconds=round(time() - t_start)))
-    t = gmtime()
-    metrics['date'] = '{year}/{month}/{day} - {hour}:{min}'.format(year=strftime("%Y", t),
-                                                                   month=strftime("%b", t),
-                                                                   day=strftime("%d", t),
-                                                                   hour=strftime("%H", t),
-                                                                   min=strftime("%M",t))
-    return metrics
+    rlog_metrics['ms2_spectra'] = '{0} ({1})'.format(ms2_num, ms2_peaks)
 
-if __name__ == '__main__':
-    print METRICS
+    return rlog_metrics

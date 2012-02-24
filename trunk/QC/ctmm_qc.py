@@ -1,16 +1,12 @@
-from time import gmtime, strftime, time
+from argparse import ArgumentParser
+from os import makedirs
+from os.path import normpath, splitext, isdir
+from parse_metrics import create_metrics
+from shutil import copy  # move
 from string import Template
 from subprocess import Popen, PIPE
-from os.path import normpath, splitext, isdir, exists
-from os import makedirs
-from shutil import copy#move
-from argparse import ArgumentParser
-from datetime import timedelta
-from parse_metrics import METRICS, create_metrics
+from time import gmtime, strftime, time
 import random
-import sys
-import os
-import re
 
 # Globals
 _R_GRAPHICS = 'r_ms_graphics.R'
@@ -22,9 +18,10 @@ _NIST = normpath('C:/ctmm/NISTMSQCv1_2_0_CTMM')
 _PROGRES_LOG = 'qc_status.log'
 _QC_HOME = normpath('C:/ctmm/')
 
+
 def qc_pipeline(indir, out_dir, copy_log):
     print 'Version 0.0.6f'
-    
+
     """Checks input directory for new RAW files to analyze, keeping track
     of all processed files. Once a new RAW file has been placed in this directory
     a report will be generated with this file as input."""
@@ -44,14 +41,13 @@ def qc_pipeline(indir, out_dir, copy_log):
         t_start = time()
         # Set for current file and move file to output directory
         basename = splitext(f)[0]
-        dirname = '{0}_{1}_QC'.format(basename, int(random.random()*10000))
+        dirname = '{0}_{1}_QC'.format(basename, int(random.random() * 10000))
         outdir = normpath('{0}/{1}'.format(out_dir, dirname))
-        metrics = METRICS
-        
+
         # Create folders for storing temp output as well as web output
         if not isdir(outdir):
             makedirs(outdir)
-        
+
         # TODO: instead of moving the file, find out if NIST accepts a (single) file as input
         # instead of a directory containing *.RAW files.
         copy(normpath('{0}/{1}'.format(indir, f)), outdir)
@@ -67,7 +63,7 @@ def qc_pipeline(indir, out_dir, copy_log):
         print "Creating Graphics.."
         _run_R_script(outdir, webdir, basename)
         print "Creating metrics.."
-        metrics = create_metrics(raw_file, outdir, metrics, dirname, basename, t_start)
+        metrics = create_metrics(raw_file, dirname, t_start)
         print "Creating report.."
         _create_report(raw_file, webdir, basename, metrics)
 
@@ -75,7 +71,7 @@ def qc_pipeline(indir, out_dir, copy_log):
         files[f] = 'completed'
 
         # Update logfile showing completed analysis
-        _log_progress(_PROGRES_LOG, f)        
+        _log_progress(_PROGRES_LOG, f)
 
 
 def _read_logfile(logfile):
@@ -209,7 +205,7 @@ def _create_report(rawfile, webdir, basename, metrics):
                                                      # Figures
                                                      heatmap_img='{0}_heatmap.png'.format(basename),
                                                      ions_img='{0}_ions.png'.format(basename),
-													 heatmap_pdf='{0}_heatmap.pdf'.format(basename),
+                                                     heatmap_pdf='{0}_heatmap.pdf'.format(basename),
                                                      ions_pdf='{0}_ions.pdf'.format(basename))
 
     # Write report file to directory holding all reports
@@ -240,7 +236,7 @@ def _run_command(cmd):
 
 
 def _cleanup():
-    pass
+    pass  # TODO implement clean up of working directory
 
 
 if __name__ == "__main__":
@@ -251,7 +247,7 @@ if __name__ == "__main__":
     parser.add_argument('copy_log', type=str, help='Logfile (local) that Robocopy uses to write status')
 
     args = parser.parse_args()
-    monitor_input(args.in_folder, args.out_folder, args.copy_log)
+    qc_pipeline(args.in_folder, args.out_folder, args.copy_log)
 
 """ *NOTES*
 
