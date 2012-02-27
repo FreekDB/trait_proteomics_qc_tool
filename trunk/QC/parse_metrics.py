@@ -72,7 +72,7 @@ def _get_default_nist_metrics():
     'c-2a': ['Middle Peptide Retention Time Period', 1, re.compile(r'Half Period\s+([0-9\.]+)')],
     'c-2b': ['Middle Peptide Retention Time Period', 7, re.compile(r'Pep ID Rate\s+([0-9\.]+)')],
     'c-3a': ['Peak Width at Half Height', 1, re.compile(r'Median Value\s+([0-9\.]+)')],
-    'c-3b': ['Peak width at Half height for IDs', 5, re.compile(r'Median Disper\s+([0-9\.]+)')],
+    'c-3b': ['Peak Width at Half height for IDs', 5, re.compile(r'Median Disper\s+([0-9\.]+)')],
     'c-4a': ['Peak Widths at Half Max over', 1, re.compile(r'First Decile\s+([0-9\.]+)')],
     'c-4b': ['Peak Widths at Half Max over', 3, re.compile(r'Last Decile\s+([0-9\.]+)')],
     'c-4c': ['Peak Widths at Half Max over', 2, re.compile(r'Median Value\s+([0-9\.]+)')],
@@ -127,7 +127,7 @@ def _extract_nist_metrics(metrics_file):
         index = next((num for num, line in enumerate(lines) if nist_metrics[metric][0] in line), None)
         if index:
             result = nist_metrics[metric][-1].search(lines[index + nist_metrics[metric][1]])
-            nist_metrics[metric] = result.group(1) if result else "NIST Failed"
+            nist_metrics[metric] = result.group(1) if result else "N/A"
     return nist_metrics
 
 

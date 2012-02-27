@@ -140,10 +140,15 @@ logger <- function(logdata) {
 ####
 args  = commandArgs(TRUE)
 
-mzXML   = args[1] # Input mzXML filename
-o_file  = args[2] # PNG/PDF path prefix
-msl     = args[3] # MS level
-logfile = args[4] # Log file for writing status and some metrics
+outdir   = args[1]
+basename = args[2]
+webdir   = args[3]
+mslvl    = args[4]
+
+mzXML  = paste(outdir, '/', basename, '.RAW.mzXML', sep="")
+o_file = paste(webdir, '/', basename, sep="")
+logfile = paste(outdir, '/', basename, '.RLOG', sep="")
+
 process = c()
 
 data = read_mzXML(mzXML)

@@ -11,15 +11,17 @@ import shutil
 
 
 class Test(unittest.TestCase):
+    '''
+    Test functions for the run_msqc_pipeline code in the QC module
+    '''
 
     def setUp(self):
         # Log files
         self.logfile = resource_filename(__name__, "data/qc_logfile.txt")
         self.robocopylog = resource_filename(__name__, "data/robocopylog.txt")
-        self.msqcRlog = resource_filename(__name__, "data/msqc_rlog.txt")
 
         # Data
-        self.mzXML = resource_filename(__name__, "data/ltq_subset.mzXML")
+        self.mzxml = resource_filename(__name__, "data/ltq_subset.mzXML")
         self.rawfile = 'ltq_ctmm_test_data.RAW'
         self.rawfilebase = os.path.split(os.path.splitext(self.rawfile)[0])[1]
         
@@ -44,16 +46,16 @@ class Test(unittest.TestCase):
         mgf_file = os.path.join(self.temp_folder, self.rawfilebase + '.RAW.MGF')
         self.failUnless(os.path.exists(mgf_file))
 
-    def test_run_NIST(self):
+    def test_run_nist(self):
         """Run NIST, and assure the msqc file is output to the correct path."""
-        run_msqc_pipeline._run_NIST(self.rawfile, self.temp_folder)
+        run_msqc_pipeline._run_nist(self.rawfile, self.temp_folder)
 
         #Check output path exists
         msqc_file = os.path.join(self.temp_folder, self.rawfilebase + '.msqc')
         self.failUnless(os.path.exists(msqc_file))
 
     def tearDown(self):
-        #Clean up
+        """ Cleans up tests """
         shutil.rmtree(self.temp_folder)
 
 if __name__ == '__main__':

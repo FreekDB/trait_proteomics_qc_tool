@@ -1,0 +1,826 @@
+NIST MS/MS Variability Metrics For 1 Runs On 01/02/12 05:45:58
+
+Run	Series	SNum	IDs	Pepions	FileName
+1	1	1	922	914	LTQ_110101_ABC_HeLa_100ng_unlabeled.RAW.MGF.TSV
+Precursor m/z Averages at Different MS1Total (TIC) Quartiles Over Middle Elution Period
+Run #, Q1 precursor m/z, Q2-Q1, Q3-Q1, Q4-Q1, Q1 TIC/1000, Q2/Q1, Q3/Q1, Q4/Q1
+1	606.53	589.90	609.47	523.95	2634	0.68	0.56	0.39	
+
+ID Charge Distributions At Different MS1max Quartiles For Charges 1-4
+1	1.8,0.0,2.6,0.0 	84,82,82,76 	21.9,21.9,21.1,28.9 	2.6,6.1,4.4,3.5 	
+
+Precursor m/z Averages and Differences from 1st Quartile (Largest) of Different MS1Total (TIC) Quartiles Over Full Elution Period
+Run #, Q1 precursor m/z, Q2-Q1, Q3-Q1, Q4-Q1, Q1 TIC/1000, Q2/Q1, Q3/Q1, Q4/Q1
+1	591.89	593.07	560.03	602.92	2236	0.65	0.39	0.13	rt=490.4	599.2	561.1	721.6	ch=2.65	2.31	2.33	2.28	len=11.74	12.48	11.86	14.81	tic/1000=902	2455	1222	696	
+
+ID Charge Distributions At Different MS1max Quartiles For Charges 1-4
+1	0.9,1.3,1.3,0.4 	164,160,148,123 	22.4,24.1,30.3,36.0 	4.8,3.9,3.5,9.6 	
+
+
+Spect Count to Abundance
+For Run 1
+0	0	0
+1	907	23000536
+2	6	60331728
+3	0	0
+4	0	0
+5	0	0
+6	0	0
+7	0	0
+8	0	0
+9	0	0
+10	0	0
+11	0	0
+12	0	0
+13	0	0
+14	0	0
+15	0	0
+16	0	0
+17	0	0
+18	0	0
+19	0	0
+
+Peak widths at half max at RT deciles
+Decile	1	2	3	4	5	6	7	8	9	10	
+Run 1	6.41	16.16	23.19	29.40	30.17	30.58	19.35	9.87	9.36	6.28	
+
+RT peptide deciles
+1	21.8	24.2	26.3	28.5	30.3	32.2	33.9	35.6	37.7	41.3	
+
+Oversampling vs RT
+1	1.03	1.04	1.00	1.03	0.98	0.95	0.99	0.99	0.95	1.04	
+
+Retention Time Decile Intervals
+1	0.00	0.00	0.00	0.00	0.00	0.00	0.00	0.00	0.00	
+
+Matching Low:High RT Peptide Ions
+Run	1	
+1	0.00:0.00	
+
+RT Median Differences for Matching Peptides
+Run	1	
+Median
+1	0.00	
+
+Median Dev
+1	0.0	
+
+Median Skew
+1	0.0	
+
+End Interrun and Decile Results
+
+Ions IDed	          0	
+Ion w/Reps	          0	
+Median log	       -1.$	
+Median log2	        0.0	
+Median dev	       0.00	
+IQuartile	       0.00	
+
+len=249	%tryp=75.9	ntryp=15	%tryp(all)=0.3	sp|P60174|TPIS_HUMAN Triosephosphate isomerase [Homo sapiens]
+Lab/Series	1
+nRuns/Series	1
+Coverage	0.38		0.00
+%TopPepAb	0.96		0.96
+%2ndPepAb	0.90		0.90
+UniqueIons	9.0		9.0
+SpectrumID	9.0		9.0
+log(AbsProt)	8.43		8.43
+%AllProtAb	0.89		9.32
+ObsAb/ExpctAb	3.43		0.00
+
+Classes of peptides for each lab - abundance, #ids, #spec
+Total-abundance	2.7e+8
+Tryptic-simple	0.7059
+Tryptic-near-D	0.1679
+Miss-mid	0.0000
+Miss-end	0.1263
+Semi-chymo	0.0000
+Semi-sample	0.0000
+Semi-source	0.0000
+Odd-mods	0.0000
+No-alkyl	0.0000
+
+Total-ions	9
+Tryptic-simple	0.6667
+Tryptic-near-D	0.2222
+Miss-mid	0.0000
+Miss-end	0.1111
+Semi-chymo	0.0000
+Semi-sample	0.0000
+Semi-source	0.0000
+Odd-mods	0.0000
+No-alkyl	0.0000
+
+Total-specid	9
+Tryptic-simple	0.6667
+Tryptic-near-D	0.2222
+Miss-mid	0.0000
+Miss-end	0.1111
+Semi-chymo	0.0000
+Semi-sample	0.0000
+Semi-source	0.0000
+Odd-mods	0.0000
+No-alkyl	0.0000
+
+Pep Ion Rank	% of Max-Deviation-IDs (one set for each Lab/Series..	%Abundance	Dev	Min-Max Rel RT	PepClass	Pre,Post AA	Peptide
+RankAb 1  	100.00-1.00-1		30.790	0.00	0.30-0.30	1	TR,EL IIYGGSVTGATCK/2_1/11,C,Carbamidomethyl 1 Tryptic
+RankAb 2  	 41.01-1.00-1		12.627	0.00	0.31-0.31	3	ER,VA RHVFGESDELIGQK/3 3 Tryp/MC1
+RankAb 3  	 40.61-1.00-1		12.505	0.00	0.39-0.39	1	RR,VA HVFGESDELIGQK/3 1 Tryptic
+RankAb 4  	 34.78-1.00-1		10.708	0.00	0.39-0.39	1	RR,VA HVFGESDELIGQK/2 1 Tryptic
+RankAb 5  	 34.02-1.00-1		10.474	0.00	0.55-0.55	1	IK,RH DCGATWVVLGHSER/2_1/1,C,Carbamidomethyl 1 Tryptic
+RankAb 6  	 27.66-1.00-1		8.517	0.00	0.19-0.19	1	PK,VT IAVAAQNCYK/2_1/7,C,Carbamidomethyl 1 Tryptic
+RankAb 7  	 20.50-1.00-1		6.312	0.00	0.61-0.61	1	YK,DC VTNGAFTGEISPGMIK/2 1 Tryptic
+RankAb 8  	 16.26-1.00-1		5.005	0.00	0.85-0.85	1	RK,VP QSLGELIGTLNAAK/2 1 Tryptic
+RankAb 9  	  9.95-1.00-1		3.063	0.00	0.03-0.03	1	GK,LR TATPQQAQEVHEK/3 1 Tryptic
+
+Ions IDed	          9	
+Ion w/Reps	          0	
+Median log	       -1.$	
+Median log2	       -1.$	
+Median dev	       0.00	
+IQuartile	       0.00	
+
+len=685	%tryp=65.7	ntryp=44	%tryp(all)=0.8	sp|P0CG48|UBC_HUMAN Ubiquitin [Homo sapiens]
+Lab/Series	1
+nRuns/Series	1
+Coverage	0.04		0.00
+%TopPepAb	0.82		0.82
+%2ndPepAb	0.54		0.54
+UniqueIons	2.0		2.0
+SpectrumID	2.0		2.0
+log(AbsProt)	7.96		7.96
+%AllProtAb	0.30		8.26
+ObsAb/ExpctAb	0.40		0.00
+Pep Ion Rank	% of Max-Deviation-IDs (one set for each Lab/Series..	%Abundance	Dev	Min-Max Rel RT	PepClass	Pre,Post AA	Peptide
+RankAb 1  	100.00-1.00-1		77.537	0.00	0.61-0.61	1	GK,AK TITLEVEPSDTIENVK/2 1 Tryptic
+RankAb 2  	 28.97-1.00-1		22.463	0.00	0.47-0.47	1	QK,LR ESTLHLVLR/3 1 Tryptic
+
+Ions IDed	          2	
+Ion w/Reps	          0	
+Median log	       -1.$	
+Median log2	       -1.$	
+Median dev	       0.00	
+IQuartile	       0.00	
+
+len=466	%tryp=75.5	ntryp=32	%tryp(all)=0.6	sp|P08670|VIME_HUMAN Vimentin [Homo sapiens]
+Lab/Series	1
+nRuns/Series	1
+Coverage	0.25		0.00
+%TopPepAb	0.99		0.99
+%2ndPepAb	1.74		1.74
+UniqueIons	10.0		10.0
+SpectrumID	10.0		10.0
+log(AbsProt)	8.60		8.60
+%AllProtAb	1.30		9.90
+ObsAb/ExpctAb	2.36		0.00
+
+Classes of peptides for each lab - abundance, #ids, #spec
+Total-abundance	3.5e+8
+Tryptic-simple	0.7857
+Tryptic-near-D	0.2143
+Miss-mid	0.0000
+Miss-end	0.0000
+Semi-chymo	0.0000
+Semi-sample	0.0000
+Semi-source	0.0000
+Odd-mods	0.0000
+No-alkyl	0.0000
+
+Total-ions	9
+Tryptic-simple	0.7778
+Tryptic-near-D	0.2222
+Miss-mid	0.0000
+Miss-end	0.0000
+Semi-chymo	0.0000
+Semi-sample	0.0000
+Semi-source	0.0000
+Odd-mods	0.0000
+No-alkyl	0.0000
+
+Total-specid	9
+Tryptic-simple	0.7778
+Tryptic-near-D	0.2222
+Miss-mid	0.0000
+Miss-end	0.0000
+Semi-chymo	0.0000
+Semi-sample	0.0000
+Semi-source	0.0000
+Odd-mods	0.0000
+No-alkyl	0.0000
+
+Pep Ion Rank	% of Max-Deviation-IDs (one set for each Lab/Series..	%Abundance	Dev	Min-Max Rel RT	PepClass	Pre,Post AA	Peptide
+RankAb 1  	100.00-1.00-1		24.537	0.00	0.38-0.38	1	TR,SL TYSLGSALRPSTSR/3 1 Tryptic
+RankAb 2  	 77.44-1.00-1		19.002	0.00	0.33-0.33	1	SK,NN FADLSEAANR/2 1 Tryptic
+RankAb 3  	 59.34-1.00-1		14.559	0.00	0.35-0.35	1	EK,FA VELQELNDR/2 1 Tryptic
+RankAb 4  	 38.25-1.00-1		9.384	0.00	0.53-0.53	1	LR,RT ETNLDSLPLVDTHSK/3 1 Tryptic
+RankAb 5  	 33.45-1.00-1		8.208	0.00	0.48-0.48	1	SR,EL LGDLYEEEMR/2 1 Tryptic
+RankAb 6  	 31.94-1.00-1		7.836	0.00	0.28-0.28	1	GR,EE LQDEIQNMK/2 1 Tryptic
+RankAb 7  	 27.99-1.00-1		6.868	0.00	0.21-0.21	1	TR,-- DGQVINETSQHHDDLE/3 1 Tryptic
+RankAb 8  	 23.53-1.00-1		5.773	0.00	0.37-0.37	1	SR,SS SLYASSPGGVYATR/2 1 Tryptic
+RankAb 9  	 15.62-1.00-1		3.833	0.00	0.85-0.85	1	NK,GQ ILLAELEQLK/2 1 Tryptic
+
+Ions IDed	          9	
+Ion w/Reps	          0	
+Median log	       -1.$	
+Median log2	       -1.$	
+Median dev	       0.00	
+IQuartile	       0.00	
+
+len=732	%tryp=54.2	ntryp=32	%tryp(all)=0.6	sp|P13010|XRCC5_HUMAN X-ray repair cross-complementing protein 5 [Homo sapiens]
+Lab/Series	1
+nRuns/Series	1
+Coverage	0.02		0.00
+%TopPepAb	0.08		0.08
+%2ndPepAb	0.00		0.00
+UniqueIons	1.0		1.0
+SpectrumID	1.0		1.0
+log(AbsProt)	6.82		6.82
+%AllProtAb	0.02		6.84
+ObsAb/ExpctAb	0.04		0.00
+Pep Ion Rank	% of Max-Deviation-IDs (one set for each Lab/Series..	%Abundance	Dev	Min-Max Rel RT	PepClass	Pre,Post AA	Peptide
+RankAb 1  	100.00-1.00-1		100.000	0.00	0.80-0.80	1	EK,IP TDTLEDLFPTTK/2 1 Tryptic
+
+Ions IDed	          1	
+Ion w/Reps	          0	
+Median log	       -1.$	
+Median log2	       -1.$	
+Median dev	       0.00	
+IQuartile	       0.00	
+
+
+Peptide Class summary of all peptides
+
+Classes of peptides for each lab - abundance, #ids, #spec
+Total-abundance	2.3e10
+Tryptic-simple	0.7128
+Tryptic-near-D	0.1265
+Miss-mid	0.0602
+Miss-end	0.0868
+Semi-chymo	0.0000
+Semi-sample	0.0033
+Semi-source	0.0000
+Odd-mods	0.0073
+No-alkyl	0.0022
+
+Total-ions	713
+Tryptic-simple	0.6957
+Tryptic-near-D	0.1318
+Miss-mid	0.0631
+Miss-end	0.0884
+Semi-chymo	0.0000
+Semi-sample	0.0070
+Semi-source	0.0000
+Odd-mods	0.0098
+No-alkyl	0.0028
+
+Total-specid	719
+Tryptic-simple	0.6982
+Tryptic-near-D	0.1307
+Miss-mid	0.0626
+Miss-end	0.0876
+Semi-chymo	0.0000
+Semi-sample	0.0070
+Semi-source	0.0000
+Odd-mods	0.0097
+No-alkyl	0.0028
+
+
+Distribution of Protein Abundance
+
+ProteinsbyRank
+Series1_y_0
+
+Most abundant protein statistics
+Series  	1	
+Top 90% Ab	0	
+Top 75% Ab	0	
+Top 50% Ab	0	
+Top Fractab	0.0000	
+Top 10 Fractab	0.0000	
+Top 100 Fractab	0.0000	
+
+Normalization Sums (log10)
+Per Lab/Run	1
+1st Peptide Ion	9.9
+2nd Peptide Ion	9.6
+Protein Sum	12.5
+Prot Sum/Len	10.0
+
+
+End Protein Analysis
+
+Run x	Run y	RTRel-med	RTRel-av	MS1mxDev	QBigOverlap	QSmallOverlap	PepsInCommon	Q1RTExcess	+-	Q4RTExcess	+-	Excess1Decile%	Excess10Decile%	RTdev-Early/Middle	RTdev-Late/Middle	RT-DevMovAv	mz-DevMovAv	RT-AvgMovAv	mz-AvgMovAv	RT val Q4/Q1	m/z val Q4/Q1	m/z RT Q4/Q1	abRelChState	RT vs Mz Dev	RT vs Mz Avg	RT vs Mz Q4/Q1	Med-Ch all ratio	IQ-Ch all ratio	NIons Ch all	Med-Ch 32 ratio	IQ-Ch 32 ratio	NIons 32 all	RT Dev Abratio q1/middle	q2	q3	q4	RT Med Abratio q1/middle	q2	q3	q4	m/z Med Abratio q1/middle	q2	q3	q4	3+/2+	m/zMedian	PeptidesInCommon
+1	1	0.000	0.000	0.000	0.000	0.000	868	0.00	0	0.00	0	0.0	0.0	0.00	0.00	0.00	0.00	0.00	0.00	1.00	1.00	0	1.00	1.00	0	0.00	0.00	0.00	0.00	0.00	0.00	0.00	0.00	0.00	0.00	0.00	0.00	0.00	0.00	0.00	0.00	0.00	0.00	0.00	0.00	589.9	0
+
+Ab Deviation vs Difference in Run Order
+Lab 1	
+AvgDel	
+MedDel	
+
+Median RT Rank vs Difference in Run Order
+Ab Deviation vs Difference in Run Order - 
+AvgDel	
+MedDel	
+
+
+Begin Runseries Results
+
+Begin Series=1
+
+Files Analyzed (1)
+1	LTQ_110101_ABC_HeLa_100ng_unlabeled.RAW.MGF.TSV
+
+Run Number	1	
+
+Spectrum Counts
+MS2 Scans	5955	
+MS1 Scans/Full	6348	
+MS1 Scans/Other	0	
+
+First and Last MS1 RT (min)
+First MS1	0.10	
+Last MS1 	0.00	
+
+Tryptic Peptide Counts
+Peptides  	859	
+Ions    	905	
+Identifications	913	
+Abundance Pct	99.32	
+Abundance/1000	3.0e+7	
+Ions/Peptide	1.05	
+IDs/Peptide	1.06	
+
+Peptide Counts
+Peptides  	868	
+Ions    	914	
+Identifications	922	
+Semi/Tryp Peps	0.010	
+Semi/Tryp Cnts	0.010	
+Semi/Tryp Abund	0.007	
+Miss/Tryp Peps	0.149	
+Miss/Tryp Cnts	0.156	
+Miss/Tryp Abund	0.139	
+Top  50 IDs	50	
+Top 100 IDs	99	
+Top 200 IDs	198	
+Id%  50 Top	8.7	
+Id% 100 Top	8.8	
+Id% 200 Top	13.1	
+Ab% 50 Top	8.7	
+Ab% 100 Top	9.0	
+Ab% 200 Top	11.8	
+IdSemi%  50	0.0	
+IdSemi% 100	1.1	
+IdSemi% 200	0.6	
+AbSemi% 50	0.0	
+AbSemi% 100	1.0	
+AbSemi% 200	0.6	
+Net Oversample	1.07	
+Ions/Peptide	1.05	
+IDs/Peptide	1.06	
+
+Different Proteins
+1 or more Peps	219	
+>1 Peptides	113	
+
+Middle Peptide Retention Time Period (min)
+Half Period	9.35	
+Start Time	25.30	
+Mid Time	30.10	
+Qratio Time	0.95	
+MS2 scans	607	
+MS1 Scans	932	
+Pep ID Rate	46.42	
+ID Rate 	15.19	
+ID Efficiency	0.23	
+
+MS1 During Middle (and Early) Peptide Retention Period
+S/N Median	0.0	
+TIC Median/1000	57	
+Npeaks Median	12	
+Scan-to-Scan	64.492	
+S2S-3Q/Med	2.226	
+S2S-1Qrt/Med	1.030	
+S2S-2Qrt/Med	0.926	
+S2S-3Qrt/Med	1.025	
+S2S-4Qrt/Med	0.995	
+ESI Off Time	7.89	
+Max MS1 Jump	1424	
+Max MS1 Fall	1375	
+MS1 Jumps >10x	560	
+MS1 Falls <.1x	562	
+ESI Off LowRT	4.30	
+Max Jump LowRT	7.4e+5	
+Max Fall LowRT	2330	
+MS1 LowRT >10x	264	
+MS1 LowRT <.1x	271	
+ESI Off HiRT	3.46	
+Max Jump HiRT	-1.$e+0	
+Max Fall HiRT	-1.$e+0	
+MS1 HiRT >10x	209	
+MS1 HiRT <.1x	216	
+
+MS1 Total Ion Current For Different RT Periods
+1st Quart ID	0.23	
+Middle ID	0.68	
+Last ID Quart	0.98	
+To End of Run	0.02	
+
+Total Ion Current For IDs at Peak Maxima
+Med TIC ID/1000	1145	
+InterQ TIC	3.17	
+Mid InterQ TIC	3.17	
+
+Precursor m/z for IDs
+Median  	589.90	
+Half Width	207.43	
+Quart Ratio	1.421	
+Precursor Min	300.4	
+Precursor Max	1371.1	
+Med @ Q1 TIC	591.9	
+Med @ Q2 TIC	593.1	
+Med @ Q3 TIC	560.0	
+Med @ Q4 TIC	602.9	
+Med @ Q1 RT	490.4	
+Med @ Q2 RT	599.2	
+Med @ Q3 RT	561.1	
+Med @ Q4 RT	721.6	
+Med @ Q1 RT/+2	414.7	
+Med @ Q2 RT/+2	565.3	
+Med @ Q3 RT/+2	511.6	
+Med @ Q4 RT/+2	668.9	
+Med Charge +1	998.3	
+Med Charge +2	616.2	
+Med Charge +3	523.4	
+Med Charge +4	477.6	
+
+Number of Ions vs Charge
+Charge +1	9	
+Charge +2	595	
+Charge +3	257	
+Charge +4	50	
+Charge +5	3	
++2 @ Q1 RT	101	
++2 @ Q2 RT	165	
++2 @ Q3 RT	159	
++2 @ Q4 RT	170	
++1/+2 @ Q1 RT	0.020	
++1/+2 @ Q2 RT	0.012	
++1/+2 @ Q3 RT	0.019	
++1/+2 @ Q4 RT	0.012	
++3/+2 @ Q1 RT	1.010	
++3/+2 @ Q2 RT	0.303	
++3/+2 @ Q3 RT	0.358	
++3/+2 @ Q4 RT	0.282	
+
+Averages vs RT for IDed Peptides
+Length Q1	11.74	
+Length Q4	14.81	
+Charge Q1	2.65	
+Charge Q4	2.28	
+
+Precursor m/z - Peptide Ion m/z (+2 Charge Only, Reject >0.45 m/z)
+Spectra 	588	
+Median  	0.1460	
+Mean Absolute	0.1661	
+ppm Median	231.88	
+ppm InterQ	246.12	
+
+Ion IDs by Charge State (Relative to +2)
++2 Ion Count	595	
+Charge +1	0.015	
+Charge +2	1.000	
+Charge +3	0.432	
+Charge +4	0.084	
+
+Average Peptide Lengths for Different Charge States
+Charge +1	8.89	
+Charge +2	11.42	
+Charge +3	14.50	
+Charge +4	18.82	
+
+Average Peptide Lengths For Charge 2 for Different Numbers of Mobile Protons
+NAA,Ch=2,MP=-1	12.00	
+NAA,Ch=2,MP=0	10.41	
+NAA,Ch=2,MP=1	11.58	
+NAA,Ch=2,MP=2	19.00	
+
+Numbers of Ion Ids at Different Charges with 1 Mobile Proton
+Ch=1 MP=1	3	
+Ch=2 MP=1	502	
+Ch=3 MP=1	155	
+Ch=4 MP=1	26	
+
+Percent of IDs at Different Charges and Mobile Protons Relative to IDs with 1 Mobile Proton
+Ch=1 MP=-1	0.0	
+Ch=1 MP=0	200.0	
+Ch=1 MP=1	100.0	
+Ch=2 MP=-1	0.4	
+Ch=2 MP=0	17.9	
+Ch=2 MP=1	100.0	
+Ch=3 MP=-1	3.9	
+Ch=3 MP=0	56.1	
+Ch=3 MP=1	100.0	
+
+Intensities vs Different Mobile Protons
+Ions, MP=-1	10	
+Ions, MP=0	205	
+Ions, MP=1	686	
+Ions, MP=2	10	
+Inten, MP=-1	0.002	
+Inten, MP=0	0.232	
+Inten, MP=1	0.764	
+Inten, MP=2	0.002	
+
+Precursor m/z - Monoisotope Exact m/z
+More Than 100	846	
+Betw 100.0-50.0	60	
+Betw 50.0-25.0	8	
+Betw 25.0-12.5	0	
+Betw 12.5-6.3	0	
+Betw 6.3-3.1	0	
+Betw 3.1-1.6	0	
+Betw 1.6-0.8	0	
+Top Half	8	
+Next Half (2)	57	
+Next Half (3)	136	
+Next Half (4)	279	
+Next Half (5)	292	
+Next Half (6)	120	
+Next Half (7)	22	
+Next Half (8)	0	
+
+MS2 ID Spectra
+NPeaks Median	775	
+NPeaks InterQ	1.36	
+S/N Median	275.45	
+S/N InterQ	2.85	
+ID Score Median	0.608	
+ID Score InterQ	0.141	
+IDSc Med Q1Msmx	0.589	
+
+MS1 ID Max
+Median  	2.3e+7	
+Half Width	3.4e+7	
+Quart Ratio	4.3	
+Median MidRT	2.7e+7	
+75/25 MidRT	3.6	
+95/5 MidRT	28.1	
+75/25 Pctile	4.3	
+95/5 Pctile	46.7	
+
+MS1 ID Abund at MS2 Acquisition
+Median  	4.2e+5	
+Half Width	4.5e+5	
+75/25 Pctile	3.1	
+95/5 Pctile	18.2	
+
+MS2 ID Abund Reported
+Median  	6.4e+5	
+Half Width	6.8e+5	
+75/25 Pctile	3.2	
+95/5 Pctile	18.5	
+
+Peak Width at Half Height for IDs
+Median Value	16.93	
+Med Top Quart	48.18	
+Med Top 16th	59.57	
+Med Top 100	59.57	
+Median Disper	30.80	
+Med Quart Disp	57.83	
+Med 16th Disp	108.46	
+Med 100 Disp	70.91	
+3Quart Value	39.25	
+9Dec Value	71.84	
+MS1 Interscan/s	0.01	
+MS1 Scan/FWHM	1687.57	
+IDs Used  	0	
+
+Peak Widths at Half Max over RT deciles for IDs
+First Decile	6.41	
+Median Value	30.17	
+Last Decile	9.36	
+
+Nearby Resampling of IDs - Oversampling Details
+Repeated IDs	8	
+Med RT Diff/s	0.97	
+1Q RT Diff/s	0.52	
+1Dec RT Diff/s	0.48	
+Median dm/z	0.10	
+Quart dm/z	0.06	
+
+Wide RT Differences for IDs (> 4 min)
+Peptides	1	
+Spectra 	3	
+
+Fraction of Repeat Peptide IDs with Divergent RT (RT vs RT-best ID) - Chromatographic 'Bleed'
+- 4 min    	0.0000	
++ 4 min      	0.0022	
+
+Early and Late RT Oversampling (Spectrum IDs/Unique Peptide IDs) - Chromatographic: Flow Through/Bleed
+First Decile	1.067	
+Last Decile	1.079	
+
+Peptide Ion IDs by > 3 Spectra (Hi) vs  1-3 Spectra (Lo) - Extreme Oversampling
+Pep Ions (Hi)	0	
+Ratio Hi/Lo  	0.000	
+Spec Cnts (Hi)	0	
+Ratio Hi/Lo	0.000	
+Spec/Pep (Hi)	0.000	
+Spec Cnt Excess	0.000	
+
+Ratios of Peptide Ions IDed by Different Numbers of Spectra - Oversampling Measure
+Once/Twice	150.83	
+Twice/Thrice	6.00	
+
+Single Spectrum Peptide Ion Identifications - Oversampling Measure
+Peptide Ions	905	
+Fract >1 Ions	0.01	
+1 vs >1 PepIon	113.13	
+1 vs >1 Spec	60.33	
+
+MS1max/MS1sampled Abundance Ratio IDs - Inefficient Sampling
+Median All IDs	55.63	
+3Q All IDs	96.44	
+9Dec All IDs	154.28	
+Med Top 100	140.19	
+Med Top Dec	153.22	
+Med Top Quart	115.96	
+Med Bottom 1/2	43.86	
+
+RT(MS1max)-RT(MS2) for IDs (sec) 
+Med Diff Abs	3	
+Median Diff	2	
+First Quart	-1	
+Third Quart	5	
+
+Ion Injection Times for IDs (ms)
+MS1 Median	1	
+MS1 Maximum	43	
+MS2 Median	7.2	
+MS2 Maximun	100.0	
+MS2 Fract Max	0.015	
+
+Top Ion Abundance Measures
+Top 10% Abund	18	
+Top 25% Abund	61	
+Top 50% Abund	174	
+Fractab Top	0.008	
+Fractab Top 10	0.063	
+Fractab Top 100	0.351	
+
+Isotopic Abundance Variation
+Number of Ions	9	
+Median Dev	1.073	
+Interquart	1.240	
+
+Ion 'Peak Cluster' Count Distribution
+Total Found	10222	
+ID Fraction	0.090	
+noID Fraction	0.085	
+noSamp Fraction	0.825	
+
+Ion Cluster Abundance Distribution
+ID Fraction	17158526.515	
+noID Fraction	542545.674	
+noSamp Fraction	83874241.005	
+noID Med Rel	0.071	
+Unsamp Med Rel	0.053	
+
+Abundance Distribution: Total
+Total Fraction	1.000	
+Peptides	0.381	
+Sampled-NoID	0.105	
+Not Sampled %	0.330	
+Noise   	0.511	
+
+Abundance Distribution: 1 RT Quartile
+RT Segment End	25.3	
+Total Fraction	0.256	
+Peptides	0.258	
+Sampled-NoID	0.090	
+Not Sampled %	0.377	
+Noise   	0.648	
+
+Abundance Distribution: 2 RT Quartile
+RT Segment End	30.1	
+Total Fraction	0.333	
+Peptides	0.454	
+Sampled-NoID	0.161	
+Not Sampled %	0.353	
+Noise   	0.382	
+
+Abundance Distribution: 3 RT Quartile
+RT Segment End	34.7	
+Total Fraction	0.279	
+Peptides	0.485	
+Sampled-NoID	0.078	
+Not Sampled %	0.319	
+Noise   	0.434	
+
+Abundance Distribution: 4 RT Quartile
+RT Segment End	39.3	
+Total Fraction	0.131	
+Peptides	0.215	
+Sampled-NoID	0.046	
+Not Sampled %	0.206	
+Noise   	0.737	
+
+Abundance Distribution: Last Segment
+RT Segment End	45.0	
+Total Fraction	0.044	
+Peptides	0.060	
+Sampled-NoID	0.025	
+Not Sampled %	0.499	
+Noise   	0.910	
+
+m/z Medians for Clusters at RT Quartiles (all charges)
+First Quart	673.7	
+Second Quart	1183.6	
+Third Quart	1202.1	
+Fourth Quart	1091.4	
+
+Fract of Cluster Abundance at 50% and 90% of All Abundance
+50% Ions 	707	
+50% ID  	0.57	
+50% noIDSamp	0.15	
+50% noIDnoSamp	0.28	
+90% Ions 	2963	
+90% ID  	0.42	
+90% noIDSamp	0.12	
+90% noIDnoSamp	0.45	
+
+Top 10 NoID Ions
+NoID 1 Rank	14	
+NoID 1 RelAb	0.661	
+NoID 1 RT	26.8	
+NoID 1 m/z	567.0	
+NoID 2 Rank	16	
+NoID 2 RelAb	0.622	
+NoID 2 RT	26.0	
+NoID 2 m/z	403.8	
+NoID 3 Rank	25	
+NoID 3 RelAb	0.533	
+NoID 3 RT	27.7	
+NoID 3 m/z	529.7	
+NoID 4 Rank	29	
+NoID 4 RelAb	0.525	
+NoID 4 RT	27.5	
+NoID 4 m/z	550.3	
+NoID 5 Rank	32	
+NoID 5 RelAb	0.509	
+NoID 5 RT	29.6	
+NoID 5 m/z	534.8	
+NoID 6 Rank	33	
+NoID 6 RelAb	0.507	
+NoID 6 RT	27.0	
+NoID 6 m/z	474.1	
+NoID 7 Rank	35	
+NoID 7 RelAb	0.486	
+NoID 7 RT	26.8	
+NoID 7 m/z	450.5	
+NoID 8 Rank	49	
+NoID 8 RelAb	0.430	
+NoID 8 RT	25.4	
+NoID 8 m/z	451.4	
+NoID 9 Rank	56	
+NoID 9 RelAb	0.402	
+NoID 9 RT	32.0	
+NoID 9 m/z	658.1	
+NoID 10 Rank	65	
+NoID 10 RelAb	0.388	
+NoID 10 RT	28.0	
+NoID 10 m/z	473.1	
+
+New Metrics
+Peak Wid Alt	15.6	
+Unexpect Int	  33	
+
+Other Ion Cluster Statistics
+RT Begin	18.5	
+RT End  	40.7	
+IDPep Not Found	5	
+IDs too Early	1	
+IDs too Late	1	
+IDs no Abund	356	
+noIDs no Abund	14	
+nIDs Found	920	
+Missed RT 	0.005	
+Missed Clust	0.043	
+Low Q% <=61	21.74	
+Qual % 0:0	4.35	
+Qual % 10:19	0.54	
+Qual % 20:29	1.96	
+Qual % 30:39	3.04	
+Qual % 40:49	3.26	
+Qual % 50:59	3.80	
+Qual % 60:69	4.78	
+Qual % 70:79	5.98	
+Qual % 80:89	11.63	
+Qual % 90:99	12.50	
+Qual % 100:100	48.15	
+
+End Series=1
+
+End Runseries Results

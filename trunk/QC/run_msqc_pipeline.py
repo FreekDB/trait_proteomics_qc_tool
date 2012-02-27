@@ -1,5 +1,5 @@
 """
-Module to.. TODO
+TODO Module to.. 
 """
 
 from os import makedirs
@@ -64,13 +64,13 @@ def qc_pipeline(indir, out_dir, copy_log):
         print "Running RAW file conversion.."
         _raw_format_conversions(abs_rawfile_path, working_dir)
         print "Running NIST.."
-        _run_NIST(abs_rawfile_path, working_dir)
+        _run_nist(abs_rawfile_path, working_dir)
         print "Creating Graphics.."
-        _run_R_script(working_dir, webdir, basename)
+        _run_r_script(working_dir, webdir, basename)
         print "Creating metrics.."
         metrics = create_metrics(abs_rawfile_path, t_start)
         print "Creating report.."
-        _create_report(abs_rawfile_path, webdir, basename, metrics)
+        _create_report(webdir, basename, metrics)
 
         # Once completed, update status and logfile
         # TODO Test threading using multiple robocopy instances to test if this is necessary
@@ -149,8 +149,8 @@ def _log_progress(logfile, rawfile):
     TODO add information (realtime update, completion date, etc.)
     """
     log = '{0}\t{1}'.format(rawfile, 'completed')
-    with open(logfile, 'a') as f:
-        f.writeln(log)
+    with open(logfile, 'a') as status_log:
+        status_log.writeln(log)
 
 
 def _manage_paths(basename):
@@ -158,17 +158,17 @@ def _manage_paths(basename):
     Create directory on webserver part for storing images and the report.
     @param basename: name of the .RAW file without extension
     """
-    time = gmtime()
+    ctime = gmtime()
     tree = normpath('{root}/{year}/{month}/{base}'.format(root=_WEB_DIR,
-                                                                year=strftime("%Y", time),
-                                                                month=strftime("%b", time),
+                                                                year=strftime("%Y", ctime),
+                                                                month=strftime("%b", ctime),
                                                                 base=basename))
     if not isdir(tree):
         makedirs(tree)
     return tree
 
 
-def _run_NIST(rawfile, outdir):
+def _run_nist(rawfile, outdir):
     """Starts the NIST metrics workflow using a RAW file as input. Reads parameters
     from a configuration file to pass as arguments to the workflow."""
     # -WORKAROUND-
@@ -182,9 +182,9 @@ def _run_NIST(rawfile, outdir):
 
     # Run NIST pipeline
     # TODO: validate parameters, check if in- and out-dir can be the same
-    NIST_exe = normpath('perl {0}/scripts/run_NISTMSQC_pipeline.pl'.format(_NIST))
-    NIST_cmd = '{0} --in_dir {1} --out_dir {2} --library {3} --instrument_type {4} --fasta {5} {6} {7} {8} {9}'\
-        .format(NIST_exe,
+    nist_exe = normpath('perl {0}/scripts/run_NISTMSQC_pipeline.pl'.format(_NIST))
+    nist_cmd = '{0} --in_dir {1} --out_dir {2} --library {3} --instrument_type {4} --fasta {5} {6} {7} {8} {9}'\
+        .format(nist_exe,
                 outdir,
                 outdir,
                 nist_library,
@@ -197,7 +197,7 @@ def _run_NIST(rawfile, outdir):
 
     # TODO error handling
     # TODO 'nistms_metrics.exe' tends to hang if something is wrong, process should resume after a set amount of time
-    _run_command(NIST_cmd)
+    _run_command(nist_cmd)
 
     #Rename .msqc file here, as it assumes the name of the containing folder, which is now some random file path
     foldername = os.path.split(outdir)[1]
@@ -207,32 +207,28 @@ def _run_NIST(rawfile, outdir):
     move(msqc_original, msqc_destination)
 
 
-def _run_R_script(outdir, webdir, basename):
-    """After running the NIST metrics workflow, the mzXML file created can be read in R
-    and processed further (graphics and basic metrics)"""
-    #TODO There are a lot of weird path handling things here.
-    #I would just use raw_file+'.mzXML', run Rscript in a tempfolder, and move that tempfolder to the webdir at the end
-
+def _run_r_script(outdir, webdir, basename):
+    '''
+    After running the NIST metrics workflow, the mzXML file created can be read in R
+    and processed further (graphics and basic metrics)
+    @param outdir: directory in which the input mzXML file is located
+    @param webdir: output directory for the graphics
+    @param basename: RAW file name (without ext) used to identify mzXML file
+    '''
     # Execute Rscript
-    Rcmd = normpath('Rscript {0} "{1}/{2}.RAW.mzXML" "{3}" {4} "{5}"'.format(
-                         _R_GRAPHICS,
-                         # input mzXML
-                         outdir,
-                         basename,
-                         # output image filename prefix
-                         normpath('{0}/{1}'.format(webdir, basename)),
-                         # MSlevel
-                         1,
-                         # Logfile
-                         normpath('{0}/{1}.RLOG'.format(outdir, basename))))
-    #print "R Command:\n\t", Rcmd
-    _run_command(Rcmd)
+    rcmd = 'Rscript {0} {1} {2} {3} {4}'.format(_R_GRAPHICS, outdir, basename, webdir, 1)
+    _run_command(rcmd)
 
 
-def _create_report(rawfile, webdir, basename, metrics):
-    # Place values and graphics in template HTML file
-    with open(normpath('templates/report.html'), 'r') as f:
-        template = f.readlines()
+def _create_report(webdir, basename, metrics):
+    '''
+    Uses the report template in combination with the metrics to construct a report
+    @param webdir: location in which the report (index.html) should be placed
+    @param basename: RAW filename (without ext) to identify currently processed file
+    @param metrics: dictionary holding all metrics (from NIST and generic)
+    '''
+    with open(normpath('templates/report.html'), 'r') as report_template:
+        template = report_template.readlines()
 
     report_template = Template(''.join(template))
     report_updated = report_template.safe_substitute(# General
@@ -258,25 +254,27 @@ def _create_report(rawfile, webdir, basename, metrics):
                                                      ions_pdf='{0}_ions.pdf'.format(basename))
 
     # Write report file to directory holding all reports
-    with open(normpath('{0}/index.html'.format(webdir)), 'w') as f:
-        f.writelines(report_updated)
+    with open(normpath('{0}/index.html'.format(webdir)), 'w') as report_html:
+        report_html.writelines(report_updated)
 
 
 # --- Temporary (workaround) functions ---
 def _raw_format_conversions(raw_file, outdir):
-    """
-    Convert the .RAW file both to .mzXMl and to .MGF for compatibility with other tools.
-    """
+    '''
+    Converts the .RAW file both to .mzXMl and to .MGF for compatibility with other tools.
+    @param raw_file: the RAW file to process
+    @param outdir: directory in which to place output mzXML and MGF files
+    '''
     msconvert = normpath('{0}/converter/msconvert.exe'.format(_NIST))
     # Both mzXML and MGF files need to be created
-    mzXML_cmd = '{0} {1} -o {2} --mzXML -e .RAW.mzXML'.format(msconvert, raw_file, outdir)
-    MGF_cmd = '{0} {1} -o {2} --mgf -e .RAW.MGF'.format(msconvert, raw_file, outdir)
+    mzxml_cmd = '{0} {1} -o {2} --mzXML -e .RAW.mzXML'.format(msconvert, raw_file, outdir)
+    mgf_cmd = '{0} {1} -o {2} --mgf -e .RAW.MGF'.format(msconvert, raw_file, outdir)
 
     # Execute msconvert for both output files
     print "\tConverting to mzXML.."
-    _run_command(mzXML_cmd)
+    _run_command(mzxml_cmd)
     print "\tConverting to MGF.."
-    _run_command(MGF_cmd)
+    _run_command(mgf_cmd)
 
 
 def _run_command(cmd):
@@ -289,13 +287,5 @@ def _run_command(cmd):
 
 
 def _cleanup():
+    """ Cleans up temporary data (NIST output etc) after a successful run"""
     pass  # TODO implement clean up of working directory
-
-""" *NOTES*
-
-Robocopy command:
-Mirror, 10 retries, waiting 30sec, monitor every 1min, display output, no progress, no job header, no job summary
--robocopy "source_path" "\\destination_path" / Mir / R:10 / W:30 / Log + :"\\log_path\logfile.txt" / mot:1 / tee / np / njh / njs
-- Note: replace \mir with \e if removing files from source but need to be kept in destination
-
-"""
