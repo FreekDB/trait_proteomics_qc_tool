@@ -21,31 +21,40 @@ class Test(unittest.TestCase):
         # Data
         self.mzXML = resource_filename(__name__, "data/ltq_subset.mzXML")
         self.rawfile = 'ltq_ctmm_test_data.RAW'
+        self.rawfilebase = os.path.split(os.path.splitext(self.rawfile)[0])[1]
+        
+        # Temp working dir
+        self.temp_folder = tempfile.mkdtemp(prefix='test_run_nist_')
 
     def test_logfiles(self):
+        """ Tests the reading of the robocopy- and status-logfiles """
         files = run_msqc_pipeline._read_logfile(self.logfile)
         self.assertEquals(files, {'110215_13.RAW': 'completed', '110308_02.RAW': 'completed'})
         files = run_msqc_pipeline._parse_robocopy_log(self.robocopylog, files)
         self.assertEquals(files, {'110215_13.RAW': 'completed', 'U87_10mg_B.raw': 'new', '110308_02.RAW': 'completed'})
 
-    def test_run_NIST(self):
-        """Run NIST, and assure the msqc file is output to the correct path."""
-        temp_folder = tempfile.mkdtemp(prefix='test_run_nist_')
-
-        #Run NIST
-        run_msqc_pipeline._run_NIST(self.rawfile, temp_folder)
-
-        #Check output path exists
-        rawfilebase = os.path.split(os.path.splitext(self.rawfile)[0])[1]
-        msqc_file = os.path.join(temp_folder, rawfilebase + '.msqc')
-        self.failUnless(os.path.exists(msqc_file))
-        mzxml_file = os.path.join(temp_folder, rawfilebase + '.RAW.mzXML')
+    def test_raw_format_conversions(self):
+        """ Test the conversion of RAW files into mzXML / MGF files """
+        run_msqc_pipeline._raw_format_conversions(self.rawfile, self.temp_folder)
+        
+        # Check if output paths for the mzXML and MGF files exist
+        mzxml_file = os.path.join(self.temp_folder, self.rawfilebase + '.RAW.mzXML')
         self.failUnless(os.path.exists(mzxml_file))
-        mgf_file = os.path.join(temp_folder, rawfilebase + '.RAW.MGF')
+        
+        mgf_file = os.path.join(self.temp_folder, self.rawfilebase + '.RAW.MGF')
         self.failUnless(os.path.exists(mgf_file))
 
+    def test_run_NIST(self):
+        """Run NIST, and assure the msqc file is output to the correct path."""
+        run_msqc_pipeline._run_NIST(self.rawfile, self.temp_folder)
+
+        #Check output path exists
+        msqc_file = os.path.join(self.temp_folder, self.rawfilebase + '.msqc')
+        self.failUnless(os.path.exists(msqc_file))
+
+    def tearDown(self):
         #Clean up
-        shutil.rmtree(temp_folder)
+        shutil.rmtree(self.temp_folder)
 
 if __name__ == '__main__':
     unittest.main()

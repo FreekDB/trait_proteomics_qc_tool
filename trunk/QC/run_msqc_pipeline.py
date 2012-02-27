@@ -16,7 +16,6 @@ import tempfile
 # Globals
 _R_GRAPHICS = 'r_ms_graphics.R'
 
-
 # Paths (These should be adapted for the system they run on)
 _WEB_DIR = normpath('C:/Program Files (x86)/Apache Software Foundation/Apache2.2/htdocs/ctmm')
 _NIST = normpath('C:/ctmm/NISTMSQCv1_2_0_CTMM')
@@ -62,6 +61,8 @@ def qc_pipeline(indir, out_dir, copy_log):
 
         #TODO Change all print statements to use logging
         # Run QC workflow
+        print "Running RAW file conversion.."
+        _raw_format_conversions(abs_rawfile_path, working_dir)
         print "Running NIST.."
         _run_NIST(abs_rawfile_path, working_dir)
         print "Creating Graphics.."
@@ -72,6 +73,7 @@ def qc_pipeline(indir, out_dir, copy_log):
         _create_report(abs_rawfile_path, webdir, basename, metrics)
 
         # Once completed, update status and logfile
+        # TODO Test threading using multiple robocopy instances to test if this is necessary
         files[rawfile] = 'completed'
 
         # Update logfile showing completed analysis
@@ -172,7 +174,6 @@ def _run_NIST(rawfile, outdir):
     # -WORKAROUND-
     # ReAd4W2Mascot is not working on the VM, using 'msconvert' for the conversion
     # of RAW to mzXML, which needs to be done manually as well as fixing the mzXML header
-    _raw_format_conversions(rawfile, outdir)  # DONE
 
     logging.info("Running NIST pipeline..")
     nist_library = 'hsa'
