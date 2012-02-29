@@ -230,6 +230,8 @@ def _create_report(webdir, basename, metrics):
     with open(normpath('templates/report.html'), 'r') as report_template:
         template = report_template.readlines()
 
+    # TODO: remove all NIST metrics substitutions since this will be done using JSON/JQuery
+    # TODO: write out NIST metrics to JSON file in webdir
     report_template = Template(''.join(template))
     report_updated = report_template.safe_substitute(# General
                                                      raw_file='{0}.RAW'.format(basename),
@@ -278,6 +280,10 @@ def _raw_format_conversions(raw_file, outdir):
 
 
 def _run_command(cmd):
+    '''
+    Runs a command (not returning output)
+    @param cmd: string holding the command with all parameters
+    '''
     #TODO Explain to me (Tim) what this method has to offer over the standard check_call method?
     # Runs a single command, no output is returned
     run = Popen(cmd, stdout=PIPE, stderr=PIPE)

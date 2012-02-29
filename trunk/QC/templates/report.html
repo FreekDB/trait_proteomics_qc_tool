@@ -7,11 +7,35 @@
 	<title>report</title>
 	<meta name="generator" content="TextMate http://macromates.com/">
 	<meta name="author" content="Marcel Kempenaar, BRS NBIC">
-	<!-- Date: 2012-01-23 -->
+	<link rel="stylesheet" type="text/css" href="/ctmm/report/css/report.css" />
+	<!-- Overriding placement of some divs for mobile devices -->
+	<link rel="stylesheet" type="text/css" media="only screen and (max-device-width: 600px)" href="/ctmm/report/css/report_small.css" />
+    <script type="text/javascript">
+        $(document).ready(function() {
+			// Read JSON file from current directory
+			$.getJSON('metrics.json')
+			// On success, parse data into table format
+			.success(function(data) { 
+				var table = '<table>';
+				// Loop over metrics retrieving data
+				$.each(data, function(key, val) {
+					$.each(data[key], function(elem) {
+						table += '<tr class=' + key + '><td>' + data[key][elem][0] + '</td>';
+						table += '<td>' + data[key][elem][1] + '</td></tr>';
+					});
+				});
+				table += '</table>'
+
+				// Place table in the metrics <div>
+				$('#metrics').append(table);
+				
+			})
+			// On error, write error to console
+			.error(function() { console.log("Error reading JSON file"); });;		
+        });
+    </script>
+
 </head>
-<link rel="stylesheet" type="text/css" href="/ctmm/report/css/report.css" />
-<!-- Overriding placement of some divs for mobile devices -->
-<link rel="stylesheet" type="text/css" media="only screen and (max-device-width: 600px)" href="/ctmm/report/css/report_small.css" />
 <body>
 <div id="description">
 	<div id="logos">
@@ -29,75 +53,7 @@
 		<em>${runtime}</em>
 	</div>
 </div>
-	
-<div id="metrics">
-	<table border="0" cellpadding="5" cellspacing="2">
-	  <tbody>
-		<tr>
-			<th colspan="2">Metrics</th>
-	    <tr class="generic">
-	      <td>File Size</td>
-	      <td>${m_fs}</td>
-	    </tr>
-		<tr>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
-		</tr>
-	    <tr class="msdata">
-	      <td>MS1 Scans (containing peaks)</td>
-	      <td>${m_ms1_scans}</td>
-	    </tr>
-	    <tr class="msdata">
-	      <td>MS2 Scans (containing peaks)</td>
-	      <td>${m_ms2_scans}</td>
-	    </tr>
-	    <tr class="msdata">
-	      <td>First MS1 RT (min)</td>
-	      <td>${m_f_ms1_rt}</td>
-	    </tr>
-	    <tr class="msdata">
-	      <td>Last MS1 RT (min)</td>
-	      <td>${m_l_ms1_rt}</td>
-	    </tr>
-	    <tr class="msdata">
-	      <td>Median Peak Width (sec)</td>
-	      <td>${m_m_p_w}</td>
-	    </tr>
-		<tr>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
-		</tr>
-	    <tr class="ions">
-	      <td>Ion Injection Times for IDs<br />(MS1 median, ms)</td>
-	      <td>${m_i_i_t_ms1}</td>
-	    </tr>
-	    <tr class="ions">
-	      <td>Ion Injection Times for IDs<br />(MS2 median, ms)</td>
-	      <td>${m_i_i_t_ms2}</td>
-	    </tr>
-		<tr>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
-		</tr>
-	    <tr class="peptide">
-	      <td>Peptide Counts (Peptides)</td>
-	      <td>${m_p_c_pep}</td>
-	    </tr>
-	    <tr class="peptide">
-	      <td>Peptide Counts (Ions)</td>
-	      <td>${m_p_c_ion}</td>
-	    </tr>
-	    <tr class="peptide">
-	      <td>Peptide Counts (Identifications)</td>
-	      <td>${m_p_c_ids}</td>
-	    </tr>
-	    <tr class="peptide">
-	      <td></td>
-	      <td></td>
-	    </tr>
-	  </tbody>
-	</table>
-</div>
+<div id="metrics"></div>
 <div id="graphics">
 	<div id="heatmap">
 		<a href="${heatmap_pdf}">	

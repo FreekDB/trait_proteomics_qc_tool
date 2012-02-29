@@ -10,7 +10,7 @@ ms_image <- function(mzXML, pfile=FALSE, min.mz=300, max.mz=2000, n.bins=100, ms
 	for ( i in 1:((max.mz - min.mz) / window))
 		s[i] = min.mz + window * (i-1)
     
-    logger(paste("Processing data.. (min.mz: ", min.mz, ", max.mz: ", max.mz, ", window: ", window, ")\n", sep=""))
+    logger(paste("Processing data.. (min.mz: ", min.mz, ", max.mz: ", max.mz, ", window: ", window, ")", sep=""))
     logger("Creating heatmap image..")
 	m = matrix(ncol=length(s))
 	r = c()
@@ -28,7 +28,6 @@ ms_image <- function(mzXML, pfile=FALSE, min.mz=300, max.mz=2000, n.bins=100, ms
 	m = m[-1,]
 
 	logger(paste("Done preparing data..", sep=""))
-	print("Creating image")
     bin.plot(m, s, rt, pfile)
 }
 
@@ -66,10 +65,10 @@ bin.plot <- function(m, s, rt, pfile) {
         dev.off()
         
         pdf(paste(pfile, '_heatmap.pdf', sep=''))
-    	image.plot(rt, s, log(m), xlab="Retention Time", ylab="mass", main="Spectra overview")
+    	image.plot(rt, s, log(m), xlab="Retention Time (s)", ylab="mass", main="Spectra overview")
     	dev.off()
 	} else {
-	    image.plot(rt, s, log(m), xlab="Retention Time", ylab="mass", main="Spectra overview")
+	    image.plot(rt, s, log(m), xlab="Retention Time (s)", ylab="mass", main="Spectra overview")
 	}
 	logger(paste("Done creating heatmap, saved as ", pfile, "_heatmap.[png|pdf]", sep=""))
 }
@@ -95,13 +94,13 @@ ion_count <- function(mzXML, pfile=FALSE, mslevel=1) {
 	if (pfile != FALSE) {
 	    ## Save image to both PDF and PNG files
 	    png(paste(pfile, '_ions.png', sep=''), width = 800, height = 400)
-	    bp = barplot(ions, rt, xlab="Scan number (RT)", ylab="Total Ion Count", main="Ion count per scan")
-	    text(bp, par("usr")[3], labels=seq(min(rt), max(rt), length.out=10), srt=25, adj = c(1.1,1.1), xpd = TRUE, cex=.75)
+	    plot(rt, ions, type="l", xlab="Retention Time (s)", ylab="Total Ion Count", main="Ion count per scan", col="blue", lwd=2)
+	    ## text(bp, par("usr")[3], labels=seq(min(rt), max(rt), length.out=10), srt=25, adj = c(1.1,1.1), xpd = TRUE, cex=.75)
 	    dev.off()
 
 	    pdf(paste(pfile, '_ions.pdf', sep=''))
-	    bp = barplot(ions, rt, xlab="Scan number (RT)", ylab="Total Ion Count", main="Ion count per scan")
-        text(bp, par("usr")[3], labels=seq(min(rt), max(rt), length.out=10), srt=25, adj = c(1.1,1.1), xpd = TRUE, cex=.75)
+	    plot(rt, ions, type="l", xlab="Retention Time (s)", ylab="Total Ion Count", main="Ion count per scan", col="blue", lwd=2)
+        ##text(bp, par("usr")[3], labels=seq(min(rt), max(rt), length.out=10), srt=25, adj = c(1.1,1.1), xpd = TRUE, cex=.75)
 	    dev.off()
 	}
 	
@@ -111,10 +110,9 @@ ion_count <- function(mzXML, pfile=FALSE, mslevel=1) {
 }
 
 read_mzXML <- function(mzXML) {
-	cat("\t\tReading mzXML file..\n")
 	logger(paste("Reading mzXML file: ", mzXML, sep=""))
 	data = readMzXmlFile(mzXML)
-	logger(paste("Done processing mzXML file, read ", length(mzXML), " scans", sep=""))
+	logger(paste("Done processing mzXML file, read ", length(data), " scans", sep=""))
 	return(data)
 }
 
@@ -134,6 +132,7 @@ ms_metrics <- function(mzXML) {
 
 logger <- function(logdata) {
     ## Logs progress, adds a timestamp for each event
+	cat(paste(Sys.time(), "\t", logdata, "\n", sep=""))
     process <<- c(process, paste(Sys.time(), "\t", logdata, sep=""))
 }
 
@@ -154,13 +153,10 @@ process = c()
 data = read_mzXML(mzXML)
 
 ## Creating heatmap of all data
-cat("\t\tCreating heatmap image..\n")
-ms_image(data, o_file, mslevel=msl)
+ms_image(data, o_file, mslevel=mslvl)
 ## Creating total ion count plot of all data
-cat("\t\tCreating total Ion count plot..\n")
-ion_count(data, o_file, mslevel=msl) 
+ion_count(data, o_file, mslevel=mslvl) 
 ## Generating metrics
-cat("\t\tGenerating metrics..\n")
 ms_metrics(data)
 ## Write logfile
 write(process, logfile)

@@ -70,13 +70,17 @@ tr.generic td {
 	color: black;
 }
 
-tr.msdata td {
+tr.ms1 td {
 	color: green;
+}
+
+tr.ms2 td {
+	color: GreenYellow;
 }
 
 tr.ions td {
 	color: purple;
 }
-tr.peptide td {
+tr.pep td {
 	color: red;
 }
