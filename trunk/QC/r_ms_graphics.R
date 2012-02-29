@@ -55,16 +55,19 @@ bin.scan <- function(scan, bins, window, min.mz, max.mz, method) {
 }
 
 bin.plot <- function(m, s, rt, pfile) {
-	## Change margins
-	par(mar=c(4, 4, 2, 1))
+
 
 	if (pfile != FALSE) {
 	    ## Save image to both PDF and PNG files
 		png(paste(pfile, '_heatmap.png', sep=''), width = 800, height = 800)
+		## Change margins
+		par(mar=c(4, 4, 2, 1))
     	image.plot(rt, s, log(m), xlab="Retention Time", ylab="mass", main="Spectra overview")
         dev.off()
         
         pdf(paste(pfile, '_heatmap.pdf', sep=''))
+		## Change margins
+		par(mar=c(4, 4, 2, 1))
     	image.plot(rt, s, log(m), xlab="Retention Time (s)", ylab="mass", main="Spectra overview")
     	dev.off()
 	} else {
@@ -88,17 +91,19 @@ ion_count <- function(mzXML, pfile=FALSE, mslevel=1) {
         }
 	}
 	
-	## Change margins
-	par(mar=c(4,4,2,2))
 	
 	if (pfile != FALSE) {
 	    ## Save image to both PDF and PNG files
 	    png(paste(pfile, '_ions.png', sep=''), width = 800, height = 400)
+		## Change margins
+		par(mar=c(4,4,2,2))
 	    plot(rt, ions, type="l", xlab="Retention Time (s)", ylab="Total Ion Count", main="Ion count per scan", col="blue", lwd=2)
 	    ## text(bp, par("usr")[3], labels=seq(min(rt), max(rt), length.out=10), srt=25, adj = c(1.1,1.1), xpd = TRUE, cex=.75)
 	    dev.off()
 
 	    pdf(paste(pfile, '_ions.pdf', sep=''))
+		## Change margins
+		par(mar=c(4,4,2,2))
 	    plot(rt, ions, type="l", xlab="Retention Time (s)", ylab="Total Ion Count", main="Ion count per scan", col="blue", lwd=2)
         ##text(bp, par("usr")[3], labels=seq(min(rt), max(rt), length.out=10), srt=25, adj = c(1.1,1.1), xpd = TRUE, cex=.75)
 	    dev.off()
@@ -136,17 +141,18 @@ logger <- function(logdata) {
     process <<- c(process, paste(Sys.time(), "\t", logdata, sep=""))
 }
 
-####
+### Main ###
+
 args  = commandArgs(TRUE)
 
 outdir   = args[1]
-basename = args[2]
+rawbasename = args[2]
 webdir   = args[3]
 mslvl    = args[4]
 
-mzXML  = paste(outdir, '/', basename, '.RAW.mzXML', sep="")
-o_file = paste(webdir, '/', basename, sep="")
-logfile = paste(outdir, '/', basename, '.RLOG', sep="")
+mzXML  = paste(outdir, '/', rawbasename, '.RAW.mzXML', sep="")
+o_file = paste(webdir, '/', rawbasename, sep="")
+logfile = paste(outdir, '/', rawbasename, '.RLOG', sep="")
 
 process = c()
 

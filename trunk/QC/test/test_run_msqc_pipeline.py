@@ -21,11 +21,12 @@ class Test(unittest.TestCase):
         self.logfile = resource_filename(__name__, "data/qc_logfile.txt")
         self.robocopylog = resource_filename(__name__, "data/robocopylog.txt")
 
-        # Data
+        # Data files
         self.rawfile = resource_filename(__name__, "data/ltq_ctmm_test_data.RAW")
         self.rawfilebase = os.path.split(os.path.splitext(self.rawfile)[0])[1]
         self.mzxmlfile = resource_filename(__name__, "data/ltq_ctmm_test_data.RAW.mzXML")
-        
+        self.mgffile = resource_filename(__name__, "data/ltq_ctmm_test_data.RAW.MGF")
+
         # Create a temp working dir for each test
         self.temp_folder = tempfile.mkdtemp(prefix='test_run_nist_')
 
@@ -49,9 +50,17 @@ class Test(unittest.TestCase):
 
     def test_run_nist(self):
         ''' Run NIST, and assure the msqc file is output to the correct path.'''
+        # Copy NIST input files to temp folder
         copy(self.rawfile, self.temp_folder)
+        copy(self.mzxmlfile, self.temp_folder)
+        copy(self.mgffile, self.temp_folder)
+        
+        # Run NIST in temp folder
+        restore_path = os.getcwd()
+        os.chdir(self.temp_folder)
         rawfile = os.path.join(self.temp_folder, self.rawfilebase + '.RAW')
         run_msqc_pipeline._run_nist(rawfile, self.temp_folder)
+        os.chdir(restore_path)
 
         #Check output path exists
         msqc_file = os.path.join(self.temp_folder, self.rawfilebase + '.msqc')
@@ -65,7 +74,7 @@ class Test(unittest.TestCase):
         # Test if graphics and logfile exists
         heatmaps = [self.rawfilebase + '_heatmap.png', self.rawfilebase + '_heatmap.pdf']
         ionplots = [self.rawfilebase + '_ions.png', self.rawfilebase + '_ions.pdf']
-        rlog = self.rawfilebase + '.RLOG'
+        rlog = os.path.join(self.temp_folder, self.rawfilebase + '.RLOG')
         
         self.failUnless([os.path.exists(x) for x in heatmaps])
         self.failUnless([os.path.exists(x) for x in ionplots])

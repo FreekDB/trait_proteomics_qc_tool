@@ -13,17 +13,21 @@ class Test(unittest.TestCase):
     ''' Test functions for the parse_metrics code in the QC module '''
 
     def setUp(self):
-        # Start time (used for 
+        # Start time (used for computing runtime)
         self.t_start = time.time()
-        
         self.default_metrics = parse_metrics._get_default_nist_metrics()
+        
+        # NIST and R output metrics files
         self.nist_metrics = resource_filename(__name__, "data/nist_metrics.msqc")
         self.msqcrlog = resource_filename(__name__, "data/msqc_rlog.txt")
+        
+        # Data
+        self.mzxmlfile = resource_filename(__name__, "data/ltq_ctmm_test_data.RAW.mzXML")
 
     def test_extract_generic_metrics(self):
         ''' Checks the few generic metrics that are shown on each report '''
         # Rawfile in this case is only used to get the file size, so substituted by another 'large' file
-        rawfile = resource_filename(__name__, "data/ltq_subset.mzXML")
+        rawfile = self.mzxmlfile
         # Current date / time formatting
         ctime = time.gmtime()
         date = '{year}/{month}/{day} - {hour}:{min}'.format(year=time.strftime("%Y", ctime),
@@ -35,7 +39,7 @@ class Test(unittest.TestCase):
         # Note: test failure can be caused by interfering processes increasing runtime
         time.sleep(1)
         generic_metrics = parse_metrics._extract_generic_metrics(rawfile, self.t_start)
-        self.assertEquals(generic_metrics, {'date': date, 'runtime': '0:00:01', 'f_size': '8.4'})
+        self.assertEquals(generic_metrics, {'date': date, 'runtime': '0:00:01', 'f_size': '97.8'})
         
     def test_extract_nist_metrics(self):
         ''' Compares a subset of the complete list of metrics retrieved from the NIST output file '''
