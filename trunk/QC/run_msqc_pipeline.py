@@ -4,6 +4,7 @@ TODO Module to..
 
 from os import makedirs
 from os.path import normpath, splitext, isdir
+from pkg_resources import resource_filename # @UnresolvedImport
 from parse_metrics import create_metrics
 from shutil import move, copy # move
 from string import Template
@@ -14,7 +15,7 @@ import os.path
 import tempfile
 
 # Globals
-_R_GRAPHICS = 'r_ms_graphics.R'
+_R_GRAPHICS = resource_filename(__name__, 'r_ms_graphics.R')
 
 # Paths (These should be adapted for the system they run on)
 _WEB_DIR = normpath('C:/Program Files (x86)/Apache Software Foundation/Apache2.2/htdocs/ctmm')

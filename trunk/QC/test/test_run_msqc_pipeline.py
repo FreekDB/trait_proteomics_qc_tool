@@ -4,6 +4,7 @@ Module to test the run_msqc_pipeline.
 
 from QC import run_msqc_pipeline
 from pkg_resources import resource_filename # @UnresolvedImport
+from shutil import copy
 import os.path
 import tempfile
 import unittest
@@ -21,10 +22,11 @@ class Test(unittest.TestCase):
         self.robocopylog = resource_filename(__name__, "data/robocopylog.txt")
 
         # Data
-        self.rawfile = 'ltq_ctmm_test_data.RAW'
+        self.rawfile = resource_filename(__name__, "data/ltq_ctmm_test_data.RAW")
         self.rawfilebase = os.path.split(os.path.splitext(self.rawfile)[0])[1]
+        self.mzxmlfile = resource_filename(__name__, "data/ltq_ctmm_test_data.RAW.mzXML")
         
-        # Temp working dir
+        # Create a temp working dir for each test
         self.temp_folder = tempfile.mkdtemp(prefix='test_run_nist_')
 
     def test_logfiles(self):
@@ -47,7 +49,9 @@ class Test(unittest.TestCase):
 
     def test_run_nist(self):
         ''' Run NIST, and assure the msqc file is output to the correct path.'''
-        run_msqc_pipeline._run_nist(self.rawfile, self.temp_folder)
+        copy(self.rawfile, self.temp_folder)
+        rawfile = os.path.join(self.temp_folder, self.rawfilebase + '.RAW')
+        run_msqc_pipeline._run_nist(rawfile, self.temp_folder)
 
         #Check output path exists
         msqc_file = os.path.join(self.temp_folder, self.rawfilebase + '.msqc')
@@ -55,6 +59,7 @@ class Test(unittest.TestCase):
 
     def test_run_r_script(self):
         ''' Run the R script generating the graphics '''
+        copy(self.mzxmlfile, self.temp_folder)
         run_msqc_pipeline._run_r_script(self.temp_folder, self.temp_folder, self.rawfilebase)
         
         # Test if graphics and logfile exists
