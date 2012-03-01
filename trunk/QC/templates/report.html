@@ -20,19 +20,10 @@
 				$.getJSON('/ctmm/report/config/metrics_order.json')
 				// On success, use data for showing / hiding predefined metrics
 				.success(function(order) {
-					var top = [];
-					var bottom = [];
-					var hidden = [];
-					// Parse configuration settings
-					$.each(order, function(key, val) {
-						if (key == 'top') {
-							top = val;
-						} else if (key == 'bottom') {
-							bottom = val;
-						} else {
-							hidden = val;
-						}
-					});
+					// Read configuration settings
+					var top = order['top'];
+					var bottom = order['bottom'];
+					var hidden = order['hidden'];
 
 					// Create two tables, the primary (top) and secondary (bottom) tables
 					var tabletop = '<table>';
