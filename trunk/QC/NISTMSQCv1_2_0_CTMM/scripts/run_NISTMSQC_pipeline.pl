@@ -3,6 +3,10 @@
 use strict;
 use Getopt::Long;
 use lib '.';
+## Added directives:
+use File::Basename;
+use lib dirname(__FILE__);
+##
 use MetricsPipeline;
 use ParseMetrics;
 
@@ -85,7 +89,7 @@ if (!GetOptions (
 	$pl->exiting();
 }
 
-$pl->set_base_paths(); # Must be run from scripts directory.
+$pl->set_base_paths(dirname(__FILE__)); # Must be run from scripts directory.
 
 if ($ini_tag) {
 	@ARGV = split(' ', $pl->get_cl_from_ini_tag($ini_tag));

@@ -2,6 +2,7 @@
     
 package MetricsPipeline;
 use ParseMetrics;
+use File::Basename;
 use strict;
 use Cwd;
 
@@ -103,10 +104,15 @@ sub check_proms {
 	}
     }
 }
+
 sub set_base_paths {
-    my $self = shift;
+    my ($self, $root) = @_;
+	$root = &Cwd::abs_path("$root/../");
+	
+	print "\n\nPATHS:";
+	print "$root";
     ### Base paths
-    my $root = &Cwd::abs_path('..'); # To use full paths. (09/09/08) PAR
+    #my $root = &Cwd::abs_path('..'); # To use full paths. (09/09/08) PAR
     $root =~ s/\//\\/g; # Windows slashes.
     $self->{_lib_path} = "$root\\libs";
     $self->{_scripts_path} = "$root\\scripts";
@@ -213,6 +219,14 @@ sub check_executables {
     return 0;
 }
 sub check_in_dirs {
+	my ($self, $in_dirs) = @_;
+	foreach ( @{$in_dirs} ) {
+        my $in_dir = $_;
+		push( @{$self->{_in_dirs}}, $in_dir );
+	}
+}
+
+sub old_check_in_dirs {
     my ($self, $in_dirs) = @_;
     foreach ( @{$in_dirs} ) {
         my $in_dir = $_;
@@ -439,9 +453,16 @@ sub set_mode { # This is currently hidden in USAGE.
     }
     return 0;
 }
+
+
 sub _get_files {
-    my ($path, $sort_by_date, $type) = @_;
-    opendir(DIR, $path) || die "Could not open $path.\n";
+	my ($path, $sort_by_date, $type) = @_;
+	### CTMM ###
+	my @files = ();
+	push(@files, $path);
+	return @files;
+    
+    opendir(DIR, $path) || die "[_get_files] Could not open $path.\n";
     my @files = grep { /\.$type$/i } readdir(DIR);
     for (my $i=0; $i<scalar(@files); $i++) {
         $files[$i] = "$path\\$files[$i]"; # Prepend the full path
@@ -472,7 +493,8 @@ sub _document_raw_files {
     } else {
 	open(INI, ">>$self->{_out_dir}\\raw.ini") || return 1;
     }
-    print INI "[$sample_path]\n";
+	my ($filename, $directories) = fileparse($sample_path); 
+    print INI "[$directories]\n";
     foreach (@{$raws}) {
 	if ($from_ini) {
 	    print INI _get_base_file($_), ".$self->{_base_ext}\n";
@@ -508,7 +530,10 @@ sub run_converter {
     my $from_ini = 0;
     for (my $i=0; $i<scalar(@{$self->{_in_dirs}}); $i++) {
 	my $sample_path = $self->{_in_dirs}->[$i];
-	my @raw_files = _get_files($sample_path, $self->{_sort_by_date}, $self->{_base_ext} ); # Collect the sorted full path raw file names.
+	
+	### CTMM ###
+	my @raw_files;
+	push(@raw_files, $sample_path);#_get_files($sample_path, $self->{_sort_by_date}, $self->{_base_ext} ); # Collect the sorted full path raw file names.
 	if (!@raw_files) {
 	    foreach (@{$self->{_fhs}}) {
 		print $_ "Converter: $sample_path contains no $self->{_base_ext} files - assume files were moved.  Checking raw.ini.\n";
@@ -536,8 +561,9 @@ sub run_converter {
 	}
 	#my @base_names = _get_base_names(\@raw_files);
 	foreach my $raw_file (@raw_files) {
-	    $self->{_raw_files}->{"$raw_file"}->{_raw_path} = $sample_path; # Create raw file data structure to be used throughout
-	    $self->{_raw_files}->{"$raw_file"}->{_base_name} = _get_base_file($raw_file);
+		my ($filename, $directories) = fileparse($sample_path);
+	    $self->{_raw_files}->{"$raw_file"}->{_raw_path} = $directories; # Create raw file data structure to be used throughout
+	    $self->{_raw_files}->{"$raw_file"}->{_base_name} = _get_base_file($filename);#_get_base_file($raw_file);
 	    $self->{_raw_files}->{"$raw_file"}->{_raw_file} = $raw_file;
 	}
 	if ($self->{_instrument_type} eq 'LTQ' || $self->{_instrument_type} eq 'ORBI') {
@@ -583,12 +609,19 @@ sub run_readraw4mascot2 {
     my ($cntr,$skipped) = (0,0);
     my $program = 'ReAdW4Mascot2';
     foreach (@{$self->{_fhs}}) {
-	print $_ "#--> 1.) Extracting peak lists and measurements ($program):\n";
+		print $_ "#--> 1.) Extracting peak lists and measurements ($program):\n";
     }
     foreach my $raw_file ( keys(%{$self->{_raw_files}}) ) {
 	my $file = $self->{_raw_files}->{"$raw_file"};
 	my $raw_path = $file->{_raw_path};
 	my $out_base_file = "$self->{_out_dir}\\$file->{_base_name}.$self->{_base_ext}";
+	
+	print "\t#####DEBUG######\n";
+	print "\tRaw file: $raw_file\n";
+	print "\tRaw path: $raw_path\n";
+	print "\tOut Base File: $out_base_file\n";
+	
+	
 	my $mgf_file = "$out_base_file.MGF";
 	my $mzxml_file = "$out_base_file.mzXML";
 	my $convert = $self->_check_mgf($mgf_file, $mzxml_file, $program);
@@ -833,37 +866,38 @@ sub run_mspepsearch {
     my $num_mgf_files = scalar(keys(%{$self->{_raw_files}}));
     my ($cntr,$skipped) = (0,0);
     foreach (@{$self->{_fhs}}) {
-	print $_ "#--> 2.) Identifying MS/MS spectra ($program):\n";
+		print $_ "#--> 2.) Identifying MS/MS spectra ($program):\n";
     }
+
     foreach my $raw_file ( keys(%{$self->{_raw_files}}) ) {
-	my $file = $self->{_raw_files}->{"$raw_file"};
-	my $mgf_file = $file->{_mgf_file};
-	my $tsv_file = "$mgf_file.TSV";
-	my $search = $self->_check_search_result($tsv_file, $program);
-	if ($search) {
-	    $cntr++;
-	    my $cmd = "$self->{'MSPepSearch.exe'} fiPv";
-	    if ($self->{_instrument_type} eq "AGILENT_QTOF") {
-		$cmd .= 'o';
-	    }
-	    $cmd .=  " /OutSpecNum /OutPrecursorMZ /HiPri /MinMF $self->{_threshold} /HITS $self->{_num_matches} /Z $self->{_pmt} /M $self->{_fmt} /All ";
-	    foreach my $lib (@{$self->{_spec_libs}}) {
-		$cmd .= "/LIB \"$lib\" ";
-	    }
-	    $cmd .= "/INP \"$mgf_file\" /OUTTAB \"$tsv_file\"";
-	    foreach (@{$self->{_fhs}}) {
-		print $_ "$program: Searching ($cntr of $num_mgf_files)\n";
-		print $_ "$program: Running $cmd\n";
-	    }                    
-	    my $mspepsearch_output = `$cmd 2>&1`;
-	    foreach (@{$self->{_fhs}}) {
-		print $_ $mspepsearch_output;
-	    }  
-	} else {
-	    $skipped++;
-	}
-	$self->{_raw_files}->{"$raw_file"}->{_tsv_file} = $tsv_file;
-	$self->{_raw_files}->{"$raw_file"}->{_search_result} = $tsv_file;
+		my $file = $self->{_raw_files}->{"$raw_file"};
+		my $mgf_file = $file->{_mgf_file};
+		my $tsv_file = "$mgf_file.TSV";
+		my $search = $self->_check_search_result($tsv_file, $program);
+		if ($search) {
+			$cntr++;
+			my $cmd = "$self->{'MSPepSearch.exe'} fiPv";
+			if ($self->{_instrument_type} eq "AGILENT_QTOF") {
+				$cmd .= 'o';
+			}
+			$cmd .=  " /OutSpecNum /OutPrecursorMZ /HiPri /MinMF $self->{_threshold} /HITS $self->{_num_matches} /Z $self->{_pmt} /M $self->{_fmt} /All ";
+			foreach my $lib (@{$self->{_spec_libs}}) {
+				$cmd .= "/LIB \"$lib\" ";
+			}
+			$cmd .= "/INP \"$mgf_file\" /OUTTAB \"$tsv_file\"";
+			foreach (@{$self->{_fhs}}) {
+				print $_ "$program: Searching ($cntr of $num_mgf_files)\n";
+				print $_ "$program: Running $cmd\n";
+			}                    
+			my $mspepsearch_output = `$cmd 2>&1`;
+			foreach (@{$self->{_fhs}}) {
+				print $_ $mspepsearch_output;
+			}  
+		} else {
+			$skipped++;
+		}
+		$self->{_raw_files}->{"$raw_file"}->{_tsv_file} = $tsv_file;
+		$self->{_raw_files}->{"$raw_file"}->{_search_result} = $tsv_file;
     }
     foreach (@{$self->{_fhs}}) {
 	print $_ "MSPepSearch: Searched $cntr files.  Skipped $skipped.\n";
@@ -1116,35 +1150,40 @@ sub run_nistms_metrics {
             print INI "FASTA=$self->{_seq_lib}\n";
         }
         print INI "DIR=$self->{_out_dir}\\\n";
+		
+		### CTMM ###
         foreach my $sample_path (@{$self->{_in_dirs}}) { # Writing the file references
-	    my @raw_files = _get_files($sample_path, $self->{_sort_by_date}, $self->{_base_ext} ); # Collect the sorted full path raw file names.
-	    if (!@raw_files) { # Have raw files been moved?
-		@raw_files = $self->_read_raw_ini($sample_path);
-		if (!@raw_files) {
-		    #print "Problem finding raw files (run_nistms_metrics()).\n";
-		    return 1;
-		}
-	    }
-            if ($series_cntr > 0) {
-		print INI "SERIES\n";
-	    }
-	    $series_cntr++;
-	    foreach my $raw_file (@raw_files) {
-		$cntr++;
-		my $file = $self->{_raw_files}->{"$raw_file"};
-		#my $mgf_file = $file->{_mgf_file};
-		my $base_name = "$file->{_base_name}.$self->{_base_ext}.MGF";
-		my $ext;
-		if ($self->{_search_engine} eq 'mspepsearch') {
-		    $ext = '.TSV';
-		} else {
-		    $ext = '.pepXML';
-		}
-		my $search_result = $base_name.$ext;
-		print INI "FILE=$search_result\n";
-		$cntr++;
-		#print INI "MGF=$mgf_file\n"; # Still needed?
-	    }
+			my ($filename, $directories) = fileparse($sample_path);
+			
+			my @raw_files = $filename; #_get_files($sample_path, $self->{_sort_by_date}, $self->{_base_ext} ); # Collect the sorted full path raw file names.
+			
+			if (!@raw_files) { # Have raw files been moved?
+				@raw_files = $self->_read_raw_ini($directories);#$sample_path);
+				if (!@raw_files) {
+					#print "Problem finding raw files (run_nistms_metrics()).\n";
+					return 1;
+				}
+			}
+			if ($series_cntr > 0) {
+				print INI "SERIES\n";
+			}
+			$series_cntr++;
+			foreach my $raw_file (@raw_files) {
+				$cntr++;
+				my $file = $self->{_raw_files}->{"$raw_file"};
+				#my $mgf_file = $file->{_mgf_file};
+				my $base_name = "$file->{_base_name}.$self->{_base_ext}.MGF";
+				my $ext;
+				if ($self->{_search_engine} eq 'mspepsearch') {
+					$ext = '.TSV';
+				} else {
+					$ext = '.pepXML';
+				}
+				my $search_result = "$filename.MGF$ext"; #$base_name.$ext;
+				print INI "FILE=$search_result\n";
+				$cntr++;
+				#print INI "MGF=$mgf_file\n"; # Still needed?
+			}
         }
         close INI;
         if ($cntr) {
