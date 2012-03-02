@@ -12,53 +12,52 @@
 	<!-- Overriding placement of some divs for mobile devices -->
 	<link rel="stylesheet" type="text/css" media="only screen and (max-device-width: 600px)" href="/ctmm/report/css/report_small.css" />
     <script type="text/javascript">
-        $(document).ready(function() {
-			// Read JSON file from current directory
-			$.getJSON('metrics.json')
-			// On success, parse data into table format
-			.success(function(metrics) {
-				$.getJSON('/ctmm/report/config/metrics_order.json')
-				// On success, use data for showing / hiding predefined metrics
-				.success(function(order) {
-					// Read configuration settings
-					var top = order['top'];
-					var bottom = order['bottom'];
-					var hidden = order['hidden'];
+	/* Creates an HTML table using the metrics. All rows are ordered using the 
+	   configuration read from the JSON config file.
+	*/
+    function createMetricsTable(metrics, order) {
+		var table = '<table>';
+		$.each(order, function(id) {
+			$.each(metrics, function(key, val) {
+				element = metrics[key][order[id]];
+				if (element != undefined) {
+					table += '<tr class=' + key + '><td>' + element[0] + '</td>';
+					table += '<td>' + element[1] + '</td></tr>';
+				}
+			});	
+		});
+		table += '</table>';
+		return table;
+	}
 
-					// Create two tables, the primary (top) and secondary (bottom) tables
-					var tabletop = '<table>';
-					var tablebot = '<table>';
-					// Loop over metrics retrieving data
-					$.each(metrics, function(key, val) {
-						$.each(metrics[key], function(elem) {
-							if (jQuery.inArray(elem, top) != -1) {
-								tabletop += '<tr class=' + key + '><td>' + metrics[key][elem][0] + '</td>';
-								tabletop += '<td>' + metrics[key][elem][1] + '</td></tr>';
-							} else if (jQuery.inArray(elem, bottom) != -1) {
-								tablebot += '<tr class=' + key + '><td>' + metrics[key][elem][0] + '</td>';
-								tablebot += '<td>' + metrics[key][elem][1] + '</td></tr>';
-							}
-						});
-					});
-					tabletop += '</table>';
-					tablebot += '</table>';
-	
-					// Place table in the metrics <div>
-					$('#metrics').append(tabletop + '<hr>' + tablebot);
-				}) // 'metrics_order' success
-				.error(function() {console.log("Error reading configuration file"); });;
-			})
-			// On error, write error to console
-			.error(function() { console.log("Error reading JSON file"); });;		
-        });
-    </script>
+    /* Reads JSON metrics data and configuration file and places HTML table in <divs> */
+    $(document).ready(function() {
+		// Read JSON file from current directory
+		$.getJSON('metrics.json')
+		// On success, parse data into table format
+		.success(function(metrics) {
+			// Read JSON configuration file for showing / hiding predefined metrics
+			$.getJSON('/ctmm/report/config/metrics_order.json')
+			.success(function(order) {
+				// Create table and place it in the metrics <divs>
+				$('#metrics_top').append(createMetricsTable(metrics, order['top']));
+				$('#metrics_bottom').append(createMetricsTable(metrics, order['bottom']));
+			}) // 'metrics_order' success
+			.error(function() {console.log("Error reading configuration file"); });;
+		})
+		// On error, write error to console
+		.error(function() { console.log("Error reading JSON metrics file"); });;		
+    });
+</script>
 </head>
 <body>
 <div id="description">
 	<div id="logos">
 		<img src="/ctmm/report/images/ctmm_logo.gif" height="45"> <br/>
 		<em>Powered by:</em><br />
-		<a href="http://www.nbic.nl/support/brs"><img border="0" src="/ctmm/report/images/nbic_logo.png" height="25"></a>
+		<a href="http://www.nbic.nl/support/brs">
+			<img border="0" src="/ctmm/report/images/nbic_logo.png" height="25">
+		</a>
 	</div>
 	<div id="title">
 		QC-report on: '<em>${raw_file}</em>'
@@ -70,7 +69,8 @@
 		<em>${runtime}</em>
 	</div>
 </div>
-<div id="metrics"></div>
+<div id="metrics_top"></div>
+<div id="metrics_bottom"></div>
 <div id="graphics">
 	<div id="heatmap">
 		<a href="${heatmap_pdf}">	
