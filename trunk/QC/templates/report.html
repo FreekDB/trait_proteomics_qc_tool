@@ -19,7 +19,7 @@
 		var table = '<table>';
 		$.each(order, function(id) {
 			$.each(metrics, function(key, val) {
-				element = metrics[key][order[id]];
+				element = metrics[key][order[id]]; // TODO: need to test for undefined, should use jQuery.inArray
 				if (element != undefined) {
 					table += '<tr class=' + key + '><td>' + element[0] + '</td>';
 					table += '<td>' + element[1] + '</td></tr>';

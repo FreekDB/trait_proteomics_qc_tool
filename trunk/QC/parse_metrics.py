@@ -43,55 +43,62 @@ def _get_default_nist_metrics():
     retrieve this value.
     """
     return {
-    # MS1
-    'ms1-1': ['Ion Injection Times for IDs', 1, re.compile(r'MS1 Median\s+([0-9\.]+)')],
-    'ms1-2a': ['MS1 During Middle', 1, re.compile(r'S/N Median\s+([0-9\.]+)')],
-    'ms1-2b': ['MS1 During Middle', 2, re.compile(r'TIC Median/1000\s+([0-9\.]+)')],
-    'ms1-3a': ['MS1 ID Max', 6, re.compile(r'95/5 MidRT\s+([0-9\.]+)')],
-    'ms1-3b': ['MS1 ID Max', 1, re.compile(r'Median\s+([0-9\.e\+]+)')],
-    'ms1-5a': ['Precursor m/z - Peptide Ion m/z', 2, re.compile(r'Median\s+([0-9\.]+)')],
-    'ms1-5b': ['Precursor m/z - Peptide Ion m/z', 3, re.compile(r'Mean Asolute\s+([0-9\.]+)')],
-    'ms1-5c': ['Precursor m/z - Peptide Ion m/z', 4, re.compile(r'ppm Median\s+([0-9\.]+)')],
-    'ms1-5d': ['Precursor m/z - Peptide Ion m/z', 5, re.compile(r'ppm InterQ\s+([0-9\.]+)')],
-
-    # MS2
-    'ms2-1': ['Ion Injection Times for IDs', 3, re.compile(r'MS2 Median\s+([0-9\.]+)')],
-    'ms2-2': ['MS2 ID Spectra', 3, re.compile(r'S/N Median\s+([0-9\.]+)')],
-    'ms2-3': ['MS2 ID Spectra', 1, re.compile(r'NPeaks Median\s+([0-9\.]+)')],
-
-    # Peptide Identification
-    'p-1': ['MS2 ID Spectra', 5, re.compile(r'ID Score Median\s+([0-9\.]+)')],
-    'p-2a': ['Tryptic Peptide Counts', 3, re.compile(r'Identifications\s+([0-9\.]+)')],
-    'p-2b': ['Tryptic Peptide Counts', 2, re.compile(r'Ions\s+([0-9\.]+)')],
-    'p-2c': ['Tryptic Peptide Counts', 1, re.compile(r'Peptides\s+([0-9\.]+)')],
-    'p-3': ['Peptide Counts', 4, re.compile(r'Semi/Tryp Peps\s+([0-9\.]+)')],
-
-    # Chromatography
-    'c-1a': ['Fraction of Repeat Peptide IDs with Divergent', 1, re.compile(r'- 4 min\s+([0-9\.]+)')],
-    'c-1b': ['Fraction of Repeat Peptide IDs with Divergent', 2, re.compile(r'\+ 4 min\s+([0-9\.]+)')],
-    'c-2a': ['Middle Peptide Retention Time Period', 1, re.compile(r'Half Period\s+([0-9\.]+)')],
-    'c-2b': ['Middle Peptide Retention Time Period', 7, re.compile(r'Pep ID Rate\s+([0-9\.]+)')],
-    'c-3a': ['Peak Width at Half Height', 1, re.compile(r'Median Value\s+([0-9\.]+)')],
-    'c-3b': ['Peak Width at Half height for IDs', 5, re.compile(r'Median Disper\s+([0-9\.]+)')],
-    'c-4a': ['Peak Widths at Half Max over', 1, re.compile(r'First Decile\s+([0-9\.]+)')],
-    'c-4b': ['Peak Widths at Half Max over', 3, re.compile(r'Last Decile\s+([0-9\.]+)')],
-    'c-4c': ['Peak Widths at Half Max over', 2, re.compile(r'Median Value\s+([0-9\.]+)')],
-
-    # Ion Source
-    'is-1a': ['MS1 During Middle', 14, re.compile(r'MS1 Jumps \>10x\s+([0-9\.]+)')],
-    'is-1b': ['MS1 During Middle', 15, re.compile(r'MS1 Falls \<\.1x\s+([0-9\.]+)')],
-    'is-2': ['Precursor m/z for IDs', 1, re.compile(r'Median\s+([0-9\.]+)')],
-    'is-3a': ['Ion IDs by Charge State', 1, re.compile(r'Charge \+1\s+([0-9\.]+)')],
-    'is-3b': ['Ion IDs by Charge State', 3, re.compile(r'Charge \+3\s+([0-9\.]+)')],
-    'is-3c': ['Ion IDs by Charge State', 4, re.compile(r'Charge \+4\s+([0-9\.]+)')],
-
-    # Dynamic Sampling
-    'ds-1a': ['Ratios of Peptide Ions IDed', 1, re.compile(r'Once/Twice\s+([0-9\.]+)')],
-    'ds-1b': ['Ratios of Peptide Ions IDed', 2, re.compile(r'Twice/Thrice\s+([0-9\.]+)')],
-    'ds-2a': ['Middle Peptide Retention Time Period', 6, re.compile(r'MS1 Scans\s+([0-9\.]+)')],
-    'ds-2b': ['Middle Peptide Retention Time Period', 5, re.compile(r'MS2 Scans\s+([0-9\.]+)')],
-    'ds-3a': ['MS1max/MS1sampled Abundance', 1, re.compile(r'Median All IDs\s+([0-9\.]+)')],
-    'ds-3b': ['MS1max/MS1sampled Abundance', 7, re.compile(r'Med Bottom 1/2\s+([0-9\.]+)')]
+        # MS1
+        'ms1': {
+            'ms1-1': ['Ion Injection Times for IDs', 1, re.compile(r'MS1 Median\s+([0-9\.]+)')],
+            'ms1-2a': ['MS1 During Middle', 1, re.compile(r'S/N Median\s+([0-9\.]+)')],
+            'ms1-2b': ['MS1 During Middle', 2, re.compile(r'TIC Median/1000\s+([0-9\.]+)')],
+            'ms1-3a': ['MS1 ID Max', 6, re.compile(r'95/5 MidRT\s+([0-9\.]+)')],
+            'ms1-3b': ['MS1 ID Max', 1, re.compile(r'Median\s+([0-9\.e\+]+)')],
+            'ms1-5a': ['Precursor m/z - Peptide Ion m/z', 2, re.compile(r'Median\s+([0-9\.]+)')],
+            'ms1-5b': ['Precursor m/z - Peptide Ion m/z', 3, re.compile(r'Mean Asolute\s+([0-9\.]+)')],
+            'ms1-5c': ['Precursor m/z - Peptide Ion m/z', 4, re.compile(r'ppm Median\s+([0-9\.]+)')],
+            'ms1-5d': ['Precursor m/z - Peptide Ion m/z', 5, re.compile(r'ppm InterQ\s+([0-9\.]+)')],
+        },
+        # MS2
+        'ms2': {
+            'ms2-1': ['Ion Injection Times for IDs', 3, re.compile(r'MS2 Median\s+([0-9\.]+)')],
+            'ms2-2': ['MS2 ID Spectra', 3, re.compile(r'S/N Median\s+([0-9\.]+)')],
+            'ms2-3': ['MS2 ID Spectra', 1, re.compile(r'NPeaks Median\s+([0-9\.]+)')],
+        },
+        # Peptide Identification
+        'pep': {
+            'p-1': ['MS2 ID Spectra', 5, re.compile(r'ID Score Median\s+([0-9\.]+)')],
+            'p-2a': ['Tryptic Peptide Counts', 3, re.compile(r'Identifications\s+([0-9\.]+)')],
+            'p-2b': ['Tryptic Peptide Counts', 2, re.compile(r'Ions\s+([0-9\.]+)')],
+            'p-2c': ['Tryptic Peptide Counts', 1, re.compile(r'Peptides\s+([0-9\.]+)')],
+            'p-3': ['Peptide Counts', 4, re.compile(r'Semi/Tryp Peps\s+([0-9\.]+)')],
+        },
+        # Chromatography
+        'chrom': {
+            'c-1a': ['Fraction of Repeat Peptide IDs with Divergent', 1, re.compile(r'- 4 min\s+([0-9\.]+)')],
+            'c-1b': ['Fraction of Repeat Peptide IDs with Divergent', 2, re.compile(r'\+ 4 min\s+([0-9\.]+)')],
+            'c-2a': ['Middle Peptide Retention Time Period', 1, re.compile(r'Half Period\s+([0-9\.]+)')],
+            'c-2b': ['Middle Peptide Retention Time Period', 7, re.compile(r'Pep ID Rate\s+([0-9\.]+)')],
+            'c-3a': ['Peak Width at Half Height', 1, re.compile(r'Median Value\s+([0-9\.]+)')],
+            'c-3b': ['Peak Width at Half height for IDs', 5, re.compile(r'Median Disper\s+([0-9\.]+)')],
+            'c-4a': ['Peak Widths at Half Max over', 1, re.compile(r'First Decile\s+([0-9\.]+)')],
+            'c-4b': ['Peak Widths at Half Max over', 3, re.compile(r'Last Decile\s+([0-9\.]+)')],
+            'c-4c': ['Peak Widths at Half Max over', 2, re.compile(r'Median Value\s+([0-9\.]+)')],
+        },
+        # Ion Source
+        'ion': {
+            'is-1a': ['MS1 During Middle', 14, re.compile(r'MS1 Jumps \>10x\s+([0-9\.]+)')],
+            'is-1b': ['MS1 During Middle', 15, re.compile(r'MS1 Falls \<\.1x\s+([0-9\.]+)')],
+            'is-2': ['Precursor m/z for IDs', 1, re.compile(r'Median\s+([0-9\.]+)')],
+            'is-3a': ['Ion IDs by Charge State', 1, re.compile(r'Charge \+1\s+([0-9\.]+)')],
+            'is-3b': ['Ion IDs by Charge State', 3, re.compile(r'Charge \+3\s+([0-9\.]+)')],
+            'is-3c': ['Ion IDs by Charge State', 4, re.compile(r'Charge \+4\s+([0-9\.]+)')],
+        },
+        # Dynamic Sampling
+        'dyn': {
+            'ds-1a': ['Ratios of Peptide Ions IDed', 1, re.compile(r'Once/Twice\s+([0-9\.]+)')],
+            'ds-1b': ['Ratios of Peptide Ions IDed', 2, re.compile(r'Twice/Thrice\s+([0-9\.]+)')],
+            'ds-2a': ['Middle Peptide Retention Time Period', 6, re.compile(r'MS1 Scans\s+([0-9\.]+)')],
+            'ds-2b': ['Middle Peptide Retention Time Period', 5, re.compile(r'MS2 Scans\s+([0-9\.]+)')],
+            'ds-3a': ['MS1max/MS1sampled Abundance', 1, re.compile(r'Median All IDs\s+([0-9\.]+)')],
+            'ds-3b': ['MS1max/MS1sampled Abundance', 7, re.compile(r'Med Bottom 1/2\s+([0-9\.]+)')]
+        }
     }
 
 
@@ -122,12 +129,15 @@ def _extract_nist_metrics(metrics_file):
     nist_metrics = _get_default_nist_metrics()
     with open(metrics_file, 'r') as f:
         lines = f.readlines()
-    #Loop over keys in default nist nist_metrics to find them in logfile
-    for metric in nist_metrics.keys():
-        index = next((num for num, line in enumerate(lines) if nist_metrics[metric][0] in line), None)
-        if index:
-            result = nist_metrics[metric][-1].search(lines[index + nist_metrics[metric][1]])
-            nist_metrics[metric] = result.group(1) if result else "N/A"
+
+    # For each metric class ('pep', 'ms1', etc.) perform regex searches in the NIST metrics
+    # output file and add the found values to the metrics dictionary.
+    for mc in nist_metrics.keys():
+        for metric in nist_metrics[mc].keys():
+            index = next((num for num, line in enumerate(lines) if nist_metrics[mc][metric][0] in line), None)
+            if index:
+                result = nist_metrics[mc][metric][-1].search(lines[index + nist_metrics[mc][metric][1]])
+                nist_metrics[metric] = result.group(1) if result else "N/A"
     return nist_metrics
 
 

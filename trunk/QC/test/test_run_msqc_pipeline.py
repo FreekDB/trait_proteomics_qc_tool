@@ -3,7 +3,7 @@ Module to test the run_msqc_pipeline.
 """
 
 from QC import run_msqc_pipeline
-from pkg_resources import resource_filename # @UnresolvedImport
+from pkg_resources import resource_filename  # @UnresolvedImport
 from shutil import copy
 import os.path
 import tempfile
@@ -40,11 +40,11 @@ class Test(unittest.TestCase):
     def test_raw_format_conversions(self):
         ''' Test the conversion of RAW files into mzXML / MGF files '''
         run_msqc_pipeline._raw_format_conversions(self.rawfile, self.temp_folder)
-        
+
         # Check if output paths for the mzXML and MGF files exist
         mzxml_file = os.path.join(self.temp_folder, self.rawfilebase + '.RAW.mzXML')
         self.failUnless(os.path.exists(mzxml_file))
-        
+
         mgf_file = os.path.join(self.temp_folder, self.rawfilebase + '.RAW.MGF')
         self.failUnless(os.path.exists(mgf_file))
 
@@ -54,7 +54,7 @@ class Test(unittest.TestCase):
         copy(self.rawfile, self.temp_folder)
         copy(self.mzxmlfile, self.temp_folder)
         copy(self.mgffile, self.temp_folder)
-        
+
         # Run NIST in temp folder
         restore_path = os.getcwd()
         os.chdir(self.temp_folder)
@@ -70,12 +70,12 @@ class Test(unittest.TestCase):
         ''' Run the R script generating the graphics '''
         copy(self.mzxmlfile, self.temp_folder)
         run_msqc_pipeline._run_r_script(self.temp_folder, self.temp_folder, self.rawfilebase)
-        
+
         # Test if graphics and logfile exists
         heatmaps = [self.rawfilebase + '_heatmap.png', self.rawfilebase + '_heatmap.pdf']
         ionplots = [self.rawfilebase + '_ions.png', self.rawfilebase + '_ions.pdf']
         rlog = os.path.join(self.temp_folder, self.rawfilebase + '.RLOG')
-        
+
         self.failUnless([os.path.exists(x) for x in heatmaps])
         self.failUnless([os.path.exists(x) for x in ionplots])
         self.failUnless(os.path.exists(rlog))

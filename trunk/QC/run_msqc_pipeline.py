@@ -1,22 +1,24 @@
 """
-TODO Module to.. 
+Main CTMM QC Module that runs the NIST metrics pipeline as well as generating
+graphics using R and combining all gathered data into an HTML report.
 """
 
 from os import makedirs
 from os.path import normpath, splitext, isdir
-from pkg_resources import resource_filename # @UnresolvedImport
+from pkg_resources import resource_filename  # @UnresolvedImport
 from parse_metrics import create_metrics
-from shutil import move, copy # move
+from shutil import move, copy  # move
 from string import Template
 from subprocess import Popen, PIPE
 from time import gmtime, strftime, time
 import logging
 import os.path
 import tempfile
+import json
 
 # Globals
 _R_GRAPHICS = resource_filename(__name__, 'r_ms_graphics.R')
-
+json.dumps
 # Paths (These should be adapted for the system they run on)
 _WEB_DIR = normpath('C:/Program Files (x86)/Apache Software Foundation/Apache2.2/htdocs/ctmm')
 _NIST = normpath('C:/ctmm/NISTMSQCv1_2_0_CTMM')
@@ -29,7 +31,7 @@ def qc_pipeline(indir, out_dir, copy_log):
     of all processed files. Once a new RAW file has been placed in this directory
     a report will be generated with this file as input."""
 
-    print 'Version 0.0.6f'
+    print 'Version 0.0.7'
 
     files = _read_logfile(_PROGRES_LOG)
     files = _parse_robocopy_log(copy_log, files)
@@ -170,26 +172,33 @@ def _manage_paths(basename):
 
 
 def _run_nist(rawfile, outdir):
-    """Starts the NIST metrics workflow using a RAW file as input. Reads parameters
-    from a configuration file to pass as arguments to the workflow."""
-    # -WORKAROUND-
-    # ReAd4W2Mascot is not working on the VM, using 'msconvert' for the conversion
-    # of RAW to mzXML, which needs to be done manually as well as fixing the mzXML header
+    '''
+    Starts the NIST metrics workflow using a RAW file as input. Reads parameters
+    from a configuration file to pass as arguments to the workflow.
+    @param rawfile:
+    @param outdir:
+    '''
 
+    # NIST settings
     logging.info("Running NIST pipeline..")
-    nist_library = 'hsa'
+    nist_library = 'human_consensus_Qo\human_consensus_Qo'
+    search_engine = 'SpectraST'
+    mode = 'lite'
     fasta = normpath('{0}/libs/{1}.fasta'.format(_NIST, nist_library))
     instrument = 'LTQ'
 
     # Run NIST pipeline
     # TODO: validate parameters, check if in- and out-dir can be the same
     nist_exe = normpath('perl {0}/scripts/run_NISTMSQC_pipeline.pl'.format(_NIST))
-    nist_cmd = '{0} --in_dir {1} --out_dir {2} --library {3} --instrument_type {4} --fasta {5} {6} {7} {8} {9}'\
-        .format(nist_exe,
-                outdir,
+    nist_cmd = '{0} --in_dir {1} --out_dir {2} --library {3} --instrument_type {4} --search_engine {5}\
+                --mode {6} --fasta {7} {8} {9} {10} {11}' \
+                .format(nist_exe,
+                rawfile,
                 outdir,
                 nist_library,
                 instrument,
+                search_engine,
+                mode,
                 fasta,
                 '--overwrite_searches',
                 '--pro_ms',
@@ -226,39 +235,41 @@ def _create_report(webdir, basename, metrics):
     Uses the report template in combination with the metrics to construct a report
     @param webdir: location in which the report (index.html) should be placed
     @param basename: RAW filename (without ext) to identify currently processed file
-    @param metrics: dictionary holding all metrics (from NIST and generic)
+    @param metrics: dictionary holding all metrics (generic)
     '''
     with open(normpath('templates/report.html'), 'r') as report_template:
         template = report_template.readlines()
 
-    # TODO: remove all NIST metrics substitutions since this will be done using JSON/JQuery
-    # TODO: write out NIST metrics to JSON file in webdir
     report_template = Template(''.join(template))
     report_updated = report_template.safe_substitute(# General
                                                      raw_file='{0}.RAW'.format(basename),
                                                      date=metrics['date'],
                                                      runtime=metrics['runtime'],
-                                                     # Metrics
-                                                     m_fs=metrics['f_size'],
-                                                     m_ms1_scans=metrics['ms1_spectra'],
-                                                     m_ms2_scans=metrics['ms2_spectra'],
-                                                     m_f_ms1_rt=metrics['f_ms1_rt'],
-                                                     m_l_ms1_rt=metrics['l_ms1_rt'],
-                                                     m_m_p_w=metrics['m_p_w'],
-                                                     m_i_i_t_ms1=metrics['i_i_t_ms1'],
-                                                     m_i_i_t_ms2=metrics['i_i_t_ms2'],
-                                                     m_p_c_pep=metrics['p_c_pep'],
-                                                     m_p_c_ion=metrics['p_c_ion'],
-                                                     m_p_c_ids=metrics['p_c_ids'],
                                                      # Figures
                                                      heatmap_img='{0}_heatmap.png'.format(basename),
                                                      ions_img='{0}_ions.png'.format(basename),
                                                      heatmap_pdf='{0}_heatmap.pdf'.format(basename),
                                                      ions_pdf='{0}_ions.pdf'.format(basename))
 
-    # Write report file to directory holding all reports
+    # Write report file to directory holding all reports for this month
     with open(normpath('{0}/index.html'.format(webdir)), 'w') as report_html:
         report_html.writelines(report_updated)
+
+    # Store NIST metrics together with the report
+    _export_metrics_json(metrics, webdir)
+
+
+def _export_metrics_json(metrics, webdir):
+    '''
+    Stores the NIST metrics dictionary as JSON file used when rendering the report
+    @param metrics: dictionary holding all NIST metircs
+    @param webdir: directory where the report is stored
+    '''
+    json_structure = json.dumps(metrics)
+
+    with open(os.path.join(webdir, 'metrics.json'), "w") as metrics_file:
+        metrics_file.writelines(json_structure)
+    pass
 
 
 # --- Temporary (workaround) functions ---
@@ -293,6 +304,9 @@ def _run_command(cmd):
         raise IOError(err)
 
 
-def _cleanup():
-    """ Cleans up temporary data (NIST output etc) after a successful run"""
+def _cleanup(outdir):
+    '''
+    Cleans up temporary data (NIST output etc) after a successful run
+    @param outdir: working directory in which all intermediate files are stored
+    '''
     pass  # TODO implement clean up of working directory
