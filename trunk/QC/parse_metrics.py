@@ -22,15 +22,15 @@ def create_metrics(abs_rawfile, t_start):
     #Determine paths to log files
     rawfilebase = os.path.splitext(abs_rawfile)[0]
     metrics_file = rawfilebase + '.msqc'
-    Rlogfile = rawfilebase + '.RLOG'
+    rlogfile = rawfilebase + '.RLOG'
 
     if os.path.exists(metrics_file):
         #Update metrics with values from NIST pipeline
         metrics.update(_extract_nist_metrics(metrics_file))
 
-    if os.path.exists(Rlogfile):
+    if os.path.exists(rlogfile):
         #Update metrics with some generic metrics
-        metrics.update(_extract_rlog_metrics(Rlogfile))
+        metrics.update(_extract_rlog_metrics(rlogfile))
 
     return metrics
 
@@ -112,12 +112,12 @@ def _extract_generic_metrics(rawfile, t_start):
     # Other generic metrics
     generic_metrics['f_size'] = "%0.1f" % (os.stat(rawfile).st_size / (1024 * 1024.0))
     generic_metrics['runtime'] = str(datetime.timedelta(seconds=round(time.time() - t_start)))
-    t = time.gmtime()
-    generic_metrics['date'] = '{year}/{month}/{day} - {hour}:{min}'.format(year=time.strftime("%Y", t),
-                                                                           month=time.strftime("%b", t),
-                                                                           day=time.strftime("%d", t),
-                                                                           hour=time.strftime("%H", t),
-                                                                           min=time.strftime("%M", t))
+    cur_time = time.gmtime()
+    generic_metrics['date'] = '{year}/{month}/{day} - {hour}:{min}'.format(year=time.strftime("%Y", cur_time),
+                                                                           month=time.strftime("%b", cur_time),
+                                                                           day=time.strftime("%d", cur_time),
+                                                                           hour=time.strftime("%H", cur_time),
+                                                                           min=time.strftime("%M", cur_time))
     return generic_metrics
 
 
@@ -127,16 +127,16 @@ def _extract_nist_metrics(metrics_file):
     @param metrics_file: NIST metrics file
     """
     nist_metrics = _get_default_nist_metrics()
-    with open(metrics_file, 'r') as f:
-        lines = f.readlines()
+    with open(metrics_file, 'r') as mfile:
+        lines = mfile.readlines()
 
-    # For each metric class ('pep', 'ms1', etc.) perform regex searches in the NIST metrics
+    # For each metric class (mcl) ('pep', 'ms1', etc.) perform regex searches in the NIST metrics
     # output file and add the found values to the metrics dictionary.
-    for mc in nist_metrics.keys():
-        for metric in nist_metrics[mc].keys():
-            index = next((num for num, line in enumerate(lines) if nist_metrics[mc][metric][0] in line), None)
+    for mcl in nist_metrics.keys():
+        for metric in nist_metrics[mcl].keys():
+            index = next((num for num, line in enumerate(lines) if nist_metrics[mcl][metric][0] in line), None)
             if index:
-                result = nist_metrics[mc][metric][-1].search(lines[index + nist_metrics[mc][metric][1]])
+                result = nist_metrics[mcl][metric][-1].search(lines[index + nist_metrics[mcl][metric][1]])
                 nist_metrics[metric] = result.group(1) if result else "N/A"
     return nist_metrics
 
@@ -149,18 +149,18 @@ def _extract_rlog_metrics(logfile):
     rlog_metrics = {}
 
     # Extracting metrics (MS1, MS2 scans) from R log file
-    with open(logfile, 'r') as f:
-        Rlog = ''.join(f.readlines())
+    with open(logfile, 'r') as rlogfile:
+        rlog = ''.join(rlogfile.readlines())
 
     #TODO extract these patterns to an external dictionary, analogous to get_default_nist_metrics
-    ms1_num = re.search('Number of MS1 scans: ([0-9]+)', Rlog)
-    ms1_peaks = re.search('MS1 scans containing peaks: ([0-9]+)', Rlog)
+    ms1_num = re.search('Number of MS1 scans: ([0-9]+)', rlog)
+    ms1_peaks = re.search('MS1 scans containing peaks: ([0-9]+)', rlog)
     ms1_num = ms1_num.group(1) if ms1_num else "NA"
     ms1_peaks = ms1_peaks.group(1) if ms1_peaks else "NA"
     rlog_metrics['ms1_spectra'] = '{0} ({1})'.format(ms1_num, ms1_peaks)
 
-    ms2_num = re.search('Number of MS2 scans: ([0-9]+)', Rlog)
-    ms2_peaks = re.search('MS2 scans containing peaks: ([0-9]+)', Rlog)
+    ms2_num = re.search('Number of MS2 scans: ([0-9]+)', rlog)
+    ms2_peaks = re.search('MS2 scans containing peaks: ([0-9]+)', rlog)
     ms2_num = ms2_num.group(1) if ms2_num else "NA"
     ms2_peaks = ms2_peaks.group(1) if ms2_peaks else "NA"
     rlog_metrics['ms2_spectra'] = '{0} ({1})'.format(ms2_num, ms2_peaks)

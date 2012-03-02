@@ -18,7 +18,7 @@ import json
 
 # Globals
 _R_GRAPHICS = resource_filename(__name__, 'r_ms_graphics.R')
-json.dumps
+
 # Paths (These should be adapted for the system they run on)
 _WEB_DIR = normpath('C:/Program Files (x86)/Apache Software Foundation/Apache2.2/htdocs/ctmm')
 _NIST = normpath('C:/ctmm/NISTMSQCv1_2_0_CTMM')
@@ -119,9 +119,6 @@ def _parse_robocopy_log(copy_log, files):
     #  Monitor : Waiting for 1 minutes and 1 changes...
 
     # Parsing a file 'block'
-    # TODOs:
-    #     - use regex
-    #    - test with other valid file names
     for lnr_start, logline in enumerate(loglines):
         if 'Started' not in logline:
             continue
@@ -269,7 +266,6 @@ def _export_metrics_json(metrics, webdir):
 
     with open(os.path.join(webdir, 'metrics.json'), "w") as metrics_file:
         metrics_file.writelines(json_structure)
-    pass
 
 
 # --- Temporary (workaround) functions ---
@@ -309,4 +305,4 @@ def _cleanup(outdir):
     Cleans up temporary data (NIST output etc) after a successful run
     @param outdir: working directory in which all intermediate files are stored
     '''
-    pass  # TODO implement clean up of working directory
+    # TODO implement clean up of working directory

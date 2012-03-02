@@ -4,7 +4,7 @@ Created on Feb 27, 2012
 @author: marcelk
 '''
 from QC import parse_metrics
-from pkg_resources import resource_filename # @UnresolvedImport
+from pkg_resources import resource_filename  # @UnresolvedImport
 import time
 import unittest
 
