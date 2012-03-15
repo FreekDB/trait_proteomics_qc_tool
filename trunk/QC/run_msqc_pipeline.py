@@ -7,9 +7,9 @@ from os import makedirs
 from os.path import normpath, splitext, isdir
 from parse_metrics import create_metrics
 from pkg_resources import resource_filename  # @UnresolvedImport
-from shutil import move, copy  # move
+from shutil import move, copy
 from string import Template
-from subprocess import check_call, STDOUT
+from subprocess import check_call
 from time import gmtime, strftime, time
 import json
 import logging as log
@@ -202,8 +202,8 @@ def _run_nist(rawfile, outdir):
                 '--overwrite_searches',
                 '--pro_ms',
                 '--log_file',
-                '--mode lite']
-    check_call(nist_cmd, stdout=open('/dev/null', 'w'), stderr=STDOUT)
+                '--mode', 'lite']
+    check_call(nist_cmd)
 
     # Rename .msqc metrics file here, as it assumes the name of the containing folder,
     # which is now some random file path
@@ -229,7 +229,7 @@ def _run_r_script(outdir, webdir, basename):
             basename,
             webdir,
             1]  # MS level (1 or 2)
-    check_call(rcmd, stdout=open('/dev/null', 'w'), stderr=STDOUT)
+    check_call(rcmd)
 
 
 def _create_report(webdir, basename, metrics):
@@ -293,9 +293,9 @@ def _raw_format_conversions(raw_file, outdir):
 
     # Execute msconvert for both output files
     log.info('\tConverting to mzXML..')
-    check_call(mzxml_cmd, stdout=open('/dev/null', 'w'), stderr=STDOUT)
+    check_call(mzxml_cmd)
     log.info('\tConverting to MGF..')
-    check_call(mgf_cmd, stdout=open('/dev/null', 'w'), stderr=STDOUT)
+    check_call(mgf_cmd)
 
 
 def _cleanup(outdir):
