@@ -43,7 +43,7 @@
 				$('#metrics_top').append(createMetricsTable(metrics, order['top']));
 				$('#metrics_bottom').append(createMetricsTable(metrics, order['bottom']));
 			}) // 'metrics_order' success
-			.error(function() {console.log("Error reading configuration file"); });;
+			.error(function() {console.log("Error reading JSON configuration file"); });;
 		})
 		// On error, write error to console
 		.error(function() { console.log("Error reading JSON metrics file"); });;		

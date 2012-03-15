@@ -1,6 +1,7 @@
 """Module to extract metrics from logfiles."""
 
 import datetime
+import logging as log
 import os
 import re
 import time
@@ -27,87 +28,91 @@ def create_metrics(abs_rawfile, t_start):
     if os.path.exists(metrics_file):
         #Update metrics with values from NIST pipeline
         metrics.update(_extract_nist_metrics(metrics_file))
+    else:
+        log.warn("NIST metrics file does not exist")
 
     if os.path.exists(rlogfile):
         #Update metrics with some generic metrics
         metrics.update(_extract_rlog_metrics(rlogfile))
+    else:
+        log.warn("R log file does not exist")
 
     return metrics
 
 
 def _get_default_nist_metrics():
-    """
+    '''
     Compiles all metrics to extract from the NIST metrics output
     Each value is a list of 3 holding the line to match (to get the line number),
-    the offset from that line that holds the value of interest and the regex to
-    retrieve this value.
-    """
+    the offset from that line that holds the value of interest and the description
+    of the value to be found.
+    '''
     return {
         # MS1
         'ms1': {
-            'ms1-1': ['Ion Injection Times for IDs', 1, re.compile(r'MS1 Median\s+([0-9\.]+)')],
-            'ms1-2a': ['MS1 During Middle', 1, re.compile(r'S/N Median\s+([0-9\.]+)')],
-            'ms1-2b': ['MS1 During Middle', 2, re.compile(r'TIC Median/1000\s+([0-9\.]+)')],
-            'ms1-3a': ['MS1 ID Max', 6, re.compile(r'95/5 MidRT\s+([0-9\.]+)')],
-            'ms1-3b': ['MS1 ID Max', 1, re.compile(r'Median\s+([0-9\.e\+]+)')],
-            'ms1-5a': ['Precursor m/z - Peptide Ion m/z', 2, re.compile(r'Median\s+([0-9\.]+)')],
-            'ms1-5b': ['Precursor m/z - Peptide Ion m/z', 3, re.compile(r'Mean Asolute\s+([0-9\.]+)')],
-            'ms1-5c': ['Precursor m/z - Peptide Ion m/z', 4, re.compile(r'ppm Median\s+([0-9\.]+)')],
-            'ms1-5d': ['Precursor m/z - Peptide Ion m/z', 5, re.compile(r'ppm InterQ\s+([0-9\.]+)')],
+            'ms1-1': ['Ion Injection Times for IDs', 1, 'MS1 Median'],
+            'ms1-2a': ['MS1 During Middle', 1, 'S/N Median'],
+            'ms1-2b': ['MS1 During Middle', 2, 'TIC Median/1000'],
+            'ms1-3a': ['MS1 ID Max', 6, '95/5 MidRT'],
+            'ms1-3b': ['MS1 ID Max', 1, 'Median'],
+            'ms1-5a': ['Precursor m/z - Peptide Ion m/z', 2, 'Median'],
+            'ms1-5b': ['Precursor m/z - Peptide Ion m/z', 3, 'Mean Asolute'],
+            'ms1-5c': ['Precursor m/z - Peptide Ion m/z', 4, 'ppm Median'],
+            'ms1-5d': ['Precursor m/z - Peptide Ion m/z', 5, 'ppm InterQ']
         },
         # MS2
         'ms2': {
-            'ms2-1': ['Ion Injection Times for IDs', 3, re.compile(r'MS2 Median\s+([0-9\.]+)')],
-            'ms2-2': ['MS2 ID Spectra', 3, re.compile(r'S/N Median\s+([0-9\.]+)')],
-            'ms2-3': ['MS2 ID Spectra', 1, re.compile(r'NPeaks Median\s+([0-9\.]+)')],
+            'ms2-1': ['Ion Injection Times for IDs', 3, 'MS2 Median'],
+            'ms2-2': ['MS2 ID Spectra', 3, 'S/N Median'],
+            'ms2-3': ['MS2 ID Spectra', 1, 'NPeaks Median']
         },
         # Peptide Identification
         'pep': {
-            'p-1': ['MS2 ID Spectra', 5, re.compile(r'ID Score Median\s+([0-9\.]+)')],
-            'p-2a': ['Tryptic Peptide Counts', 3, re.compile(r'Identifications\s+([0-9\.]+)')],
-            'p-2b': ['Tryptic Peptide Counts', 2, re.compile(r'Ions\s+([0-9\.]+)')],
-            'p-2c': ['Tryptic Peptide Counts', 1, re.compile(r'Peptides\s+([0-9\.]+)')],
-            'p-3': ['Peptide Counts', 4, re.compile(r'Semi/Tryp Peps\s+([0-9\.]+)')],
+            'p-1': ['MS2 ID Spectra', 5, 'ID Score Median'],
+            'p-2a': ['Tryptic Peptide Counts', 3, 'Identifications'],
+            'p-2b': ['Tryptic Peptide Counts', 2, 'Ions'],
+            'p-2c': ['Tryptic Peptide Counts', 1, 'Peptides'],
+            'p-3': ['Peptide Counts', 4, 'Semi/Tryp Peps']
         },
         # Chromatography
         'chrom': {
-            'c-1a': ['Fraction of Repeat Peptide IDs with Divergent', 1, re.compile(r'- 4 min\s+([0-9\.]+)')],
-            'c-1b': ['Fraction of Repeat Peptide IDs with Divergent', 2, re.compile(r'\+ 4 min\s+([0-9\.]+)')],
-            'c-2a': ['Middle Peptide Retention Time Period', 1, re.compile(r'Half Period\s+([0-9\.]+)')],
-            'c-2b': ['Middle Peptide Retention Time Period', 7, re.compile(r'Pep ID Rate\s+([0-9\.]+)')],
-            'c-3a': ['Peak Width at Half Height', 1, re.compile(r'Median Value\s+([0-9\.]+)')],
-            'c-3b': ['Peak Width at Half height for IDs', 5, re.compile(r'Median Disper\s+([0-9\.]+)')],
-            'c-4a': ['Peak Widths at Half Max over', 1, re.compile(r'First Decile\s+([0-9\.]+)')],
-            'c-4b': ['Peak Widths at Half Max over', 3, re.compile(r'Last Decile\s+([0-9\.]+)')],
-            'c-4c': ['Peak Widths at Half Max over', 2, re.compile(r'Median Value\s+([0-9\.]+)')],
+            'c-1a': ['Fraction of Repeat Peptide IDs with Divergent', 1, '- 4 min'],
+            'c-1b': ['Fraction of Repeat Peptide IDs with Divergent', 2, '\+ 4 min'],
+            'c-2a': ['Middle Peptide Retention Time Period', 1, 'Half Period'],
+            'c-2b': ['Middle Peptide Retention Time Period', 7, 'Pep ID Rate'],
+            'c-3a': ['Peak Width at Half Height', 1, 'Median Value'],
+            'c-3b': ['Peak Width at Half height for IDs', 5, 'Median Disper'],
+            'c-4a': ['Peak Widths at Half Max over', 1, 'First Decile'],
+            'c-4b': ['Peak Widths at Half Max over', 3, 'Last Decile'],
+            'c-4c': ['Peak Widths at Half Max over', 2, 'Median Value']
         },
         # Ion Source
         'ion': {
-            'is-1a': ['MS1 During Middle', 14, re.compile(r'MS1 Jumps \>10x\s+([0-9\.]+)')],
-            'is-1b': ['MS1 During Middle', 15, re.compile(r'MS1 Falls \<\.1x\s+([0-9\.]+)')],
-            'is-2': ['Precursor m/z for IDs', 1, re.compile(r'Median\s+([0-9\.]+)')],
-            'is-3a': ['Ion IDs by Charge State', 1, re.compile(r'Charge \+1\s+([0-9\.]+)')],
-            'is-3b': ['Ion IDs by Charge State', 3, re.compile(r'Charge \+3\s+([0-9\.]+)')],
-            'is-3c': ['Ion IDs by Charge State', 4, re.compile(r'Charge \+4\s+([0-9\.]+)')],
+            'is-1a': ['MS1 During Middle', 14, 'MS1 Jumps \>10x'],
+            'is-1b': ['MS1 During Middle', 15, 'MS1 Falls \<\.1x'],
+            'is-2': ['Precursor m/z for IDs', 1, 'Median'],
+            'is-3a': ['Ion IDs by Charge State', 1, 'Charge \+1'],
+            'is-3b': ['Ion IDs by Charge State', 3, 'Charge \+3'],
+            'is-3c': ['Ion IDs by Charge State', 4, 'Charge \+4']
         },
         # Dynamic Sampling
         'dyn': {
-            'ds-1a': ['Ratios of Peptide Ions IDed', 1, re.compile(r'Once/Twice\s+([0-9\.]+)')],
-            'ds-1b': ['Ratios of Peptide Ions IDed', 2, re.compile(r'Twice/Thrice\s+([0-9\.]+)')],
-            'ds-2a': ['Middle Peptide Retention Time Period', 6, re.compile(r'MS1 Scans\s+([0-9\.]+)')],
-            'ds-2b': ['Middle Peptide Retention Time Period', 5, re.compile(r'MS2 Scans\s+([0-9\.]+)')],
-            'ds-3a': ['MS1max/MS1sampled Abundance', 1, re.compile(r'Median All IDs\s+([0-9\.]+)')],
-            'ds-3b': ['MS1max/MS1sampled Abundance', 7, re.compile(r'Med Bottom 1/2\s+([0-9\.]+)')]
+            'ds-1a': ['Ratios of Peptide Ions IDed', 1, 'Once/Twice'],
+            'ds-1b': ['Ratios of Peptide Ions IDed', 2, 'Twice/Thrice'],
+            'ds-2a': ['Middle Peptide Retention Time Period', 6, 'MS1 Scans'],
+            'ds-2b': ['Middle Peptide Retention Time Period', 5, 'MS2 Scans'],
+            'ds-3a': ['MS1max/MS1sampled Abundance', 1, 'Median All IDs'],
+            'ds-3b': ['MS1max/MS1sampled Abundance', 7, 'Med Bottom 1/2']
         }
     }
 
 
 def _extract_generic_metrics(rawfile, t_start):
-    """
+    '''
     Return dictionary with generic metrics based on raw file name and runtime.
     @param rawfile: the raw filename, only used to determine filesize
     @param t_start: starttime of the QC run, used to determine runtime
-    """
+    '''
     generic_metrics = {}
     # Other generic metrics
     generic_metrics['f_size'] = "%0.1f" % (os.stat(rawfile).st_size / (1024 * 1024.0))
@@ -122,30 +127,43 @@ def _extract_generic_metrics(rawfile, t_start):
 
 
 def _extract_nist_metrics(metrics_file):
-    """
-    Return dictionary with the values found in the metrics file based upon patterns defined in default nist metrics.
+    '''
+    Return dictionary with the values found in the metrics file based upon patterns defined in default NIST metrics.
     @param metrics_file: NIST metrics file
-    """
-    nist_metrics = _get_default_nist_metrics()
+    '''
+    metrics = _get_default_nist_metrics()
+    nist_metrics = {}
     with open(metrics_file, 'r') as mfile:
         lines = mfile.readlines()
 
+    # This regex parses all common numerical (including scienfic) notations
+    num_regex = '\s*([+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?)'
+
     # For each metric class (mcl) ('pep', 'ms1', etc.) perform regex searches in the NIST metrics
     # output file and add the found values to the metrics dictionary.
-    for mcl in nist_metrics.keys():
-        for metric in nist_metrics[mcl].keys():
-            index = next((num for num, line in enumerate(lines) if nist_metrics[mcl][metric][0] in line), None)
+    for mcl in metrics.keys():
+        nist_metrics[mcl] = {}
+        for metric in metrics[mcl].keys():
+            index = next((num for num, line in enumerate(lines) if metrics[mcl][metric][0] in line), None)
             if index:
-                result = nist_metrics[mcl][metric][-1].search(lines[index + nist_metrics[mcl][metric][1]])
-                nist_metrics[metric] = result.group(1) if result else "N/A"
+                regex = re.compile(r'{0}{1}'.format(metrics[mcl][metric][-1], num_regex))
+                result = regex.search(lines[index + metrics[mcl][metric][1]])
+                metric_id = '{0} ({1})'.format(metrics[mcl][metric][0], metrics[mcl][metric][2]).replace('\\', '')
+                # Create a list with the description and the resulting value
+                if result:
+                    nist_metrics[mcl][metric] = [metric_id, result.group(1)]
+                else:
+                    nist_metrics[mcl][metric] = [metric_id, "N/A"]
+                    log.warn("Metric '{0}' could not be found".format(metric))
+
     return nist_metrics
 
 
 def _extract_rlog_metrics(logfile):
-    """
+    '''
     Return dictionary of values extracted from R logfile.
     @param logfile: R-logfile to scan for # of scans, # of peaks and other generic metrics
-    """
+    '''
     rlog_metrics = {}
 
     # Extracting metrics (MS1, MS2 scans) from R log file

@@ -21,7 +21,7 @@ class Test(unittest.TestCase):
         self.nist_metrics = resource_filename(__name__, "data/nist_metrics.msqc")
         self.msqcrlog = resource_filename(__name__, "data/msqc_rlog.txt")
 
-        # Data
+        # Data (only available on CTMM Jenkins test node)
         self.mzxmlfile = resource_filename(__name__, "data/ltq_ctmm_test_data.RAW.mzXML")
 
     def test_extract_generic_metrics(self):
@@ -45,8 +45,14 @@ class Test(unittest.TestCase):
         ''' Compares a subset of the complete list of metrics retrieved from the NIST output file '''
         nist_metrics = parse_metrics._extract_nist_metrics(self.nist_metrics)
         # TODO: manually create the full dictionary and compare with nist_metrics instead of subset testing
-        nist_subset = {'ms1-3a': '28.1', 'ms1-5a': '0.1460', 'c-4a': '6.41', 'p-2c': '859', 'ds-3a': '55.63'}
-        self.assertDictContainsSubset(nist_subset, nist_metrics)
+        nist_subset = {"ms1-2b": ["MS1 During Middle (TIC Median/1000)", "57"],
+                       "ms1-5a": ["Precursor m/z - Peptide Ion m/z (Median)", "0.1460"],
+                       "ms1-3b": ["MS1 ID Max (Median)", "2.3e+7"]}
+        self.assertDictContainsSubset(nist_subset, nist_metrics['ms1'])
+        nist_subset = {"c-4a": ["Peak Widths at Half Max over (First Decile)", "6.41"],
+                       "c-1b": ["Fraction of Repeat Peptide IDs with Divergent (+ 4 min)", "0.0022"],
+                       "c-2a": ["Middle Peptide Retention Time Period (Half Period)", "9.35"]}
+        self.assertDictContainsSubset(nist_subset, nist_metrics['chrom'])
 
     def test_extract_rlog_metrics(self):
         ''' Tests the parsing of the R log file showing details about the spectra in the mzXML file '''

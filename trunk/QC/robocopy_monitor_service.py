@@ -23,13 +23,17 @@ class Service(win32serviceutil.ServiceFramework):
         self.stop_event = win32event.CreateEvent(None, 0, 0, None)
 
     def log(self, msg):
+        '''
+        Logs all messages visible in Windows event viewer
+        @param msg: message to log
+        '''
         import servicemanager
         servicemanager.LogInfoMsg(str(msg))
 
-        def sleep(self, sec):
-                win32api.Sleep(sec * 1000, True)
-
     def SvcDoRun(self):
+        '''
+        Runs the start function (overridden) and sets service status
+        '''
         self.ReportServiceStatus(win32service.SERVICE_START_PENDING)
         try:
             self.ReportServiceStatus(win32service.SERVICE_RUNNING)
@@ -43,6 +47,9 @@ class Service(win32serviceutil.ServiceFramework):
             self.SvcStop()
 
     def SvcStop(self):
+        '''
+        Runs the stop function (overridden) and sets service status
+        '''
         self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
         self.log('stopping')
         self.stop()
@@ -50,15 +57,20 @@ class Service(win32serviceutil.ServiceFramework):
         win32event.SetEvent(self.stop_event)
         self.ReportServiceStatus(win32service.SERVICE_STOPPED)
 
+    def start(self):
+        pass
+
+    def stop(self):
+        pass
+
 
 def instart(cls, name, display_name=None, stay_alive=True):
     '''
-        Install and  Start (auto) a Service
-
-            cls : the class (derived from Service) that implement the Service
-            name : Service name
-            display_name : the name displayed in the service manager
-            stay_alive : Service will stop on logout if False
+    Install and  Start (auto) a Service
+    @param cls: the class (derived from Service) that implement the Service
+    @param name: Service name
+    @param display_name: the name displayed in the service manager
+    @param stay_alive: Service will stop on logout if False
     '''
     cls._svc_name_ = name
     cls._svc_display_name_ = display_name or name

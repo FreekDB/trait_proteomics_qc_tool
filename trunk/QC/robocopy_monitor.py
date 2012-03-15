@@ -3,8 +3,8 @@ Module to monitor a robocopy log file for changes, and act on those changes by i
 """
 
 from argparse import ArgumentParser
-from ctmm_qc import qc_pipeline
-from ctmm_service import Service, instart
+from run_msqc_pipeline import qc_pipeline
+from robocopy_monitor_service import Service, instart
 from os.path import normpath
 from time import gmtime, strftime, sleep
 from watchdog.events import FileSystemEventHandler

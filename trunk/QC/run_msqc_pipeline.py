@@ -5,16 +5,16 @@ graphics using R and combining all gathered data into an HTML report.
 
 from os import makedirs
 from os.path import normpath, splitext, isdir
-from pkg_resources import resource_filename  # @UnresolvedImport
 from parse_metrics import create_metrics
+from pkg_resources import resource_filename  # @UnresolvedImport
 from shutil import move, copy  # move
 from string import Template
-from subprocess import Popen, PIPE
+from subprocess import check_call, STDOUT
 from time import gmtime, strftime, time
-import logging
+import json
+import logging as log
 import os.path
 import tempfile
-import json
 
 # Globals
 _R_GRAPHICS = resource_filename(__name__, 'r_ms_graphics.R')
@@ -31,20 +31,22 @@ def qc_pipeline(indir, out_dir, copy_log):
     of all processed files. Once a new RAW file has been placed in this directory
     a report will be generated with this file as input."""
 
-    print 'Version 0.0.7'
+    log.info('Version 0.0.7')
 
+    # Check status of all previously processed files to determine
+    # if any new files are present to process
     files = _read_logfile(_PROGRES_LOG)
     files = _parse_robocopy_log(copy_log, files)
 
     if not files:
-        print "No files to process"
+        log.warning('No files to process')
         return
 
     for rawfile, status in files.iteritems():
         if status != 'new':
             continue
 
-        print "-----------\nProcessing:\n\t", rawfile, "\n-----------\n"
+        log.info("-----------\nProcessing:\n\t", rawfile, "\n-----------\n")
         ## For calculating runtimes
         t_start = time()
         # Set for current file and move file to output directory
@@ -64,15 +66,15 @@ def qc_pipeline(indir, out_dir, copy_log):
 
         #TODO Change all print statements to use logging
         # Run QC workflow
-        print "Running RAW file conversion.."
+        log.info("Running RAW file conversion..")
         _raw_format_conversions(abs_rawfile_path, working_dir)
-        print "Running NIST.."
+        log.info("Running NIST..")
         _run_nist(abs_rawfile_path, working_dir)
-        print "Creating Graphics.."
+        log.info("Creating Graphics..")
         _run_r_script(working_dir, webdir, basename)
-        print "Creating metrics.."
+        log.info("Creating metrics..")
         metrics = create_metrics(abs_rawfile_path, t_start)
-        print "Creating report.."
+        log.info("Creating report..")
         _create_report(webdir, basename, metrics)
 
         # Once completed, update status and logfile
@@ -143,21 +145,23 @@ def _parse_robocopy_log(copy_log, files):
 
 
 def _log_progress(logfile, rawfile):
-    """
+    '''
     Keeps track of processed RAW files, this logfile is used to create a
     simple status report through a webserver.
     TODO add information (realtime update, completion date, etc.)
-    """
+    @param logfile: logfile used to log status of processed files
+    @param rawfile: path to the RAW file
+    '''
     log = '{0}\t{1}'.format(rawfile, 'completed')
     with open(logfile, 'a') as status_log:
         status_log.writeln(log)
 
 
 def _manage_paths(basename):
-    """
+    '''
     Create directory on webserver part for storing images and the report.
     @param basename: name of the .RAW file without extension
-    """
+    '''
     ctime = gmtime()
     tree = normpath('{root}/{year}/{month}/{base}'.format(root=_WEB_DIR,
                                                                 year=strftime("%Y", ctime),
@@ -172,12 +176,11 @@ def _run_nist(rawfile, outdir):
     '''
     Starts the NIST metrics workflow using a RAW file as input. Reads parameters
     from a configuration file to pass as arguments to the workflow.
-    @param rawfile:
-    @param outdir:
+    @param rawfile: path to the RAW file
+    @param outdir: folder used for storing intermediate results
     '''
 
     # NIST settings
-    logging.info("Running NIST pipeline..")
     nist_library = 'human_consensus_Qo\human_consensus_Qo'
     search_engine = 'SpectraST'
     mode = 'lite'
@@ -185,28 +188,25 @@ def _run_nist(rawfile, outdir):
     instrument = 'LTQ'
 
     # Run NIST pipeline
-    # TODO: validate parameters, check if in- and out-dir can be the same
+    # TODO error handling
+    # TODO 'nistms_metrics.exe' tends to hang if something is wrong, process should resume after a set amount of time
     nist_exe = normpath('perl {0}/scripts/run_NISTMSQC_pipeline.pl'.format(_NIST))
-    nist_cmd = '{0} --in_dir {1} --out_dir {2} --library {3} --instrument_type {4} --search_engine {5}\
-                --mode {6} --fasta {7} {8} {9} {10} {11}' \
-                .format(nist_exe,
-                rawfile,
-                outdir,
-                nist_library,
-                instrument,
-                search_engine,
-                mode,
-                fasta,
+    nist_cmd = [nist_exe,
+                '--in_dir', rawfile,
+                '--out_dir', outdir,
+                '--library', nist_library,
+                '--instrument_type', instrument,
+                '--search_engine', search_engine,
+                '--mode', mode,
+                '--fasta', fasta,
                 '--overwrite_searches',
                 '--pro_ms',
                 '--log_file',
-                '--mode lite')
+                '--mode lite']
+    check_call(nist_cmd, stdout=open('/dev/null', 'w'), stderr=STDOUT)
 
-    # TODO error handling
-    # TODO 'nistms_metrics.exe' tends to hang if something is wrong, process should resume after a set amount of time
-    _run_command(nist_cmd)
-
-    #Rename .msqc file here, as it assumes the name of the containing folder, which is now some random file path
+    # Rename .msqc metrics file here, as it assumes the name of the containing folder,
+    # which is now some random file path
     foldername = os.path.split(outdir)[1]
     rawfilename = os.path.split(os.path.splitext(rawfile)[0])[1]
     msqc_original = os.path.join(outdir, foldername + '_report.msqc')
@@ -223,8 +223,13 @@ def _run_r_script(outdir, webdir, basename):
     @param basename: RAW file name (without ext) used to identify mzXML file
     '''
     # Execute Rscript
-    rcmd = 'Rscript {0} {1} {2} {3} {4}'.format(_R_GRAPHICS, outdir, basename, webdir, 1)
-    _run_command(rcmd)
+    rcmd = ['Rscript',
+            _R_GRAPHICS,
+            outdir,
+            basename,
+            webdir,
+            1]  # MS level (1 or 2)
+    check_call(rcmd, stdout=open('/dev/null', 'w'), stderr=STDOUT)
 
 
 def _create_report(webdir, basename, metrics):
@@ -238,8 +243,7 @@ def _create_report(webdir, basename, metrics):
         template = report_template.readlines()
 
     report_template = Template(''.join(template))
-    report_updated = report_template.safe_substitute(# General
-                                                     raw_file='{0}.RAW'.format(basename),
+    report_updated = report_template.safe_substitute(raw_file='{0}.RAW'.format(basename),
                                                      date=metrics['date'],
                                                      runtime=metrics['runtime'],
                                                      # Figures
@@ -259,7 +263,7 @@ def _create_report(webdir, basename, metrics):
 def _export_metrics_json(metrics, webdir):
     '''
     Stores the NIST metrics dictionary as JSON file used when rendering the report
-    @param metrics: dictionary holding all NIST metircs
+    @param metrics: dictionary holding all NIST metrics
     @param webdir: directory where the report is stored
     '''
     json_structure = json.dumps(metrics)
@@ -268,7 +272,6 @@ def _export_metrics_json(metrics, webdir):
         metrics_file.writelines(json_structure)
 
 
-# --- Temporary (workaround) functions ---
 def _raw_format_conversions(raw_file, outdir):
     '''
     Converts the .RAW file both to .mzXMl and to .MGF for compatibility with other tools.
@@ -277,27 +280,22 @@ def _raw_format_conversions(raw_file, outdir):
     '''
     msconvert = normpath('{0}/converter/msconvert.exe'.format(_NIST))
     # Both mzXML and MGF files need to be created
-    mzxml_cmd = '{0} {1} -o {2} --mzXML -e .RAW.mzXML'.format(msconvert, raw_file, outdir)
-    mgf_cmd = '{0} {1} -o {2} --mgf -e .RAW.MGF'.format(msconvert, raw_file, outdir)
+    mzxml_cmd = [msconvert,
+                 raw_file,
+                 '-o', outdir,
+                 '--mzXML',
+                 '-e', '.RAW.mzXML']
+    mgf_cmd = [msconvert,
+               raw_file,
+               '-o', outdir,
+               '--mgf',
+               '-e', '.RAW.MGF']
 
     # Execute msconvert for both output files
-    print "\tConverting to mzXML.."
-    _run_command(mzxml_cmd)
-    print "\tConverting to MGF.."
-    _run_command(mgf_cmd)
-
-
-def _run_command(cmd):
-    '''
-    Runs a command (not returning output)
-    @param cmd: string holding the command with all parameters
-    '''
-    #TODO Explain to me (Tim) what this method has to offer over the standard check_call method?
-    # Runs a single command, no output is returned
-    run = Popen(cmd, stdout=PIPE, stderr=PIPE)
-    err = run.communicate()[1]
-    if run.returncode != 0:
-        raise IOError(err)
+    log.info('\tConverting to mzXML..')
+    check_call(mzxml_cmd, stdout=open('/dev/null', 'w'), stderr=STDOUT)
+    log.info('\tConverting to MGF..')
+    check_call(mgf_cmd, stdout=open('/dev/null', 'w'), stderr=STDOUT)
 
 
 def _cleanup(outdir):
