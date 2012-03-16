@@ -14,6 +14,8 @@ def create_metrics(abs_rawfile, t_start):
     @param dirname: the folder within the working directory
     @param t_start: timepoint at which QC pipeline started
     """
+    log.info("Creating metrics..")
+
     #Start with and empty base
     metrics = {}
 

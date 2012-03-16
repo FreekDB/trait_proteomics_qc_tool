@@ -31,7 +31,7 @@ def qc_pipeline(indir, out_dir, copy_log):
     of all processed files. Once a new RAW file has been placed in this directory
     a report will be generated with this file as input."""
 
-    log.info('Version 0.0.7')
+    log.info('Version 0.0.8')
 
     # Check status of all previously processed files to determine
     # if any new files are present to process
@@ -53,8 +53,6 @@ def qc_pipeline(indir, out_dir, copy_log):
         basename = splitext(rawfile)[0]
         working_dir = tempfile.mkdtemp(suffix='_QC', prefix=basename, dir=out_dir)
 
-        # TODO instead of moving the file, find out if NIST accepts a (single) file as input
-        # instead of a directory containing *.RAW files.
         original_path = normpath('{0}/{1}'.format(indir, rawfile))
         abs_rawfile_path = normpath('{0}/{1}'.format(working_dir, rawfile))
         copy(original_path, abs_rawfile_path)
@@ -62,32 +60,20 @@ def qc_pipeline(indir, out_dir, copy_log):
         #Create folder to contain html report
         webdir = _manage_paths(basename)
 
-        files[rawfile] = 'processing'
-
-        #TODO Change all print statements to use logging
         # Run QC workflow
-        log.info("Running RAW file conversion..")
         _raw_format_conversions(abs_rawfile_path, working_dir)
-        log.info("Running NIST..")
         _run_nist(abs_rawfile_path, working_dir)
-        log.info("Creating Graphics..")
         _run_r_script(working_dir, webdir, basename)
-        log.info("Creating metrics..")
         metrics = create_metrics(abs_rawfile_path, t_start)
-        log.info("Creating report..")
         _create_report(webdir, basename, metrics)
 
-        # Once completed, update status and logfile
-        # TODO Test threading using multiple robocopy instances to test if this is necessary
-        files[rawfile] = 'completed'
-
-        # Update logfile showing completed analysis
+        # Update log-file showing completed analysis
         _log_progress(_PROGRES_LOG, rawfile)
 
 
 def _read_logfile(logfile):
     """
-    Parse our own logfile of previously processed files. Return dictionary mapping filename to status.
+    Parse our own log-file of previously processed files. Return dictionary mapping filename to status.
     @param logfile:
     """
     # Logfile layout:
@@ -179,6 +165,7 @@ def _run_nist(rawfile, outdir):
     @param rawfile: path to the RAW file
     @param outdir: folder used for storing intermediate results
     '''
+    log.info("Running NIST..")
 
     # NIST settings
     nist_library = 'human_consensus_Qo\human_consensus_Qo'
@@ -189,8 +176,9 @@ def _run_nist(rawfile, outdir):
 
     # Run NIST pipeline
     # TODO error handling
-    # TODO 'nistms_metrics.exe' tends to hang if something is wrong, process should resume after a set amount of time
-    nist_exe = normpath('perl {0}/scripts/run_NISTMSQC_pipeline.pl'.format(_NIST))
+    # TODO 'nistms_metrics.exe' tends to hang if something is wrong, process should resume after
+    # a set amount of time (also, it can produce an empty metrics file)
+    nist_exe = normpath('{0}/scripts/run_NISTMSQC_pipeline.pl'.format(_NIST))
     nist_cmd = [nist_exe,
                 '--in_dir', rawfile,
                 '--out_dir', outdir,
@@ -202,8 +190,8 @@ def _run_nist(rawfile, outdir):
                 '--overwrite_searches',
                 '--pro_ms',
                 '--log_file',
-                '--mode', 'lite']
-    check_call(nist_cmd)
+                '--mode', mode]
+    check_call(nist_cmd, shell=True)
 
     # Rename .msqc metrics file here, as it assumes the name of the containing folder,
     # which is now some random file path
@@ -222,14 +210,16 @@ def _run_r_script(outdir, webdir, basename):
     @param webdir: output directory for the graphics
     @param basename: RAW file name (without ext) used to identify mzXML file
     '''
+    log.info("Creating Graphics..")
+
     # Execute Rscript
     rcmd = ['Rscript',
             _R_GRAPHICS,
             outdir,
             basename,
             webdir,
-            1]  # MS level (1 or 2)
-    check_call(rcmd)
+            '1']  # MS level (1 or 2)
+    check_call(rcmd, shell=True)
 
 
 def _create_report(webdir, basename, metrics):
@@ -239,6 +229,8 @@ def _create_report(webdir, basename, metrics):
     @param basename: RAW filename (without ext) to identify currently processed file
     @param metrics: dictionary holding all metrics (generic)
     '''
+    log.info("Creating report..")
+
     with open(normpath('templates/report.html'), 'r') as report_template:
         template = report_template.readlines()
 
@@ -278,6 +270,8 @@ def _raw_format_conversions(raw_file, outdir):
     @param raw_file: the RAW file to process
     @param outdir: directory in which to place output mzXML and MGF files
     '''
+    log.info("Running RAW file conversion..")
+
     msconvert = normpath('{0}/converter/msconvert.exe'.format(_NIST))
     # Both mzXML and MGF files need to be created
     mzxml_cmd = [msconvert,
