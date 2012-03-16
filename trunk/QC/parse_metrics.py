@@ -79,7 +79,7 @@ def _get_default_nist_metrics():
         # Chromatography
         'chrom': {
             'c-1a': ['Fraction of Repeat Peptide IDs with Divergent', 1, '- 4 min'],
-            'c-1b': ['Fraction of Repeat Peptide IDs with Divergent', 2, '\+ 4 min'],
+            'c-1b': ['Fraction of Repeat Peptide IDs with Divergent', 2, '+ 4 min'],
             'c-2a': ['Middle Peptide Retention Time Period', 1, 'Half Period'],
             'c-2b': ['Middle Peptide Retention Time Period', 7, 'Pep ID Rate'],
             'c-3a': ['Peak Width at Half Height', 1, 'Median Value'],
@@ -90,12 +90,12 @@ def _get_default_nist_metrics():
         },
         # Ion Source
         'ion': {
-            'is-1a': ['MS1 During Middle', 14, 'MS1 Jumps \>10x'],
-            'is-1b': ['MS1 During Middle', 15, 'MS1 Falls \<\.1x'],
+            'is-1a': ['MS1 During Middle', 14, 'MS1 Jumps >10x'],
+            'is-1b': ['MS1 During Middle', 15, 'MS1 Falls <.1x'],
             'is-2': ['Precursor m/z for IDs', 1, 'Median'],
-            'is-3a': ['Ion IDs by Charge State', 1, 'Charge \+1'],
-            'is-3b': ['Ion IDs by Charge State', 3, 'Charge \+3'],
-            'is-3c': ['Ion IDs by Charge State', 4, 'Charge \+4']
+            'is-3a': ['Ion IDs by Charge State', 1, 'Charge +1'],
+            'is-3b': ['Ion IDs by Charge State', 3, 'Charge +3'],
+            'is-3c': ['Ion IDs by Charge State', 4, 'Charge +4']
         },
         # Dynamic Sampling
         'dyn': {
@@ -148,14 +148,15 @@ def _extract_nist_metrics(metrics_file):
         for metric in metrics[mcl].keys():
             index = next((num for num, line in enumerate(lines) if metrics[mcl][metric][0] in line), None)
             if index:
-                regex = re.compile(r'{0}{1}'.format(metrics[mcl][metric][-1], num_regex))
+                regex = re.compile('{0}{1}'.format(re.escape(metrics[mcl][metric][-1]), num_regex))
                 result = regex.search(lines[index + metrics[mcl][metric][1]])
-                metric_id = '{0} ({1})'.format(metrics[mcl][metric][0], metrics[mcl][metric][2]).replace('\\', '')
+                metric_id = '{0} ({1})'.format(metrics[mcl][metric][0], metrics[mcl][metric][2])
                 # Create a list with the description and the resulting value
                 if result:
                     nist_metrics[mcl][metric] = [metric_id, result.group(1)]
                 else:
                     nist_metrics[mcl][metric] = [metric_id, "N/A"]
+                    # TODO: check the missing metrics (add to NIST metrics subset file if possible)
                     log.warn("Metric '{0}' could not be found".format(metric))
 
     return nist_metrics
