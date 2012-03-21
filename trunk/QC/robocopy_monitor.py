@@ -17,10 +17,10 @@ __contact__ = "brs@nbic.nl"
 __copyright__ = "Copyright, 2012, Netherlands Bioinformatics Centre"
 __license__ = "MIT"
 
-#Contemplate reading these settings from a settings file
-IN_DIR = normpath('C:/Users/brs/Documents/CTMM/Data')
-OUT_DIR = normpath('C:/Users/brs/Documents/CTMM/')
-COPY_LOG = normpath('C:/ctmm/')
+#TODO: contemplate reading these settings from a settings file
+IN_DIR = normpath('//opl-data/data/qe-raw-data')
+OUT_DIR = normpath('C:/QC-pipeline/output')
+COPY_LOG = IN_DIR
 
 
 class FileMonitor(FileSystemEventHandler):
@@ -143,7 +143,7 @@ class QCMonitor():
 if __name__ == "__main__":
     if sys.argv[1] == 'install':
         instart(QCMonitorService, 'ctmm', 'ctmm_monitor')
-    elif sys.argv[1] == 'run':
+    else:# sys.argv[1] == 'run':
         # Create and parse commandline arguments
         parser = ArgumentParser(description="QC-workflow monitor for MS data using NIST metrics")
         parser.add_argument('in_folder', type=str,
@@ -153,5 +153,6 @@ if __name__ == "__main__":
 
         #Extract arguments
         args = parser.parse_args()
+        print args
         monitor = QCMonitor(args.in_folder, args.out_folder, args.copy_log)
         monitor.start()

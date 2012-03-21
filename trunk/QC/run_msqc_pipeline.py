@@ -25,9 +25,9 @@ _R_GRAPHICS = resource_filename(__name__, 'r_ms_graphics.R')
 
 # Paths (These should be adapted for the system they run on)
 _WEB_DIR = normpath('C:/Program Files (x86)/Apache Software Foundation/Apache2.2/htdocs/ctmm')
-_NIST = normpath('C:/ctmm/NISTMSQCv1_2_0_CTMM')
+_NIST = normpath('C:/QC-pipeline/NISTMSQCv1_2_0_CTMM')
 _PROGRES_LOG = 'qc_status.log'
-_QC_HOME = normpath('C:/ctmm/')
+_QC_HOME = normpath('C:/QC-pipeline')
 
 
 def qc_pipeline(indir, out_dir, copy_log):
@@ -35,7 +35,7 @@ def qc_pipeline(indir, out_dir, copy_log):
     of all processed files. Once a new RAW file has been placed in this directory
     a report will be generated with this file as input."""
 
-    log.info('Version 0.0.8')
+    log.info('Version 0.0.9')
 
     # Check status of all previously processed files to determine
     # if any new files are present to process
@@ -58,8 +58,9 @@ def qc_pipeline(indir, out_dir, copy_log):
         working_dir = tempfile.mkdtemp(suffix='_QC', prefix=basename, dir=out_dir)
 
         original_path = normpath('{0}/{1}'.format(indir, rawfile))
-        abs_rawfile_path = normpath('{0}/{1}'.format(working_dir, rawfile))
-        copy(original_path, abs_rawfile_path)
+        abs_rawfile_path = original_path
+        #abs_rawfile_path = normpath('{0}/{1}'.format(working_dir, rawfile))
+        #copy(original_path, abs_rawfile_path)
 
         #Create folder to contain html report
         webdir = _manage_paths(basename)
@@ -73,6 +74,9 @@ def qc_pipeline(indir, out_dir, copy_log):
 
         # Update log-file showing completed analysis
         _log_progress(_PROGRES_LOG, rawfile)
+
+		# Cleanup (remove everything in working directory)
+        _cleanup(working_dir)
 
 
 def _read_logfile(logfile):
@@ -114,17 +118,14 @@ def _parse_robocopy_log(copy_log, files):
     for lnr_start, logline in enumerate(loglines):
         if 'Started' not in logline:
             continue
-
         #We found the start of a new robocopy log
         for lnr_block, logline in enumerate(loglines[lnr_start:]):
             if 'Monitor' not in logline:
                 continue
-
             #All files completed between lnr_start & lnr_start + lnr_block finished copying
             for logline in loglines[lnr_start:lnr_block + lnr_start]:
                 if 'New File' not in logline:
                     continue
-
                 #Handle new files
                 newfile = logline.split('\t')[-1].strip()
                 # If a new file has been found, set status to 'new'
@@ -172,8 +173,8 @@ def _run_nist(rawfile, outdir):
     log.info("Running NIST..")
 
     # NIST settings
-    nist_library = 'human_consensus_Qo\human_consensus_Qo'
-    search_engine = 'SpectraST'
+    nist_library = 'hsa'
+    search_engine = 'MSPepSearch'#'SpectraST'
     mode = 'lite'
     fasta = normpath('{0}/libs/{1}.fasta'.format(_NIST, nist_library))
     instrument = 'LTQ'
@@ -189,8 +190,7 @@ def _run_nist(rawfile, outdir):
                 '--library', nist_library,
                 '--instrument_type', instrument,
                 '--search_engine', search_engine,
-                '--mode', mode,
-                '--fasta', fasta,
+                #'--fasta', fasta,
                 '--overwrite_searches',
                 '--pro_ms',
                 '--log_file',
@@ -289,4 +289,4 @@ def _cleanup(outdir):
     Cleans up temporary data (NIST output etc) after a successful run
     @param outdir: working directory in which all intermediate files are stored
     '''
-    # TODO implement clean up of working directory
+    shutil.rmtree(outdir)
