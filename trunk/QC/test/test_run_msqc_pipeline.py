@@ -1,21 +1,26 @@
-"""
+'''
 Module to test the run_msqc_pipeline.
-"""
+'''
 
-from QC import run_msqc_pipeline
+from QC import run_msqc_pipeline, parse_metrics
 from pkg_resources import resource_filename  # @UnresolvedImport
 from shutil import copy
 import os.path
-import tempfile
-import unittest
 import shutil
+import tempfile
+import time
+import unittest
+
+__author__ = "Marcel Kempenaar"
+__contact__ = "brs@nbic.nl"
+__copyright__ = "Copyright, 2012, Netherlands Bioinformatics Centre"
+__license__ = "MIT"
 
 
 class Test(unittest.TestCase):
     '''
     Test functions for the run_msqc_pipeline code in the QC module
     '''
-
     def setUp(self):
         # Log files
         self.logfile = resource_filename(__name__, "data/qc_logfile.txt")
@@ -79,6 +84,23 @@ class Test(unittest.TestCase):
         self.failUnless([os.path.exists(x) for x in heatmaps])
         self.failUnless([os.path.exists(x) for x in ionplots])
         self.failUnless(os.path.exists(rlog))
+
+    def test_create_report(self):
+        ''' Tests the creation of the final report file '''
+        # We need to first create the complete metrics dictionary
+        metrics_file = resource_filename(__name__, "data/nist_metrics.msqc")
+        nist_metrics = parse_metrics._extract_nist_metrics(metrics_file)
+        # Add generic metrics
+        nist_metrics.update(parse_metrics._extract_generic_metrics(self.rawfile, time.time()))
+        # Create report (move to the QC directory, otherwise template is not found
+        restore_path = os.getcwd()
+        os.chdir('../')
+        run_msqc_pipeline._create_report(self.temp_folder, self.rawfilebase, nist_metrics)
+        # Test for presence of the report file
+        report_file = '{0}/{1}'.format(self.temp_folder, 'index.html')
+        self.failUnless(os.path.exists(report_file))
+        # Return to the test directory
+        os.chdir(restore_path)
 
     def tearDown(self):
         ''' Cleans up tests '''

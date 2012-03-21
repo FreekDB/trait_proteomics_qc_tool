@@ -9,7 +9,13 @@ from os.path import normpath
 from time import gmtime, strftime, sleep
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
+import logging
 import sys
+
+__author__ = "Marcel Kempenaar"
+__contact__ = "brs@nbic.nl"
+__copyright__ = "Copyright, 2012, Netherlands Bioinformatics Centre"
+__license__ = "MIT"
 
 #Contemplate reading these settings from a settings file
 IN_DIR = normpath('C:/Users/brs/Documents/CTMM/Data')
@@ -18,20 +24,27 @@ COPY_LOG = normpath('C:/ctmm/')
 
 
 class FileMonitor(FileSystemEventHandler):
-    """
-    Class to track changes on files using Watchdog.
-    """
-
+    '''
+    Class used to track changes to all files in in_dir
+    '''
     def __init__(self, in_dir, out_dir, copy_log, service):
+        '''
+        Sets paths to input / output directories etc.
+        @param in_dir: directory to monitor for file changes
+        @param out_dir: directory to store output (passed to QC tool)
+        @param copy_log: actual robocopy logfile to monitor
+        @param service: when running as a service, this is used to log as a Windows event
+        '''
         self.in_dir = in_dir
         self.out_dir = out_dir
         self.copy_log = copy_log
         self.service = service
 
     def on_modified(self, event):
-        """
+        '''
         Listens for modifications of the given logfile and executes QC workflow on the newly copied file.
-        """
+        @param event: is triggered on any file modification within the directory monitored
+        '''
         #Only watch for changes on file 'robocopy'
         event_file = event.__dict__['_src_path']
         if not 'robocopy' in event_file:
@@ -56,15 +69,19 @@ class FileMonitor(FileSystemEventHandler):
 
 
 class QCMonitorService(Service):
-    """
+    '''
     Class to run the QC monitor as a Windows Service.
-    """
-
+    '''
     def start(self):
+        '''
+        This method is called on service start using the global parameters pointing to the
+        directories / files to monitor
+        '''
         in_dir = IN_DIR
         out_dir = OUT_DIR
         copy_log = COPY_LOG
 
+        # Logs as a Windows event (viewable in Windows event viewer, under 'Application logs')
         self.log("Monitoring:  {0}\nInput Dir:   {1}\nOutput Dir:  {2}".format(copy_log, in_dir, out_dir))
 
         # Create new FileMonitor that starts the QC workflow on file modification
@@ -81,10 +98,16 @@ class QCMonitorService(Service):
 
 
 class QCMonitor():
-    """
+    '''
     Class to run the QC monitor manually.
-    """
+    '''
     def __init__(self, indir, outdir, copylog):
+        '''
+        Sets paths to input / output directories etc.
+        @param in_dir: directory to monitor for file changes
+        @param out_dir: directory to store output (passed to QC tool)
+        @param copy_log: actual robocopy logfile to monitor
+        '''
         self.in_dir = indir
         self.out_dir = outdir
         self.copy_log = copylog
@@ -110,12 +133,12 @@ class QCMonitor():
         self.observer.join()
 
     def log(self, msg):
-        """
+        '''
         FileMonitor calls self.log to log messages, which would work fine if we extended Service.
-        But we don't so wee need ot provide our own implementation of log.
+        But we don't so wee need to redirect to our own logging method.
         @param msg: the message to log
-        """
-        print msg
+        '''
+        logging.info(msg)
 
 if __name__ == "__main__":
     if sys.argv[1] == 'install':

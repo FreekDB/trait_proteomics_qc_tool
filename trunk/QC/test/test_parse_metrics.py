@@ -1,12 +1,17 @@
-'''
-Created on Feb 27, 2012
-
-@author: marcelk
-'''
+''' Test module for creating and managing metrics '''
 from QC import parse_metrics
 from pkg_resources import resource_filename  # @UnresolvedImport
+import json
+import os
+import shutil
+import tempfile
 import time
 import unittest
+
+__author__ = "Marcel Kempenaar"
+__contact__ = "brs@nbic.nl"
+__copyright__ = "Copyright, 2012, Netherlands Bioinformatics Centre"
+__license__ = "MIT"
 
 
 class Test(unittest.TestCase):
@@ -59,6 +64,23 @@ class Test(unittest.TestCase):
         rmetrics = parse_metrics._extract_rlog_metrics(self.msqcrlog)
         self.assertEquals(rmetrics, {'ms2_spectra': '1871 (1871)', 'ms1_spectra': '6349 (4135)'})
 
+    def test_export_metrics_json(self):
+        '''
+        Tests the writing of metrics in JSON format
+        '''
+        # Create temporary directory and store metrics in JSON format
+        temp_folder = tempfile.mkdtemp(prefix='test_parse_metrics_')
+        nist_metrics = parse_metrics._extract_nist_metrics(self.nist_metrics)
+        parse_metrics.export_metrics_json(nist_metrics, temp_folder)
+        json_metrics = os.path.join(temp_folder, 'metrics.json')
+        # Test if JSON file is present
+        self.failUnless(os.path.exists(json_metrics))
+
+        # Read JSON file and verify
+        nist_metrics = json.load(open('{0}/{1}'.format(temp_folder, 'metrics.json', 'r')))
+        self.assertEqual('589.90', nist_metrics['ion']['is-2'][1])
+
+        shutil.rmtree(temp_folder)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

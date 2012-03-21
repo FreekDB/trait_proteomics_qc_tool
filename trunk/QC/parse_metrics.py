@@ -1,10 +1,18 @@
-"""Module to extract metrics from logfiles."""
+'''
+Module to extract metrics from log-files.
+'''
 
 import datetime
+import json
 import logging as log
 import os
 import re
 import time
+
+__author__ = "Marcel Kempenaar"
+__contact__ = "brs@nbic.nl"
+__copyright__ = "Copyright, 2012, Netherlands Bioinformatics Centre"
+__license__ = "MIT"
 
 
 def create_metrics(abs_rawfile, t_start):
@@ -58,7 +66,7 @@ def _get_default_nist_metrics():
             'ms1-3a': ['MS1 ID Max', 6, '95/5 MidRT'],
             'ms1-3b': ['MS1 ID Max', 1, 'Median'],
             'ms1-5a': ['Precursor m/z - Peptide Ion m/z', 2, 'Median'],
-            'ms1-5b': ['Precursor m/z - Peptide Ion m/z', 3, 'Mean Asolute'],
+            'ms1-5b': ['Precursor m/z - Peptide Ion m/z', 3, 'Mean Absolute'],
             'ms1-5c': ['Precursor m/z - Peptide Ion m/z', 4, 'ppm Median'],
             'ms1-5d': ['Precursor m/z - Peptide Ion m/z', 5, 'ppm InterQ']
         },
@@ -74,6 +82,7 @@ def _get_default_nist_metrics():
             'p-2a': ['Tryptic Peptide Counts', 3, 'Identifications'],
             'p-2b': ['Tryptic Peptide Counts', 2, 'Ions'],
             'p-2c': ['Tryptic Peptide Counts', 1, 'Peptides'],
+            # FIXME: Failing due to multiple 'Peptide Counts' occurrences
             'p-3': ['Peptide Counts', 4, 'Semi/Tryp Peps']
         },
         # Chromatography
@@ -90,6 +99,7 @@ def _get_default_nist_metrics():
         },
         # Ion Source
         'ion': {
+            # FIXME: escaping does not work (it does in interactive Python environment)
             'is-1a': ['MS1 During Middle', 14, 'MS1 Jumps >10x'],
             'is-1b': ['MS1 During Middle', 15, 'MS1 Falls <.1x'],
             'is-2': ['Precursor m/z for IDs', 1, 'Median'],
@@ -102,7 +112,7 @@ def _get_default_nist_metrics():
             'ds-1a': ['Ratios of Peptide Ions IDed', 1, 'Once/Twice'],
             'ds-1b': ['Ratios of Peptide Ions IDed', 2, 'Twice/Thrice'],
             'ds-2a': ['Middle Peptide Retention Time Period', 6, 'MS1 Scans'],
-            'ds-2b': ['Middle Peptide Retention Time Period', 5, 'MS2 Scans'],
+            'ds-2b': ['Middle Peptide Retention Time Period', 5, 'MS2 scans'],
             'ds-3a': ['MS1max/MS1sampled Abundance', 1, 'Median All IDs'],
             'ds-3b': ['MS1max/MS1sampled Abundance', 7, 'Med Bottom 1/2']
         }
@@ -138,7 +148,7 @@ def _extract_nist_metrics(metrics_file):
     with open(metrics_file, 'r') as mfile:
         lines = mfile.readlines()
 
-    # This regex parses all common numerical (including scienfic) notations
+    # This regular expression parses all common numerical (including scienfic) notations
     num_regex = '\s*([+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?)'
 
     # For each metric class (mcl) ('pep', 'ms1', etc.) perform regex searches in the NIST metrics
@@ -146,17 +156,19 @@ def _extract_nist_metrics(metrics_file):
     for mcl in metrics.keys():
         nist_metrics[mcl] = {}
         for metric in metrics[mcl].keys():
+            # Search for paragraph header, store line number
             index = next((num for num, line in enumerate(lines) if metrics[mcl][metric][0] in line), None)
             if index:
                 regex = re.compile('{0}{1}'.format(re.escape(metrics[mcl][metric][-1]), num_regex))
+                # Add the offset to the index to get the line with the actual data of interest
                 result = regex.search(lines[index + metrics[mcl][metric][1]])
-                metric_id = '{0} ({1})'.format(metrics[mcl][metric][0], metrics[mcl][metric][2])
+                # Format the metric for the report table ('Paragraph' ('Metric name')
+                metric_descr = '{0} ({1})'.format(metrics[mcl][metric][0], metrics[mcl][metric][2])
                 # Create a list with the description and the resulting value
                 if result:
-                    nist_metrics[mcl][metric] = [metric_id, result.group(1)]
+                    nist_metrics[mcl][metric] = [metric_descr, result.group(1)]
                 else:
-                    nist_metrics[mcl][metric] = [metric_id, "N/A"]
-                    # TODO: check the missing metrics (add to NIST metrics subset file if possible)
+                    nist_metrics[mcl][metric] = [metric_descr, "N/A"]
                     log.warn("Metric '{0}' could not be found".format(metric))
 
     return nist_metrics
@@ -187,3 +199,15 @@ def _extract_rlog_metrics(logfile):
     rlog_metrics['ms2_spectra'] = '{0} ({1})'.format(ms2_num, ms2_peaks)
 
     return rlog_metrics
+
+
+def export_metrics_json(metrics, webdir):
+    '''
+    Stores the NIST metrics dictionary as JSON file used when rendering the report
+    @param metrics: dictionary holding all NIST metrics
+    @param webdir: directory where the report is stored
+    '''
+    json_structure = json.dumps(metrics)
+
+    with open(os.path.join(webdir, 'metrics.json'), "w") as metrics_file:
+        metrics_file.writelines(json_structure)

@@ -71,16 +71,22 @@ tr.generic td {
 }
 
 tr.ms1 td {
-	color: green;
+	color: #EBF1DE;
 }
 
 tr.ms2 td {
-	color: GreenYellow;
+	color: #E6E0EC;
 }
 
 tr.ions td {
-	color: purple;
+	color: #FDEADA;
 }
 tr.pep td {
-	color: red;
+	color: #DBEEF4;
+}
+tr.chrom td {
+	color: #DCE6F2;
+}
+tr.dyn td {
+	color: #F2DCDB
 }

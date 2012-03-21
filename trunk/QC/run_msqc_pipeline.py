@@ -5,16 +5,20 @@ graphics using R and combining all gathered data into an HTML report.
 
 from os import makedirs
 from os.path import normpath, splitext, isdir
-from parse_metrics import create_metrics
+from parse_metrics import create_metrics, export_metrics_json
 from pkg_resources import resource_filename  # @UnresolvedImport
 from shutil import move, copy
 from string import Template
 from subprocess import check_call
 from time import gmtime, strftime, time
-import json
 import logging as log
 import os.path
 import tempfile
+
+__author__ = "Marcel Kempenaar"
+__contact__ = "brs@nbic.nl"
+__copyright__ = "Copyright, 2012, Netherlands Bioinformatics Centre"
+__license__ = "MIT"
 
 # Globals
 _R_GRAPHICS = resource_filename(__name__, 'r_ms_graphics.R')
@@ -249,19 +253,7 @@ def _create_report(webdir, basename, metrics):
         report_html.writelines(report_updated)
 
     # Store NIST metrics together with the report
-    _export_metrics_json(metrics, webdir)
-
-
-def _export_metrics_json(metrics, webdir):
-    '''
-    Stores the NIST metrics dictionary as JSON file used when rendering the report
-    @param metrics: dictionary holding all NIST metrics
-    @param webdir: directory where the report is stored
-    '''
-    json_structure = json.dumps(metrics)
-
-    with open(os.path.join(webdir, 'metrics.json'), "w") as metrics_file:
-        metrics_file.writelines(json_structure)
+    export_metrics_json(metrics, webdir)
 
 
 def _raw_format_conversions(raw_file, outdir):

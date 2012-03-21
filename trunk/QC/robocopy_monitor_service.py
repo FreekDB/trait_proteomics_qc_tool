@@ -1,6 +1,6 @@
-"""
+'''
 Module to install and run the robocopy monitor as a Windows service.
-"""
+'''
 
 #TODO LICENSE!!!
 
@@ -12,9 +12,14 @@ import win32service
 import win32event
 import win32api
 
+__author__ = "Marcel Kempenaar"
+__contact__ = "brs@nbic.nl"
+__copyright__ = "Copyright, 2012, Netherlands Bioinformatics Centre"
+__license__ = "MIT"
+
 
 class Service(win32serviceutil.ServiceFramework):
-    _svc_name_ = 'CTMM'
+    _svc_name_ = 'CTMM_QC_Mon'
     _svc_display_name_ = 'CTMM QC Monitor'
 
     def __init__(self, *args):
