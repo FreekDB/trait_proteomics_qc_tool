@@ -1,5 +1,5 @@
 #Enable indices 
-Options Indexes
+Options Indexes ExecCGI
 IndexOptions FancyIndexing
 IndexOptions FoldersFirst
 IndexOptions HTMLTable
@@ -11,10 +11,14 @@ IndexOptions VersionSort
 #Initially sort by mod date, or February would precede January
 IndexOrderDefault Ascending Date
 
+#Execute python files using CGI
+AddHandler cgi-script .py
+AddType text/html .py
+
 #Styling
 HeaderName /ctmm/header.html
 IndexStyleSheet /ctmm/style.css
-ReadmeName /ctmm/footer.html
+ReadmeName /ctmm/footer.py
 
 #Hide style files and report folder
-IndexIgnore header.html style.css footer.html report
+IndexIgnore header.html style.css footer.py report
