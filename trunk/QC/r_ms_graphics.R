@@ -1,3 +1,21 @@
+# Read commandline arguments
+args  = commandArgs(TRUE)
+if (length(args) < 4)
+	stop(cat("Missing arguments, usage:\n\tRscript r_ms_graphics.R indir rawfilebasename outdir mslevel [heatmap|iongraph]\n"))
+
+indir   = args[1]
+rawbasename = args[2]
+webdir   = args[3]
+mslvl    = args[4]
+
+# Set custom plot options
+if (length(args) > 4) {
+	graph = args[5]
+} else {
+	graph = c('heatmap', 'iongraph')
+}
+
+# Load required libraries
 library(fields)
 library(readMzXmlData)
 
@@ -10,7 +28,8 @@ ms_image <- function(mzXML, pfile=FALSE, min.mz=300, max.mz=2000, n.bins=100, ms
 	for ( i in 1:((max.mz - min.mz) / window))
 		s[i] = min.mz + window * (i-1)
     
-    logger(paste("Processing data.. (min.mz: ", min.mz, ", max.mz: ", max.mz, ", window: ", window, ")", sep=""))
+    logger(paste("Processing data.. (min.mz: ", min.mz, ", max.mz: ", max.mz, ", window: ", 
+				  window, ", minimum number of peaks: ", n.peaks, ")", sep=""))
     logger("Creating heatmap image..")
 	m = matrix(ncol=length(s))
 	r = c()
@@ -40,7 +59,7 @@ bin.scan <- function(scan, bins, window, min.mz, max.mz, method) {
 	for (step in 1:length(bins)) {
 		left = bins[step]
 		right = left + window
-		
+		## Get all intensities for the current interval 
 		index = which(left <= mz & if (step < length(bins)) mz < right else mz <= right)
 		if (length(index) > 0) {
 			if (method == "max")
@@ -55,8 +74,7 @@ bin.scan <- function(scan, bins, window, min.mz, max.mz, method) {
 }
 
 bin.plot <- function(m, s, rt, pfile) {
-
-
+	## Plots the heatmap image(s)
 	if (pfile != FALSE) {
 	    ## Save image to both PDF and PNG files
 		png(paste(pfile, '_heatmap.png', sep=''), width = 800, height = 800)
@@ -90,22 +108,21 @@ ion_count <- function(mzXML, pfile=FALSE, mslevel=1) {
 			rt = c(rt, mzXML[[scan]]$metaData$retentionTime)
         }
 	}
-	
-	
+
 	if (pfile != FALSE) {
 	    ## Save image to both PDF and PNG files
 	    png(paste(pfile, '_ions.png', sep=''), width = 800, height = 400)
 		## Change margins
 		par(mar=c(4,4,2,2))
-	    plot(rt, ions, type="l", xlab="Retention Time (s)", ylab="Total Ion Count", main="Ion count per scan", col="blue", lwd=2)
-	    ## text(bp, par("usr")[3], labels=seq(min(rt), max(rt), length.out=10), srt=25, adj = c(1.1,1.1), xpd = TRUE, cex=.75)
+	    plot(rt, ions, type="l", xlab="Retention Time (s)", ylab="Total Ion Count", 
+			 main="Ion count per scan", col="blue", lwd=2)
 	    dev.off()
 
 	    pdf(paste(pfile, '_ions.pdf', sep=''))
 		## Change margins
 		par(mar=c(4,4,2,2))
-	    plot(rt, ions, type="l", xlab="Retention Time (s)", ylab="Total Ion Count", main="Ion count per scan", col="blue", lwd=2)
-        ##text(bp, par("usr")[3], labels=seq(min(rt), max(rt), length.out=10), srt=25, adj = c(1.1,1.1), xpd = TRUE, cex=.75)
+	    plot(rt, ions, type="l", xlab="Retention Time (s)", ylab="Total Ion Count", 
+			 main="Ion count per scan", col="blue", lwd=2)
 	    dev.off()
 	}
 	
@@ -138,31 +155,26 @@ ms_metrics <- function(mzXML) {
 logger <- function(logdata) {
     ## Logs progress, adds a timestamp for each event
 	cat(paste(Sys.time(), "\t", logdata, "\n", sep=""))
-    process <<- c(process, paste(Sys.time(), "\t", logdata, sep=""))
+    progress <<- c(progress, paste(Sys.time(), "\t", logdata, sep=""))
 }
 
 ### Main ###
-
-args  = commandArgs(TRUE)
-
-outdir   = args[1]
-rawbasename = args[2]
-webdir   = args[3]
-mslvl    = args[4]
-
-mzXML  = paste(outdir, '/', rawbasename, '.RAW.mzXML', sep="")
+mzXML  = paste(indir, '/', rawbasename, '.RAW.mzXML', sep="")
 o_file = paste(webdir, '/', rawbasename, sep="")
-logfile = paste(outdir, '/', rawbasename, '.RLOG', sep="")
+logfile = paste(indir, '/', rawbasename, '.RLOG', sep="")
 
-process = c()
+progress = c()
 
 data = read_mzXML(mzXML)
 
 ## Creating heatmap of all data
-ms_image(data, o_file, mslevel=mslvl)
+if ('heatmap' %in% graph)
+	ms_image(data, o_file, mslevel=mslvl)
 ## Creating total ion count plot of all data
-ion_count(data, o_file, mslevel=mslvl) 
+if ('iongraph' %in% graph)
+	ion_count(data, o_file, mslevel=mslvl)
+
 ## Generating metrics
 ms_metrics(data)
 ## Write logfile
-write(process, logfile)
+write(progress, logfile)

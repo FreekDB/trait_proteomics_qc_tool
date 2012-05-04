@@ -6,13 +6,14 @@ graphics using R and combining all gathered data into an HTML report.
 from os import makedirs
 from os.path import normpath, splitext, isdir
 from parse_metrics import create_metrics, export_metrics_json
-from pkg_resources import resource_filename  # @UnresolvedImport
+from pkg_resources import resource_filename # @UnresolvedImport
 from shutil import move, copy
 from string import Template
 from subprocess import check_call
 from time import gmtime, strftime, time
 import logging as log
 import os.path
+import shutil
 import tempfile
 
 __author__ = "Marcel Kempenaar"
@@ -35,7 +36,7 @@ def qc_pipeline(indir, out_dir, copy_log):
     of all processed files. Once a new RAW file has been placed in this directory
     a report will be generated with this file as input."""
 
-    log.info('Version 0.0.9')
+    log.info('Version 0.1.0')
 
     # Check status of all previously processed files to determine
     # if any new files are present to process
@@ -75,7 +76,7 @@ def qc_pipeline(indir, out_dir, copy_log):
         # Update log-file showing completed analysis
         _log_progress(_PROGRES_LOG, rawfile)
 
-		# Cleanup (remove everything in working directory)
+        # Cleanup (remove everything in working directory)
         _cleanup(working_dir)
 
 

@@ -49,6 +49,7 @@ class Test(unittest.TestCase):
     def test_extract_nist_metrics(self):
         ''' Compares a subset of the complete list of metrics retrieved from the NIST output file '''
         nist_metrics = parse_metrics._extract_nist_metrics(self.nist_metrics)
+
         # TODO: manually create the full dictionary and compare with nist_metrics instead of subset testing
         nist_subset = {"ms1-2b": ["MS1 During Middle (TIC Median/1000)", "57"],
                        "ms1-5a": ["Precursor m/z - Peptide Ion m/z (Median)", "0.1460"],
