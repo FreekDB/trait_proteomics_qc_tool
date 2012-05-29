@@ -22,22 +22,22 @@ library(readMzXmlData)
 ms_image <- function(mzXML, pfile=FALSE, min.mz=300, max.mz=2000, n.bins=100, mslevel=1, n.peaks=500, method="max") {	
 	## Creates a heatmap-like image of all scans from the experiment
 	## Bins the data into n.bins bins and shows either the 'max' or 'average' of all bins
-
+	
 	window = (max.mz - min.mz) / n.bins
 	s = c()
 	for ( i in 1:((max.mz - min.mz) / window))
 		s[i] = min.mz + window * (i-1)
-    
-    logger(paste("Processing data.. (min.mz: ", min.mz, ", max.mz: ", max.mz, ", window: ", 
-				  window, ", minimum number of peaks: ", n.peaks, ")", sep=""))
-    logger("Creating heatmap image..")
+	
+	logger(paste("Processing data.. (min.mz: ", min.mz, ", max.mz: ", max.mz, ", window: ", 
+					window, ", minimum number of peaks: ", n.peaks, ")", sep=""))
+	logger("Creating heatmap image..")
 	m = matrix(ncol=length(s))
 	r = c()
 	rt = c()
 	for (scan in 1:length(mzXML)) {
-	    ## Get data for all scans for the given ms level and with a minimum number of 'n.peaks' peaks. 
+		## Get data for all scans for the given ms level and with a minimum number of 'n.peaks' peaks. 
 		if (mzXML[[scan]]$metaData$peaksCount > n.peaks & 
-			mzXML[[scan]]$metaData$msLevel == mslevel) {
+				mzXML[[scan]]$metaData$msLevel == mslevel) {
 			r = bin.scan(mzXML[[scan]]$spectrum, s, window, min.mz, max.mz, method)
 			m = rbind(m, r)
 			## Register all retention times used for x-axis
@@ -45,14 +45,25 @@ ms_image <- function(mzXML, pfile=FALSE, min.mz=300, max.mz=2000, n.bins=100, ms
 		}
 	}
 	m = m[-1,]
-
+	## Remove columns holding no useful data
+	index = c()
+	for (col in 1:ncol(m)) {
+		if (length(unique(m[,col])) == 1)
+			index = c(index, col)
+	}
+	
+	## Remove (-)Inf occurrences
+	m <- log(m[,-index])
+	m[is.infinite(m)] <- 0
+	s <- s[-index]
+	
 	logger(paste("Done preparing data..", sep=""))
-    bin.plot(m, s, rt, pfile)
+	bin.plot(m, s, rt, pfile, method)
 }
 
 bin.scan <- function(scan, bins, window, min.mz, max.mz, method) {
-    ## Combines all data from a bin given its left and right margin parameters
-    ## using either the 'max' or 'average' method.
+	## Combines all data from a bin given its left and right margin parameters
+	## using either the 'max' or 'average' method.
 	val = NULL
 	mz = scan$mass
 	int = scan$intensity
@@ -67,68 +78,78 @@ bin.scan <- function(scan, bins, window, min.mz, max.mz, method) {
 			if (method == "avg")
 				val[step] = mean(int[index])
 		} else {
-			val[step] = 1
+			val[step] = 0
 		}
 	}
 	return(val)
 }
 
-bin.plot <- function(m, s, rt, pfile) {
+bin.plot <- function(m, s, rt, pfile, method) {
 	## Plots the heatmap image(s)
 	if (pfile != FALSE) {
-	    ## Save image to both PDF and PNG files
+		## Save image to both PDF and PNG files
 		png(paste(pfile, '_heatmap.png', sep=''), width = 800, height = 800)
-		## Change margins
-		par(mar=c(4, 4, 2, 1))
-    	image.plot(rt, s, log(m), xlab="Retention Time", ylab="mass", main="Spectra overview")
-        dev.off()
-        
-        pdf(paste(pfile, '_heatmap.pdf', sep=''))
-		## Change margins
-		par(mar=c(4, 4, 2, 1))
-    	image.plot(rt, s, log(m), xlab="Retention Time (s)", ylab="mass", main="Spectra overview")
-    	dev.off()
+		image_plot(rt, s, m, method)
+		dev.off()
+		pdf(paste(pfile, '_heatmap.pdf', sep=''))
+		image_plot(rt, s, m, method)
+		dev.off()
 	} else {
-	    image.plot(rt, s, log(m), xlab="Retention Time (s)", ylab="mass", main="Spectra overview")
+		image_plot(rt, s, m, method)
 	}
 	logger(paste("Done creating heatmap, saved as ", pfile, "_heatmap.[png|pdf]", sep=""))
 }
 
+image_plot <- function(rt, s, m, method) {
+	## Creates an heatmap like image of the data together with a legend
+	op <- par(mar=c(4, 4, 2, 1))
+	image.plot(rt, s, m, xlab="Retention Time", ylab="Mass", main="Spectra Overview", 
+			legend.args=list(text=paste(method, "of intensities (log scaled)"), 
+					side=4, line=2))
+	box()
+	par(op)
+}
+
 ion_count <- function(mzXML, pfile=FALSE, mslevel=1) {
-    ## The 'total Ion count' barplot shows the sum of the intensities for each 
-    ## complete scan with the RT on the X-axis
-    logger("Creating total Ion count graph")
+	## The 'total Ion count' barplot shows the sum of the intensities for each 
+	## complete scan with the RT on the X-axis
+	logger("Creating total Ion count graph")
 	ions = c()
 	rt = c()
 	for (scan in 1:length(mzXML)) {
 		# Only plot scans with at least one peak
 		if (mzXML[[scan]]$metaData$peaksCount > 1 & 
-			mzXML[[scan]]$metaData$msLevel == mslevel) {
+				mzXML[[scan]]$metaData$msLevel == mslevel) {
 			ions = c(ions, sum(mzXML[[scan]]$spectrum$intensity))
 			rt = c(rt, mzXML[[scan]]$metaData$retentionTime)
-        }
-	}
-
-	if (pfile != FALSE) {
-	    ## Save image to both PDF and PNG files
-	    png(paste(pfile, '_ions.png', sep=''), width = 800, height = 400)
-		## Change margins
-		par(mar=c(4,4,2,2))
-	    plot(rt, ions, type="l", xlab="Retention Time (s)", ylab="Total Ion Count", 
-			 main="Ion count per scan", col="blue", lwd=2)
-	    dev.off()
-
-	    pdf(paste(pfile, '_ions.pdf', sep=''))
-		## Change margins
-		par(mar=c(4,4,2,2))
-	    plot(rt, ions, type="l", xlab="Retention Time (s)", ylab="Total Ion Count", 
-			 main="Ion count per scan", col="blue", lwd=2)
-	    dev.off()
+		}
 	}
 	
-	barplot(ions, rt, xlab="Scan number (RT)", ylab="Total Ion Count", main="Ion count per scan")
+	if (pfile != FALSE) {
+		## Save image to both PDF and PNG files
+		png(paste(pfile, '_ions.png', sep=''), width = 800, height = 400)
+		ion_count_plot(ions, rt)    
+		dev.off()   
+		pdf(paste(pfile, '_ions.pdf', sep=''))
+		ion_count_plot(ions, rt)
+		dev.off()
+	}	
 	
 	logger(paste("Done creating total Ion count graph, saved as ", pfile, "_ions.[png|pdf]", sep=""))
+}
+
+ion_count_plot <- function(ions, rt) {
+	## Change margins
+	op <- par(mar=c(4,6,2,2))
+	plot(rt, ions, type="l", xlab="", ylab="", 
+			main="Ion count per scan", col="blue", lwd=1.25, axes=FALSE)
+	axis(2, las=2, cex.axis=0.8)
+	loc = pretty(min(rt):max(rt), n=8)
+	axis(1, at=loc, cex.axis=0.8)
+	mtext("Total Ion count", side=2, line=5)
+	mtext("Retention Time", side=1, line=2)
+	box()
+	par(op)
 }
 
 read_mzXML <- function(mzXML) {
