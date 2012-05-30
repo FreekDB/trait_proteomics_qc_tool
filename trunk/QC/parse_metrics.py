@@ -148,7 +148,7 @@ def _extract_nist_metrics(metrics_file):
     with open(metrics_file, 'r') as mfile:
         lines = mfile.readlines()
 
-    # This regular expression parses all common numerical (including scienfic) notations
+    # This regular expression parses all common numerical (including scientific) notations
     num_regex = '\s*([+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?)'
 
     # For each metric class (mcl) ('pep', 'ms1', etc.) perform regex searches in the NIST metrics

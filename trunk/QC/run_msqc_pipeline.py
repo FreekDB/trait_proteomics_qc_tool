@@ -68,7 +68,7 @@ def qc_pipeline(indir, out_dir, copy_log):
 
         # Run QC workflow
         _raw_format_conversions(abs_rawfile_path, working_dir)
-        _run_nist(abs_rawfile_path, working_dir)
+        #_run_nist(abs_rawfile_path, working_dir)
         _run_r_script(working_dir, webdir, basename)
         metrics = create_metrics(abs_rawfile_path, t_start)
         _create_report(webdir, basename, metrics)
