@@ -1,6 +1,8 @@
-
 {
   "top": [
+    "f_size",
+    "ms1_spectra",
+	"ms2_spectra",
     "c-1a",
     "c-1b",
     "c-2a",

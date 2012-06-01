@@ -21,4 +21,4 @@ IndexStyleSheet /ctmm/style.css
 ReadmeName /ctmm/footer.py
 
 #Hide style files and report folder
-IndexIgnore header.html style.css footer.py report
+IndexIgnore header.html style.css footer.py report *.log
