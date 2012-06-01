@@ -18,6 +18,8 @@
 		var table = '<table>';
 		$.each(order, function(id) {
 			$.each(metrics, function(key, val) {
+				console.log("Looking for: ");
+				console.log(order[id]);
 				element = metrics[key][order[id]]; // TODO: need to test for undefined, should use jQuery.inArray
 				if (element != undefined) {
 					table += '<tr class=' + key + '><td>' + element[0] + '</td>';
@@ -68,8 +70,10 @@
 		<em>${runtime}</em>
 	</div>
 </div>
-<div id="metrics_top"></div>
-<div id="metrics_bottom"></div>
+<div id="metrics">
+	<div id="metrics_top"></div>
+	<div id="metrics_bottom"></div>
+</div>
 <div id="graphics">
 	<div id="heatmap">
 		<a href="${heatmap_pdf}">	

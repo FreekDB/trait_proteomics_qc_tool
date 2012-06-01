@@ -11,6 +11,7 @@ from shutil import move, copy
 from string import Template
 from subprocess import check_call
 from time import gmtime, strftime, time
+from datetime import datetime
 import logging as log
 import os.path
 import shutil
@@ -26,9 +27,9 @@ _R_GRAPHICS = resource_filename(__name__, 'r_ms_graphics.R')
 
 # Paths (These should be adapted for the system they run on)
 _WEB_DIR = normpath('C:/Program Files (x86)/Apache Software Foundation/Apache2.2/htdocs/ctmm')
-_NIST = normpath('C:/QC-pipeline/NISTMSQCv1_2_0_CTMM')
-_PROGRES_LOG = 'qc_status.log'
-_QC_HOME = normpath('C:/QC-pipeline')
+_NIST = normpath('NISTMSQCv1_2_0_CTMM')
+_PROGRES_LOG = normpath('{0}/{1}'.format(_WEB_DIR, 'qc_status.log'))
+_QC_HOME = normpath('C:/ctmm')
 
 
 def qc_pipeline(indir, out_dir, copy_log):
@@ -54,6 +55,8 @@ def qc_pipeline(indir, out_dir, copy_log):
         log.info("-----------\nProcessing:\n\t", rawfile, "\n-----------\n")
         ## For calculating runtimes
         t_start = time()
+        _log_progress(_PROGRES_LOG, rawfile, 'running')
+        
         # Set for current file and move file to output directory
         basename = splitext(rawfile)[0]
         working_dir = tempfile.mkdtemp(suffix='_QC', prefix=basename, dir=out_dir)
@@ -65,16 +68,15 @@ def qc_pipeline(indir, out_dir, copy_log):
 
         #Create folder to contain html report
         webdir = _manage_paths(basename)
-
         # Run QC workflow
         _raw_format_conversions(abs_rawfile_path, working_dir)
         #_run_nist(abs_rawfile_path, working_dir)
         _run_r_script(working_dir, webdir, basename)
-        metrics = create_metrics(abs_rawfile_path, t_start)
+        metrics = create_metrics(working_dir, abs_rawfile_path, t_start)
         _create_report(webdir, basename, metrics)
 
         # Update log-file showing completed analysis
-        _log_progress(_PROGRES_LOG, rawfile)
+        _log_progress(_PROGRES_LOG, rawfile, 'completed')
 
         # Cleanup (remove everything in working directory)
         _cleanup(working_dir)
@@ -86,17 +88,18 @@ def _read_logfile(logfile):
     @param logfile:
     """
     # Logfile layout:
-    # Filename    Status
+    # Date    Filename    Status
     files = dict()
     with open(logfile, 'r') as logfile:
+        _ = logfile.next()
         for line in logfile:
             #Split line
             splitted = line.split('\t')
-            if len(splitted) != 2:
+            if len(splitted) != 3:
                 continue
 
             #Get filename and status
-            name, status = splitted
+            timestamp, name, status = splitted
             files[name] = status.strip()
 
     return files
@@ -136,7 +139,7 @@ def _parse_robocopy_log(copy_log, files):
     return files
 
 
-def _log_progress(logfile, rawfile):
+def _log_progress(logfile, rawfile, status):
     '''
     Keeps track of processed RAW files, this logfile is used to create a
     simple status report through a webserver.
@@ -144,9 +147,9 @@ def _log_progress(logfile, rawfile):
     @param logfile: logfile used to log status of processed files
     @param rawfile: path to the RAW file
     '''
-    log = '{0}\t{1}'.format(rawfile, 'completed')
+    log = '{0}\t{1}\t{2}\n'.format(str(datetime.now()), rawfile, status)
     with open(logfile, 'a') as status_log:
-        status_log.writeln(log)
+        status_log.write(log)
 
 
 def _manage_paths(basename):
@@ -224,6 +227,7 @@ def _run_r_script(outdir, webdir, basename):
             basename,
             webdir,
             '1']  # MS level (1 or 2)
+    print 'Running R command: ', rcmd, '\n'
     check_call(rcmd, shell=True)
 
 
@@ -241,8 +245,8 @@ def _create_report(webdir, basename, metrics):
 
     report_template = Template(''.join(template))
     report_updated = report_template.safe_substitute(raw_file='{0}.RAW'.format(basename),
-                                                     date=metrics['date'],
-                                                     runtime=metrics['runtime'],
+                                                     date=metrics['generic']['date'],
+                                                     runtime=metrics['generic']['runtime'],
                                                      # Figures
                                                      heatmap_img='{0}_heatmap.png'.format(basename),
                                                      ions_img='{0}_ions.png'.format(basename),
@@ -265,7 +269,7 @@ def _raw_format_conversions(raw_file, outdir):
     '''
     log.info("Running RAW file conversion..")
 
-    msconvert = normpath('{0}/converter/msconvert.exe'.format(_NIST))
+    msconvert = normpath('{0}/{1}/converter/msconvert.exe'.format(_QC_HOME, _NIST))
     # Both mzXML and MGF files need to be created
     mzxml_cmd = [msconvert,
                  raw_file,

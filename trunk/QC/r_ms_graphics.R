@@ -51,12 +51,15 @@ ms_image <- function(mzXML, pfile=FALSE, min.mz=300, max.mz=2000, n.bins=100, ms
 		if (length(unique(m[,col])) == 1)
 			index = c(index, col)
 	}
-	
-	## Remove (-)Inf occurrences
-	m <- log(m[,-index])
-	m[is.infinite(m)] <- 0
-	s <- s[-index]
-	
+	if (!is.null(index)) {
+        ## Remove (-)Inf occurrences
+        m <- log(m[,-index])
+        s <- s[-index]
+    } else {
+	    m <- log(m)
+    }
+    m[is.infinite(m)] <- 0
+
 	logger(paste("Done preparing data..", sep=""))
 	bin.plot(m, s, rt, pfile, method)
 }
@@ -197,5 +200,7 @@ if ('iongraph' %in% graph)
 
 ## Generating metrics
 ms_metrics(data)
+
 ## Write logfile
+logger(paste("Writing logfile to ", logfile, sep=""))
 write(progress, logfile)

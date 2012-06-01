@@ -8,6 +8,7 @@ import logging as log
 import os
 import re
 import time
+from os.path import normpath
 
 __author__ = "Marcel Kempenaar"
 __contact__ = "brs@nbic.nl"
@@ -15,7 +16,7 @@ __copyright__ = "Copyright, 2012, Netherlands Bioinformatics Centre"
 __license__ = "MIT"
 
 
-def create_metrics(abs_rawfile, t_start):
+def create_metrics(working_dir, abs_rawfile, t_start):
     """
     Parses NIST metrics output file extracting relevant metrics subset
     @param abs_rawfile: absolute path to the raw results file from the mass spectrometry device
@@ -24,16 +25,17 @@ def create_metrics(abs_rawfile, t_start):
     """
     log.info("Creating metrics..")
 
-    #Start with and empty base
+    #Start with an empty base
     metrics = {}
 
     #Add basic metrics that do not require any log files
-    metrics.update(_extract_generic_metrics(abs_rawfile, t_start))
+    metrics['generic'] = _extract_generic_metrics(abs_rawfile, t_start)
 
     #Determine paths to log files
-    rawfilebase = os.path.splitext(abs_rawfile)[0]
-    metrics_file = rawfilebase + '.msqc'
-    rlogfile = rawfilebase + '.RLOG'
+    raw_file_name = os.path.split(abs_rawfile)[1]
+    metrics_logs_path = normpath(working_dir + '/' + os.path.splitext(raw_file_name)[0])
+    metrics_file = metrics_logs_path + '.msqc'
+    rlogfile = metrics_logs_path + '.RLOG'
 
     if os.path.exists(metrics_file):
         #Update metrics with values from NIST pipeline
@@ -43,10 +45,9 @@ def create_metrics(abs_rawfile, t_start):
 
     if os.path.exists(rlogfile):
         #Update metrics with some generic metrics
-        metrics.update(_extract_rlog_metrics(rlogfile))
+        metrics['generic'].update(_extract_rlog_metrics(rlogfile))
     else:
         log.warn("R log file does not exist")
-
     return metrics
 
 
@@ -127,7 +128,7 @@ def _extract_generic_metrics(rawfile, t_start):
     '''
     generic_metrics = {}
     # Other generic metrics
-    generic_metrics['f_size'] = "%0.1f" % (os.stat(rawfile).st_size / (1024 * 1024.0))
+    generic_metrics['f_size'] = ['File Size (MB)', "%0.1f" % (os.stat(rawfile).st_size / (1024 * 1024.0))]
     generic_metrics['runtime'] = str(datetime.timedelta(seconds=round(time.time() - t_start)))
     cur_time = time.gmtime()
     generic_metrics['date'] = '{year}/{month}/{day} - {hour}:{min}'.format(year=time.strftime("%Y", cur_time),
@@ -190,13 +191,13 @@ def _extract_rlog_metrics(logfile):
     ms1_peaks = re.search('MS1 scans containing peaks: ([0-9]+)', rlog)
     ms1_num = ms1_num.group(1) if ms1_num else "NA"
     ms1_peaks = ms1_peaks.group(1) if ms1_peaks else "NA"
-    rlog_metrics['ms1_spectra'] = '{0} ({1})'.format(ms1_num, ms1_peaks)
+    rlog_metrics['ms1_spectra'] = ['MS1 Spectra', '{0} ({1})'.format(ms1_num, ms1_peaks)]
 
     ms2_num = re.search('Number of MS2 scans: ([0-9]+)', rlog)
     ms2_peaks = re.search('MS2 scans containing peaks: ([0-9]+)', rlog)
     ms2_num = ms2_num.group(1) if ms2_num else "NA"
     ms2_peaks = ms2_peaks.group(1) if ms2_peaks else "NA"
-    rlog_metrics['ms2_spectra'] = '{0} ({1})'.format(ms2_num, ms2_peaks)
+    rlog_metrics['ms2_spectra'] = ['MS2 Spectra', '{0} ({1})'.format(ms2_num, ms2_peaks)]
 
     return rlog_metrics
 

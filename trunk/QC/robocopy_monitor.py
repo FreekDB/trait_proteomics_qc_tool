@@ -7,8 +7,8 @@ from run_msqc_pipeline import qc_pipeline
 from robocopy_monitor_service import Service, instart
 from os.path import normpath
 from time import gmtime, strftime, sleep
-from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 import logging
 import sys
 
@@ -45,6 +45,7 @@ class FileMonitor(FileSystemEventHandler):
         Listens for modifications of the given logfile and executes QC workflow on the newly copied file.
         @param event: is triggered on any file modification within the directory monitored
         '''
+        print 'Waiting for event..'
         #Only watch for changes on file 'robocopy'
         event_file = event.__dict__['_src_path']
         if not 'robocopy' in event_file:
@@ -83,7 +84,6 @@ class QCMonitorService(Service):
 
         # Logs as a Windows event (viewable in Windows event viewer, under 'Application logs')
         self.log("Monitoring:  {0}\nInput Dir:   {1}\nOutput Dir:  {2}".format(copy_log, in_dir, out_dir))
-
         # Create new FileMonitor that starts the QC workflow on file modification
         observer = Observer()
         event_handler = FileMonitor(in_dir, out_dir, copy_log, self)
@@ -116,7 +116,7 @@ class QCMonitor():
 
     def start(self):
         print "Monitoring:  {0}\nInput Dir:   {1}\nOutput Dir:  {2}".format(self.copy_log, self.in_dir, self.out_dir)
-
+        
         # Create new FileMonitor that starts the QC workflow on file modification
         event_handler = FileMonitor(self.in_dir, self.out_dir, self.copy_log, self)
         self.observer.schedule(event_handler, self.copy_log, recursive=True)
@@ -126,6 +126,7 @@ class QCMonitor():
                 sleep(1)
         except KeyboardInterrupt:
             self.observer.stop()
+         
         self.observer.join()
 
     def stop(self):
@@ -135,7 +136,7 @@ class QCMonitor():
     def log(self, msg):
         '''
         FileMonitor calls self.log to log messages, which would work fine if we extended Service.
-        But we don't so wee need to redirect to our own logging method.
+        But we don't so we need to redirect to our own logging method.
         @param msg: the message to log
         '''
         logging.info(msg)
@@ -153,6 +154,5 @@ if __name__ == "__main__":
 
         #Extract arguments
         args = parser.parse_args()
-        print args
         monitor = QCMonitor(args.in_folder, args.out_folder, args.copy_log)
         monitor.start()
