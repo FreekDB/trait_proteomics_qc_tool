@@ -1,5 +1,9 @@
 """
-Module to monitor a robocopy log file for changes, and act on those changes by invoking CTMM QC pipeline.
+Module to monitor a robocopy log file for changes, and act on those changes by
+invoking the CTMM QC pipeline.
+
+To install the QC pipeline as a service, run with the 'install' argument, otherwise
+provide other arguments (check with [-h / --help])
 """
 
 from argparse import ArgumentParser
@@ -45,15 +49,14 @@ class FileMonitor(FileSystemEventHandler):
         Listens for modifications of the given logfile and executes QC workflow on the newly copied file.
         @param event: is triggered on any file modification within the directory monitored
         '''
-        print 'Waiting for event..'
-        #Only watch for changes on file 'robocopy'
+        # Only watch for changes on file 'robocopy'
         event_file = event.__dict__['_src_path']
         if not 'robocopy' in event_file:
             return
 
         self.service.log("{0} New robocopy event".format(self.get_time()))
 
-        #Actually process the robocopy log file, which will take some time
+        # Actually process the robocopy log file and any new RAW files, which will take some time
         qc_pipeline(self.in_dir, self.out_dir, event_file)
 
         self.service.log("{0} Monitoring for new RAW files..".format(self.get_time()))
@@ -116,7 +119,7 @@ class QCMonitor():
 
     def start(self):
         print "Monitoring:  {0}\nInput Dir:   {1}\nOutput Dir:  {2}".format(self.copy_log, self.in_dir, self.out_dir)
-        
+
         # Create new FileMonitor that starts the QC workflow on file modification
         event_handler = FileMonitor(self.in_dir, self.out_dir, self.copy_log, self)
         self.observer.schedule(event_handler, self.copy_log, recursive=True)
@@ -126,7 +129,7 @@ class QCMonitor():
                 sleep(1)
         except KeyboardInterrupt:
             self.observer.stop()
-         
+
         self.observer.join()
 
     def stop(self):
@@ -144,8 +147,8 @@ class QCMonitor():
 if __name__ == "__main__":
     if sys.argv[1] == 'install':
         instart(QCMonitorService, 'ctmm', 'ctmm_monitor')
-    else:# sys.argv[1] == 'run':
-        # Create and parse commandline arguments
+    else:
+        # Create and parse command line arguments
         parser = ArgumentParser(description="QC-workflow monitor for MS data using NIST metrics")
         parser.add_argument('in_folder', type=str,
                             help='Input folder containing (Thermo) RAW files outputted by a mass-spectrometer')

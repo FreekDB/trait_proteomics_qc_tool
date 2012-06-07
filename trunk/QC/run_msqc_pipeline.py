@@ -56,7 +56,7 @@ def qc_pipeline(indir, out_dir, copy_log):
         ## For calculating runtimes
         t_start = time()
         _log_progress(_PROGRES_LOG, rawfile, 'running')
-        
+
         # Set for current file and move file to output directory
         basename = splitext(rawfile)[0]
         working_dir = tempfile.mkdtemp(suffix='_QC', prefix=basename, dir=out_dir)
@@ -85,12 +85,13 @@ def qc_pipeline(indir, out_dir, copy_log):
 def _read_logfile(logfile):
     """
     Parse our own log-file of previously processed files. Return dictionary mapping filename to status.
-    @param logfile:
+    @param logfile: QC log file listing current status and previously processed RAW files
     """
-    # Logfile layout:
+    # Log file layout:
     # Date    Filename    Status
     files = dict()
     with open(logfile, 'r') as logfile:
+        # Discard header
         _ = logfile.next()
         for line in logfile:
             #Split line
@@ -122,15 +123,15 @@ def _parse_robocopy_log(copy_log, files):
     for lnr_start, logline in enumerate(loglines):
         if 'Started' not in logline:
             continue
-        #We found the start of a new robocopy log
+        # We found the start of a new robocopy log
         for lnr_block, logline in enumerate(loglines[lnr_start:]):
             if 'Monitor' not in logline:
                 continue
-            #All files completed between lnr_start & lnr_start + lnr_block finished copying
+            # All files completed between lnr_start & lnr_start + lnr_block finished copying
             for logline in loglines[lnr_start:lnr_block + lnr_start]:
                 if 'New File' not in logline:
                     continue
-                #Handle new files
+                # Handle new files
                 newfile = logline.split('\t')[-1].strip()
                 # If a new file has been found, set status to 'new'
                 if newfile not in files:
@@ -141,10 +142,9 @@ def _parse_robocopy_log(copy_log, files):
 
 def _log_progress(logfile, rawfile, status):
     '''
-    Keeps track of processed RAW files, this logfile is used to create a
-    simple status report through a webserver.
-    TODO add information (realtime update, completion date, etc.)
-    @param logfile: logfile used to log status of processed files
+    Keeps track of processed RAW files, this log file is used to create a
+    simple status report through a web server.
+    @param logfile: log file used to log status of processed files
     @param rawfile: path to the RAW file
     '''
     log = '{0}\t{1}\t{2}\n'.format(str(datetime.now()), rawfile, status)
@@ -154,7 +154,7 @@ def _log_progress(logfile, rawfile, status):
 
 def _manage_paths(basename):
     '''
-    Create directory on webserver part for storing images and the report.
+    Create directory on web server part for storing images and the report.
     @param basename: name of the .RAW file without extension
     '''
     ctime = gmtime()
@@ -178,7 +178,7 @@ def _run_nist(rawfile, outdir):
 
     # NIST settings
     nist_library = 'hsa'
-    search_engine = 'MSPepSearch'#'SpectraST'
+    search_engine = 'MSPepSearch' #'SpectraST'
     mode = 'lite'
     fasta = normpath('{0}/libs/{1}.fasta'.format(_NIST, nist_library))
     instrument = 'LTQ'
@@ -194,7 +194,7 @@ def _run_nist(rawfile, outdir):
                 '--library', nist_library,
                 '--instrument_type', instrument,
                 '--search_engine', search_engine,
-                #'--fasta', fasta,
+                '--fasta', fasta,
                 '--overwrite_searches',
                 '--pro_ms',
                 '--log_file',
@@ -213,7 +213,7 @@ def _run_nist(rawfile, outdir):
 def _run_r_script(outdir, webdir, basename):
     '''
     After running the NIST metrics workflow, the mzXML file created can be read in R
-    and processed further (graphics and basic metrics)
+    and processed further (some graphics and basic metrics)
     @param outdir: directory in which the input mzXML file is located
     @param webdir: output directory for the graphics
     @param basename: RAW file name (without ext) used to identify mzXML file
@@ -227,7 +227,7 @@ def _run_r_script(outdir, webdir, basename):
             basename,
             webdir,
             '1']  # MS level (1 or 2)
-    print 'Running R command: ', rcmd, '\n'
+
     check_call(rcmd, shell=True)
 
 
@@ -292,6 +292,6 @@ def _raw_format_conversions(raw_file, outdir):
 def _cleanup(outdir):
     '''
     Cleans up temporary data (NIST output etc) after a successful run
-    @param outdir: working directory in which all intermediate files are stored
+    @param outdir: working directory to remove in which all intermediate files are stored
     '''
     shutil.rmtree(outdir)

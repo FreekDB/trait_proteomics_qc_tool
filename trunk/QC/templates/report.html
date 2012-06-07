@@ -18,8 +18,6 @@
 		var table = '<table>';
 		$.each(order, function(id) {
 			$.each(metrics, function(key, val) {
-				console.log("Looking for: ");
-				console.log(order[id]);
 				element = metrics[key][order[id]]; // TODO: need to test for undefined, should use jQuery.inArray
 				if (element != undefined) {
 					table += '<tr class=' + key + '><td>' + element[0] + '</td>';
@@ -43,10 +41,9 @@
 				// Create table and place it in the metrics <divs>
 				$('#metrics_top').append(createMetricsTable(metrics, order['top']));
 				$('#metrics_bottom').append(createMetricsTable(metrics, order['bottom']));
-			}) // 'metrics_order' success
+			})
 			.error(function() {console.log("Error reading JSON configuration file"); });;
 		})
-		// On error, write error to console
 		.error(function() { console.log("Error reading JSON metrics file"); });;		
     });
 </script>
@@ -72,6 +69,7 @@
 </div>
 <div id="metrics">
 	<div id="metrics_top"></div>
+	<!-- TODO: Add clear devider / some space between tables -->
 	<div id="metrics_bottom"></div>
 </div>
 <div id="graphics">
