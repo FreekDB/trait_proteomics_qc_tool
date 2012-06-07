@@ -22,7 +22,7 @@ __copyright__ = "Copyright, 2012, Netherlands Bioinformatics Centre"
 __license__ = "MIT"
 
 #TODO: contemplate reading these settings from a settings file
-IN_DIR = normpath('//opl-data/data/qe-raw-data')
+IN_DIR = normpath('//192.168.0.1/qe-raw-data')
 OUT_DIR = normpath('C:/QC-pipeline/output')
 COPY_LOG = IN_DIR
 

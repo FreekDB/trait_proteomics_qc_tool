@@ -29,7 +29,7 @@ _R_GRAPHICS = resource_filename(__name__, 'r_ms_graphics.R')
 _WEB_DIR = normpath('C:/Program Files (x86)/Apache Software Foundation/Apache2.2/htdocs/ctmm')
 _NIST = normpath('NISTMSQCv1_2_0_CTMM')
 _PROGRES_LOG = normpath('{0}/{1}'.format(_WEB_DIR, 'qc_status.log'))
-_QC_HOME = normpath('C:/ctmm')
+_QC_HOME = normpath('C:/QC-pipeline')
 
 
 def qc_pipeline(indir, out_dir, copy_log):
@@ -102,7 +102,6 @@ def _read_logfile(logfile):
             #Get filename and status
             timestamp, name, status = splitted
             files[name] = status.strip()
-
     return files
 
 
@@ -275,7 +274,9 @@ def _raw_format_conversions(raw_file, outdir):
                  raw_file,
                  '-o', outdir,
                  '--mzXML',
-                 '-e', '.RAW.mzXML']
+                 '-e', '.RAW.mzXML',
+                 '--filter',
+                 'peakPicking true 1']
     mgf_cmd = [msconvert,
                raw_file,
                '-o', outdir,
