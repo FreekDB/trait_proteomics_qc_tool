@@ -270,13 +270,16 @@ def _raw_format_conversions(raw_file, outdir):
 
     msconvert = normpath('{0}/{1}/converter/msconvert.exe'.format(_QC_HOME, _NIST))
     # Both mzXML and MGF files need to be created
+    """
     mzxml_cmd = [msconvert,
                  raw_file,
                  '-o', outdir,
                  '--mzXML',
                  '-e', '.RAW.mzXML',
                  '--filter',
-                 'peakPicking true 1']
+                 '"peakPicking true 1"']
+    """
+    mzxml_cmd = '{0} {1} -o {2} --mzXML -e .RAW.mzXML --filter "peakPicking true 1"'.format(msconvert, raw_file, outdir)
     mgf_cmd = [msconvert,
                raw_file,
                '-o', outdir,
