@@ -22,7 +22,12 @@ __copyright__ = "Copyright, 2012, Netherlands Bioinformatics Centre"
 __license__ = "MIT"
 
 #TODO: contemplate reading these settings from a settings file
-IN_DIR = normpath('//192.168.0.1/qe-raw-data')
+# These paths are only used when installing as a service
+# Please note that when running as a service, the tool is unable to access
+# data across a network, the data should be accessible on a local disk.
+# Robocopy needs to put its logfile into the IN_DIR folder (named 'robocopy.*')
+IN_DIR = normpath('C:/Xcalibur/data')
+# Temporary storage, is emptied after each run
 OUT_DIR = normpath('C:/QC-pipeline/output')
 COPY_LOG = IN_DIR
 
@@ -146,16 +151,19 @@ class QCMonitor():
 
 if __name__ == "__main__":
     if sys.argv[1] == 'install':
-        instart(QCMonitorService, 'ctmm', 'ctmm_monitor')
+        instart(QCMonitorService, 'ctmm-qc', 'ctmm_qc-monitor')
     else:
         # Create and parse command line arguments
         parser = ArgumentParser(description="QC-workflow monitor for MS data using NIST metrics")
         parser.add_argument('in_folder', type=str,
                             help='Input folder containing (Thermo) RAW files outputted by a mass-spectrometer')
         parser.add_argument('out_folder', type=str, help='Folder in which output (report) PDF files will be written')
-        parser.add_argument('copy_log', type=str, help='Logfile (local) that Robocopy uses to write status')
+        parser.add_argument('copylog_folder', type=str, help=('Directory containing logfile (local) that'
+                                                             ' Robocopy uses to write status messages (should be named:'
+															 ' "robocopy.*"'))
 
         #Extract arguments
         args = parser.parse_args()
-        monitor = QCMonitor(args.in_folder, args.out_folder, args.copy_log)
+		# Create new monitor checking for changes in the given robocopy logfile
+        monitor = QCMonitor(args.in_folder, args.out_folder, args.copylog_folder)
         monitor.start()

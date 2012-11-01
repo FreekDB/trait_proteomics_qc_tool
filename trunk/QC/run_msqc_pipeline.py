@@ -37,7 +37,7 @@ def qc_pipeline(indir, out_dir, copy_log):
     of all processed files. Once a new RAW file has been placed in this directory
     a report will be generated with this file as input."""
 
-    log.info('Version 0.1.0')
+    log.info('Version 0.2.0.qc-lite')
 
     # Check status of all previously processed files to determine
     # if any new files are present to process
@@ -280,6 +280,7 @@ def _raw_format_conversions(raw_file, outdir):
                  '"peakPicking true 1"']
     """
     mzxml_cmd = '{0} {1} -o {2} --mzXML -e .RAW.mzXML --filter "peakPicking true 1"'.format(msconvert, raw_file, outdir)
+    print '\nMZXML converter command:\n\t', mzxml_cmd, '\n'
     mgf_cmd = [msconvert,
                raw_file,
                '-o', outdir,
