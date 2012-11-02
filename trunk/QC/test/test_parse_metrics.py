@@ -44,7 +44,7 @@ class Test(unittest.TestCase):
         # Note: test failure can be caused by interfering processes increasing runtime
         time.sleep(1)
         generic_metrics = parse_metrics._extract_generic_metrics(rawfile, self.t_start)
-        self.assertEquals(generic_metrics, {'date': date, 'runtime': '0:00:01', 'f_size': '97.8'})
+        self.assertEquals(generic_metrics, {'date': date, 'runtime': '0:00:01', 'f_size': ['File Size (MB)', '97.8']})
 
     def test_extract_nist_metrics(self):
         ''' Compares a subset of the complete list of metrics retrieved from the NIST output file '''
@@ -63,7 +63,8 @@ class Test(unittest.TestCase):
     def test_extract_rlog_metrics(self):
         ''' Tests the parsing of the R log file showing details about the spectra in the mzXML file '''
         rmetrics = parse_metrics._extract_rlog_metrics(self.msqcrlog)
-        self.assertEquals(rmetrics, {'ms2_spectra': '1871 (1871)', 'ms1_spectra': '6349 (4135)'})
+        self.assertEquals(rmetrics, {'ms2_spectra': ['MS2 Spectra', '1871 (1871)'], 
+		                             'ms1_spectra': ['MS1 Spectra', '6349 (4135)']})
 
     def test_export_metrics_json(self):
         '''

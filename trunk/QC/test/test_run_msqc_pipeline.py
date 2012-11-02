@@ -38,9 +38,13 @@ class Test(unittest.TestCase):
     def test_logfiles(self):
         ''' Tests the reading of the robocopy- and status-logfiles '''
         files = run_msqc_pipeline._read_logfile(self.logfile)
-        self.assertEquals(files, {'110215_13.RAW': 'completed', '110308_02.RAW': 'completed'})
+        self.assertEquals(files, {'QE1_120315_OPL000_26_MSQC_40min_200.raw': 'completed',
+		                          'QE2_120521_OPL2012_EH_barf1_serum_A.raw': 'completed'})
         files = run_msqc_pipeline._parse_robocopy_log(self.robocopylog, files)
-        self.assertEquals(files, {'110215_13.RAW': 'completed', 'U87_10mg_B.raw': 'new', '110308_02.RAW': 'completed'})
+        print '-----------\n', files, '------------\n'
+        self.assertEquals(files, {'QE1_120315_OPL000_26_MSQC_40min_200.raw': 'completed',
+		                          'QE2_120521_OPL2012_EH_barf1_serum_A.raw': 'completed',
+								  'U87_10mg_B.raw': 'new'})
 
     def test_raw_format_conversions(self):
         ''' Test the conversion of RAW files into mzXML / MGF files '''
@@ -53,7 +57,7 @@ class Test(unittest.TestCase):
         mgf_file = os.path.join(self.temp_folder, self.rawfilebase + '.RAW.MGF')
         self.failUnless(os.path.exists(mgf_file))
 
-    def test_run_nist(self):
+    def _defunct_test_run_nist(self):
         ''' Run NIST, and assure the msqc file is output to the correct path.'''
         # Copy NIST input files to temp folder
         copy(self.rawfile, self.temp_folder)
@@ -91,10 +95,15 @@ class Test(unittest.TestCase):
         metrics_file = resource_filename(__name__, "data/nist_metrics.msqc")
         nist_metrics = parse_metrics._extract_nist_metrics(metrics_file)
         # Add generic metrics
-        nist_metrics.update(parse_metrics._extract_generic_metrics(self.rawfile, time.time()))
+        nist_metrics['generic'] = parse_metrics._extract_generic_metrics(self.rawfile, time.time())
         # Create report (move to the QC directory, otherwise template is not found
         restore_path = os.getcwd()
-        os.chdir('../')
+        os.chdir('QC')
+        print 'Restore path: {}\nCurrent path: {}'.format(restore_path, os.getcwd())
+        print '--------------\nNIST METRICS:\n'
+        for i in nist_metrics.keys():
+            print i
+        print '---------------\n'
         run_msqc_pipeline._create_report(self.temp_folder, self.rawfilebase, nist_metrics)
         # Test for presence of the report file
         report_file = '{0}/{1}'.format(self.temp_folder, 'index.html')
