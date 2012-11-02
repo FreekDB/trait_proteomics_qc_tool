@@ -3,7 +3,7 @@
   Started : Thu Jan 19 11:08:10 2012
 
 	                   6	F:\Backup\BRS\BRS2011P09\Data\E2\
-	    New File  		 211.2 m	110215_13.RAW
+	    New File  		 211.2 m	QE1_120315_OPL000_26_MSQC_40min_200.raw
 
   Monitor : Waiting for 1 minutes and 1 changes...
 
@@ -13,7 +13,7 @@
   Started : Thu Jan 19 11:10:10 2012
 
 	                   7	F:\Backup\BRS\BRS2011P09\Data\E2\
-	    New File  		 227.5 m	110308_02.RAW
+	    New File  		 227.5 m	QE2_120521_OPL2012_EH_barf1_serum_A.raw
 
   Monitor : Waiting for 1 minutes and 1 changes...
 
