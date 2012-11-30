@@ -19,49 +19,76 @@ if (length(args) > 4) {
 library(fields)
 library(readMzXmlData)
 
-ms_image <- function(mzXML, pfile=FALSE, min.mz=300, max.mz=2000, n.bins=100, mslevel=1, n.peaks=500, method="max") {	
+ms_image <- function(mzXML, pfile=FALSE, min.mz=300, max.mz=2000, n.bins=100, mslevel=1, 
+		     n.peaks.list=c(500, 250, 100, 50, 20, 10), n.peaks.perc=40, method="max") {	
 	## Creates a heatmap-like image of all scans from the experiment
 	## Bins the data into n.bins bins and shows either the 'max' or 'average' of all bins
-	
+	n.peaks = n.peaks.list[1]
 	window = (max.mz - min.mz) / n.bins
 	s = c()
 	for ( i in 1:((max.mz - min.mz) / window))
 		s[i] = min.mz + window * (i-1)
 	
-	logger(paste("Processing data.. (min.mz: ", min.mz, ", max.mz: ", max.mz, ", window: ", 
-					window, ", minimum number of peaks: ", n.peaks, ")", sep=""))
-	logger("Creating heatmap image..")
+	logger(paste("Processing data for heatmap (min.mz: ", min.mz, ", max.mz: ", max.mz, ", window: ", 
+					window, ", minimum number of peaks/scan: ", n.peaks, ")", sep=""))
 	m = matrix(ncol=length(s))
 	r = c()
 	rt = c()
+	has.data = 0
+	ms.scans = 0
 	for (scan in 1:length(mzXML)) {
 		## Get data for all scans for the given ms level and with a minimum number of 'n.peaks' peaks. 
-		if (mzXML[[scan]]$metaData$peaksCount > n.peaks & 
-				mzXML[[scan]]$metaData$msLevel == mslevel) {
-			r = bin.scan(mzXML[[scan]]$spectrum, s, window, min.mz, max.mz, method)
-			m = rbind(m, r)
-			## Register all retention times used for x-axis
-			rt = c(rt, mzXML[[scan]]$metaData$retentionTime)
+		if (mzXML[[scan]]$metaData$msLevel == mslevel) { 
+			ms.scans = ms.scans + 1
+			if (mzXML[[scan]]$metaData$peaksCount > n.peaks) {
+				r = bin.scan(mzXML[[scan]]$spectrum, s, window, min.mz, max.mz, method)
+				m = rbind(m, r)
+				## Register all retention times used for x-axis
+				rt = c(rt, mzXML[[scan]]$metaData$retentionTime)
+				has.data = has.data + 1
+			}
 		}
 	}
-	m = m[-1,]
-	## Remove columns holding no useful data
-	index = c()
-	for (col in 1:ncol(m)) {
-		if (length(unique(m[,col])) == 1)
-			index = c(index, col)
-	}
-	if (!is.null(index)) {
-        ## Remove (-)Inf occurrences
-        m <- log(m[,-index])
-        s <- s[-index]
-    } else {
-	    m <- log(m)
-    }
-    m[is.infinite(m)] <- 0
+	## If < n.peaks_perc of the scans have more than n.peaks, recursively step through the peak limits in n.peaks_list
+	print(ms.scans)
+	if (has.data > 0)
+		has.data.perc = round(has.data / ms.scans * 100, 2)
+	else
+		has.data.perc = 0
+	if (has.data.perc < n.peaks.perc) {
+		if (length(n.peaks.list) > 1) {
+			logger(paste("Less than ", n.peaks.perc, "% (", has.data.perc, "%) of the scans have more than ",
+				     n.peaks, " peaks present, trying again with ", n.peaks.list[2], " peaks", sep=""))
+			ms_image(mzXML, pfile, min.mz, max.mz, n.bins, mslevel, n.peaks.list[2:length(n.peaks.list)], 
+				 n.peaks.perc, method)
+		} else {
+			logger(paste("Less than ", n.peaks.perc, "% (", has.data.perc, "%) of the scans have more than ",
+				     n.peaks, " peaks, stopping", sep=""))
+			return(FALSE)
+		}
+	} else {
+		logger(paste(has.data, " scans with more than ", n.peaks, " peaks have been found (", has.data.perc, 
+			     "% out of a total of ", ms.scans, " ms", mslevel," scans)", sep=""))
 
-	logger(paste("Done preparing data..", sep=""))
-	bin.plot(m, s, rt, pfile, method)
+		m = m[-1,]
+		## Remove columns holding no useful data
+		index = c()
+		for (col in 1:ncol(m)) {
+			if (length(unique(m[,col])) == 1)
+				index = c(index, col)
+		}
+		if (!is.null(index)) {
+		## Remove (-)Inf occurrences
+		m <- log(m[,-index])
+		s <- s[-index]
+	    } else {
+		    m <- log(m)
+	    }
+	    m[is.infinite(m)] <- 0
+
+	    logger(paste("Done preparing data, creating heatmap image..", sep=""))
+	    bin.plot(m, s, rt, pfile, method)
+	}
 }
 
 bin.scan <- function(scan, bins, window, min.mz, max.mz, method) {

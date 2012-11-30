@@ -280,7 +280,6 @@ def _raw_format_conversions(raw_file, outdir):
                  '"peakPicking true 1"']
     """
     mzxml_cmd = '{0} {1} -o {2} --mzXML -e .RAW.mzXML --filter "peakPicking true 1"'.format(msconvert, raw_file, outdir)
-    print '\nMZXML converter command:\n\t', mzxml_cmd, '\n'
     mgf_cmd = [msconvert,
                raw_file,
                '-o', outdir,
@@ -290,8 +289,8 @@ def _raw_format_conversions(raw_file, outdir):
     # Execute msconvert for both output files
     log.info('\tConverting to mzXML..')
     check_call(mzxml_cmd)
-    log.info('\tConverting to MGF..')
-    check_call(mgf_cmd)
+    #log.info('\tConverting to MGF..')
+    #check_call(mgf_cmd)
 
 
 def _cleanup(outdir):
