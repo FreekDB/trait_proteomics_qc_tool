@@ -4,7 +4,7 @@ graphics using R and combining all gathered data into an HTML report.
 """
 
 from os import makedirs
-from os.path import normpath, splitext, isdir
+from os.path import normpath, splitext, isdir, split, join
 from parse_metrics import create_metrics, export_metrics_json
 from pkg_resources import resource_filename # @UnresolvedImport
 from shutil import move, copy
@@ -13,9 +13,9 @@ from subprocess import check_call
 from time import gmtime, strftime, time
 from datetime import datetime
 import logging as log
-import os.path
 import shutil
 import tempfile
+import glob
 
 __author__ = "Marcel Kempenaar"
 __contact__ = "brs@nbic.nl"
@@ -35,18 +35,15 @@ _QC_HOME = normpath('C:/QC-pipeline')
 def qc_pipeline(indir, out_dir, copy_log):
     """Checks input directory for new RAW files to analyze, keeping track
     of all processed files. Once a new RAW file has been placed in this directory
-    a report will be generated with this file as input."""
+    a report will be generated with this file as input.
+    
+    If copy_log is missing, get a listing of all RAW files in indir and process
+    them separately"""
 
     log.info('Version 0.2.0.qc-lite')
 
-    # Check status of all previously processed files to determine
-    # if any new files are present to process
-    files = _read_logfile(_PROGRES_LOG)
-    files = _parse_robocopy_log(copy_log, files)
-
-    if not files:
-        log.warning('No files to process')
-        return
+    # Get a list of all RAW files to process
+    files = _get_filelist(indir, copy_log)
 
     for rawfile, status in files.iteritems():
         if status != 'new':
@@ -80,6 +77,24 @@ def qc_pipeline(indir, out_dir, copy_log):
 
         # Cleanup (remove everything in working directory)
         _cleanup(working_dir)
+
+
+def _get_filelist(indir, copy_log):
+    # Check status of all previously processed files to determine
+    # if any new files are present to process
+    files = _read_logfile(_PROGRES_LOG)
+    if copy_log == None:
+        # Check indir for any new files
+        new_files = glob.glob('{}/*.[Rr][Aa][Ww]'.format(indir))
+        files = dict((split(rawfile), 'new') for rawfile in new_files if split(rawfile)[1] not in files)
+    else:
+        files = _parse_robocopy_log(copy_log, files)
+
+    if not files:
+        log.warning('No files to process')
+        return
+    
+    return files
 
 
 def _read_logfile(logfile):
@@ -202,10 +217,10 @@ def _run_nist(rawfile, outdir):
 
     # Rename .msqc metrics file here, as it assumes the name of the containing folder,
     # which is now some random file path
-    foldername = os.path.split(outdir)[1]
-    rawfilename = os.path.split(os.path.splitext(rawfile)[0])[1]
-    msqc_original = os.path.join(outdir, foldername + '_report.msqc')
-    msqc_destination = os.path.join(outdir, rawfilename + '.msqc')
+    foldername = split(outdir)[1]
+    rawfilename = split(splitext(rawfile)[0])[1]
+    msqc_original = join(outdir, foldername + '_report.msqc')
+    msqc_destination = join(outdir, rawfilename + '.msqc')
     move(msqc_original, msqc_destination)
 
 

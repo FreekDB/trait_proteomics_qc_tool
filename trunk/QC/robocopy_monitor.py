@@ -63,6 +63,9 @@ class FileMonitor(FileSystemEventHandler):
 
         # Actually process the robocopy log file and any new RAW files, which will take some time
         qc_pipeline(self.in_dir, self.out_dir, event_file)
+        # Call function again in case new file(s) were copied during the run.
+        # It will return without running if now new files are ready for processing
+        qc_pipeline(self.in_dir, self.out_dir, event_file)
 
         self.service.log("{0} Monitoring for new RAW files..".format(self.get_time()))
 
@@ -158,12 +161,21 @@ if __name__ == "__main__":
         parser.add_argument('in_folder', type=str,
                             help='Input folder containing (Thermo) RAW files outputted by a mass-spectrometer')
         parser.add_argument('out_folder', type=str, help='Folder in which output (report) PDF files will be written')
-        parser.add_argument('copylog_folder', type=str, help=('Directory containing logfile (local) that'
+        # If no copylog folder is supplied, the QC pipeline will be ran a single time on the in_folder
+        # directory and will process all non-processed RAW files within this folder. After processing
+        # the process will stop
+        parser.add_argument('copylog_folder', type=str, help=('(Optional) Directory containing logfile (local) that'
                                                              ' Robocopy uses to write status messages (should be named:'
-															 ' "robocopy.*"'))
+															 ' "robocopy.*". If missing, the QC tool will process all'
+															 ' RAW files in the given in_folder and uses the QC'
+                                                             ' log file for tracking already processed files'), 
+                            nargs='?')
 
         #Extract arguments
         args = parser.parse_args()
-		# Create new monitor checking for changes in the given robocopy logfile
+        # If no copylog_folder is given, process all files in in_folder
+        if args.copylog_folder == None:
+            qc_pipeline(args.in_folder, args.out_folder, None)
+        # Create new monitor checking for changes in the given robocopy logfile
         monitor = QCMonitor(args.in_folder, args.out_folder, args.copylog_folder)
         monitor.start()
