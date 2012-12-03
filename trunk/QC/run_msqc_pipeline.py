@@ -44,7 +44,6 @@ def qc_pipeline(indir, out_dir, copy_log):
 
     # Get a list of all RAW files to process
     files = _get_filelist(indir, copy_log)
-
     for rawfile, status in files.iteritems():
         if status != 'new':
             continue
@@ -63,7 +62,7 @@ def qc_pipeline(indir, out_dir, copy_log):
         #abs_rawfile_path = normpath('{0}/{1}'.format(working_dir, rawfile))
         #copy(original_path, abs_rawfile_path)
 
-        #Create folder to contain html report
+        # Create folder to contain html report
         webdir = _manage_paths(basename)
         # Run QC workflow
         _raw_format_conversions(abs_rawfile_path, working_dir)
@@ -86,14 +85,14 @@ def _get_filelist(indir, copy_log):
     if copy_log == None:
         # Check indir for any new files
         new_files = glob.glob('{}/*.[Rr][Aa][Ww]'.format(indir))
-        files = dict((split(rawfile), 'new') for rawfile in new_files if split(rawfile)[1] not in files)
+        files = dict((split(rawfile)[1], 'new') for rawfile in new_files if split(rawfile)[1] not in files)
     else:
         files = _parse_robocopy_log(copy_log, files)
 
     if not files:
         log.warning('No files to process')
         return
-    
+
     return files
 
 

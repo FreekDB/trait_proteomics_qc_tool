@@ -165,17 +165,19 @@ if __name__ == "__main__":
         # directory and will process all non-processed RAW files within this folder. After processing
         # the process will stop
         parser.add_argument('copylog_folder', type=str, help=('(Optional) Directory containing logfile (local) that'
-                                                             ' Robocopy uses to write status messages (should be named:'
-															 ' "robocopy.*". If missing, the QC tool will process all'
-															 ' RAW files in the given in_folder and uses the QC'
-                                                             ' log file for tracking already processed files'), 
+                                                              ' Robocopy uses to write status messages (should be named:'
+                                                              ' "robocopy.*". If missing, the QC tool will process all'
+                                                              ' RAW files in the given in_folder and uses the QC'
+                                                              ' log file for tracking already processed files'), 
                             nargs='?')
 
         #Extract arguments
         args = parser.parse_args()
+
         # If no copylog_folder is given, process all files in in_folder
         if args.copylog_folder == None:
             qc_pipeline(args.in_folder, args.out_folder, None)
-        # Create new monitor checking for changes in the given robocopy logfile
-        monitor = QCMonitor(args.in_folder, args.out_folder, args.copylog_folder)
-        monitor.start()
+        else:
+            # Create new monitor checking for changes in the given robocopy logfile
+            monitor = QCMonitor(args.in_folder, args.out_folder, args.copylog_folder)
+            monitor.start()
