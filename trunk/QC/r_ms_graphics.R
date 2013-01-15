@@ -191,16 +191,16 @@ read_mzXML <- function(mzXML) {
 
 ms_metrics <- function(mzXML) {
 	logger("## Metrics ##")
-    # Retrieve all MS levels from the nested list into a single list
-    msLevel = unlist(lapply(mzXML, function(x) lapply(x, function(y) c(y$msLevel, y$peaksCount))))
+	# Retrieve all MS levels from the nested list into a single list
+	msLevel = unlist(lapply(mzXML, function(x) lapply(x, function(y) c(y$msLevel, y$peaksCount))))
 	msLevel = matrix(msLevel, ncol=2, byrow=T)
-    # Count MS levels
-    ms1 = msLevel[which(msLevel[,1] == 1),]
-    ms2 = msLevel[which(msLevel[,1] == 2),]
-    logger(paste("Number of MS1 scans: ", length(ms1[,1]), sep=""))
-    logger(paste("\tMS1 scans containing peaks: ", length(which(ms1[,2] > 0)), sep=""))
-    logger(paste("Number of MS2 scans: ", length(ms2[,1]), sep=""))
-    logger(paste("\tMS2 scans containing peaks: ", length(which(ms2[,2] > 0)), sep=""))
+	# Count MS levels
+	ms1 = msLevel[which(msLevel[,1] == 1),]
+	ms2 = msLevel[which(msLevel[,1] == 2),]
+	logger(paste("Number of MS1 scans: ", length(ms1[,1]), sep=""))
+	logger(paste("\tMS1 scans containing peaks: ", length(which(ms1[,2] > 0)), sep=""))
+	logger(paste("Number of MS2 scans: ", length(ms2[,1]), sep=""))
+	logger(paste("\tMS2 scans containing peaks: ", length(which(ms2[,2] > 0)), sep=""))
 }
 
 logger <- function(logdata) {

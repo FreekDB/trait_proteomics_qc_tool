@@ -54,8 +54,9 @@ class Test(unittest.TestCase):
         mzxml_file = os.path.join(self.temp_folder, self.rawfilebase + '.RAW.mzXML')
         self.failUnless(os.path.exists(mzxml_file))
 
-        mgf_file = os.path.join(self.temp_folder, self.rawfilebase + '.RAW.MGF')
-        self.failUnless(os.path.exists(mgf_file))
+        # Disabled while NIST not running
+        #mgf_file = os.path.join(self.temp_folder, self.rawfilebase + '.RAW.MGF')
+        #self.failUnless(os.path.exists(mgf_file))
 
     def _defunct_test_run_nist(self):
         ''' Run NIST, and assure the msqc file is output to the correct path.'''
