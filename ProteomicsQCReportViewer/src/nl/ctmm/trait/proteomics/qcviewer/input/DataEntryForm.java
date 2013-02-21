@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -27,6 +28,7 @@ public class DataEntryForm extends JFrame implements ActionListener{
 	Main parentMain = null; 
 	ViewerFrame parentViewerFrame = null; 
 	Properties appProperties = null; 
+	JDialog initialDialog = null;
 	
 	public DataEntryForm(final Main parent, final Properties appProperties) {
 		super("DataEntry Frame");
@@ -40,9 +42,28 @@ public class DataEntryForm extends JFrame implements ActionListener{
 		this.appProperties = appProperties;
 	}
 	
+	public void displayInitialDialog(String rootDirectoryName) {
+		System.out.println("Displaying initial dialog");
+		initialDialog = new JDialog();
+		initialDialog.setTitle("Operation in progress");
+		JLabel message = new JLabel("Reading reports from " + rootDirectoryName);
+		initialDialog.add(message);
+		initialDialog.setPreferredSize(new Dimension(300,100));
+		RefineryUtilities.centerFrameOnScreen(initialDialog);
+		initialDialog.pack();
+		initialDialog.setVisible(true);
+	}
+	
+	public void disposeInitialDialog() {
+		if (initialDialog != null) {
+			initialDialog.dispose();
+		}
+	}
+	
 	public void displayErrorMessage (String errorMessage) {
     	JOptionPane.showMessageDialog(this, errorMessage,
 				  "Error",JOptionPane.ERROR_MESSAGE);
+    	
 	}
 	
     public void displayRootDirectoryEntryForm () {
@@ -144,6 +165,7 @@ public class DataEntryForm extends JFrame implements ActionListener{
 		if (ae.getActionCommand().equals("SUBMITDIR")) {
 			String preferredRootDirectory = inputText.getText();
 			if (!preferredRootDirectory.trim().equals("")) { //appProperty not empty
+				dispose();
 				System.out.println("Preferred root directory = " + preferredRootDirectory);
 				if (parentMain != null) {
 					updatePreferredRootDirectory(preferredRootDirectory);
@@ -154,12 +176,13 @@ public class DataEntryForm extends JFrame implements ActionListener{
 					updatePreferredRootDirectory(preferredRootDirectory);
 					new Main().runReportViewer();
 				}
-				dispose();
+				
 			} else displayErrorMessage ("Enter valid root directory.");
 		} else if (ae.getActionCommand().equals("SUBMITSER")) {
 			String preferredServer = inputText.getText();
 			if (!preferredServer.trim().equals("")) { //appProperty not empty
 				System.out.println("Preferred root directory = " + preferredServer);
+				dispose();
 				if (parentMain != null) {
 					updatePreferredServer(preferredServer);
 					parentMain.runReportViewer();
@@ -169,7 +192,6 @@ public class DataEntryForm extends JFrame implements ActionListener{
 					updatePreferredServer(preferredServer);
 					new Main().runReportViewer();
 				}
-				dispose();
 			}
 		} else if (ae.getActionCommand().startsWith("CANCEL")) {
 			dispose();

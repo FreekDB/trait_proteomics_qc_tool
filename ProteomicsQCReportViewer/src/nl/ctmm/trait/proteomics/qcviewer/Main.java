@@ -61,17 +61,24 @@ public class Main{
         applicationProperties = loadProperties();
        	String preferredRootDirectory = applicationProperties.getProperty(Constants.PROPERTY_ROOT_FOLDER);
         System.out.println("in Main preferredRootDirectory = " + preferredRootDirectory);
+        DataEntryForm deForm = new DataEntryForm(this, applicationProperties);
+		deForm.displayInitialDialog(preferredRootDirectory);
         final List<ReportUnit> reportUnits = getReportUnits(preferredRootDirectory);
         if (reportUnits.size() == 0) { //There exist no reports in current root directory
         	//Get new location to read reports from
-        	DataEntryForm deForm = new DataEntryForm(this, applicationProperties);
+        	deForm.disposeInitialDialog();
         	deForm.displayErrorMessage("No Reports found in " + preferredRootDirectory);
         	deForm.displayRootDirectoryEntryForm();
         } else {
         	final int GUIversion = Integer.parseInt(applicationProperties.getProperty(Constants.PROPERTY_GUI_VERSION));
         	if (GUIversion == 1) {
         		startGuiVersion1(applicationProperties, reportUnits);
-        	} else startGuiVersion2(applicationProperties, reportUnits); 
+        		deForm.disposeInitialDialog();
+        	} else
+        	{
+        		startGuiVersion2(applicationProperties, reportUnits);
+        		deForm.disposeInitialDialog();
+        	}
         }
     }
     
