@@ -10,6 +10,7 @@ import java.util.Properties;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -43,11 +44,12 @@ public class DataEntryForm extends JFrame implements ActionListener{
 	}
 	
 	public void displayInitialDialog(String rootDirectoryName) {
-		System.out.println("Displaying initial dialog");
+		JLabel message = new JLabel("Reading reports from " + rootDirectoryName);
+		System.out.println("Displaying initial dialog with message " + message.getText());
 		initialDialog = new JDialog();
 		initialDialog.setTitle("Operation in progress");
-		JLabel message = new JLabel("Reading reports from " + rootDirectoryName);
-		initialDialog.add(message);
+		message.setPreferredSize(new Dimension(300,100));
+		initialDialog.getContentPane().add(message, 0);
 		initialDialog.setPreferredSize(new Dimension(300,100));
 		RefineryUtilities.centerFrameOnScreen(initialDialog);
 		initialDialog.pack();
@@ -57,14 +59,29 @@ public class DataEntryForm extends JFrame implements ActionListener{
 	public void disposeInitialDialog() {
 		if (initialDialog != null) {
 			initialDialog.dispose();
+			initialDialog = null;
 		}
 	}
 	
 	public void displayErrorMessage (String errorMessage) {
     	JOptionPane.showMessageDialog(this, errorMessage,
 				  "Error",JOptionPane.ERROR_MESSAGE);
-    	
 	}
+	
+	 public void displayRootDirectoryChooser () {
+	 JFileChooser chooser = new JFileChooser();
+	 	chooser.setName("Select Report Folder");
+		chooser.setFileSelectionMode( JFileChooser.DIRECTORIES_ONLY);
+	    int returnVal = chooser.showOpenDialog(null);
+	    String preferredRootDirectory = null;
+	    if(returnVal == JFileChooser.APPROVE_OPTION) {
+	    	preferredRootDirectory = chooser.getSelectedFile().getAbsolutePath();
+	       System.out.println("You chose to open this folder: " +
+	            chooser.getSelectedFile().getAbsolutePath());
+	    }
+	    updatePreferredRootDirectory(preferredRootDirectory);
+		new Main().runReportViewer();
+	 }
 	
     public void displayRootDirectoryEntryForm () {
     	JLabel instruction = new JLabel();

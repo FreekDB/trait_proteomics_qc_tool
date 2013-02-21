@@ -68,7 +68,8 @@ public class Main{
         	//Get new location to read reports from
         	deForm.disposeInitialDialog();
         	deForm.displayErrorMessage("No Reports found in " + preferredRootDirectory);
-        	deForm.displayRootDirectoryEntryForm();
+        	deForm.displayRootDirectoryChooser();
+        	//deForm.displayRootDirectoryEntryForm();
         } else {
         	final int GUIversion = Integer.parseInt(applicationProperties.getProperty(Constants.PROPERTY_GUI_VERSION));
         	if (GUIversion == 1) {

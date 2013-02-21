@@ -435,9 +435,13 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 		} else if (evt.getActionCommand().equals("ChangeRootDirectory")) {
 			//Get new location to read reports from
         	DataEntryForm deForm = new DataEntryForm(this, appProperties);
-        	deForm.displayRootDirectoryEntryForm();
+        	clean();
+        	dispose();
+        	deForm.displayRootDirectoryChooser();
 		} else if (evt.getActionCommand().equals("ChangeServer")) {
 			//Get new location to read reports from
+			clean();
+        	dispose();
         	DataEntryForm deForm = new DataEntryForm(this, appProperties);
         	deForm.displayPreferredServerEntryForm();
 		} else if (evt.getActionCommand().equals("Refresh")) {
