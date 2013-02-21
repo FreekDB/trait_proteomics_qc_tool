@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Class-Path: swt.jar json-simple-1.1.1.jar
+Main-Class: nl.ctmm.trait.proteomics.qcviewer.zzz_old.TableTest

@@ -1,0 +1,8 @@
+#Thu Feb 21 13:30:37 CET 2013
+ReportLinkPreamble=file\:///C\:/Work/eclipse/workspace/TempQCReportViewerSWT/QCReports/ctmm/
+GUIVersion=2
+TopColumnNamesV2=No.,File Size(MB),MS1Spectra,MS2Spectra,Measured,Runtime(hh\:mm\:ss),maxIntensity
+Server=10.13.1.102
+TopColumnNamesV1=No., File Size(MB), MS1Spectra, MS2Spectra, Measured(yyyy/mmm/dd), Runtime(hh\:mm\:ss), Heatmap, Ioncount
+RootFolder=QCReports\\ctmm
+BottomColumnNames=Heatmap, Ioncount

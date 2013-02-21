@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>report</title>
+	<meta name="author" content="Marcel Kempenaar, BRS NBIC">
+	<script src="/ctmm/report/scripts/jquery-1.7.1.min.js" type="text/javascript"></script>
+	<link rel="stylesheet" type="text/css" href="/ctmm/report/css/report.css" />
+	<!-- Overriding placement of some divs for mobile devices -->
+	<link rel="stylesheet" type="text/css" media="only screen and (max-device-width: 600px)" href="/ctmm/report/css/report_small.css" />
+    <script type="text/javascript">
+	/* Creates an HTML table using the metrics. All rows are ordered using the 
+	   configuration read from the JSON config file.
+	*/
+    function createMetricsTable(metrics, order) {
+		var table = '<table>';
+		$.each(order, function(id) {
+			$.each(metrics, function(key, val) {
+				element = metrics[key][order[id]]; // TODO: need to test for undefined, should use jQuery.inArray
+				if (element != undefined) {
+					table += '<tr class=' + key + '><td>' + element[0] + '</td>';
+					table += '<td>' + element[1] + '</td></tr>';
+				}
+			});	
+		});
+		table += '</table>';
+		return table;
+	}
+
+    /* Reads JSON metrics data and configuration file and places HTML table in <divs> */
+    $(document).ready(function() {
+		// Read JSON file from current directory
+		$.getJSON('metrics.json')
+		// On success, parse data into table format
+		.success(function(metrics) {
+			// Read JSON configuration file for showing / hiding predefined metrics
+			$.getJSON('/ctmm/report/config/metrics_order.json')
+			.success(function(order) {
+				// Create table and place it in the metrics <divs>
+				$('#metrics_top').append(createMetricsTable(metrics, order['top']));
+				$('#metrics_bottom').append(createMetricsTable(metrics, order['bottom']));
+			})
+			.error(function() {console.log("Error reading JSON configuration file"); });;
+		})
+		.error(function() { console.log("Error reading JSON metrics file"); });;		
+    });
+</script>
+</head>
+<body>
+<div id="description">
+	<div id="logos">
+		<img src="/ctmm/report/images/ctmm_logo.gif" height="45"> <br/>
+		<em>Powered by:</em><br />
+		<a href="http://www.nbic.nl/support/brs">
+			<img border="0" src="/ctmm/report/images/nbic_logo.png" height="25">
+		</a>
+	</div>
+	<div id="title">
+		QC-report on: '<em>QE1_121127_OPL1016_DC_Mefopa_CSF_A1.RAW</em>'
+	</div>
+	<div id="stats">
+		<strong>Measured</strong><br />
+		<em>2013/Feb/04 - 01:09</em><br/>
+		<br/><strong>QC Runtime</strong><br/>
+		<em>0:52:57</em>
+	</div>
+</div>
+<div id="metrics">
+	<div id="metrics_top"></div>
+	<!-- TODO: Add clear devider / some space between tables -->
+	<div id="metrics_bottom"></div>
+</div>
+<div id="graphics">
+	<div id="heatmap">
+		<a href="QE1_121127_OPL1016_DC_Mefopa_CSF_A1_heatmap.pdf">	
+			<img border="0" src="QE1_121127_OPL1016_DC_Mefopa_CSF_A1_heatmap.png" width="480", heigth="480">
+		</a>
+	</div>
+	<div id="ions">
+		<a href="QE1_121127_OPL1016_DC_Mefopa_CSF_A1_ions.pdf">
+			<img border="0" src="QE1_121127_OPL1016_DC_Mefopa_CSF_A1_ions.png" width="480" height="240">
+		</a>
+	</div>
+</div>
+</body>
+</html>
