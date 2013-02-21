@@ -24,7 +24,11 @@ import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnit;
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
 public class ViewerPanel extends JPanel implements MainSelectionListener, ItemListener {
-    private final List<String> mainTableColumnNames;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private final List<String> mainTableColumnNames;
     private List<ReportUnit> reportUnits;
     private MainTableModel mainTableModel;
     private JTable mainTable;

@@ -1,15 +1,8 @@
 package nl.ctmm.trait.proteomics.qcviewer;
 
 import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.GridLayout;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
@@ -17,19 +10,17 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JButton;
+
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.WindowConstants;
+
 import nl.ctmm.trait.proteomics.qcviewer.gui.ViewerFrame;
 import nl.ctmm.trait.proteomics.qcviewer.gui.ViewerPanel;
 import nl.ctmm.trait.proteomics.qcviewer.input.DataEntryForm;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportReader;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnit;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
+
 import org.jfree.ui.RefineryUtilities;
 
 /**

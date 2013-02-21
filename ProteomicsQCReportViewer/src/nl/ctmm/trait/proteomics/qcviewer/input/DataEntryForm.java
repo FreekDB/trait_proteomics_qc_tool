@@ -25,6 +25,10 @@ import org.jfree.ui.RefineryUtilities;
 
 public class DataEntryForm extends JFrame implements ActionListener{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	JTextField inputText; 
 	Main parentMain = null; 
 	ViewerFrame parentViewerFrame = null; 

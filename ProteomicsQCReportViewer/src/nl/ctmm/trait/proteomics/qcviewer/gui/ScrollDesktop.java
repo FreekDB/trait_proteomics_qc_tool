@@ -4,14 +4,15 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 
 import javax.swing.JDesktopPane;
-import javax.swing.JFrame;
-import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
-import javax.swing.JScrollPane;
 import javax.swing.Scrollable;
 
 public class ScrollDesktop extends JDesktopPane implements Scrollable {
-  public Dimension getPreferredScrollableViewportSize() {
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+public Dimension getPreferredScrollableViewportSize() {
     return getPreferredSize();
   }
 

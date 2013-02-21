@@ -3,14 +3,13 @@ package nl.ctmm.trait.proteomics.qcviewer.input;
 import java.awt.image.BufferedImage;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.jfree.data.xy.XYSeries;
-
 import nl.ctmm.trait.proteomics.qcviewer.utils.Utilities;
+
+import org.jfree.data.xy.XYSeries;
 
 /**
  * The object of this class represents report of single msreading.

@@ -310,7 +310,12 @@ public class TableTest implements ItemListener
        
         DefaultTableModel topTableModel = new DefaultTableModel(allData, columnHeaders)
         {
-            public Class getColumnClass(int col)
+            /**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			public Class<?> getColumnClass(int col)
             {
                 switch (col) {
                 case 0: return Integer.class;
@@ -339,6 +344,11 @@ public class TableTest implements ItemListener
 
         JTable table = new JTable(topTableModel) {
             /**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			/**
              * This overridden version of <code>prepareRenderer</code> adds alternating background colors for rows.
              * @param renderer  the <code>TableCellRenderer</code> to prepare.
              * @param row       the row of the cell to render, where 0 is the first row.
@@ -399,7 +409,11 @@ public class TableTest implements ItemListener
     }
     
     class BottomTableModel extends AbstractTableModel {
-       	   public String[] m_colNames = {"heatmap", "ioncount"};
+       	   /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		public String[] m_colNames = {"heatmap", "ioncount"};
     	    public Class[] m_colTypes = {BufferedImage.class, BufferedImage.class};
     	    Vector m_macDataVector;
 
@@ -536,7 +550,12 @@ public class TableTest implements ItemListener
     
 	class ImageRenderer extends DefaultTableCellRenderer  
 	{  
-	    public Component getTableCellRendererComponent(JTable table,  
+	    /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		public Component getTableCellRendererComponent(JTable table,  
 	                                                   Object value,  
 	                                                   boolean isSelected,  
 	                                                   boolean hasFocus,  

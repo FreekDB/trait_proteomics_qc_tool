@@ -20,6 +20,10 @@ import javax.swing.table.TableColumnModel;
  */
 public class MainTable extends JTable implements ListSelectionListener {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/**
      * The selection listener that gets notified when row selection changes.
      */
     private final MainSelectionListener mainSelectionListener;

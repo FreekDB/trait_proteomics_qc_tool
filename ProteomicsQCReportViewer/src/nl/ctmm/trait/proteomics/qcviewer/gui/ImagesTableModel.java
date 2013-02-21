@@ -14,6 +14,10 @@ import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnit;
  */
 public class ImagesTableModel extends DefaultTableModel {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/**
      * The report unit to be displayed by this table model.
      */
     private ReportUnit reportUnit;

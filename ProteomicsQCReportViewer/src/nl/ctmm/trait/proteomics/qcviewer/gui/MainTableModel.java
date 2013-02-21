@@ -14,6 +14,11 @@ import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnit;
  */
 public class MainTableModel extends DefaultTableModel {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
      * The report units to be displayed by this table model.
      */
     private List<ReportUnit> reportUnits;

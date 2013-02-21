@@ -16,6 +16,11 @@ import nl.ctmm.trait.proteomics.qcviewer.utils.Utilities;
  */
 public class ImageRenderer extends DefaultTableCellRenderer {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
      * Create a specific table cell renderer for images.
      *
      * @param table      the <code>JTable</code>.

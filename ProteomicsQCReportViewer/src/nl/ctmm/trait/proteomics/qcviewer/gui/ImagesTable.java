@@ -11,7 +11,12 @@ import javax.swing.JTable;
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
 public class ImagesTable extends JTable {
-    public ImagesTable(final ImagesTableModel imagesTableModel) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public ImagesTable(final ImagesTableModel imagesTableModel) {
         super(imagesTableModel);
 
         setShowGrid(true);
