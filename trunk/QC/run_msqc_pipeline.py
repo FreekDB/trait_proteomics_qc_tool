@@ -26,24 +26,32 @@ __license__ = "MIT"
 _R_GRAPHICS = resource_filename(__name__, 'r_ms_graphics.R')
 
 # Paths (These should be adapted for the system they run on)
+# Location of the 'ctmm' subfolder in the Apache 'htdocs' folder
 _WEB_DIR = normpath('C:/Program Files (x86)/Apache Software Foundation/Apache2.2/htdocs/ctmm')
-_NIST = normpath('NISTMSQCv1_2_0_CTMM')
+# QC progress log used to log all processed RAW files (by default located within the _WEB_DIR)
 _PROGRES_LOG = normpath('{0}/{1}'.format(_WEB_DIR, 'qc_status.log'))
+
+# Root folder for the QC pipeline
 _QC_HOME = normpath('C:/QC-pipeline')
+# NIST pipeline folder (by default located within _QC_HOME)
+_NIST = normpath('NISTMSQCv1_2_0_CTMM')
 
-
-def qc_pipeline(indir, out_dir, copy_log):
+def qc_pipeline(indir, outdir, copylog):
     """Checks input directory for new RAW files to analyze, keeping track
     of all processed files. Once a new RAW file has been placed in this directory
     a report will be generated with this file as input.
     
-    If copy_log is missing, get a listing of all RAW files in indir and process
-    them separately"""
+    If copylog is None, get a listing of all RAW files in indir and process
+    them separately
+    @param indir: directory containing RAW files to process
+    @param outdir: directory used to store temporary files
+    @param copylog: Robocopy log file location or None
+    """
 
     log.info('Version 0.2.0.qc-lite')
 
     # Get a list of all RAW files to process
-    files = _get_filelist(indir, copy_log)
+    files = _get_filelist(indir, copylog)
     for rawfile, status in files.iteritems():
         if status != 'new':
             continue
@@ -55,10 +63,12 @@ def qc_pipeline(indir, out_dir, copy_log):
 
         # Set for current file and move file to output directory
         basename = splitext(rawfile)[0]
-        working_dir = tempfile.mkdtemp(suffix='_QC', prefix=basename, dir=out_dir)
+        working_dir = tempfile.mkdtemp(suffix='_QC', prefix=basename, dir=outdir)
 
+        # The following lines set the path to the RAW file to its original location
         original_path = normpath('{0}/{1}'.format(indir, rawfile))
         abs_rawfile_path = original_path
+        # Use the following lines to copy the RAW files to a different path before processing
         #abs_rawfile_path = normpath('{0}/{1}'.format(working_dir, rawfile))
         #copy(original_path, abs_rawfile_path)
 
@@ -78,16 +88,21 @@ def qc_pipeline(indir, out_dir, copy_log):
         _cleanup(working_dir)
 
 
-def _get_filelist(indir, copy_log):
-    # Check status of all previously processed files to determine
-    # if any new files are present to process
+def _get_filelist(indir, copylog):
+    """
+    Check status of all previously processed files to determine
+    if any new files are present to process
+    @param indir: directory containing the RAW file(s)
+    @param copylog: Robocopy log file, None if running in offline mode
+    """
+    # Read list of already processed RAW files
     files = _read_logfile(_PROGRES_LOG)
-    if copy_log == None:
+    if copylog == None:
         # Check indir for any new files
         new_files = glob.glob('{}/*.[Rr][Aa][Ww]'.format(indir))
         files = dict((split(rawfile)[1], 'new') for rawfile in new_files if split(rawfile)[1] not in files)
     else:
-        files = _parse_robocopy_log(copy_log, files)
+        files = _parse_robocopy_log(copylog, files)
 
     if not files:
         log.warning('No files to process')
@@ -101,7 +116,7 @@ def _read_logfile(logfile):
     Parse our own log-file of previously processed files. Return dictionary mapping filename to status.
     @param logfile: QC log file listing current status and previously processed RAW files
     """
-    # Log file layout:
+    # QC Log file layout:
     # Date    Filename    Status
     files = dict()
     with open(logfile, 'r') as logfile:
@@ -119,9 +134,13 @@ def _read_logfile(logfile):
     return files
 
 
-def _parse_robocopy_log(copy_log, files):
-    """ Check Robocopy logfile for new files copied """
-    with open(copy_log, 'r') as logfile:
+def _parse_robocopy_log(copylog, files):
+    """ 
+    Check Robocopy logfile for new files copied
+    @param copylog: Robocopy log file
+    @param files: dictionary with already detected and processed RAW files
+    """
+    with open(copylog, 'r') as logfile:
         loglines = logfile.readlines()
 
     #Premise: Look between Started and Monitor lines for new files
@@ -159,6 +178,7 @@ def _log_progress(logfile, rawfile, status):
     simple status report through a web server.
     @param logfile: log file used to log status of processed files
     @param rawfile: path to the RAW file
+    @param status: current status of the file (i.e. 'running', 'finished')
     '''
     log = '{0}\t{1}\t{2}\n'.format(str(datetime.now()), rawfile, status)
     with open(logfile, 'a') as status_log:
@@ -171,10 +191,11 @@ def _manage_paths(basename):
     @param basename: name of the .RAW file without extension
     '''
     ctime = gmtime()
+    print _WEB_DIR
     tree = normpath('{root}/{year}/{month}/{base}'.format(root=_WEB_DIR,
-                                                                year=strftime("%Y", ctime),
-                                                                month=strftime("%b", ctime),
-                                                                base=basename))
+                                                          year=strftime("%Y", ctime),
+                                                          month=strftime("%b", ctime),
+                                                          base=basename))
     if not isdir(tree):
         makedirs(tree)
     return tree

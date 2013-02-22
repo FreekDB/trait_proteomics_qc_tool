@@ -33,23 +33,24 @@ class Test(unittest.TestCase):
         ''' Checks the few generic metrics that are shown on each report '''
         # Rawfile in this case is only used to get the file size, so substituted by another 'large' file
         rawfile = self.mzxmlfile
+
+        # Sleep for one second, this should result in a runtime of 1sec
+        # Note: test failure can be caused by interfering processes increasing runtime
+        time.sleep(1)
         # Current date / time formatting
-        ctime = time.gmtime()
+        ctime = time.gmtime()   
         date = '{year}/{month}/{day} - {hour}:{min}'.format(year=time.strftime("%Y", ctime),
                                                             month=time.strftime("%b", ctime),
                                                             day=time.strftime("%d", ctime),
                                                             hour=time.strftime("%H", ctime),
                                                             min=time.strftime("%M", ctime))
-        # Sleep for one second, this should result in a runtime of 1sec
-        # Note: test failure can be caused by interfering processes increasing runtime
-        time.sleep(1)
         generic_metrics = parse_metrics._extract_generic_metrics(rawfile, self.t_start)
         self.assertEquals(generic_metrics, {'date': date, 'runtime': '0:00:01', 'f_size': ['File Size (MB)', '97.8']})
 
     def test_extract_nist_metrics(self):
         ''' Compares a subset of the complete list of metrics retrieved from the NIST output file '''
         nist_metrics = parse_metrics._extract_nist_metrics(self.nist_metrics)
-
+        
         # TODO: manually create the full dictionary and compare with nist_metrics instead of subset testing
         nist_subset = {"ms1-2b": ["MS1 During Middle (TIC Median/1000)", "57"],
                        "ms1-5a": ["Precursor m/z - Peptide Ion m/z (Median)", "0.1460"],
@@ -72,6 +73,7 @@ class Test(unittest.TestCase):
         '''
         # Create temporary directory and store metrics in JSON format
         temp_folder = tempfile.mkdtemp(prefix='test_parse_metrics_')
+
         nist_metrics = parse_metrics._extract_nist_metrics(self.nist_metrics)
         parse_metrics.export_metrics_json(nist_metrics, temp_folder)
         json_metrics = os.path.join(temp_folder, 'metrics.json')

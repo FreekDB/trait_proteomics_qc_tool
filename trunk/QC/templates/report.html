@@ -9,11 +9,10 @@
 	<script src="/ctmm/report/scripts/jquery-1.7.1.min.js" type="text/javascript"></script>
 	<link rel="stylesheet" type="text/css" href="/ctmm/report/css/report.css" />
 	<!-- Overriding placement of some divs for mobile devices -->
-	<link rel="stylesheet" type="text/css" media="only screen and (max-device-width: 600px)" href="/ctmm/report/css/report_small.css" />
+	<link rel="stylesheet" type="text/css" media="only screen and (max-device-width: 720px)" href="/ctmm/report/css/report_small.css" />
     <script type="text/javascript">
 	/* Creates an HTML table using the metrics. All rows are ordered using the 
-	   configuration read from the JSON config file.
-	*/
+	   configuration read from the JSON config file. */
     function createMetricsTable(metrics, order) {
 		var table = '<table>';
 		$.each(order, function(id) {
@@ -31,7 +30,7 @@
 
     /* Reads JSON metrics data and configuration file and places HTML table in <divs> */
     $(document).ready(function() {
-		// Read JSON file from current directory
+		// Read JSON metrics file from current directory
 		$.getJSON('metrics.json')
 		// On success, parse data into table format
 		.success(function(metrics) {

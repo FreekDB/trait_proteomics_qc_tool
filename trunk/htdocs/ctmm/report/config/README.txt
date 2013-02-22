@@ -19,6 +19,6 @@ Notes
 Changing the configuration will affect all previously generated reports as well.
 
 When changing the configuration, please make sure that it is syntactically valid JSON
-code. If unsure, use a validator (such as XXX) to verify the syntax. All metric ID's
+code. If unsure, use a validator (such as http://jsonlint.com/) to verify the syntax. All metric ID's
 should be quoted and the line must end with a comma if it is not the last item in the
 above described sections.

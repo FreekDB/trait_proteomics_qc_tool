@@ -54,7 +54,7 @@ def create_metrics(working_dir, abs_rawfile, t_start):
 def _get_default_nist_metrics():
     '''
     Compiles all metrics to extract from the NIST metrics output
-    Each value is a list of 3 holding the line to match (to get the line number),
+    Each value is a list of 3 holding the line (header) to match (to get the line number),
     the offset from that line that holds the value of interest and the description
     of the value to be found.
     '''
@@ -122,7 +122,7 @@ def _get_default_nist_metrics():
 
 def _extract_generic_metrics(rawfile, t_start):
     '''
-    Return dictionary with generic metrics based on raw file name and runtime.
+    Return dictionary with generic metrics based on raw file name and QC runtime.
     @param rawfile: the raw filename, only used to determine filesize
     @param t_start: starttime of the QC run, used to determine runtime
     '''
@@ -156,6 +156,9 @@ def _extract_nist_metrics(metrics_file):
     # output file and add the found values to the metrics dictionary.
     for mcl in metrics.keys():
         nist_metrics[mcl] = {}
+        # For each metric ID ('ms1-1', 'ms1-2a', 'ms1-2b', etc.) lookup the section containing the requested data
+        # by its section header (metrics[mcl][metric][0]). Next, use the line offset (metrics[mcl][metric][1] to 
+        # get the line which contains the actual data (metrics[mcl][metric][2])
         for metric in metrics[mcl].keys():
             # Search for paragraph header, store line number
             index = next((num for num, line in enumerate(lines) if metrics[mcl][metric][0] in line), None)
@@ -187,6 +190,7 @@ def _extract_rlog_metrics(logfile):
         rlog = ''.join(rlogfile.readlines())
 
     #TODO extract these patterns to an external dictionary, analogous to get_default_nist_metrics
+    # Values are set to NA if not found
     ms1_num = re.search('Number of MS1 scans: ([0-9]+)', rlog)
     ms1_peaks = re.search('MS1 scans containing peaks: ([0-9]+)', rlog)
     ms1_num = ms1_num.group(1) if ms1_num else "NA"

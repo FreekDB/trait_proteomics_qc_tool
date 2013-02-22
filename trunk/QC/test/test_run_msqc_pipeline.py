@@ -4,6 +4,7 @@ Module to test the run_msqc_pipeline.
 
 from QC import run_msqc_pipeline, parse_metrics
 from pkg_resources import resource_filename  # @UnresolvedImport
+from time import gmtime, strftime
 from shutil import copy
 import os.path
 import shutil
@@ -57,6 +58,37 @@ class Test(unittest.TestCase):
         # Disabled while NIST not running
         #mgf_file = os.path.join(self.temp_folder, self.rawfilebase + '.RAW.MGF')
         #self.failUnless(os.path.exists(mgf_file))
+
+    def test_get_filelist(self):
+        ''' Test the detection of new RAW files to process '''  
+        # Create a set of (empty) RAW files
+        i = 0
+        tmp_file_list = []
+        while i < 5:
+            tmp_file_list.append(tempfile.mkstemp(suffix='.RAW', prefix='test_raw_file', dir=self.temp_folder))
+            i += 1
+        # Override location of the progress log defined as global variable in run_msqc_pipeline
+        run_msqc_pipeline._PROGRES_LOG = self.logfile
+        # Detect files
+        detected_files = run_msqc_pipeline._get_filelist(self.temp_folder, None)
+        # Extract file names from created files (which is a tuple of (number, /full/path/to/tmp_file.RAW))
+        temp_files = [os.path.basename(f[1]) for f in tmp_file_list]
+        # Compare with list of created temp files
+        self.failUnless(all([f in temp_files for f in detected_files.keys()]))
+
+    def test_manage_paths(self):
+        ''' Tests the creation of the path to the report '''
+        # Set globally defined _WEB_DIR to temp folder
+        run_msqc_pipeline._WEB_DIR = self.temp_folder
+        # Create directory tree
+        run_msqc_pipeline._manage_paths('temp_report')
+        # Get date (year, month) 
+        ctime = gmtime()
+        year=strftime("%Y", ctime)
+        month=strftime("%b", ctime)
+        # Expected path
+        path = os.path.normpath('%s/%s/%s/temp_report/' % (self.temp_folder, year, month))
+        self.failUnless(os.path.exists(path))        
 
     def _defunct_test_run_nist(self):
         ''' Run NIST, and assure the msqc file is output to the correct path.'''

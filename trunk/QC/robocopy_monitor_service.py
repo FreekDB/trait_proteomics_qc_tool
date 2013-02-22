@@ -2,8 +2,6 @@
 Module to install and run the robocopy monitor as a Windows service.
 '''
 
-#TODO Apply proper license
-
 from os.path import splitext, abspath
 from sys import modules
 
@@ -12,10 +10,10 @@ import win32service
 import win32event
 import win32api
 
-__author__ = ""
-__contact__ = ""
-__copyright__ = ""
-__license__ = ""
+__author__ = "Marcel Kempenaar"
+__contact__ = "brs@nbic.nl"
+__copyright__ = "Copyright, 2012, Netherlands Bioinformatics Centre"
+__license__ = "MIT"
 
 
 class Service(win32serviceutil.ServiceFramework):
