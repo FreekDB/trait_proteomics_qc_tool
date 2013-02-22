@@ -414,7 +414,7 @@ public class TableTest implements ItemListener
 		 */
 		private static final long serialVersionUID = 1L;
 		public String[] m_colNames = {"heatmap", "ioncount"};
-    	    public Class[] m_colTypes = {BufferedImage.class, BufferedImage.class};
+    	    public Class<?>[] m_colTypes = {BufferedImage.class, BufferedImage.class};
     	    Vector m_macDataVector;
 
     	    public BottomTableModel(Vector macDataVector) {
@@ -447,7 +447,7 @@ public class TableTest implements ItemListener
     	      return m_colNames[col];
     	    }
 
-    	    public Class getColumnClass(int col) {
+    	    public Class<?> getColumnClass(int col) {
     	      return m_colTypes[col];
     	    }
 
