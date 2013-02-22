@@ -8,7 +8,7 @@ package nl.ctmm.trait.proteomics.qcviewer.utils;
  */
 public interface Constants {
     static final String APPLICATION_NAME = "QC Report Viewer";
-    static final String APPLICATION_VERSION = "1.1.4";
+    static final String APPLICATION_VERSION = "1.4.9";
     static final String PROPERTIES_FILE_NAME = "appProperties";
     static final String PROPERTY_ROOT_FOLDER = "RootFolder";
     static final String DEFAULT_ROOT_FOLDER = "QCReports\\ctmm";
