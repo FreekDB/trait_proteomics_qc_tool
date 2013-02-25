@@ -20,4 +20,5 @@ public interface Constants {
     static final String DEFAULT_BOTTOM_COLUMN_NAMES = "Heatmap, Ioncount";
     static final String PROPERTY_GUI_VERSION = "GUIVersion"; 
     static final String PROPERTY_PREFERRED_SERVER = "Server";
+    static final String SERVER_LINK_POSTAMBLE = ":8080/ctmm/";
 }

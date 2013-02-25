@@ -23,7 +23,7 @@ import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 
 import org.jfree.ui.RefineryUtilities;
 
-public class DataEntryForm extends JFrame implements ActionListener{
+public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 
 	/**
 	 * 
@@ -34,6 +34,8 @@ public class DataEntryForm extends JFrame implements ActionListener{
 	ViewerFrame parentViewerFrame = null; 
 	Properties appProperties = null; 
 	JDialog initialDialog = null;
+	JLabel message1 = null;
+	String rootDirectoryName = "";
 	
 	public DataEntryForm(final Main parent, final Properties appProperties) {
 		super("DataEntry Frame");
@@ -47,17 +49,21 @@ public class DataEntryForm extends JFrame implements ActionListener{
 		this.appProperties = appProperties;
 	}
 	
-	public void displayInitialDialog(String rootDirectoryName) {
-		JLabel message = new JLabel("Reading reports from " + rootDirectoryName);
-		System.out.println("Displaying initial dialog with message " + message.getText());
+	public void setRootDirectoryName(String rootDirectoryName) {
+		this.rootDirectoryName = rootDirectoryName;
+	}
+	
+	public void displayInitialDialog() {
+		message1 = new JLabel("<html>Reading reports from " + rootDirectoryName + "</html>");
 		initialDialog = new JDialog();
 		initialDialog.setTitle("Operation in progress");
-		message.setPreferredSize(new Dimension(300,100));
-		initialDialog.getContentPane().add(message, 0);
+		initialDialog.getContentPane().add(message1);
 		initialDialog.setPreferredSize(new Dimension(300,100));
 		RefineryUtilities.centerFrameOnScreen(initialDialog);
 		initialDialog.pack();
 		initialDialog.setVisible(true);
+		initialDialog.revalidate();
+		System.out.println("Displaying initial dialog with message " + message1.getText());
 	}
 	
 	public void disposeInitialDialog() {
@@ -117,6 +123,8 @@ public class DataEntryForm extends JFrame implements ActionListener{
     	setSize(new Dimension(300, 150));
     	RefineryUtilities.centerFrameOnScreen(this);
     	setVisible(true);
+    	repaint();
+    	revalidate();
     }
     
     public void displayPreferredServerEntryForm () {
@@ -149,6 +157,7 @@ public class DataEntryForm extends JFrame implements ActionListener{
     	setSize(new Dimension(300, 150));
     	RefineryUtilities.centerFrameOnScreen(this);
     	setVisible(true);
+    	revalidate();
     }
     
     /**
@@ -217,5 +226,10 @@ public class DataEntryForm extends JFrame implements ActionListener{
 		} else if (ae.getActionCommand().startsWith("CANCEL")) {
 			dispose();
 		}
+	}
+
+	@Override
+	public void run() {
+		displayInitialDialog();
 	}
 }

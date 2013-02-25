@@ -59,9 +59,12 @@ import nl.ctmm.trait.proteomics.qcviewer.input.DataEntryForm;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnit;
 import nl.ctmm.trait.proteomics.qcviewer.utils.OpenBrowser;
 
+import org.jfree.chart.ChartMouseEvent;
+import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.Range;
 
 /**
  * ViewerFrame with the GUI for the QC Report Viewer V2.
@@ -572,6 +575,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         //Create the visible chart panel
         final ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new Dimension(800, CHART_HEIGHT - 10));
+
         chartPanelList.add(chartPanel);
         final JInternalFrame frame = new JInternalFrame("Chart " + chartNum, true);
         frame.setName(Integer.toString(chartNum)); //Set chart number as frame name
@@ -719,6 +723,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 	public void mouseReleased(MouseEvent arg0) {
 		System.out.println("mouseReleased");
 	}
+
 
 }
 
