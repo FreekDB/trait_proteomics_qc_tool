@@ -15,6 +15,8 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 
@@ -29,8 +31,12 @@ import org.json.simple.parser.JSONParser;
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
-public class ReportReader {
-    private static final Logger logger = Logger.getLogger(ReportReader.class.getName());
+public class ReportReader extends JFrame {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private static final Logger logger = Logger.getLogger(ReportReader.class.getName());
     private static final List<String> MONTH_DIRS = Arrays.asList(
             "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
     );
@@ -68,8 +74,14 @@ public class ReportReader {
                 for (final File msRunDirectory : getMsRunDirectories(monthDirectory)) {
                     logger.fine("Msrun = " + msRunDirectory.getName());
                     final File[] dataFiles = msRunDirectory.listFiles();
-                    if (dataFiles != null) {
-                        reportUnits.add(createReportUnit(yearDirectory.getName(), monthDirectory.getName(), msRunDirectory.getName(), dataFiles));
+                    //Check existence of "metrics.json", "heatmap.png", "ions.png", "_ticmatrix.csv"
+                    String errorMessage = checkDataFilesAvailability(msRunDirectory.getName(), dataFiles);
+                    if (errorMessage.equals("")) {
+                    	reportUnits.add(createReportUnit(yearDirectory.getName(), monthDirectory.getName(), msRunDirectory.getName(), dataFiles));
+                    } else {
+                    	System.out.println("Showing errorMessage = " + errorMessage);
+                    	JOptionPane.showMessageDialog(this, errorMessage,
+                  			  "Error",JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }
@@ -77,6 +89,48 @@ public class ReportReader {
         return reportUnits;
     }
 
+    /**
+     * Check existence of "metrics.json", "heatmap.png", "ions.png", "_ticmatrix.csv"
+     */
+    private String checkDataFilesAvailability(final String msRunDirectory, final File[] dataFiles) {
+    	String errorMessage = "";
+    	boolean metrics = false, heatmap = false, ionCount = false, ticMatrix = false, overall = false;
+        for (final File dataFile : dataFiles) {
+            final String dataFileName = dataFile.getName();
+            if (dataFile.isFile()) {
+                logger.fine("File " + dataFileName);
+                if (dataFileName.equals("metrics.json")) {
+                   	metrics = true;
+                } else if (dataFileName.endsWith("heatmap.png")) {
+                    heatmap = true;
+                } else if (dataFileName.endsWith("ions.png")) {
+                    ionCount = true;
+                } else if (dataFileName.endsWith("_ticmatrix.csv")) {
+                    ticMatrix = true;
+                }
+            }
+        }
+        if (metrics && heatmap && ionCount && ticMatrix) {
+        	overall = true;
+        } else {
+        	errorMessage = "<html>In Folder " + msRunDirectory + " following filetypes are missing:";
+        	if (!metrics) {
+        		errorMessage += "metrics.json ";
+        	}
+        	if (!heatmap) {
+        		errorMessage += "heatmap.png ";
+        	}
+        	if (!ionCount) {
+        		errorMessage += "ions.png ";
+        	}
+        	if (!ticMatrix) {
+        		errorMessage += "_ticmatrix.csv ";
+        	}
+        	errorMessage += "</html>";
+        }
+        return errorMessage;
+    }
+    
     /**
      * Retrieve the year directories in the root directory.
      *

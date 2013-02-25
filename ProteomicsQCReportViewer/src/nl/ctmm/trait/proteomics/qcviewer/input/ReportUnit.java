@@ -174,6 +174,7 @@ public class ReportUnit {
      * @param detailsUri Complete link address to report on the server
      */
     public void setDetailsUri(String Uri) {
+    	Uri = Uri.replace(" ", "%20");
     	try {
 			this.detailsUri = new URI(Uri);
 		} catch (URISyntaxException e) {

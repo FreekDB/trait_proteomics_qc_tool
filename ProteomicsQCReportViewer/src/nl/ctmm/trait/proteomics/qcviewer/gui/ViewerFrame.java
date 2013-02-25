@@ -171,7 +171,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * @param reportUnits the report units to be displayed.
      */
     public void setReportUnits(final List<ReportUnit> reportUnits) {
-    	System.out.println("ViewerFrame setReportUnits");
+    	System.out.println("ViewerFrame setReportUnits No. of reportUnits = " + reportUnits.size());
         this.reportUnits = reportUnits;
         //Initialize chartCheckBoxFlags to false
         for (int i = 0; i < reportUnits.size(); ++i) {
@@ -185,10 +185,14 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * @param reportUnits the report units to be displayed.
      */
     public void setOrderedReportUnits(final List<ReportUnit> reportUnits) {
-    	System.out.println("ViewerFrame setOrderedReportUnits");
+    	System.out.println("ViewerFrame setOrderedReportUnits No. of reportUnits = " + reportUnits.size());
+    	if (orderedReportUnits != null) {
+    		orderedReportUnits.clear();
+    	}
     	for (int i = 0; i < reportUnits.size(); ++i) { 
     		orderedReportUnits.add(reportUnits.get(i));
     	}
+    	System.out.println("ViewerFrame setOrderedReportUnits No. of ordered reportUnits = " + orderedReportUnits.size());
     }
     
     private JInternalFrame getControlFrame() {
@@ -550,11 +554,14 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private void prepareChartsInAscendingOrder(boolean flag) {
 		System.out.println("ViewerFrame prepareChartsInAscendingOrder");
         int yCoordinate = 0;
+        System.out.println("No. of orderedReportUnits = " + orderedReportUnits.size());
         for (int i = 0; i < orderedReportUnits.size(); ++i) {
         	JInternalFrame chartFrame;
         	if (flag) {
+        		System.out.print("Report URI = " + orderedReportUnits.get(i).getDetailsUri() + " ");
         		chartFrame = createChartFrame(i, orderedReportUnits.get(i).getChartUnit().getTicChart(), orderedReportUnits.get(i));
         	} else {
+        		System.out.print("Report URI = " + orderedReportUnits.get(i).getDetailsUri() + " ");
         		chartFrame = createChartFrame(i, orderedReportUnits.get(orderedReportUnits.size() - i - 1).getChartUnit().getTicChart(), orderedReportUnits.get(orderedReportUnits.size() - i - 1));
         	}
         	chartFrame.pack();
