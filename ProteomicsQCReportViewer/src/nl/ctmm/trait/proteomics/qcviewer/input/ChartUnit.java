@@ -10,6 +10,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.StandardXYBarPainter;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -48,11 +49,18 @@ public class ChartUnit {
 	    renderer.setShadowVisible(false);
 	    Color currentColor = GRAPH_COLORS.get(reportNum%GRAPH_COLORS.size());
 	    renderer.setSeriesPaint(0, currentColor);
+	    renderer.setGradientPaintTransformer(null);
+	    renderer.setSeriesOutlinePaint(0, currentColor);
+	    renderer.setFillPaint(currentColor);
+	    renderer.setPaint(currentColor);
+	    renderer.setBarPainter(new StandardXYBarPainter());
+	    renderer.setSeriesStroke(0, null);
 	    renderer.setBasePaint(Color.WHITE);
 	    XYBarRenderer.setDefaultShadowsVisible(false);
 	    //Add support for toolTip
 	    StandardXYToolTipGenerator toolTipGenerator = new StandardXYToolTipGenerator();
 	    renderer.setBaseToolTipGenerator(toolTipGenerator);
+	    renderer.setDrawBarOutline(false);
 		XYSeriesCollection xyDataset = new XYSeriesCollection(series);
 		//Prepare chart using plot - this is the best option to control domain and range axes
 	    plot = new XYPlot(xyDataset, domainAxis, rangeAxis, renderer);
