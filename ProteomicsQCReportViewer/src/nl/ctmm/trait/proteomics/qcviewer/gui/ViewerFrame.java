@@ -559,10 +559,15 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         	JInternalFrame chartFrame;
         	if (flag) {
         		System.out.print("Report URI = " + orderedReportUnits.get(i).getDetailsUri() + " ");
-        		chartFrame = createChartFrame(i, orderedReportUnits.get(i).getChartUnit().getTicChart(), orderedReportUnits.get(i));
+        		//if (orderedReportUnits.get(i).getChartUnit() == null) {
+        			chartFrame = createChartFrame(i, orderedReportUnits.get(i).getChartUnit().getTicChart(), orderedReportUnits.get(i));
+        		//} else chartFrame = createChartFrame(i, orderedReportUnits.get(i).getChartUnit().getTicChart(), orderedReportUnits.get(i));
         	} else {
-        		System.out.print("Report URI = " + orderedReportUnits.get(i).getDetailsUri() + " ");
-        		chartFrame = createChartFrame(i, orderedReportUnits.get(orderedReportUnits.size() - i - 1).getChartUnit().getTicChart(), orderedReportUnits.get(orderedReportUnits.size() - i - 1));
+        		int index = orderedReportUnits.size() - i - 1;
+        		System.out.print("Report URI = " + orderedReportUnits.get(index).getDetailsUri() + " ");
+        		//if (orderedReportUnits.get(index).getChartUnit() == null) {
+        			chartFrame = createChartFrame(i, orderedReportUnits.get(index).getChartUnit().getTicChart(), orderedReportUnits.get(orderedReportUnits.size() - i - 1));
+        		//} else chartFrame = createChartFrame(i, orderedReportUnits.get(index).getChartUnit().getTicChart(), orderedReportUnits.get(orderedReportUnits.size() - i - 1));
         	}
         	chartFrame.pack();
         	chartFrame.setLocation(0, yCoordinate);
@@ -580,9 +585,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private JInternalFrame createChartFrame(int chartNum, JFreeChart chart, ReportUnit reportUnit) {
     	System.out.println("ViewerFrame createChartFrame " + chartNum);
         //Create the visible chart panel
-        final ChartPanel chartPanel = new ChartPanel(chart);
+        ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new Dimension(800, CHART_HEIGHT - 10));
-
         chartPanelList.add(chartPanel);
         final JInternalFrame frame = new JInternalFrame("Chart " + chartNum, true);
         frame.setName(Integer.toString(chartNum)); //Set chart number as frame name

@@ -31,11 +31,11 @@ public class ReportUnit {
 	QC Runtime 0:16:15
 	*/
     private int reportNum = -1;
-    private String fileSizeString = "";
+    private String fileSizeString = "-1.0";
     private String msrunName = ""; 
-    private Double fileSize;
-    private String ms1Spectra = "";
-    private String ms2Spectra = "";
+    private Double fileSize = -1.0;
+    private String ms1Spectra = "-1";
+    private String ms2Spectra = "-1";
     private String measured = "";
     private String runtime = "";
     private URI detailsUri; 
@@ -59,6 +59,8 @@ public class ReportUnit {
     public ReportUnit(String msrunName, int reportNum) {
     	this.msrunName = msrunName;
         this.reportNum = reportNum;
+        //Create default chart unit to handle problems due to missing series data 
+        ticChartUnit = new ChartUnit(msrunName, reportNum, null);
     }
 
     /**
@@ -91,6 +93,8 @@ public class ReportUnit {
         this.ioncount = ioncount;
         this.heatmapName = heatmapName;
         this.ioncountName = ioncountName;
+        //Create default chart unit to handle problems due to missing series data 
+        ticChartUnit = new ChartUnit(msrunName, reportNum, null);
     }
 
     /**
@@ -136,6 +140,9 @@ public class ReportUnit {
      * @param series
      */
     public void createChartUnit(final XYSeries series) {
+    	if (ticChartUnit != null) {
+    		ticChartUnit = null;
+    	}
     	ticChartUnit = new ChartUnit(msrunName, reportNum, series);
     }
     

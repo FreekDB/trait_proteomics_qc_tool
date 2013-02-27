@@ -77,7 +77,9 @@ public class ChartUnit {
 	 * @return Max intensity of TIC graph
 	 */
 	public double getMaxTicIntensity() {
-		return rangeAxis.getRange().getUpperBound();
+		if (graphDataSeries == null) {
+			return 0;
+		} else return rangeAxis.getRange().getUpperBound();
 	}
 	
     /**

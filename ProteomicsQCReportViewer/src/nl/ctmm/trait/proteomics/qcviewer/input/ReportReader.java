@@ -75,14 +75,13 @@ public class ReportReader extends JFrame {
                     logger.fine("Msrun = " + msRunDirectory.getName());
                     final File[] dataFiles = msRunDirectory.listFiles();
                     //Check existence of "metrics.json", "heatmap.png", "ions.png", "_ticmatrix.csv"
-                    String errorMessage = checkDataFilesAvailability(msRunDirectory.getName(), dataFiles);
-                    if (errorMessage.equals("")) {
-                    	reportUnits.add(createReportUnit(yearDirectory.getName(), monthDirectory.getName(), msRunDirectory.getName(), dataFiles));
-                    } else {
+                    String errorMessage = checkDataFilesAvailability(yearDirectory.getName(), monthDirectory.getName(), msRunDirectory.getName(), dataFiles);
+                    if (!errorMessage.equals("")) {
                     	System.out.println("Showing errorMessage = " + errorMessage);
                     	JOptionPane.showMessageDialog(this, errorMessage,
                   			  "Error",JOptionPane.ERROR_MESSAGE);
                     }
+                    reportUnits.add(createReportUnit(yearDirectory.getName(), monthDirectory.getName(), msRunDirectory.getName(), dataFiles));
                 }
             }
         }
@@ -92,7 +91,7 @@ public class ReportReader extends JFrame {
     /**
      * Check existence of "metrics.json", "heatmap.png", "ions.png", "_ticmatrix.csv"
      */
-    private String checkDataFilesAvailability(final String msRunDirectory, final File[] dataFiles) {
+    private String checkDataFilesAvailability(final String year, final String month, final String msrunName, final File[] dataFiles) {
     	String errorMessage = "";
     	boolean metrics = false, heatmap = false, ionCount = false, ticMatrix = false, overall = false;
         for (final File dataFile : dataFiles) {
@@ -113,7 +112,7 @@ public class ReportReader extends JFrame {
         if (metrics && heatmap && ionCount && ticMatrix) {
         	overall = true;
         } else {
-        	errorMessage = "<html>In Folder " + msRunDirectory + " following filetypes are missing:";
+        	errorMessage = "<html>In Folder " + msrunName + " following filetypes are missing:";
         	if (!metrics) {
         		errorMessage += "metrics.json ";
         	}
@@ -246,7 +245,7 @@ public class ReportReader extends JFrame {
                         reportUnit.createChartUnit(readXYSeries(msrunName, dataFile));
                     }
                 } catch (IOException e) {
-                    System.out.println();
+                    System.out.println(e.toString());
                     // todo handle this exception: preferably show what has gone wrong.
                     //todo add support for error dialogues
                 }
@@ -259,6 +258,7 @@ public class ReportReader extends JFrame {
         reportUnit.setDetailsUri(detailsUri);
         return reportUnit;
     }
+
 
     /**
      * Read the QC parameters from the json file.
