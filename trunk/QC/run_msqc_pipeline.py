@@ -211,11 +211,11 @@ def _run_nist(rawfile, outdir):
     log.info("Running NIST..")
 
     # NIST settings
-    nist_library = 'hsa'
-    search_engine = 'MSPepSearch' #'SpectraST'
+    nist_library = 'ctmmdb'
+    search_engine = 'OMSSA'
     mode = 'lite'
     fasta = normpath('{0}/libs/{1}.fasta'.format(_NIST, nist_library))
-    instrument = 'LTQ'
+    instrument = 'Orbi_HCD'
 
     # Run NIST pipeline
     # TODO error handling

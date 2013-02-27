@@ -42,7 +42,6 @@ class Test(unittest.TestCase):
         self.assertEquals(files, {'QE1_120315_OPL000_26_MSQC_40min_200.raw': 'completed',
 		                          'QE2_120521_OPL2012_EH_barf1_serum_A.raw': 'completed'})
         files = run_msqc_pipeline._parse_robocopy_log(self.robocopylog, files)
-        print '-----------\n', files, '------------\n'
         self.assertEquals(files, {'QE1_120315_OPL000_26_MSQC_40min_200.raw': 'completed',
 		                          'QE2_120521_OPL2012_EH_barf1_serum_A.raw': 'completed',
 								  'U87_10mg_B.raw': 'new'})
@@ -132,11 +131,6 @@ class Test(unittest.TestCase):
         # Create report (move to the QC directory, otherwise template is not found
         restore_path = os.getcwd()
         os.chdir('QC')
-        print 'Restore path: {}\nCurrent path: {}'.format(restore_path, os.getcwd())
-        print '--------------\nNIST METRICS:\n'
-        for i in nist_metrics.keys():
-            print i
-        print '---------------\n'
         run_msqc_pipeline._create_report(self.temp_folder, self.rawfilebase, nist_metrics)
         # Test for presence of the report file
         report_file = '{0}/{1}'.format(self.temp_folder, 'index.html')
