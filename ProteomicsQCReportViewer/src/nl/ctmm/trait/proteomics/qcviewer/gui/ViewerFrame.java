@@ -346,7 +346,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 	    }
         int yCoordinate = 0;
         //Create the visible chart panel
-        final ChartPanel chartPanel = new ChartPanel(orderedReportUnits.get(reportNum).getChartUnit().getTicChart());
+        final ChartPanel chartPanel = new ChartPanel(reportUnits.get(reportNum).getChartUnit().getTicChart());
         chartPanel.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, 2 * CHART_HEIGHT));
         final JInternalFrame chartFrame = new JInternalFrame("Chart " + reportNum, true);
         javax.swing.plaf.InternalFrameUI ifu= chartFrame.getUI();
