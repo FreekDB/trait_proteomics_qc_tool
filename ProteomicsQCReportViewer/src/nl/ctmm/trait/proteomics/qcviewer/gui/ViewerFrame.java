@@ -150,14 +150,18 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     	JMenuBar menuBar = new JMenuBar();
     	JMenu settingsMenu = new JMenu("Settings");
     	menuBar.add(settingsMenu);
-    	JMenuItem newDirAction = new JMenuItem("Set Root Directory");
+    	JMenuItem newDirAction = new JMenuItem("Set Root Directory...");
     	settingsMenu.add(newDirAction);
     	newDirAction.setActionCommand("ChangeRootDirectory");
     	newDirAction.addActionListener(this);
-    	JMenuItem newSerAction = new JMenuItem("Set Server");
-    	settingsMenu.add(newSerAction);
-    	newSerAction.setActionCommand("ChangeServer");
-    	newSerAction.addActionListener(this);
+    	JMenuItem newWebserAction = new JMenuItem("Set Webserver...");
+    	settingsMenu.add(newWebserAction);
+    	newWebserAction.setActionCommand("ChangeServer");
+    	newWebserAction.addActionListener(this);
+    	JMenuItem filterAction = new JMenuItem("Set Filter...");
+    	settingsMenu.add(filterAction);
+    	filterAction.setActionCommand("SetFilter");
+    	filterAction.addActionListener(this);
     	JMenuItem newRefAction = new JMenuItem("Refresh");
     	settingsMenu.add(newRefAction);
     	newRefAction.setActionCommand("Refresh");
@@ -451,6 +455,12 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         	dispose();
         	DataEntryForm deForm = new DataEntryForm(this, appProperties);
         	deForm.displayPreferredServerEntryForm();
+		} else if (evt.getActionCommand().equals("SetFilter")) {
+			//Get new location to read reports from
+			clean();
+        	dispose();
+        	DataEntryForm deForm = new DataEntryForm(this, appProperties);
+        	deForm.displayDateFilterEntryForm();
 		} else if (evt.getActionCommand().equals("Refresh")) {
 			clean();
 			dispose();
@@ -589,7 +599,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         chartPanel.setPreferredSize(new Dimension(800, CHART_HEIGHT - 10));
         chartPanelList.add(chartPanel);
         final JInternalFrame frame = new JInternalFrame("Chart " + chartNum, true);
-        frame.setName(Integer.toString(chartNum)); //Set chart number as frame name
+        frame.setName(Integer.toString(reportUnit.getReportNum() - 1)); //Set report index number as frame name
         javax.swing.plaf.InternalFrameUI ifu= frame.getUI();
         ((javax.swing.plaf.basic.BasicInternalFrameUI)ifu).setNorthPane(null);
         int style = Font.BOLD;

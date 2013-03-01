@@ -7,7 +7,7 @@ package nl.ctmm.trait.proteomics.qcviewer.utils;
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
 public interface Constants {
-    static final String APPLICATION_NAME = "QC Report Viewer";
+    static final String APPLICATION_NAME = "MSQC Report Viewer";
     static final String APPLICATION_VERSION = "1.4.9";
     static final String PROPERTIES_FILE_NAME = "appProperties";
     static final String PROPERTY_ROOT_FOLDER = "RootFolder";
@@ -19,6 +19,6 @@ public interface Constants {
     static final String PROPERTY_BOTTOM_COLUMN_NAMES = "BottomColumnNames";
     static final String DEFAULT_BOTTOM_COLUMN_NAMES = "Heatmap, Ioncount";
     static final String PROPERTY_GUI_VERSION = "GUIVersion"; 
-    static final String PROPERTY_PREFERRED_SERVER = "Server";
+    static final String PROPERTY_PREFERRED_WEBSERVER = "10.13.1.103";
     static final String SERVER_LINK_POSTAMBLE = ":8080/ctmm/";
 }

@@ -1,12 +1,15 @@
 package nl.ctmm.trait.proteomics.qcviewer.input;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
@@ -64,6 +67,7 @@ public class ReportReader extends JFrame {
 	    2) msrun*_heatmap.png
 	    3) msrun*_ions.png
 	    */
+    	String allErrorMessages = ""; 
     	this.serverAddress = serverAddress;
         final List<ReportUnit> reportUnits = new ArrayList<ReportUnit>();
         logger.log(Level.ALL, "Root folder = " + rootDirectoryName);
@@ -77,13 +81,16 @@ public class ReportReader extends JFrame {
                     //Check existence of "metrics.json", "heatmap.png", "ions.png", "_ticmatrix.csv"
                     String errorMessage = checkDataFilesAvailability(yearDirectory.getName(), monthDirectory.getName(), msRunDirectory.getName(), dataFiles);
                     if (!errorMessage.equals("")) {
-                    	System.out.println("Showing errorMessage = " + errorMessage);
-                    	JOptionPane.showMessageDialog(this, errorMessage,
-                  			  "Error",JOptionPane.ERROR_MESSAGE);
+                    	System.out.println("ErrorMessage = " + errorMessage);
+                    	allErrorMessages += errorMessage + "\n";
                     }
                     reportUnits.add(createReportUnit(yearDirectory.getName(), monthDirectory.getName(), msRunDirectory.getName(), dataFiles));
                 }
             }
+        }
+        if (!allErrorMessages.equals("")) {
+        	saveErrorMessages(allErrorMessages);
+        	JOptionPane.showMessageDialog(this, allErrorMessages, "Errors",JOptionPane.ERROR_MESSAGE);
         }
         return reportUnits;
     }
@@ -129,6 +136,22 @@ public class ReportReader extends JFrame {
         }
         return errorMessage;
     }
+    
+    private void saveErrorMessages(String allErrorMessages) {
+    	try {
+        	//Save errorMessages to errorMEssages.txt file
+            FileWriter fWriter = new FileWriter("QCReports\\errorMessages.txt", true);
+            BufferedWriter bWriter = new BufferedWriter(fWriter);
+    		Date date = new Date();
+    		bWriter.write(date.toString() + "\n");
+			bWriter.write(allErrorMessages + "\n");
+			bWriter.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+
     
     /**
      * Retrieve the year directories in the root directory.

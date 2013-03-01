@@ -20,6 +20,7 @@ import javax.swing.JTextField;
 import nl.ctmm.trait.proteomics.qcviewer.Main;
 import nl.ctmm.trait.proteomics.qcviewer.gui.ViewerFrame;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
+import nl.ctmm.trait.proteomics.qcviewer.utils.DatePicker;
 
 import org.jfree.ui.RefineryUtilities;
 
@@ -178,9 +179,9 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
     /**
      * Sets the preferredServer 
      */
-    public void updatePreferredServer(String newServer) {
-    	System.out.println("Changing server to " + newServer);
-    	appProperties.setProperty(Constants.PROPERTY_PREFERRED_SERVER, newServer);
+    public void updatePreferredServer(String newWebserver) {
+    	System.out.println("Changing server to " + newWebserver);
+    	appProperties.setProperty(Constants.PROPERTY_PREFERRED_WEBSERVER, newWebserver);
 		try {
 			FileOutputStream out = new FileOutputStream(Constants.PROPERTIES_FILE_NAME);
 			appProperties.store(out, null);
@@ -231,5 +232,60 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 	@Override
 	public void run() {
 		displayInitialDialog();
+	}
+
+	public void displayDateFilterEntryForm() {
+		JLabel label1 = new JLabel("Van Date:");
+		final JTextField text1 = new JTextField(10);
+		text1.disable();
+		JButton b1 = new JButton("select");
+		JPanel p1 = new JPanel();
+		p1.add(label1);
+		p1.add(text1);
+		p1.add(b1);
+		
+		JLabel label2 = new JLabel("Tot Date:");
+		final JTextField text2 = new JTextField(10);
+		text2.disable();
+		JButton b2 = new JButton("select");
+		JPanel p2 = new JPanel();
+		p2.add(label2);
+		p2.add(text2);
+		p2.add(b2);
+		
+		JButton b3 = new JButton("Submit");
+		JPanel p3 = new JPanel();
+		p3.add(b3);
+		
+		JPanel p4 = new JPanel(new GridLayout(3,1));
+		p4.add(p1, 0);
+		p4.add(p2, 1);
+		p4.add(p3, 2);
+		final JFrame f = new JFrame();
+		f.getContentPane().add(p4);
+		f.pack();
+		RefineryUtilities.centerFrameOnScreen(f);
+		f.setVisible(true);
+		b1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
+				text1.setText(new DatePicker(f).setPickedDate());
+			}
+		});
+		b2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
+				text2.setText(new DatePicker(f).setPickedDate());
+			}
+		});
+		b3.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
+				String date1 = text1.getText();
+				String date2 = text2.getText();
+				if (date1.equals("") || date2.equals("")) {
+					JOptionPane.showMessageDialog(null, "Press Select to choose proper date", "Error",JOptionPane.ERROR_MESSAGE);
+				} else {
+					JOptionPane.showMessageDialog(null, "From date = " + date1 + " To date = " + date2, "Info",JOptionPane.INFORMATION_MESSAGE);
+				}
+			}
+		});
 	}
 }

@@ -55,7 +55,7 @@ public class Main{
         DataEntryForm deForm = new DataEntryForm(this, applicationProperties);
         deForm.setRootDirectoryName(preferredRootDirectory);
         deForm.displayInitialDialog();
-        String server = applicationProperties.getProperty(Constants.PROPERTY_PREFERRED_SERVER);
+        String server = applicationProperties.getProperty(Constants.PROPERTY_PREFERRED_WEBSERVER);
         final List<ReportUnit> reportUnits = getReportUnits(preferredRootDirectory, server);
         deForm.disposeInitialDialog();
         if (reportUnits.size() == 0) { //There exist no reports in current root directory
