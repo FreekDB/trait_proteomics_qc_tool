@@ -64,14 +64,14 @@ class Test(unittest.TestCase):
         i = 0
         tmp_file_list = []
         while i < 5:
-            tmp_file_list.append(tempfile.mkstemp(suffix='.RAW', prefix='test_raw_file', dir=self.temp_folder))
+            tmp_file_list.append(tempfile.mkstemp(suffix='.RAW', prefix='test_raw_file', dir=self.temp_folder)[1])
             i += 1
         # Override location of the progress log defined as global variable in run_msqc_pipeline
         run_msqc_pipeline._PROGRES_LOG = self.logfile
         # Detect files
         detected_files = run_msqc_pipeline._get_filelist(self.temp_folder, None)
         # Extract file names from created files (which is a tuple of (number, /full/path/to/tmp_file.RAW))
-        temp_files = [os.path.basename(f[1]) for f in tmp_file_list]
+        temp_files = [os.path.basename(f) for f in tmp_file_list]
         # Compare with list of created temp files
         self.failUnless(all([f in temp_files for f in detected_files.keys()]))
 
