@@ -55,25 +55,25 @@ class Test(unittest.TestCase):
         self.failUnless(os.path.exists(mzxml_file))
 
         # Disabled while NIST not running
-        #mgf_file = os.path.join(self.temp_folder, self.rawfilebase + '.RAW.MGF')
-        #self.failUnless(os.path.exists(mgf_file))
+        # mgf_file = os.path.join(self.temp_folder, self.rawfilebase + '.RAW.MGF')
+        # self.failUnless(os.path.exists(mgf_file))
 
     def test_get_filelist(self):
-        ''' Test the detection of new RAW files to process '''  
+        ''' Test the detection of new RAW files to process '''
         # Create a set of (empty) RAW files
-        i = 0
         tmp_file_list = []
-        while i < 5:
-            tmp_file_list.append(tempfile.mkstemp(suffix='.RAW', prefix='test_raw_file', dir=self.temp_folder)[1])
-            i += 1
+        for i in range(5):
+            filename = tempfile.mkstemp(suffix='.RAW', prefix='test_raw_file', dir=self.temp_folder)[1]
+            open(filename).close()
+            tmp_file_list.append(filename)
         # Override location of the progress log defined as global variable in run_msqc_pipeline
         run_msqc_pipeline._PROGRES_LOG = self.logfile
         # Detect files
-        detected_files = run_msqc_pipeline._get_filelist(self.temp_folder, None)
+        detected_files = set(run_msqc_pipeline._get_filelist(self.temp_folder, None))
         # Extract file names from created files (which is a tuple of (number, /full/path/to/tmp_file.RAW))
-        temp_files = [os.path.basename(f) for f in tmp_file_list]
+        temp_files = set(os.path.basename(f) for f in tmp_file_list)
         # Compare with list of created temp files
-        self.failUnless(all([f in temp_files for f in detected_files.keys()]))
+        self.assertEqual(temp_files, detected_files)
 
     def test_manage_paths(self):
         ''' Tests the creation of the path to the report '''
@@ -81,13 +81,13 @@ class Test(unittest.TestCase):
         run_msqc_pipeline._WEB_DIR = self.temp_folder
         # Create directory tree
         run_msqc_pipeline._manage_paths('temp_report')
-        # Get date (year, month) 
+        # Get date (year, month)
         ctime = gmtime()
-        year=strftime("%Y", ctime)
-        month=strftime("%b", ctime)
+        year = strftime("%Y", ctime)
+        month = strftime("%b", ctime)
         # Expected path
         path = os.path.normpath('%s/%s/%s/temp_report/' % (self.temp_folder, year, month))
-        self.failUnless(os.path.exists(path))        
+        self.failUnless(os.path.exists(path))
 
     def _defunct_test_run_nist(self):
         ''' Run NIST, and assure the msqc file is output to the correct path.'''
@@ -103,7 +103,7 @@ class Test(unittest.TestCase):
         run_msqc_pipeline._run_nist(rawfile, self.temp_folder)
         os.chdir(restore_path)
 
-        #Check output path exists
+        # Check output path exists
         msqc_file = os.path.join(self.temp_folder, self.rawfilebase + '.msqc')
         self.failUnless(os.path.exists(msqc_file))
 
