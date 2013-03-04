@@ -5,7 +5,11 @@ import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -56,7 +60,37 @@ public class Main{
         deForm.setRootDirectoryName(preferredRootDirectory);
         deForm.displayInitialDialog();
         String server = applicationProperties.getProperty(Constants.PROPERTY_PREFERRED_WEBSERVER);
-        final List<ReportUnit> reportUnits = getReportUnits(preferredRootDirectory, server);
+        Date fromDate = null, tillDate = null;
+        //Determine date interval for which to display reports for
+        SimpleDateFormat sdf = new SimpleDateFormat(Constants.SIMPLE_DATE_FORMAT_STRING);
+		sdf.setLenient(false);
+		String reportsFromDate = applicationProperties.getProperty(Constants.PROPERTY_SHOW_REPORTS_FROM_DATE);
+        String reportsTillDate = applicationProperties.getProperty(Constants.PROPERTY_SHOW_REPORTS_TILL_DATE);
+        if (!reportsFromDate.trim().equals("") && !reportsFromDate.trim().equals("")) { //Dates are specified
+        	//Check date format validity
+        	try {
+    			//if not valid, it will throw ParseException
+    			fromDate = sdf.parse(reportsFromDate);
+    			tillDate = sdf.parse(reportsTillDate);
+    			System.out.println("fromDate = " + fromDate.toString() + " tillDate = " + tillDate.toString());
+    			System.out.println("fromDate = " + sdf.format(fromDate) + " tillDate = " + sdf.format(tillDate));
+    		} catch (ParseException e) {
+    			fromDate = null;
+    			tillDate = null;
+    			e.printStackTrace();
+    		}
+        }
+        if (tillDate == null) { //The date interval is not specified. 
+        	int daysNum = Integer.parseInt(applicationProperties.getProperty(Constants.DEFALUT_REPORTS_DISPLAY_PERIOD, Constants.DEFALUT_REPORTS_DISPLAY_PERIOD_VALUE));
+        	tillDate = new Date(); //Till Date is current date
+        	Calendar now = Calendar.getInstance();
+        	now.add(Calendar.DATE, -14); 
+        	fromDate = now.getTime();
+        	System.out.println("fromDate = " + fromDate.toString() + " tillDate = " + tillDate.toString());
+        	System.out.println("fromDate = " + sdf.format(fromDate) + " tillDate = " + sdf.format(tillDate));
+        }
+        System.out.println("fromDate = " + sdf.format(fromDate) + " tillDate = " + sdf.format(tillDate));
+        final List<ReportUnit> reportUnits = getReportUnits(preferredRootDirectory, server, fromDate, tillDate);
         deForm.disposeInitialDialog();
         if (reportUnits.size() == 0) { //There exist no reports in current root directory
         	//Get new location to read reports from
@@ -127,8 +161,8 @@ public class Main{
      * @param applicationProperties2 
      * @return the list with report units.
      */
-    private List<ReportUnit> getReportUnits(final String rootDirectoryName, String server) {
-        return new ReportReader().retrieveReports(rootDirectoryName, server);
+    private List<ReportUnit> getReportUnits(final String rootDirectoryName, String server, Date fromDate, Date tillDate) {
+        return new ReportReader().retrieveReports(rootDirectoryName, server, fromDate, tillDate);
     }
 
     /**

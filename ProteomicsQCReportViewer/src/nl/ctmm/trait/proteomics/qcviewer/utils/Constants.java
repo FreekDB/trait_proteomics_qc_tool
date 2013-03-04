@@ -8,7 +8,7 @@ package nl.ctmm.trait.proteomics.qcviewer.utils;
  */
 public interface Constants {
     static final String APPLICATION_NAME = "MSQC Report Viewer";
-    static final String APPLICATION_VERSION = "1.4.9";
+    static final String APPLICATION_VERSION = "1.6.5";
     static final String PROPERTIES_FILE_NAME = "appProperties";
     static final String PROPERTY_ROOT_FOLDER = "RootFolder";
     static final String DEFAULT_ROOT_FOLDER = "QCReports\\ctmm";
@@ -19,6 +19,11 @@ public interface Constants {
     static final String PROPERTY_BOTTOM_COLUMN_NAMES = "BottomColumnNames";
     static final String DEFAULT_BOTTOM_COLUMN_NAMES = "Heatmap, Ioncount";
     static final String PROPERTY_GUI_VERSION = "GUIVersion"; 
-    static final String PROPERTY_PREFERRED_WEBSERVER = "10.13.1.103";
+    static final String PROPERTY_PREFERRED_WEBSERVER = "Server";
     static final String SERVER_LINK_POSTAMBLE = ":8080/ctmm/";
+    static final String PROPERTY_SHOW_REPORTS_FROM_DATE = "ShowReportsFromDate";
+    static final String PROPERTY_SHOW_REPORTS_TILL_DATE = "ShowReportsTillDate";
+    static final String DEFALUT_REPORTS_DISPLAY_PERIOD = "DefaultReportsDisplayPeriod";
+    static final String DEFALUT_REPORTS_DISPLAY_PERIOD_VALUE = "14"; //show reports from last two weeks by default
+    static final String SIMPLE_DATE_FORMAT_STRING = "dd/MM/yyyy";
 }

@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -53,9 +54,11 @@ public class ReportReader extends JFrame {
      *
      * @param rootDirectoryName the root directory that contains the year directories.
      * @param serverAddress 
+     * @param tillDate 
+     * @param fromDate 
      * @return a list with report units.
      */
-    public List<ReportUnit> retrieveReports(final String rootDirectoryName, String serverAddress) {
+    public List<ReportUnit> retrieveReports(final String rootDirectoryName, String serverAddress, final Date fromDate, final Date tillDate) {
         // todo msrun versus msreading directory?
         /*The directory has three levels - year, month and msrun.
         The msreading directory may contain following three files of importance:
@@ -77,14 +80,24 @@ public class ReportReader extends JFrame {
                 logger.fine("Month = " + monthDirectory.getName());
                 for (final File msRunDirectory : getMsRunDirectories(monthDirectory)) {
                     logger.fine("Msrun = " + msRunDirectory.getName());
-                    final File[] dataFiles = msRunDirectory.listFiles();
-                    //Check existence of "metrics.json", "heatmap.png", "ions.png", "_ticmatrix.csv"
-                    String errorMessage = checkDataFilesAvailability(yearDirectory.getName(), monthDirectory.getName(), msRunDirectory.getName(), dataFiles);
-                    if (!errorMessage.equals("")) {
-                    	System.out.println("ErrorMessage = " + errorMessage);
-                    	allErrorMessages += errorMessage + "\n";
-                    }
-                    reportUnits.add(createReportUnit(yearDirectory.getName(), monthDirectory.getName(), msRunDirectory.getName(), dataFiles));
+                    long datetime = msRunDirectory.lastModified();
+                    Date d = new Date(datetime);
+                    SimpleDateFormat sdf = new SimpleDateFormat(Constants.SIMPLE_DATE_FORMAT_STRING);
+                    String dateString = sdf.format(d);
+                    if (d.compareTo(fromDate)>=0 && d.compareTo(tillDate)<=0) {
+                    	System.out.println("Added - The folder was last modified on: " + dateString + " is within limits From " 
+                    			+ sdf.format(fromDate) + " Till " + sdf.format(tillDate));
+                    
+                    	final File[] dataFiles = msRunDirectory.listFiles();
+                    	//Check existence of "metrics.json", "heatmap.png", "ions.png", "_ticmatrix.csv"
+                    	String errorMessage = checkDataFilesAvailability(yearDirectory.getName(), monthDirectory.getName(), msRunDirectory.getName(), dataFiles);
+                    	if (!errorMessage.equals("")) {
+                    		System.out.println("ErrorMessage = " + errorMessage);
+                    		allErrorMessages += errorMessage + "\n";
+                    	}
+                    	reportUnits.add(createReportUnit(yearDirectory.getName(), monthDirectory.getName(), msRunDirectory.getName(), dataFiles));
+                    } else System.out.println("Skipped - The folder was last modified on: " + dateString + " is outside limits From " 
+                			+ sdf.format(fromDate) + " Till " + sdf.format(tillDate));
                 }
             }
         }

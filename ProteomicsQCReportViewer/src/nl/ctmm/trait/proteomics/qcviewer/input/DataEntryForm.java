@@ -6,6 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.ParseException;
+import java.util.Date;
 import java.util.Properties;
 
 import javax.swing.JButton;
@@ -235,7 +237,7 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 	}
 
 	public void displayDateFilterEntryForm() {
-		JLabel label1 = new JLabel("Van Date:");
+		JLabel label1 = new JLabel("From Date:");
 		final JTextField text1 = new JTextField(10);
 		text1.disable();
 		JButton b1 = new JButton("select");
@@ -244,9 +246,14 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 		p1.add(text1);
 		p1.add(b1);
 		
-		JLabel label2 = new JLabel("Tot Date:");
+		JLabel label2 = new JLabel("Till Date:");
 		final JTextField text2 = new JTextField(10);
 		text2.disable();
+		//Set current date in text2 field
+		java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat(
+				Constants.SIMPLE_DATE_FORMAT_STRING);
+		Date d = new Date(); 
+		text2.setText(sdf.format(d));
 		JButton b2 = new JButton("select");
 		JPanel p2 = new JPanel();
 		p2.add(label2);
@@ -261,29 +268,48 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 		p4.add(p1, 0);
 		p4.add(p2, 1);
 		p4.add(p3, 2);
-		final JFrame f = new JFrame();
-		f.getContentPane().add(p4);
-		f.pack();
-		RefineryUtilities.centerFrameOnScreen(f);
-		f.setVisible(true);
+		getContentPane().add(p4);
+		pack();
+		RefineryUtilities.centerFrameOnScreen(this);
+		setVisible(true);
 		b1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
-				text1.setText(new DatePicker(f).setPickedDate());
+				text1.setText(new DatePicker().setPickedDate());
 			}
 		});
 		b2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
-				text2.setText(new DatePicker(f).setPickedDate());
+				text2.setText(new DatePicker().setPickedDate());
 			}
 		});
 		b3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
 				String date1 = text1.getText();
 				String date2 = text2.getText();
+				java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat(
+						Constants.SIMPLE_DATE_FORMAT_STRING);
 				if (date1.equals("") || date2.equals("")) {
 					JOptionPane.showMessageDialog(null, "Press Select to choose proper date", "Error",JOptionPane.ERROR_MESSAGE);
 				} else {
-					JOptionPane.showMessageDialog(null, "From date = " + date1 + " To date = " + date2, "Info",JOptionPane.INFORMATION_MESSAGE);
+					try {
+						if (sdf.parse(date1).compareTo(sdf.parse(date2))>0) {
+							JOptionPane.showMessageDialog(null, "From date " + date1 + " is > To date " + date2, "Error",JOptionPane.ERROR_MESSAGE);
+						} else {
+							dispose();
+					    	appProperties.setProperty(Constants.PROPERTY_SHOW_REPORTS_FROM_DATE, date1);
+					    	appProperties.setProperty(Constants.PROPERTY_SHOW_REPORTS_TILL_DATE, date2);
+							try {
+								FileOutputStream out = new FileOutputStream(Constants.PROPERTIES_FILE_NAME);
+								appProperties.store(out, null);
+						    	out.close();
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+							new Main().runReportViewer();
+						}
+					} catch (ParseException e) {
+						e.printStackTrace();
+					} 
 				}
 			}
 		});

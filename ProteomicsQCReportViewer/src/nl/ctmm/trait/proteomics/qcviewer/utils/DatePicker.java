@@ -18,7 +18,7 @@ public class DatePicker {
 	JDialog d;
 	JButton[] button = new JButton[49];
 
-	public DatePicker(JFrame parent) {
+	public DatePicker() { //JFrame parent
 		d = new JDialog();
 		d.setModal(true);
 		String[] header = { "Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat" };
@@ -64,7 +64,7 @@ public class DatePicker {
 		d.add(p1, BorderLayout.CENTER);
 		d.add(p2, BorderLayout.SOUTH);
 		d.pack();
-		d.setLocationRelativeTo(parent);
+		//d.setLocationRelativeTo(parent);
 		displayDate();
 		RefineryUtilities.centerFrameOnScreen(d);
 		d.setVisible(true);
@@ -89,7 +89,7 @@ public class DatePicker {
 		if (day.equals(""))
 			return day;
 		java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat(
-				"dd-MM-yyyy");
+				Constants.SIMPLE_DATE_FORMAT_STRING);
 		java.util.Calendar cal = java.util.Calendar.getInstance();
 		cal.set(year, month, Integer.parseInt(day));
 		return sdf.format(cal.getTime());
