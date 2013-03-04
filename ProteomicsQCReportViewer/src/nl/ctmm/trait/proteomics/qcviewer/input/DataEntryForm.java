@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
 
@@ -240,6 +241,13 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 		JLabel label1 = new JLabel("From Date:");
 		final JTextField text1 = new JTextField(10);
 		text1.disable();
+		java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat(
+				Constants.SIMPLE_DATE_FORMAT_STRING);
+		//Set current date - 2 weeks in fromDate
+		Calendar now = Calendar.getInstance();
+    	now.add(Calendar.DATE, -14); 
+    	Date fromDate = now.getTime();
+    	text1.setText(sdf.format(fromDate));
 		JButton b1 = new JButton("select");
 		JPanel p1 = new JPanel();
 		p1.add(label1);
@@ -250,10 +258,9 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 		final JTextField text2 = new JTextField(10);
 		text2.disable();
 		//Set current date in text2 field
-		java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat(
-				Constants.SIMPLE_DATE_FORMAT_STRING);
-		Date d = new Date(); 
-		text2.setText(sdf.format(d));
+		
+		Date tillDate = new Date(); 
+		text2.setText(sdf.format(tillDate));
 		JButton b2 = new JButton("select");
 		JPanel p2 = new JPanel();
 		p2.add(label2);
