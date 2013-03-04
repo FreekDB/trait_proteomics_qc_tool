@@ -141,6 +141,9 @@ image_plot <- function(rt, s, m, method) {
 }
 
 ion_count <- function(mzXML, pfile=FALSE, mslevel=1) {
+    #Find size of mzXML
+    mzxmlSize <- object.size(mzXML)
+    logger(paste("Size of mzXML object = ", mzxmlSize))
 	## The 'total Ion count' barplot shows the sum of the intensities for each 
 	## complete scan with the RT on the X-axis
 	logger("Creating total Ion count graph")
@@ -156,6 +159,8 @@ ion_count <- function(mzXML, pfile=FALSE, mslevel=1) {
 	}
 	
 	if (pfile != FALSE) {
+	    #Write graph coordinates to the CSV file for use by QC Report Viewer
+        write.csv(cbind(rt, ions), file = paste(pfile, '_ticmatrix.csv'), row.names = FALSE)
 		## Save image to both PDF and PNG files
 		png(paste(pfile, '_ions.png', sep=''), width = 800, height = 400)
 		ion_count_plot(ions, rt)    
