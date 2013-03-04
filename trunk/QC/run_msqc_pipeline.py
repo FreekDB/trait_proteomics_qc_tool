@@ -14,6 +14,7 @@ from time import gmtime, strftime, time
 from datetime import datetime
 import logging as log
 import shutil
+import os
 import tempfile
 import glob
 
@@ -32,7 +33,7 @@ _WEB_DIR = normpath('C:/Program Files (x86)/Apache Software Foundation/Apache2.2
 _PROGRES_LOG = normpath('{0}/{1}'.format(_WEB_DIR, 'qc_status.log'))
 
 # Root folder for the QC pipeline
-_QC_HOME = normpath('C:/QC-pipeline')
+_QC_HOME = normpath('C:/qc-data/QCArchive27Feb/archive/QC')
 # NIST pipeline folder (by default located within _QC_HOME)
 _NIST = normpath('NISTMSQCv1_2_0_CTMM')
 
@@ -71,16 +72,24 @@ def qc_pipeline(indir, outdir, copylog):
         # Use the following lines to copy the RAW files to a different path before processing
         #abs_rawfile_path = normpath('{0}/{1}'.format(working_dir, rawfile))
         #copy(original_path, abs_rawfile_path)
+        #Copy rawfile to inputfile
+        abs_inputfile_path = outdir + '\\' + rawfile
+        print("@Performance : Copying rawfile to newinputfilename ", abs_inputfile_path, datetime.now()) 
+        shutil.copy(abs_rawfile_path, abs_inputfile_path);
 
         # Create folder to contain html report
         webdir = _manage_paths(basename)
-        # Run QC workflow
-        _raw_format_conversions(abs_rawfile_path, working_dir)
+        # Run QC workflow - for performance improvement, use abs_inputfile_path instead of abs_rawfile_path
+        #_raw_format_conversions(abs_rawfile_path, working_dir)
+        _raw_format_conversions(abs_inputfile_path, working_dir)
         #_run_nist(abs_rawfile_path, working_dir)
+        #_run_nist(abs_inputfile_path, working_dir)
         _run_r_script(working_dir, webdir, basename)
-        metrics = create_metrics(working_dir, abs_rawfile_path, t_start)
+        #metrics = create_metrics(working_dir, abs_rawfile_path, t_start)
+        metrics = create_metrics(working_dir, abs_inputfile_path, t_start)
         _create_report(webdir, basename, metrics)
-
+        #Cleanup the abs_inputfile_path
+        os.remove(abs_inputfile_path)
         # Update log-file showing completed analysis
         _log_progress(_PROGRES_LOG, rawfile, 'completed')
 
