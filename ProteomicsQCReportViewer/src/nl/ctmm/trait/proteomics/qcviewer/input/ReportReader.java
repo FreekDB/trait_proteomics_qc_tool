@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -84,9 +85,15 @@ public class ReportReader extends JFrame {
                     Date d = new Date(datetime);
                     SimpleDateFormat sdf = new SimpleDateFormat(Constants.SIMPLE_DATE_FORMAT_STRING);
                     String dateString = sdf.format(d);
+                    try {
+						d = sdf.parse(dateString);
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
                     if (d.compareTo(fromDate)>=0 && d.compareTo(tillDate)<=0) {
-                    	System.out.println("Added - The folder was last modified on: " + dateString + " is within limits From " 
-                    			+ sdf.format(fromDate) + " Till " + sdf.format(tillDate));
+                    	System.out.println("Added - Last modified on: " + dateString + " is within limits From " 
+                    			+ sdf.format(fromDate) + " res = " +d.compareTo(fromDate) + " Till " + sdf.format(tillDate) + " res = " +d.compareTo(tillDate));
                     
                     	final File[] dataFiles = msRunDirectory.listFiles();
                     	//Check existence of "metrics.json", "heatmap.png", "ions.png", "_ticmatrix.csv"
@@ -96,8 +103,8 @@ public class ReportReader extends JFrame {
                     		allErrorMessages += errorMessage + "\n";
                     	}
                     	reportUnits.add(createReportUnit(yearDirectory.getName(), monthDirectory.getName(), msRunDirectory.getName(), dataFiles));
-                    } else System.out.println("Skipped - The folder was last modified on: " + dateString + " is outside limits From " 
-                			+ sdf.format(fromDate) + " Till " + sdf.format(tillDate));
+                    } else System.out.println("Skipped - Last modified on: " + dateString + " is outside limits From " 
+                    		+ sdf.format(fromDate) + " res = " +d.compareTo(fromDate) + " Till " + sdf.format(tillDate) + " res = " +d.compareTo(tillDate));
                 }
             }
         }
