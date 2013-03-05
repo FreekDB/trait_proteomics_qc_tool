@@ -21,7 +21,7 @@ library(readMzXmlData)
 
 ms_image <- function(mzXML, pfile=FALSE, min.mz=300, max.mz=2000, n.bins=100, mslevel=1, 
 		     n.peaks.list=c(500, 250, 100, 50, 20, 10), n.peaks.perc=40, method="max") {	
-	## Creates a heatmap-like image of all scans from the experiment
+	## Creates a heatmap-like image of all scans from the experimentex
 	## Bins the data into n.bins bins and shows either the 'max' or 'average' of all bins
 	n.peaks = n.peaks.list[1]
 	window = (max.mz - min.mz) / n.bins
@@ -143,7 +143,7 @@ image_plot <- function(rt, s, m, method) {
 ion_count <- function(mzXML, pfile=FALSE, mslevel=1) {
     #Find size of mzXML
     mzxmlSize <- object.size(mzXML)
-    logger(paste("Size of mzXML object = ", mzxmlSize))
+    logger(paste("Size of mzXML object = ", mzxmlSize, " length = ", length(mzXML)))
 	## The 'total Ion count' barplot shows the sum of the intensities for each 
 	## complete scan with the RT on the X-axis
 	logger("Creating total Ion count graph")
@@ -157,7 +157,7 @@ ion_count <- function(mzXML, pfile=FALSE, mslevel=1) {
 			rt = c(rt, mzXML[[scan]]$metaData$retentionTime)
 		}
 	}
-	
+	logger(paste("Size of ions object = ", object.size(ions), " length = ", length(ions), "Size of rt object = ", object.size(rt), " length = ", length(rt)))
 	if (pfile != FALSE) {
 	    #Write graph coordinates to the CSV file for use by QC Report Viewer
         write.csv(cbind(rt, ions), file = paste(pfile, '_ticmatrix.csv'), row.names = FALSE)
@@ -174,17 +174,19 @@ ion_count <- function(mzXML, pfile=FALSE, mslevel=1) {
 }
 
 ion_count_plot <- function(ions, rt) {
-	## Change margins
-	op <- par(mar=c(4,6,2,2))
-	plot(rt, ions, type="l", xlab="", ylab="", 
-			main="Ion count per scan", col="blue", lwd=1.25, axes=FALSE)
-	axis(2, las=2, cex.axis=0.8)
-	loc = pretty(min(rt):max(rt), n=8)
-	axis(1, at=loc, cex.axis=0.8)
-	mtext("Total Ion count", side=2, line=5)
-	mtext("Retention Time", side=1, line=2)
-	box()
-	par(op)
+	if (length(ions) > 0 && length(rt) > 0) {
+		## Change margins
+		op <- par(mar=c(4,6,2,2))
+		plot(rt, ions, type="l", xlab="", ylab="", 
+				main="Ion count per scan", col="blue", lwd=1.25, axes=FALSE)
+		axis(2, las=2, cex.axis=0.8)
+		loc = pretty(min(rt):max(rt), n=8)
+		axis(1, at=loc, cex.axis=0.8)
+		mtext("Total Ion count", side=2, line=5)
+		mtext("Retention Time", side=1, line=2)
+		box()
+		par(op)
+	}
 }
 
 read_mzXML <- function(mzXML) {
