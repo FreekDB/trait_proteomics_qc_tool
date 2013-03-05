@@ -564,6 +564,9 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private void prepareChartsInAscendingOrder(boolean flag) {
 		System.out.println("ViewerFrame prepareChartsInAscendingOrder");
+		if (chartPanelList != null) {
+			chartPanelList.clear();
+		}
         int yCoordinate = 0;
         System.out.println("No. of orderedReportUnits = " + orderedReportUnits.size());
         for (int i = 0; i < orderedReportUnits.size(); ++i) {
