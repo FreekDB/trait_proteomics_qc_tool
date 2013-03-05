@@ -128,8 +128,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 	    splitPane2.add(new JScrollPane(desktopPane));
 	    ticGraphPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, 2 * CHART_HEIGHT));
 	    splitPane2.add(new JScrollPane(ticGraphPane));
-	    //Set initial tic Graph
-	    setTicGraphPaneChart(0);
+	    //Set initial tic Graph - specify complete chart in terms of orderedReportUnits
+	    setTicGraphPaneChart(orderedReportUnits.get(0).getReportNum() - 1);
 	    splitPane2.setOneTouchExpandable(true); //hide-show feature
 	    splitPane2.setDividerLocation(500); //DesktopPane holding graphs will appear 500 pixels large
         splitPane1.add(controlFrame);
@@ -339,7 +339,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         return controlFrame;
     }
     
-    private void setTicGraphPaneChart(int reportNum) {
+    private void setTicGraphPaneChart  (int reportNum) {
     	System.out.println("ViewerFrame setTicGraphPaneChart " + reportNum);
 	    if (ticGraphPane != null) {
 	    	ticGraphPane.removeAll();
@@ -524,7 +524,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 					}
 				}
 				orderedReportUnits.add(insertAtIndex, reportUnits.get(i)); //Add to specified index
-				System.out.println("i = " + i + " insertAtIndex = " + insertAtIndex + " new size = " + orderedReportUnits.size());
+				//System.out.println("i = " + i + " insertAtIndex = " + insertAtIndex + " new size = " + orderedReportUnits.size());
 			}	
 		} else if (sortParam.equals("Compare")) { 
 			//Check checkboxflag status and group those reports together at the beginning of orderedReportUnits 
@@ -548,10 +548,11 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 	    }
 		if (sortOrder.equals("Asc")) {
 			prepareChartsInAscendingOrder(true);
-			setTicGraphPaneChart(0); //Set first report graph in the Tic Pane
+			//Set first report graph in the Tic Pane. -1 adjusts to the index. 
+			setTicGraphPaneChart(orderedReportUnits.get(0).getReportNum() - 1); 
 		} else if (sortOrder.equals("Des")) {
 			prepareChartsInAscendingOrder(false);
-			setTicGraphPaneChart(orderedReportUnits.size()-1); ////Set last report graph in the Tic Pane
+			setTicGraphPaneChart(orderedReportUnits.get(orderedReportUnits.size()-1).getReportNum() - 1); ////Set last report graph in the Tic Pane
 		}
 		currentSortCriteria = newSortCriteria; 
 		newSortCriteria = "";
@@ -714,9 +715,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 	
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
-		System.out.println("mouseClicked X = " + arg0.getX() + " Y = " + arg0.getY() + 
-				" X on screen = " + arg0.getXOnScreen() + " Y on screen = " + arg0.getYOnScreen()
-				+ " Component class = " + arg0.getComponent().getClass().getName());
 		Component clickedComponent = arg0.getComponent(); 
 		if (clickedComponent.getClass().getName().equals("javax.swing.JInternalFrame")) {
 			JInternalFrame clickedFrame = (JInternalFrame) clickedComponent;
@@ -727,24 +725,19 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
-		System.out.println("mouseEntered");
 	}
 
 	@Override
 	public void mouseExited(MouseEvent arg0) {
-		System.out.println("mouseExited");
 	}
 
 	@Override
 	public void mousePressed(MouseEvent arg0) {
-		System.out.println("MousePressed");
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
-		System.out.println("mouseReleased");
 	}
-
 
 }
 
