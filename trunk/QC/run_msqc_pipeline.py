@@ -10,6 +10,7 @@ from pkg_resources import resource_filename # @UnresolvedImport
 from shutil import move, copy
 from string import Template
 from subprocess import check_call
+from subprocess import check_output
 from time import gmtime, strftime, time
 from datetime import datetime
 import logging as log
@@ -17,6 +18,7 @@ import shutil
 import os
 import tempfile
 import glob
+import subprocess
 
 __author__ = "Marcel Kempenaar"
 __contact__ = "brs@nbic.nl"
@@ -65,7 +67,6 @@ def qc_pipeline(indir, outdir, copylog):
         # Set for current file and move file to output directory
         basename = splitext(rawfile)[0]
         working_dir = tempfile.mkdtemp(suffix='_QC', prefix=basename, dir=outdir)
-
         # The following lines set the path to the RAW file to its original location
         original_path = normpath('{0}/{1}'.format(indir, rawfile))
         abs_rawfile_path = original_path
@@ -76,18 +77,23 @@ def qc_pipeline(indir, outdir, copylog):
         abs_inputfile_path = outdir + '\\' + rawfile
         print("@Performance : Copying rawfile to newinputfilename ", abs_inputfile_path, datetime.now()) 
         shutil.copy(abs_rawfile_path, abs_inputfile_path);
-
-        # Create folder to contain html report
-        webdir = _manage_paths(basename)
-        # Run QC workflow - for performance improvement, use abs_inputfile_path instead of abs_rawfile_path
-        #_raw_format_conversions(abs_rawfile_path, working_dir)
-        _raw_format_conversions(abs_inputfile_path, working_dir)
-        #_run_nist(abs_rawfile_path, working_dir)
-        #_run_nist(abs_inputfile_path, working_dir)
-        _run_r_script(working_dir, webdir, basename)
-        #metrics = create_metrics(working_dir, abs_rawfile_path, t_start)
-        metrics = create_metrics(working_dir, abs_inputfile_path, t_start)
-        _create_report(webdir, basename, metrics)
+        output = "Processing Completed"
+        try:
+            # Create folder to contain html report
+            webdir = _manage_paths(basename)
+            # Run QC workflow - for performance improvement, use abs_inputfile_path instead of abs_rawfile_path
+            #_raw_format_conversions(abs_rawfile_path, working_dir)
+            _raw_format_conversions(abs_inputfile_path, working_dir)
+            #_run_nist(abs_rawfile_path, working_dir)
+            #_run_nist(abs_inputfile_path, working_dir)
+            _run_r_script(working_dir, webdir, basename)
+            #metrics = create_metrics(working_dir, abs_rawfile_path, t_start)
+            metrics = create_metrics(working_dir, abs_inputfile_path, t_start)
+            _create_report(webdir, basename, metrics)
+        except subprocess.CalledProcessError, e:
+            print("@error : ", e.output, datetime.now())
+            output = e.output
+        print("@output : ", output)
         #Cleanup the abs_inputfile_path
         os.remove(abs_inputfile_path)
         # Update log-file showing completed analysis
@@ -323,7 +329,9 @@ def _raw_format_conversions(raw_file, outdir):
                  '--filter',
                  '"peakPicking true 1"']
     """
-    mzxml_cmd = '{0} {1} -o {2} --mzXML -e .RAW.mzXML --filter "peakPicking true 1"'.format(msconvert, raw_file, outdir)
+    #mzxml_cmd = '{0} {1} -o {2} --mzXML -e .RAW.mzXML --filter "peakPicking true 1"'.format(msconvert, raw_file, outdir)
+    #Experimenting with 32 bit msconvert option
+    mzxml_cmd = '{0} {1} -o {2} --mzXML -e .RAW.mzXML --32 --filter "peakPicking true 1"'.format(msconvert, raw_file, outdir)
     mgf_cmd = [msconvert,
                raw_file,
                '-o', outdir,
@@ -332,10 +340,11 @@ def _raw_format_conversions(raw_file, outdir):
 
     # Execute msconvert for both output files
     log.info('\tConverting to mzXML..')
-    check_call(mzxml_cmd)
+    #check_call(mzxml_cmd)
+    #Experimenting with check_output
+    check_output(mzxml_cmd)
     #log.info('\tConverting to MGF..')
     #check_call(mgf_cmd)
-
 
 def _cleanup(outdir):
     '''
