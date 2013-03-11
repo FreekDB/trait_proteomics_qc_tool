@@ -1,10 +1,10 @@
-#Tue Mar 05 10:17:28 CET 2013
+#Mon Mar 11 09:34:15 CET 2013
 RootFolder=C\:\\Program Files (x86)\\Apache Software Foundation\\Apache2.2\\htdocs\\ctmm
 GUIVersion=2
+ShowReportsFromDate=
 BottomColumnNames=Heatmap, Ioncount
 TopColumnNamesV2=No.,File Size(MB),MS1Spectra,MS2Spectra,Measured,Runtime(hh\:mm\:ss),maxIntensity
 TopColumnNamesV1=No., File Size(MB), MS1Spectra, MS2Spectra, Measured(yyyy/mmm/dd), Runtime(hh\:mm\:ss), Heatmap, Ioncount
 DefaultReportsDisplayPeriod=14
 Server=10.13.1.103
-ShowReportsFromDate=19/02/2013
-ShowReportsTillDate=05/03/2013
+ShowReportsTillDate=

@@ -110,7 +110,7 @@ public class ReportReader extends JFrame {
         }
         if (!allErrorMessages.equals("")) {
         	saveErrorMessages(allErrorMessages);
-        	JOptionPane.showMessageDialog(this, allErrorMessages, "Errors",JOptionPane.ERROR_MESSAGE);
+        	JOptionPane.showMessageDialog(this, allErrorMessages, "MSQC Check Warning Messages",JOptionPane.ERROR_MESSAGE);
         }
         return reportUnits;
     }
