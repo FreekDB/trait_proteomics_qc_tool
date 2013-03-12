@@ -75,27 +75,43 @@ def qc_pipeline(indir, outdir, copylog):
         #copy(original_path, abs_rawfile_path)
         #Copy rawfile to inputfile
         abs_inputfile_path = outdir + '\\' + rawfile
-        print("@Performance : Copying rawfile to newinputfilename ", abs_inputfile_path, datetime.now()) 
-        shutil.copy(abs_rawfile_path, abs_inputfile_path);
-        output = "Processing Completed"
         try:
+            print("@Stage 1: Preparation: Copying rawfile to newinputfilename ", abs_rawfile_path, abs_inputfile_path, datetime.now()) 
+            shutil.copy(abs_rawfile_path, abs_inputfile_path);
+            print("@Stage 1 completed. Input file is ", abs_inputfile_path, datetime.now()) 
+            output = ("MSQC pipeline processing successfully completed for file ", abs_rawfile_path)
+            print("@Stage 2: Preparation: Creating folder to write QC report in html form", datetime.now()) 
             # Create folder to contain html report
             webdir = _manage_paths(basename)
+            print("@Stage 2 completed. Report folder is ", webdir, datetime.now()) 			
             # Run QC workflow - for performance improvement, use abs_inputfile_path instead of abs_rawfile_path
             #_raw_format_conversions(abs_rawfile_path, working_dir)
+            print("@Stage 3: Conversion: Converting RAW file to mzXML format", datetime.now()) 
             _raw_format_conversions(abs_inputfile_path, working_dir)
+            print("@Stage 3 completed. ", datetime.now()) 			
             #_run_nist(abs_rawfile_path, working_dir)
             #_run_nist(abs_inputfile_path, working_dir)
+            print("@Stage 4: Running R Script on mzXML file for heatmap and TIC analysis", datetime.now()) 			
             _run_r_script(working_dir, webdir, basename)
+            print("@Stage 4 completed. ", datetime.now())			
             #metrics = create_metrics(working_dir, abs_rawfile_path, t_start)
+            print("@Stage 5: Calculating QC metrics values", datetime.now()) 						
             metrics = create_metrics(working_dir, abs_inputfile_path, t_start)
+            print("@Stage 5 completed. ", datetime.now())
+            print("@Stage 6: Creating metrics report in ", webdir, datetime.now()) 	
             _create_report(webdir, basename, metrics)
+            print("@Stage 6 completed. ", datetime.now())
+            print("@Stage 7: Cleanup temporary files from ", abs_inputfile_path, datetime.now()) 	
+			#Cleanup the abs_inputfile_path
+            os.remove(abs_inputfile_path)
+            print("@Stage 7 completed. ", datetime.now())
         except subprocess.CalledProcessError, e:
             print("@error : ", e.output, datetime.now())
             output = e.output
+        except IOError as e:
+            print ("I/O error({0}): {1}".format(e.errno, e.strerror), datetime.now())
+            output = e.strerror
         print("@output : ", output)
-        #Cleanup the abs_inputfile_path
-        os.remove(abs_inputfile_path)
         # Update log-file showing completed analysis
         _log_progress(_PROGRES_LOG, rawfile, 'completed')
 
