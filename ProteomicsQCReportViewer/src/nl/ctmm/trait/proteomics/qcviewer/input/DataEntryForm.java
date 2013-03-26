@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
@@ -92,9 +94,15 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 	    	preferredRootDirectory = chooser.getSelectedFile().getAbsolutePath();
 	       System.out.println("You chose to open this folder: " +
 	            chooser.getSelectedFile().getAbsolutePath());
-	    }
-	    updatePreferredRootDirectory(preferredRootDirectory);
-		new Main().runReportViewer();
+		    updatePreferredRootDirectory(preferredRootDirectory);
+		    if (parentViewerFrame != null) {
+				System.out.println("Cleaning everything and restarting..");
+				parentViewerFrame.clean();
+				parentViewerFrame.dispose();
+			}
+		    dispose();
+			new Main().runReportViewer();
+	    } 
 	 }
 	
     public void displayRootDirectoryEntryForm () {
@@ -110,7 +118,12 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
   	  	SUBMIT.addActionListener(this);
   	  	SUBMIT.setActionCommand("SUBMITDIR");
   	  	CANCEL.addActionListener(this);
-  	  	CANCEL.setActionCommand("CANCELDIR");
+  	  	//CANCEL.setActionCommand("CANCELDIR");
+  	  	CANCEL.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
+				dispose();
+			}
+		});
     	JPanel warningPanel = new JPanel(new GridLayout(1,1));
     	warningPanel.add(instruction);
     	JPanel inputPanel = new JPanel(new GridLayout(2,2));
@@ -137,14 +150,37 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
     	JLabel label = new JLabel();
     	label.setText("Server IP:");
     	inputText = new JTextField(15);
+    	inputText.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                //Process event like Submit button pressed
+            	System.out.println("Enter pressed in server settings..");
+            	String preferredServer = inputText.getText();
+    			if (!preferredServer.trim().equals("")) { //appProperty not empty
+    				System.out.println("Preferred web server= " + preferredServer);
+    				dispose();
+    				if (parentMain != null) {
+    					updatePreferredServer(preferredServer);
+    					parentMain.runReportViewer();
+    				} else if (parentViewerFrame != null) {
+    					System.out.println("Invoke parentViewerFrame methods");
+    					parentViewerFrame.clean();
+    					parentViewerFrame.dispose();
+    					updatePreferredServer(preferredServer);
+    					new Main().runReportViewer();
+    				}
+    			}
+            }});
     	JButton SUBMIT = new JButton("SUBMIT");
     	SUBMIT.setPreferredSize(new Dimension(50, 20));
     	JButton CANCEL = new JButton("CANCEL"); 
     	CANCEL.setPreferredSize(new Dimension(50, 20));
   	  	SUBMIT.addActionListener(this);
   	  	SUBMIT.setActionCommand("SUBMITSER");
-  	  	CANCEL.addActionListener(this);
-  	  	CANCEL.setActionCommand("CANCELSER");
+  	    CANCEL.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
+				dispose();
+			}
+		});
     	JPanel warningPanel = new JPanel(new GridLayout(1,1));
     	warningPanel.add(instruction);
     	JPanel inputPanel = new JPanel(new GridLayout(2,2));
@@ -196,6 +232,7 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
     
 	@Override
 	 public void actionPerformed(ActionEvent ae) {
+		System.out.println("DataEntryFrame Action command = " + ae.getActionCommand());
 		if (ae.getActionCommand().equals("SUBMITDIR")) {
 			String preferredRootDirectory = inputText.getText();
 			if (!preferredRootDirectory.trim().equals("")) { //appProperty not empty
@@ -206,28 +243,33 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 					parentMain.runReportViewer();
 				} else if (parentViewerFrame != null) {
 					System.out.println("Invoke parentViewerFrame methods");
+					parentViewerFrame.clean();
 					parentViewerFrame.dispose();
 					updatePreferredRootDirectory(preferredRootDirectory);
 					new Main().runReportViewer();
 				}
-				
 			} else displayErrorMessage ("Enter valid root directory.");
 		} else if (ae.getActionCommand().equals("SUBMITSER")) {
 			String preferredServer = inputText.getText();
 			if (!preferredServer.trim().equals("")) { //appProperty not empty
-				System.out.println("Preferred root directory = " + preferredServer);
+				System.out.println("Preferred web server= " + preferredServer);
 				dispose();
 				if (parentMain != null) {
 					updatePreferredServer(preferredServer);
 					parentMain.runReportViewer();
 				} else if (parentViewerFrame != null) {
 					System.out.println("Invoke parentViewerFrame methods");
+					parentViewerFrame.clean();
 					parentViewerFrame.dispose();
 					updatePreferredServer(preferredServer);
 					new Main().runReportViewer();
 				}
 			}
 		} else if (ae.getActionCommand().startsWith("CANCEL")) {
+			if (parentViewerFrame != null) {
+				System.out.println("Invoke parentViewerFrame methods");
+				parentViewerFrame.clean();
+			}
 			dispose();
 		}
 	}
@@ -268,8 +310,11 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 		p2.add(b2);
 		
 		JButton b3 = new JButton("Submit");
-		JPanel p3 = new JPanel();
+		JButton b4 = new JButton("Cancel");
+
+		JPanel p3 = new JPanel(new GridLayout(1,2));
 		p3.add(b3);
+		p3.add(b4);
 		
 		JPanel p4 = new JPanel(new GridLayout(3,1));
 		p4.add(p1, 0);
@@ -279,6 +324,17 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 		pack();
 		RefineryUtilities.centerFrameOnScreen(this);
 		setVisible(true);
+		
+		/*addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+            	if (parentViewerFrame != null) {
+    				System.out.println("You choose to Cancel date selection.. cleaning everything..");
+    				parentViewerFrame.clean();
+    				System.exit(0);
+    			}
+            }
+        });*/
+		
 		b1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
 				text1.setText(new DatePicker().setPickedDate());
@@ -318,6 +374,11 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 						e.printStackTrace();
 					} 
 				}
+			}
+		});
+		b4.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
+				dispose();
 			}
 		});
 	}

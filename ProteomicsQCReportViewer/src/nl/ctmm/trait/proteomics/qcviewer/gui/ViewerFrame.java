@@ -240,9 +240,19 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         JLabel minLabel = new JLabel("Min: ");
         minText = new JFormattedTextField(NumberFormat.getInstance());
         minText.setPreferredSize(new Dimension(20, 20));
+        minText.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+            	ZoomMinMax();
+            }
+        });
         JLabel maxLabel = new JLabel("Max: ");
         maxText = new JFormattedTextField(NumberFormat.getInstance());
         maxText.setPreferredSize(new Dimension(20, 20));
+        maxText.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+            	ZoomMinMax();
+            }
+        });
         JButton zoomButton = new JButton("Zoom");
         zoomButton.setActionCommand("ZoomMinMax");
         zoomButton.addActionListener(this);
@@ -339,7 +349,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         return controlFrame;
     }
     
-    private void setTicGraphPaneChart  (int reportNum) {
+    private void setTicGraphPaneChart(int reportNum) {
     	System.out.println("ViewerFrame setTicGraphPaneChart " + reportNum);
 	    if (ticGraphPane != null) {
 	    	ticGraphPane.removeAll();
@@ -366,6 +376,43 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 	public void stateChanged(ChangeEvent e) {
 	}
 	
+	
+	private void ZoomMinMax() {
+		String minValue = minText.getText();
+		String maxValue = maxText.getText();
+		int min = 0, max = 99; 
+		try {
+			min = Integer.parseInt(minValue); 
+			max = Integer.parseInt(maxValue); 
+		} catch (NumberFormatException e) {
+			JOptionPane.showMessageDialog(this,"Incorrect min or max. Resetting to 10 and 80",
+					  "Error",JOptionPane.ERROR_MESSAGE);
+			minText.setText("10");
+			maxText.setText("80");
+			min = 10; 
+			max = 80; 
+		}
+		if (min < 0 || max > 99 || min > 99 || max < 1 || min > max) {
+			JOptionPane.showMessageDialog(this,"Incorrect min or max. Resetting to 10 and 80",
+					  "Error",JOptionPane.ERROR_MESSAGE);
+			minText.setText("10");
+			maxText.setText("80");
+			min = 10; 
+			max = 80; 
+		}
+		System.out.println("minValue = " + minValue + " maxValue = " + maxValue + " min = " + min + " max = " + max);
+		Iterator<ChartPanel> it = chartPanelList.iterator();
+		System.out.println("Number of chart panels = " + chartPanelList.size());
+		while(it.hasNext()) {
+			ChartPanel cPanel = (ChartPanel) it.next();
+			JFreeChart chart = cPanel.getChart(); 
+			XYPlot plot = (XYPlot) chart.getPlot();
+			plot.getDomainAxis().setRange(min, max);
+			cPanel.setRefreshBuffer(true);
+			cPanel.repaint();
+		}
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent evt) {
 		System.out.println("Corresponding action command is " + evt.getActionCommand() 
@@ -375,39 +422,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 			OpenBrowser.openURL(evt.getActionCommand().trim());
 		} //Check whether zoom to particular range is pressed 
 		else if (evt.getActionCommand().equals("ZoomMinMax")) { 
-			String minValue = minText.getText();
-			String maxValue = maxText.getText();
-			int min = 0, max = 99; 
-			try {
-				min = Integer.parseInt(minValue); 
-				max = Integer.parseInt(maxValue); 
-			} catch (NumberFormatException e) {
-				JOptionPane.showMessageDialog(this,"Incorrect min or max. Resetting to 10 and 80",
-						  "Error",JOptionPane.ERROR_MESSAGE);
-				minText.setText("10");
-				maxText.setText("80");
-				min = 10; 
-				max = 80; 
-			}
-			if (min < 0 || max > 99 || min > 99 || max < 1 || min > max) {
-				JOptionPane.showMessageDialog(this,"Incorrect min or max. Resetting to 10 and 80",
-						  "Error",JOptionPane.ERROR_MESSAGE);
-				minText.setText("10");
-				maxText.setText("80");
-				min = 10; 
-				max = 80; 
-			}
-			System.out.println("minValue = " + minValue + " maxValue = " + maxValue + " min = " + min + " max = " + max);
-			Iterator<ChartPanel> it = chartPanelList.iterator();
-			System.out.println("Number of chart panels = " + chartPanelList.size());
-			while(it.hasNext()) {
-				ChartPanel cPanel = (ChartPanel) it.next();
-				JFreeChart chart = cPanel.getChart(); 
-				XYPlot plot = (XYPlot) chart.getPlot();
-				plot.getDomainAxis().setRange(min, max);
-				cPanel.setRefreshBuffer(true);
-				cPanel.repaint();
-			}
+			ZoomMinMax();
 		} //Check whether zoom in - all is selected
 		else if (evt.getActionCommand().equals("Zoom In")) {
 			Iterator<ChartPanel> it = chartPanelList.iterator();
@@ -446,19 +461,19 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 		} else if (evt.getActionCommand().equals("ChangeRootDirectory")) {
 			//Get new location to read reports from
         	DataEntryForm deForm = new DataEntryForm(this, appProperties);
-        	clean();
-        	dispose();
+        	//clean();
+        	//dispose();
         	deForm.displayRootDirectoryChooser();
 		} else if (evt.getActionCommand().equals("ChangeServer")) {
-			//Get new location to read reports from
-			clean();
-        	dispose();
+			//Get new server location to read web-based report
+			//clean();
+        	//dispose();
         	DataEntryForm deForm = new DataEntryForm(this, appProperties);
         	deForm.displayPreferredServerEntryForm();
 		} else if (evt.getActionCommand().equals("SetFilter")) {
 			//Get new location to read reports from
-			clean();
-        	dispose();
+			//clean();
+        	//dispose();
         	DataEntryForm deForm = new DataEntryForm(this, appProperties);
         	deForm.displayDateFilterEntryForm();
 		} else if (evt.getActionCommand().equals("Refresh")) {
@@ -468,7 +483,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 		}
 	}
 	
-	private void clean() {
+	public void clean() {
 		if (desktopPane != null) {
 			desktopPane.removeAll();
 			desktopPane = null;
