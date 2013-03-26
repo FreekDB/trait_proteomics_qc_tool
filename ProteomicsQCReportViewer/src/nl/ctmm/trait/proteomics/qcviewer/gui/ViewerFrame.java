@@ -18,6 +18,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -144,7 +145,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     }
     
     /**
-     * Create Menu Bar for settings tab
+     * Create Menu Bar for settings and about tab
      */
     private JMenuBar createMenuBar() {
     	JMenuBar menuBar = new JMenuBar();
@@ -162,6 +163,10 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     	settingsMenu.add(filterAction);
     	filterAction.setActionCommand("SetFilter");
     	filterAction.addActionListener(this);
+    	JMenuItem aboutAction = new JMenuItem("About...");
+    	settingsMenu.add(aboutAction);
+    	aboutAction.setActionCommand("About");
+    	aboutAction.addActionListener(this);    	
     	JMenuItem newRefAction = new JMenuItem("Refresh");
     	settingsMenu.add(newRefAction);
     	newRefAction.setActionCommand("Refresh");
@@ -461,25 +466,23 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 		} else if (evt.getActionCommand().equals("ChangeRootDirectory")) {
 			//Get new location to read reports from
         	DataEntryForm deForm = new DataEntryForm(this, appProperties);
-        	//clean();
-        	//dispose();
         	deForm.displayRootDirectoryChooser();
 		} else if (evt.getActionCommand().equals("ChangeServer")) {
 			//Get new server location to read web-based report
-			//clean();
-        	//dispose();
         	DataEntryForm deForm = new DataEntryForm(this, appProperties);
         	deForm.displayPreferredServerEntryForm();
 		} else if (evt.getActionCommand().equals("SetFilter")) {
 			//Get new location to read reports from
-			//clean();
-        	//dispose();
         	DataEntryForm deForm = new DataEntryForm(this, appProperties);
         	deForm.displayDateFilterEntryForm();
 		} else if (evt.getActionCommand().equals("Refresh")) {
 			clean();
 			dispose();
 			new Main().runReportViewer();
+		} else if (evt.getActionCommand().equals("About")) {
+			System.out.println("Pressed About button..");
+			JOptionPane.showMessageDialog(this,"Soon you will see more information about this software.",
+					  "Status",JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
 	
