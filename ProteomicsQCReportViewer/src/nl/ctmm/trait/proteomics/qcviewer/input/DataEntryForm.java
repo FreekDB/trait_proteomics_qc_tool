@@ -368,6 +368,11 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
+							if (parentViewerFrame != null) {
+								System.out.println("Invoke parentViewerFrame methods");
+								parentViewerFrame.clean();
+								parentViewerFrame.dispose();
+							}
 							new Main().runReportViewer();
 						}
 					} catch (ParseException e) {
