@@ -1,0 +1,4 @@
+04/04/13 10:35:18
+ProMS Version: Verion 1.9.5.3    January 14, 2013
+Initial input:	1
+There is no proms.ini file. Exit.

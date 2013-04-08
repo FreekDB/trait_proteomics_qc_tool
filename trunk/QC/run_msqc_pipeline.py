@@ -37,7 +37,8 @@ _PROGRES_LOG = normpath('{0}/{1}'.format(_WEB_DIR, 'qc_status.log'))
 # Root folder for the QC pipeline
 _QC_HOME = normpath('C:/qc-data/QCArchive27Feb/archive/QC')
 # NIST pipeline folder (by default located within _QC_HOME)
-_NIST = normpath('NISTMSQCv1_2_0_CTMM')
+# _NIST = normpath('NISTMSQCv1_2_0_CTMM')
+_NIST = normpath('NISTMSQCv1_5_0')
 
 def qc_pipeline(indir, outdir, copylog):
     """Checks input directory for new RAW files to analyze, keeping track
@@ -74,36 +75,43 @@ def qc_pipeline(indir, outdir, copylog):
         #abs_rawfile_path = normpath('{0}/{1}'.format(working_dir, rawfile))
         #copy(original_path, abs_rawfile_path)
         #Copy rawfile to inputfile
-        abs_inputfile_path = outdir + '\\' + rawfile
+        abs_inputfile_path = working_dir + '\\' + rawfile
+        print("Indir is ", indir)
+        print("Outdir is ", outdir)
+        print("Working_dir is ", working_dir)
         try:
-            print("@Stage 1: Preparation: Copying rawfile to newinputfilename ", abs_rawfile_path, abs_inputfile_path, datetime.now()) 
-            shutil.copy(abs_rawfile_path, abs_inputfile_path);
-            print("@Stage 1 completed. Input file is ", abs_inputfile_path, datetime.now()) 
+            print("@Stage 1: Preparation: Copying rawfile to newinputfilename ", abs_rawfile_path, abs_inputfile_path, datetime.now())   
+            shutil.copy(abs_rawfile_path, abs_inputfile_path)   
+            print("@Stage 1 completed. Input file is ", abs_inputfile_path, datetime.now())  
             output = ("MSQC pipeline processing successfully completed for file ", abs_rawfile_path)
-            print("@Stage 2: Preparation: Creating folder to write QC report in html form", datetime.now()) 
+            print("@Stage 2: Preparation: Creating folder to write QC report in html form", datetime.now())   
             # Create folder to contain html report
-            webdir = _manage_paths(basename)
-            print("@Stage 2 completed. Report folder is ", webdir, datetime.now()) 			
+            webdir = _manage_paths(basename)  
+            print("@Stage 2 completed. Report folder is ", webdir, datetime.now())
             # Run QC workflow - for performance improvement, use abs_inputfile_path instead of abs_rawfile_path
             #_raw_format_conversions(abs_rawfile_path, working_dir)
-            print("@Stage 3: Conversion: Converting RAW file to mzXML format", datetime.now()) 
-            _raw_format_conversions(abs_inputfile_path, working_dir)
-            print("@Stage 3 completed. ", datetime.now()) 			
-            #_run_nist(abs_rawfile_path, working_dir)
+            #print("@Stage 3: Conversion: Converting RAW file to mzXML format", datetime.now())  --remove comment for QC-lite 
+            #_raw_format_conversions(abs_inputfile_path, working_dir) --remove comment for QC-lite
+            #print("@Stage 3 completed. ", datetime.now())  --remove comment for QC-lite 			
             #_run_nist(abs_inputfile_path, working_dir)
+            #_run_nist(indir, abs_rawfile_path, working_dir)
+            print("@Stage 3: Running NIST pipeline for QC-Full", datetime.now()) 
+            _run_nist(working_dir, abs_inputfile_path, working_dir)
+            print("@Stage 3 completed. ", datetime.now()) 
             print("@Stage 4: Running R Script on mzXML file for heatmap and TIC analysis", datetime.now()) 			
             _run_r_script(working_dir, webdir, basename)
-            print("@Stage 4 completed. ", datetime.now())			
+            print("@Stage 4 completed. ", datetime.now())  		
             #metrics = create_metrics(working_dir, abs_rawfile_path, t_start)
-            print("@Stage 5: Calculating QC metrics values", datetime.now()) 						
-            metrics = create_metrics(working_dir, abs_inputfile_path, t_start)
-            print("@Stage 5 completed. ", datetime.now())
-            print("@Stage 6: Creating metrics report in ", webdir, datetime.now()) 	
-            _create_report(webdir, basename, metrics)
-            print("@Stage 6 completed. ", datetime.now())
-            print("@Stage 7: Cleanup temporary files from ", abs_inputfile_path, datetime.now()) 	
-			#Cleanup the abs_inputfile_path
-            os.remove(abs_inputfile_path)
+            print("@Stage 5: Calculating QC metrics values", datetime.now())  
+            metrics = create_metrics(working_dir, abs_inputfile_path, t_start) 
+            print("@Stage 5 completed. ", datetime.now()) 
+            print("@Stage 6: Creating metrics report in ", webdir, datetime.now())  
+            _create_report(webdir, basename, metrics)  
+            print("@Stage 6 completed. ", datetime.now()) 
+            #TODO: Selectively cleanup mzXML and other files
+            print("@Stage 7: Cleanup copied RAW data file from ", abs_inputfile_path, datetime.now())	
+            #Cleanup the abs_inputfile_path 
+            os.remove(abs_inputfile_path) 
             print("@Stage 7 completed. ", datetime.now())
         except subprocess.CalledProcessError, e:
             print("@error : ", e.output, datetime.now())
@@ -116,7 +124,8 @@ def qc_pipeline(indir, outdir, copylog):
         _log_progress(_PROGRES_LOG, rawfile, 'completed')
 
         # Cleanup (remove everything in working directory)
-        _cleanup(working_dir)
+        #TODO: Selectively cleanup mzXML and other files
+        #_cleanup(working_dir)
 
 
 def _get_filelist(indir, copylog):
@@ -232,7 +241,7 @@ def _manage_paths(basename):
     return tree
 
 
-def _run_nist(rawfile, outdir):
+def _run_nist(indir, rawfile, outdir):
     '''
     Starts the NIST metrics workflow using a RAW file as input. Reads parameters
     from a configuration file to pass as arguments to the workflow.
@@ -242,9 +251,9 @@ def _run_nist(rawfile, outdir):
     log.info("Running NIST..")
 
     # NIST settings
-    nist_library = 'ctmmdb'
-    search_engine = 'OMSSA'
-    mode = 'lite'
+    nist_library = 'jurkat'
+    search_engine = 'SpectraST'
+    mode = 'full'
     fasta = normpath('{0}/libs/{1}.fasta'.format(_NIST, nist_library))
     instrument = 'Orbi_HCD'
 
@@ -254,7 +263,7 @@ def _run_nist(rawfile, outdir):
     # a set amount of time (also, it can produce an empty metrics file)
     nist_exe = normpath('{0}/scripts/run_NISTMSQC_pipeline.pl'.format(_NIST))
     nist_cmd = [nist_exe,
-                '--in_dir', rawfile,
+                '--in_dir', indir,
                 '--out_dir', outdir,
                 '--library', nist_library,
                 '--instrument_type', instrument,
@@ -263,7 +272,9 @@ def _run_nist(rawfile, outdir):
                 '--overwrite_searches',
                 '--pro_ms',
                 '--log_file',
-                '--mode', mode]
+                '--mode', mode,
+                '--updated_converter']
+    print nist_cmd
     check_call(nist_cmd, shell=True)
 
     # Rename .msqc metrics file here, as it assumes the name of the containing folder,
@@ -272,6 +283,7 @@ def _run_nist(rawfile, outdir):
     rawfilename = split(splitext(rawfile)[0])[1]
     msqc_original = join(outdir, foldername + '_report.msqc')
     msqc_destination = join(outdir, rawfilename + '.msqc')
+    print ("Renaming original report file ", msqc_original, " to desired report file name ", msqc_destination, "\n")
     move(msqc_original, msqc_destination)
 
 

@@ -27,7 +27,7 @@ def create_metrics(working_dir, abs_rawfile, t_start):
 
     #Start with an empty base
     metrics = {}
-
+    print ("Extracting generic metrics..\n")
     #Add basic metrics that do not require any log files
     metrics['generic'] = _extract_generic_metrics(abs_rawfile, t_start)
 
@@ -36,15 +36,18 @@ def create_metrics(working_dir, abs_rawfile, t_start):
     metrics_logs_path = normpath(working_dir + '/' + os.path.splitext(raw_file_name)[0])
     metrics_file = metrics_logs_path + '.msqc'
     rlogfile = metrics_logs_path + '.RLOG'
+    print ("Metrics MSQC file ", metrics_logs_path, "NIST RLOG file ", rlogfile, "\n")
 
     if os.path.exists(metrics_file):
         #Update metrics with values from NIST pipeline
+        print ("Extracting NIST metrics from MSQC file..\n")
         metrics.update(_extract_nist_metrics(metrics_file))
     else:
         log.warn("NIST metrics file does not exist")
 
     if os.path.exists(rlogfile):
         #Update metrics with some generic metrics
+        print ("Extracting NIST metrics from RLOG file..\n")
         metrics['generic'].update(_extract_rlog_metrics(rlogfile))
     else:
         log.warn("R log file does not exist")
@@ -63,7 +66,8 @@ def _get_default_nist_metrics():
         'ms1': {
             'ms1-1': ['Ion Injection Times for IDs', 1, 'MS1 Median'],
             'ms1-2a': ['MS1 During Middle', 1, 'S/N Median'],
-            'ms1-2b': ['MS1 During Middle', 2, 'TIC Median/1000'],
+            #'ms1-2b': ['MS1 During Middle', 2, 'TIC Median/1000'], nistms_metrics.exe
+            'ms1-2b': ['MS1 During Middle', 2, 'TIC Medi/10000'],
             'ms1-3a': ['MS1 ID Max', 6, '95/5 MidRT'],
             'ms1-3b': ['MS1 ID Max', 1, 'Median'],
             'ms1-5a': ['Precursor m/z - Peptide Ion m/z', 2, 'Median'],
@@ -79,12 +83,13 @@ def _get_default_nist_metrics():
         },
         # Peptide Identification
         'pep': {
+            # FIXME: Failing due to multiple 'Peptide Counts' occurrences
+            #'p-3': ['Peptide Counts', 4, 'Semi/Tryp Peps'], Modified by Pravin. Moved to top for searching
+            'p-3': ['Peptide Counts', 5, 'Semi/Tryp Peps'],
             'p-1': ['MS2 ID Spectra', 5, 'ID Score Median'],
             'p-2a': ['Tryptic Peptide Counts', 3, 'Identifications'],
             'p-2b': ['Tryptic Peptide Counts', 2, 'Ions'],
-            'p-2c': ['Tryptic Peptide Counts', 1, 'Peptides'],
-            # FIXME: Failing due to multiple 'Peptide Counts' occurrences
-            'p-3': ['Peptide Counts', 4, 'Semi/Tryp Peps']
+            'p-2c': ['Tryptic Peptide Counts', 1, 'Peptides']
         },
         # Chromatography
         'chrom': {
@@ -101,12 +106,17 @@ def _get_default_nist_metrics():
         # Ion Source
         'ion': {
             # FIXME: escaping does not work (it does in interactive Python environment)
-            'is-1a': ['MS1 During Middle', 14, 'MS1 Jumps >10x'],
-            'is-1b': ['MS1 During Middle', 15, 'MS1 Falls <.1x'],
+            #'is-1a': ['MS1 During Middle', 14, 'MS1 Jumps >10x'], Modified by Pravin
+            #'is-1b': ['MS1 During Middle', 15, 'MS1 Falls <.1x'], Modified by Pravin
+            'is-1a': ['MS1 During Middle', 20, 'MS1 Jumps >10x'],
+            'is-1b': ['MS1 During Middle', 21, 'MS1 Falls <.1x'],
             'is-2': ['Precursor m/z for IDs', 1, 'Median'],
-            'is-3a': ['Ion IDs by Charge State', 1, 'Charge +1'],
-            'is-3b': ['Ion IDs by Charge State', 3, 'Charge +3'],
-            'is-3c': ['Ion IDs by Charge State', 4, 'Charge +4']
+            #'is-3a': ['Ion IDs by Charge State', 1, 'Charge +1'], Modified by Pravin
+            #'is-3b': ['Ion IDs by Charge State', 3, 'Charge +3'], Modified by Pravin
+            #'is-3c': ['Ion IDs by Charge State', 4, 'Charge +4'] Modified by Pravin
+            'is-3a': ['Ion IDs by Charge State', 2, 'Charge +1'],
+            'is-3b': ['Ion IDs by Charge State', 4, 'Charge +3'],
+            'is-3c': ['Ion IDs by Charge State', 5, 'Charge +4']
         },
         # Dynamic Sampling
         'dyn': {
@@ -130,7 +140,8 @@ def _extract_generic_metrics(rawfile, t_start):
     # Other generic metrics
     generic_metrics['f_size'] = ['File Size (MB)', "%0.1f" % (os.stat(rawfile).st_size / (1024 * 1024.0))]
     generic_metrics['runtime'] = str(datetime.timedelta(seconds=round(time.time() - t_start)))
-    cur_time = time.gmtime()
+    #cur_time = time.gmtime() #Changed by Pravin to localtime() to suite for Daylight Savings Time
+    cur_time = time.localtime()
     generic_metrics['date'] = '{year}/{month}/{day} - {hour}:{min}'.format(year=time.strftime("%Y", cur_time),
                                                                            month=time.strftime("%b", cur_time),
                                                                            day=time.strftime("%d", cur_time),

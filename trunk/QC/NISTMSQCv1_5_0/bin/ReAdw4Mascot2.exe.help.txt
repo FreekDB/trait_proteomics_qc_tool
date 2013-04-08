@@ -1,0 +1,54 @@
+
+ReAdw4Mascot2.exe version 1.2 ConvVer 20120927a
+
+Usage: ReAdw4Mascot2.exe [-option [-option...]] <raw file pathname> [<output path>]
+Options:
+  -c               Centroid the data (meaningfull only if RAW data is a profile)
+   p               Output profile if possible
+  -XmlOrbiMs1Profile  Save Profile FTMS ms1 spectra into mzXml (override -c)
+  -Compression     Use zlib for comrpessing peaks in mzXML.
+  -Rulers          Attempt compression using m/z ruler.
+  -ms1             Also output MS1 spectra and precursor scan no. for MS2.
+                   -ms1 -NoMgf outputs into mzXML file only ms1 spectra.
+  -sep1            Output MS1 spectra in a separate outfile.RAW.MS1
+  -sep             Output MS/MS spectra in separate outfile.RAW.yy.xxx.MGF,
+                   yy=IT, FT, TQ, SQ, TOF, SECT, UnknMS; xxx=cid, hcd, etd,...
+                   In case of -ms1 or -NoPeaks1 assumes -sep1
+  -sepZC           Output MS/MS spectra depending on presence of precursor charge
+                   in separate outfile.RAW.yy.xxx.cz.MGF; c0=no charge, ch has charge
+                   Use instead of -sep option
+  -ftPeakInfoMs1   Output FT-specific peak information (Resolution, Baseline, Noise,
+                   Charge) as peak annotations in ms1 spectra.
+  -ftPeakInfoMsMs  Output FT-specific peak information (Resolution, Baseline, Noise,
+                   Charge) as peak annotations in ms/ms spectra.
+  -metadata        Output Instrument Method, Tune Data, and scan Trailer info.
+  -NoMgf           Do not produce MGF output.
+  -NoMzXml         Do not produce MzXml output.
+  -ChargeMgfOrbi   Include CHARGE in MGF output for LTQ Orbitrap instruments.
+  -MonoisoMgfOrbi  In MGF, PEPMASS=Monoisotopic m/z for LTQ Orbitrap instruments
+  -MonoisoMgf      In MGF, PEPMASS=Monoisotopic m/z if available
+  -FixPepmass      Replace PEPMASS and CHARGE with better ones if found (Orbitrap and FT only)
+  -MaxPI           Include max precursor intensity
+  -PIvsRT_Debug    Include precursor intensity vs RT lines, verbose
+  -PIvsRT          Include precursor intensity vs RT lines
+  -SampleInfo      Output Sample Info into MGF
+  -iTRAQ or -iTRAQ8 RAW file contains iTRAQ 4-plex or iTRAQ 8-plex
+  -NoPeaks         Do not output mass spectral peaks
+  -NoPeaks1        Output ms1 spectra without mass spectral peaks
+  -maxIsoSeqM num  Max number iso sequences per precursor and charge, Millions (default=1.0)
+  -mzDigits num    Number of decimal places in output m/z (default=4)
+  -xpw width       width = Min precursor XIC Peak Width (seconds); default=0.0;
+                   (max. moving average window for preliminary ms1 XIC peak
+                   detection) = 0.5 * (width).
+  -xpm points      points = min. number of ms1 XIC points per minute >19 for condensing
+                   the data, e.g. 32 means 104 points per 3.25 min. default=no condensing
+  -precursorMZ minMz maxMz  output only those ms/ms spectra that have precursor mz inside (minMz, maxMz) interval
+  -xcal            unconditionally use Xcalubur OCX
+  -msfr            unconditionally use Thermo MSFileReader OCX
+  -AutoOrbi        automatically pick the right options based on instrument.
+
+  output path:     Path to the output folder;
+                   if not supplied, the raw file folder is used,
+                   output file name is created by adding extension .mzXML.
+
+              ------ Original ReAdW was created by Patrick Pedrioli -------

@@ -1,0 +1,88 @@
+Number of runs: 1
+M/Z range selection code: 3
+Perform section 15 = 0
+Perform section 50 = 1
+Perform section 52 = 0
+Perform section 55 = 1
+Perform section 56 = 1
+Perform section 57 = 1
+Perform section 60 = 0
+Perform section 61 = 0
+Perform section 62 = 0
+
+
+
+
+Run 1 starts at 04/03/13 10:20:02
+MS file name: E:\qc-data\QCFull\tempinput6\QE1_121213_OPL0000_mq_15.RAW.mzXML
+Data file of identified ions: E:\qc-data\QCFull\tempinput6\QE1_121213_OPL0000_mq_15.RAW.FT.hcd.ch.MGF.pep.xml
+Data file of calculated result: E:\qc-data\QCFull\tempinput6\QE1_121213_OPL0000_mq_15.RAW.TXT
+Search engine: spectrast		Code: 3
+Instrument type: Orbitrap		Code: 2
+Begin to check the given mzXML file: E:\qc-data\QCFull\tempinput6\QE1_121213_OPL0000_mq_15.RAW.mzXML
+The total scan number given at the bigin of the mzXML file is 35108
+The real total scan number by searching the mzXML file is 35108
+
+Begin to find instrument type
+Instrument type: Orbitrap
+Instrument code: 2
+
+initial parameters: 
+Data Range: 3
+Start time(s): 0
+End time(s): 6000
+Included smallest m/z: 0
+Included largest m/z: 2000
+match score threshold = 0.45
+The initial threshold of peak intensity (RA) when reading raw data: 1e-005
+
+Section of massParameters()
+Extract peptide identification infomation
+!!! Can't open search-engine-result file for determining the search engine type. 
+Extract initial unique peptide identification infomation
+Identified total peptide ions = 0
+Identified unique peptide ions = 0
+
+Check if this run has N15 data
+Find RT and m/z ranges
+End of finding RT and m/z ranges
+parameters used in the following calculation: 
+Data Range: 4
+Start time(s): 0
+End time(s): 6000
+Included smallest m/z: 0
+Included largest m/z: 2000
+match score threshold = 0.45
+The initial threshold of peak intensity (RA) when reading raw data: 1e-005
+
+Process general and unique identification info
+End of processing general and unique identification info
+Time used to read and process msp data: 20.311s
+Total identified peptide ion number with 0.45 as match-score cutoff: 0
+Unique identified peptide ion number with 0.45 as match-score cutoff: 0
+Unique identified peptide number with 0.45 as match-score cutoff: 0
+An initial estimation of instrumental m/z error (random + systematic) based on the difference between precursor m/z and theoretical m/z, including repeated identifications.
+Total ions: 0
+Ion number with m/z deviation between theoretical and observed m/z less than 0.02: 0
+m/z range	ion number	average error (m/z)
+Read raw MS data
+The final threshold of peak intensity in RA: 0.01
+totalMS1 = 6490
+totalMS2 = 28618
+End of reading raw MS data
+Start Time 300.108
+End Time 5400.1
+Perform program SampledPeaks to label sampled peaks
+Delete noisy peaks and full calculation
+Total peak numbers before and after the first compressing: 210795 and 72922
+Time used to delete noisy peaks: 0s
+Total peak numbers after denoising and the second compressing: 72922 and 72922
+Time used to denoise and compress peaks (Orbitrap): 0s
+Cluster analysis begins
+Cluster analysis ends
+Time used to group clusters and match msp data: 13.603s
+Totally used time: 59.28s
+Run 1 was finished.
+
+
+

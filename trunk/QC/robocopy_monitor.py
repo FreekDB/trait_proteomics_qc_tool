@@ -26,9 +26,9 @@ __license__ = "MIT"
 # Please note that when running as a service, the tool is unable to access
 # data across a network, the data should be accessible on a local disk.
 # Robocopy needs to put its logfile into the IN_DIR folder (named 'robocopy.*')
-IN_DIR = normpath('C:/Xcalibur/data')
+IN_DIR = normpath('E:/qc-data/QCFull/tempinput2')
 # Temporary storage, is emptied after each run
-OUT_DIR = normpath('C:/QC-pipeline/output')
+OUT_DIR = normpath('E:/qc-data/QCFull/tempoutputscripts')
 # Robocopy log file location (by default located in IN_DIR)
 COPY_LOG = IN_DIR
 
