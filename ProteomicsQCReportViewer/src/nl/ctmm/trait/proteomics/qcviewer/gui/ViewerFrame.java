@@ -66,6 +66,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.Range;
+import org.jfree.ui.RefineryUtilities;
 
 /**
  * ViewerFrame with the GUI for the QC Report Viewer V2.
@@ -163,6 +164,10 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     	settingsMenu.add(filterAction);
     	filterAction.setActionCommand("SetFilter");
     	filterAction.addActionListener(this);
+    	JMenuItem metricsAction = new JMenuItem("Select Metrics...");
+    	settingsMenu.add(metricsAction);
+    	metricsAction.setActionCommand("SelectMetrics");
+    	metricsAction.addActionListener(this);
     	JMenuItem aboutAction = new JMenuItem("About...");
     	settingsMenu.add(aboutAction);
     	aboutAction.setActionCommand("About");
@@ -475,6 +480,13 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 			//Get new location to read reports from
         	DataEntryForm deForm = new DataEntryForm(this, appProperties);
         	deForm.displayDateFilterEntryForm();
+		} else if (evt.getActionCommand().equals("SelectMetrics")) {
+			//Display ChooseMetricsForm to select metrics to display
+        	ChooseMetricsForm cmForm = new ChooseMetricsForm();
+        	cmForm.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        	cmForm.pack();
+        	RefineryUtilities.centerFrameOnScreen(cmForm);
+        	cmForm.setVisible(true);
 		} else if (evt.getActionCommand().equals("Refresh")) {
 			clean();
 			dispose();
