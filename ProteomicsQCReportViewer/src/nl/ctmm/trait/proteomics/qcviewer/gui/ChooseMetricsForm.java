@@ -52,8 +52,8 @@ import java.util.StringTokenizer;
 
 public class ChooseMetricsForm extends JFrame implements ActionListener {
     
-    DefaultListModel from = new DefaultListModel();
-    DefaultListModel move = new DefaultListModel();
+    DefaultListModel<String> from = new DefaultListModel();
+    DefaultListModel<String> move = new DefaultListModel();
     JList dragFrom, moveTo;
     HashMap<String,String> metricsMap;
     
@@ -156,16 +156,19 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         int action; 
         String origin;
         //ToTransferHandler
-        public ToFromTransferHandler(String origin, int action) { //ToTransferHandler
+        public ToFromTransferHandler(String origin, int action) { 
+        	//System.out.println("In ToFromTransferHandler...");
             this.action = action;
             this.origin = origin;
         }
         
         public int getSourceActions(JComponent comp) {
+        	System.out.println("In getSourceActions...");
             return COPY_OR_MOVE;
         }
         
         public Transferable createTransferable(JComponent comp) {
+        	//System.out.println("In createTransferable...");
         	String selection = "";
             if (origin.equalsIgnoreCase("dragFrom")) {
             	index = dragFrom.getSelectedIndex();
@@ -185,22 +188,30 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         }
 
         public void exportDone(JComponent comp, Transferable trans, int action) {
+        	//System.out.println("In exportDone...");
             if (action != MOVE) {
                 return;
             }
             if (origin.equalsIgnoreCase("dragFrom")) {
             	from.removeElementAt(index);
-            	System.out.println("Removed element from dragFrom index " + index);
+            	System.out.println("Removed element: from index " + index + " from size " + from.getSize());
+            	System.out.println("Added element: move size " + move.getSize());
             } else if (origin.equalsIgnoreCase("moveTo")) {
             	move.removeElementAt(index);
-            	System.out.println("Removed element from moveTo index " + index);
+            	System.out.println("Removed element: move index " + index + " move size " + move.getSize());
+            	System.out.println("Added element: from size " + from.getSize());
             }
         }
         
         public boolean canImport(TransferHandler.TransferSupport support) {
-            // for the demo, we'll only support drops (not clipboard paste)
+        	//System.out.println("In canImport...");
             if (!support.isDrop()) {
                 return false;
+            }
+            //check for size of move
+            if (move.getSize() > 5 && origin.equalsIgnoreCase("moveTo")) {
+            	System.out.println("Limit of move list exceeded. Max 6. Origin = " + origin);
+            	return false;
             }
             // we only import Strings
             if (!support.isDataFlavorSupported(DataFlavor.stringFlavor)) {
@@ -215,6 +226,7 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         }
 
         public boolean importData(TransferHandler.TransferSupport support) {
+        	//System.out.println("In importData...");
             // if we can't handle the import, say so
             if (!canImport(support)) {
                 return false;
