@@ -1,10 +1,10 @@
-#Mon Apr 08 13:49:37 CEST 2013
-RootFolder=C\:\\Program Files (x86)\\Apache Software Foundation\\Apache2.2\\htdocs\\ctmm
+#Wed Apr 10 12:32:34 CEST 2013
+RootFolder=C\:\\Eclipse\\eclipse\\workspace\\ProteomicsQCReportViewer\\QCReports\\ctmm
 GUIVersion=2
-ShowReportsFromDate=01/04/2013
+ShowReportsFromDate=01/01/2013
 BottomColumnNames=Heatmap, Ioncount
 TopColumnNamesV2=No.,File Size(MB),MS1Spectra,MS2Spectra,Measured,Runtime(hh\:mm\:ss),maxIntensity
 TopColumnNamesV1=No., File Size(MB), MS1Spectra, MS2Spectra, Measured(yyyy/mmm/dd), Runtime(hh\:mm\:ss), Heatmap, Ioncount
 DefaultReportsDisplayPeriod=14
 Server=10.13.1.103
-ShowReportsTillDate=08/04/2013
+ShowReportsTillDate=10/04/2013
