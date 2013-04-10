@@ -18,7 +18,6 @@ public class ImagesTable extends JTable {
 
 	public ImagesTable(final ImagesTableModel imagesTableModel) {
         super(imagesTableModel);
-
         setShowGrid(true);
         setRowHeightAndColumnWidths();
         setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
