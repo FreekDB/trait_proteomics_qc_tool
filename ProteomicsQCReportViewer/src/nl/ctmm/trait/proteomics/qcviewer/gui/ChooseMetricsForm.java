@@ -123,6 +123,17 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
 	 public void actionPerformed(ActionEvent ae) {
 		System.out.println("DataEntryFrame Action command = " + ae.getActionCommand());
 		if (ae.getActionCommand().equals("SUBMIT")) {
+			//Print contents of move list
+			System.out.print("Printing contents of Move list\n");
+			for (int i = 0; i < move.size(); ++i) {
+				System.out.println("move [" + i + "] = " + move.getElementAt(i));
+			}
+			//Print contents of from list
+			System.out.print("Printing contents of From list\n");
+			for (int i = 0; i < from.size(); ++i) {
+				System.out.println("from [" + i + "] = " + from.getElementAt(i));
+			}
+			dispose();
 		}
 		}
     
@@ -163,7 +174,7 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         }
         
         public int getSourceActions(JComponent comp) {
-        	System.out.println("In getSourceActions...");
+        	//System.out.println("In getSourceActions...");
             return COPY_OR_MOVE;
         }
         
