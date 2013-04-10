@@ -70,7 +70,7 @@ public class DatePicker {
 		d.setVisible(true);
 	}
 
-	public void displayDate() {
+	private void displayDate() {
 		for (int x = 7; x < button.length; x++)
 			button[x].setText("");
 		java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat(

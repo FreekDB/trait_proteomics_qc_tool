@@ -104,45 +104,6 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 			new Main().runReportViewer();
 	    } 
 	 }
-	
-    public void displayRootDirectoryEntryForm () {
-    	JLabel instruction = new JLabel();
-    	instruction.setText("Enter new report folder location:");
-    	JLabel label = new JLabel();
-    	label.setText("Root folder:");
-    	inputText = new JTextField(100);
-    	JButton SUBMIT = new JButton("SUBMIT");
-    	SUBMIT.setPreferredSize(new Dimension(50, 20));
-    	JButton CANCEL = new JButton("CANCEL"); 
-    	CANCEL.setPreferredSize(new Dimension(50, 20));
-  	  	SUBMIT.addActionListener(this);
-  	  	SUBMIT.setActionCommand("SUBMITDIR");
-  	  	CANCEL.addActionListener(this);
-  	  	//CANCEL.setActionCommand("CANCELDIR");
-  	  	CANCEL.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent ae) {
-				dispose();
-			}
-		});
-    	JPanel warningPanel = new JPanel(new GridLayout(1,1));
-    	warningPanel.add(instruction);
-    	JPanel inputPanel = new JPanel(new GridLayout(2,2));
-    	inputPanel.setPreferredSize(new Dimension(120, 40));
-    	inputPanel.add(label);
-    	inputPanel.add(inputText);
-    	inputPanel.add(SUBMIT);
-    	inputPanel.add(CANCEL);
-    	JPanel displayPanel = new JPanel(new GridLayout(2, 1)); 
-    	displayPanel.add(warningPanel, 0);
-    	displayPanel.add(inputPanel, 1);
-    	displayPanel.setPreferredSize(new Dimension(220, 80));
-    	add(displayPanel);
-    	setSize(new Dimension(300, 150));
-    	RefineryUtilities.centerFrameOnScreen(this);
-    	setVisible(true);
-    	repaint();
-    	revalidate();
-    }
     
     public void displayPreferredServerEntryForm () {
     	JLabel instruction = new JLabel();
@@ -203,7 +164,7 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
     /**
      * Sets the preferredRootDirectory 
      */
-    public void updatePreferredRootDirectory(String newRootDirectory) {
+    private void updatePreferredRootDirectory(String newRootDirectory) {
     	System.out.println("Changing root directory to " + newRootDirectory);
     	appProperties.setProperty(Constants.PROPERTY_ROOT_FOLDER, newRootDirectory);
 		try {
@@ -218,7 +179,7 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
     /**
      * Sets the preferredServer 
      */
-    public void updatePreferredServer(String newWebserver) {
+    private void updatePreferredServer(String newWebserver) {
     	System.out.println("Changing server to " + newWebserver);
     	appProperties.setProperty(Constants.PROPERTY_PREFERRED_WEBSERVER, newWebserver);
 		try {
@@ -324,17 +285,6 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 		pack();
 		RefineryUtilities.centerFrameOnScreen(this);
 		setVisible(true);
-		
-		/*addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
-            	if (parentViewerFrame != null) {
-    				System.out.println("You choose to Cancel date selection.. cleaning everything..");
-    				parentViewerFrame.clean();
-    				System.exit(0);
-    			}
-            }
-        });*/
-		
 		b1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
 				text1.setText(new DatePicker().setPickedDate());

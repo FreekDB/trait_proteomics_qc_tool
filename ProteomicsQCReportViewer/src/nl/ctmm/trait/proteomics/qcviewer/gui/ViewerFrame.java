@@ -116,7 +116,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     /**
      * Assemble components of the ViewerFrame
      */
-    public void assembleComponents() { 
+    private void assembleComponents() { 
     	System.out.println("ViewerFrame assembleComponents");
         //We need two split panes to create 3 regions in the main frame
         final JSplitPane splitPane1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -184,7 +184,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      *
      * @param reportUnits the report units to be displayed.
      */
-    public void setReportUnits(final List<ReportUnit> reportUnits) {
+    private void setReportUnits(final List<ReportUnit> reportUnits) {
     	System.out.println("ViewerFrame setReportUnits No. of reportUnits = " + reportUnits.size());
         this.reportUnits = reportUnits;
         //Initialize chartCheckBoxFlags to false
@@ -198,7 +198,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      *
      * @param reportUnits the report units to be displayed.
      */
-    public void setOrderedReportUnits(final List<ReportUnit> reportUnits) {
+    private void setOrderedReportUnits(final List<ReportUnit> reportUnits) {
     	System.out.println("ViewerFrame setOrderedReportUnits No. of reportUnits = " + reportUnits.size());
     	if (orderedReportUnits != null) {
     		orderedReportUnits.clear();
