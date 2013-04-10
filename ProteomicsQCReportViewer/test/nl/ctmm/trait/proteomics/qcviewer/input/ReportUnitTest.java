@@ -23,7 +23,10 @@ public class ReportUnitTest {
      */
     @Before
     public void setUp() {
-        reportUnit = new ReportUnit(REPORT_NUMBER);
+    	/*
+    	 * public ReportUnit(String msrunName, int reportNum)
+    	 */
+        reportUnit = new ReportUnit("msrun" + REPORT_NUMBER, REPORT_NUMBER);
     }
 
     /**
@@ -31,11 +34,12 @@ public class ReportUnitTest {
      */
     @Test
     public void testConstructor() {
+    	Double fileSize = -1.0;
         assertEquals(REPORT_NUMBER, reportUnit.getReportNum());
-        assertNull(reportUnit.getFileSize());
-        assertEquals("", reportUnit.getFileSizeString());
-        assertEquals("", reportUnit.getMs1Spectra());
-        assertEquals("", reportUnit.getMs2Spectra());
+        assertEquals(fileSize, reportUnit.getFileSize());
+        assertEquals("-1.0", reportUnit.getFileSizeString());
+        assertEquals("-1", reportUnit.getMs1Spectra());
+        assertEquals("-1", reportUnit.getMs2Spectra());
         assertEquals("", reportUnit.getMeasured());
         assertEquals("", reportUnit.getRuntime());
         assertNotNull(reportUnit.getHeatmap());

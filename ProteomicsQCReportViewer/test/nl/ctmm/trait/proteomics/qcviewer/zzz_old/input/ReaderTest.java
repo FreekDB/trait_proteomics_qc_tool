@@ -2,7 +2,7 @@ package nl.ctmm.trait.proteomics.qcviewer.zzz_old.input;
 
 import java.util.List;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnit;
-import nl.ctmm.trait.proteomics.qcviewer.zzz_old.input.Reader;
+import nl.ctmm.trait.proteomics.qcviewer.Reader;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 

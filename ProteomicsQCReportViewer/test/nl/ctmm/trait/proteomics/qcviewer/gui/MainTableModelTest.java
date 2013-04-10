@@ -97,8 +97,11 @@ public class MainTableModelTest {
      * @return the new report unit.
      */
     private ReportUnit createReportUnit(final int reportNumber) {
+    	/*public ReportUnit(final String msrunName, final int reportNum, final String fileSizeString, final String ms1Spectra,
+                final String ms2Spectra, final String measured, final String runtime, final BufferedImage heatmap,
+                final BufferedImage ioncount, final String heatmapName, final String ioncountName)*/
         final String s = Integer.toString(reportNumber);
-        return new ReportUnit(reportNumber, s + "1", s + "2", s + "3", s + "4", s + "5", null, null, s + "heatmap.png",
+        return new ReportUnit("msrun", reportNumber, s + "1", s + "2", s + "3", s + "4", s + "5", null, null, s + "heatmap.png",
                               s + "ions.png");
     }
 }

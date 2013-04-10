@@ -82,11 +82,11 @@ public class ViewerPanelTest {
     public void testSetReportUnits() {
         assertEquals(columnCount, viewerPanel.getMainTable().getColumnCount());
         assertEquals(0, viewerPanel.getMainTable().getRowCount());
-
+        /*public ReportUnit(String msrunName, int reportNum)*/
         for (int reportCount = 0; reportCount < 7; reportCount++) {
             final List<ReportUnit> reportUnits = new ArrayList<ReportUnit>();
             for (int reportIndex = 0; reportIndex < reportCount; reportIndex++)
-                reportUnits.add(new ReportUnit(reportIndex));
+                reportUnits.add(new ReportUnit("msrun" + reportIndex, reportIndex));
             viewerPanel.setReportUnits(reportUnits);
             assertEquals("We expect 8 columns.", columnCount, viewerPanel.getMainTable().getColumnCount());
             assertEquals("We expect " + reportUnits.size() + " report units.",
