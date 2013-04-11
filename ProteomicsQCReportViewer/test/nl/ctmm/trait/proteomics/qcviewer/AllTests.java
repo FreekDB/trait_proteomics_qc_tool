@@ -8,6 +8,7 @@ import nl.ctmm.trait.proteomics.qcviewer.gui.ImagesTableModelTest;
 import nl.ctmm.trait.proteomics.qcviewer.gui.ImagesTableTest;
 import nl.ctmm.trait.proteomics.qcviewer.gui.ViewerPanelTest;
 import nl.ctmm.trait.proteomics.qcviewer.gui.ScrollDesktopTest;
+import nl.ctmm.trait.proteomics.qcviewer.input.ChartUnitTest;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportReaderTest;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnitTest;
 import nl.ctmm.trait.proteomics.qcviewer.utils.UtilitiesTest;
@@ -19,7 +20,8 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses(
         {
                 ImageRendererTest.class, MainTableModelTest.class, ReportReaderTest.class, ReportUnitTest.class,
-                UtilitiesTest.class, ViewerPanelTest.class, ImagesTableModelTest.class, ImagesTableTest.class, ScrollDesktopTest.class
+                UtilitiesTest.class, ViewerPanelTest.class, ImagesTableModelTest.class, ImagesTableTest.class, 
+                ScrollDesktopTest.class, ChartUnitTest.class
         }
 )
 

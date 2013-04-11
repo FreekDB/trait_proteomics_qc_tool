@@ -43,7 +43,8 @@ public class ScrollDesktopTest {
         assertEquals(200, scrollDesktop.getScrollableBlockIncrement(null, 0, 0));
         assertFalse("", scrollDesktop.getScrollableTracksViewportWidth());
         assertFalse("", scrollDesktop.getScrollableTracksViewportHeight());
-        assertEquals("Dimension class.", Dimension.class, scrollDesktop.getPreferredScrollableViewportSize());
+        //TODO: Check the Dimension.class result
+        assertEquals("Expecting Dimension class.", Dimension.class, scrollDesktop.getPreferredScrollableViewportSize());
     }
 
 }
