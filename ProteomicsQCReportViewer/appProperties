@@ -1,10 +1,10 @@
-#Mon Apr 15 13:28:25 CEST 2013
-RootFolder=C\:\\Eclipse\\eclipse\\workspace\\ProteomicsQCReportViewer\\QCReports\\ctmm
+#Mon Apr 15 14:33:31 CEST 2013
+RootFolder=C\:\\Program Files (x86)\\Apache Software Foundation\\Apache2.2\\htdocs\\ctmm
 GUIVersion=2
-ShowReportsFromDate=01/01/2013
+ShowReportsFromDate=01/04/2013
 BottomColumnNames=Heatmap, Ioncount
-TopColumnNamesV2=chrom-c-2a\:Middle Peptide Retention Time Period (Half Period),chrom-c-2b\:Middle Peptide Retention Time Period (Pep ID Rate),dyn-ds-1b\:Ratios of Peptide Ions IDed (Twice/Thrice),dyn-ds-3b\:MS1max/MS1sampled Abundance (Med Bottom 1/2),generic-ms1_spectra\:MS1 Spectra,generic-runtime\:runtime,
+TopColumnNamesV2=chrom\:c-4c\:Peak Widths at Half Max over (Median Value),dyn\:ds-1a\:Ratios of Peptide Ions IDed (Once/Twice),dyn\:ds-3b\:MS1max/MS1sampled Abundance (Med Bottom 1/2),ms2\:ms2-1\:Ion Injection Times for IDs (MS2 Median),ms2\:ms2-3\:MS2 ID Spectra (NPeaks Median),pep\:p-2a\:Tryptic Peptide Counts (Identifications),
 TopColumnNamesV1=No., File Size(MB), MS1Spectra, MS2Spectra, Measured(yyyy/mmm/dd), Runtime(hh\:mm\:ss), Heatmap, Ioncount
 DefaultReportsDisplayPeriod=14
 Server=10.13.1.103
-ShowReportsTillDate=10/04/2013
+ShowReportsTillDate=15/04/2013

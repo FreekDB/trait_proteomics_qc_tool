@@ -36,10 +36,10 @@ public class MetricsParser {
         String line;
         try {
     		while ((line = br.readLine()) != null) {
-    		    StringTokenizer st = new StringTokenizer(line, ",");
-    		    // The first token is key of the metrics
-    		    String key = st.nextToken();
-    		    // The second token is the y value.
+    		    StringTokenizer st = new StringTokenizer(line, ":");
+    		    // The first two tokens together form key of the metrics e.g. ion:is-1b
+    		    String key = st.nextToken() + ":" + st.nextToken();
+    		    // The second token is name of the metrics
     		    String value = st.nextToken();
     		    allMetricsMap.put(key, value);
     		}

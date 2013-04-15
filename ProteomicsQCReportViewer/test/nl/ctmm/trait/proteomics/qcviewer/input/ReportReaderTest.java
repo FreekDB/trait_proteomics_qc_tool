@@ -18,13 +18,15 @@ public class ReportReaderTest {
 
     // todo: project name TempQCReportViewerSWT -> TempQCReportViewerSWT?
     // todo: code coverage: Cobertura? CodeCover?
+    MetricsParser mParser = null; 
     
     /**
      * Initialize a <code>ReportReader</code>.
      */
     @Before
     public void setUp() {
-        reportReader = new ReportReader();
+    	MetricsParser mParser = new MetricsParser(null);
+        reportReader = new ReportReader(mParser);
     }
     
     /**
@@ -63,7 +65,7 @@ public class ReportReaderTest {
      */
     @Test
     public void testRetrieveReportsNonExistingDirectoryFreek() {
-        final ReportReader reader = new ReportReader();
+        final ReportReader reader = new ReportReader(mParser);
     	SimpleDateFormat sdf = new SimpleDateFormat ("dd/MM/yyyy"); 
     	String serverAddress = "10.13.1.103";
     	Date fromDate = null, tillDate = null;

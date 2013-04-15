@@ -165,7 +165,7 @@ public class Main{
      * @return the list with report units.
      */
     private List<ReportUnit> getReportUnits(final String rootDirectoryName, String server, Date fromDate, Date tillDate) {
-        return new ReportReader().retrieveReports(rootDirectoryName, server, fromDate, tillDate);
+        return new ReportReader(mParser).retrieveReports(rootDirectoryName, server, fromDate, tillDate);
     }
 
     /**
