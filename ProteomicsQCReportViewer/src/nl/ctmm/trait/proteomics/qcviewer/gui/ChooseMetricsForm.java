@@ -35,6 +35,8 @@ package nl.ctmm.trait.proteomics.qcviewer.gui;
 
 import javax.swing.*;
 
+import nl.ctmm.trait.proteomics.qcviewer.input.MetricsParser;
+
 import org.jfree.data.xy.XYSeries;
 
 import java.awt.*;
@@ -52,19 +54,21 @@ import java.util.StringTokenizer;
 
 public class ChooseMetricsForm extends JFrame implements ActionListener {
     
-    DefaultListModel<String> from = new DefaultListModel();
-    DefaultListModel<String> move = new DefaultListModel();
+	SortedListModel from = new SortedListModel();
+	SortedListModel move = new SortedListModel();
     JList dragFrom, moveTo;
     HashMap<String,String> metricsMap;
+    MetricsParser mParser = null;
+
     
-    public ChooseMetricsForm() {
+    public ChooseMetricsForm(final MetricsParser mParser) {
         super("Select QC-Full Metrics for MSQC Report Viewer");
-        readMetricsListing(); 
+        this.mParser = mParser;
+        metricsMap = this.mParser.getMetricsListing(); 
         for (String key : metricsMap.keySet()) {
         	String value = metricsMap.get(key);
-        	from.add(0, key + ":" + value);
+        	from.add(key + ":" + value);
         }
-        
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         dragFrom = new JList(from);
@@ -123,44 +127,21 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
 	 public void actionPerformed(ActionEvent ae) {
 		System.out.println("DataEntryFrame Action command = " + ae.getActionCommand());
 		if (ae.getActionCommand().equals("SUBMIT")) {
+			//Send list of selected metrics to mParser for updating appProperties
+			mParser.updateMetricsToDisplay(move);
 			//Print contents of move list
 			System.out.print("Printing contents of Move list\n");
-			for (int i = 0; i < move.size(); ++i) {
+			for (int i = 0; i < move.getSize(); ++i) {
 				System.out.println("move [" + i + "] = " + move.getElementAt(i));
 			}
 			//Print contents of from list
 			System.out.print("Printing contents of From list\n");
-			for (int i = 0; i < from.size(); ++i) {
+			for (int i = 0; i < from.getSize(); ++i) {
 				System.out.println("from [" + i + "] = " + from.getElementAt(i));
 			}
 			dispose();
 		}
 		}
-    
-    private void readMetricsListing() {
-    	// Create a HashMap which stores Strings as the keys and values
-    	metricsMap = new HashMap<String,String>();
-    	BufferedReader br = null;
-    	try {
-    		br = new BufferedReader(new FileReader("MetricsListing.txt"));
-    	} catch (FileNotFoundException e) {
-    		e.printStackTrace();
-    	}
-        String line;
-        try {
-    		while ((line = br.readLine()) != null) {
-    		    StringTokenizer st = new StringTokenizer(line, ",");
-    		    // The first token is key of the metrics
-    		    String key = st.nextToken();
-    		    // The second token is the y value.
-    		    String value = st.nextToken();
-    		    metricsMap.put(key, value);
-    		}
-    	    br.close();
-    	} catch (NumberFormatException | IOException e) {
-    		e.printStackTrace();
-    	}
-    }
 
     class ToFromTransferHandler extends TransferHandler {
         private int index = 0;
@@ -255,8 +236,9 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
                 return false;
             }
             JList list = (JList)support.getComponent();
-            DefaultListModel model = (DefaultListModel)list.getModel();
-            model.insertElementAt(data, index);
+            SortedListModel model = (SortedListModel)list.getModel();
+            //model.insertElementAt(data, index);
+            model.add(data);
             Rectangle rect = list.getCellBounds(index, index);
             list.scrollRectToVisible(rect);
             list.setSelectedIndex(index);

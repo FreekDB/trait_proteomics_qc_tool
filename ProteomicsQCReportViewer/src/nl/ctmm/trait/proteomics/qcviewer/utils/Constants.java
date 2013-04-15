@@ -26,4 +26,5 @@ public interface Constants {
     static final String DEFALUT_REPORTS_DISPLAY_PERIOD = "DefaultReportsDisplayPeriod";
     static final String DEFALUT_REPORTS_DISPLAY_PERIOD_VALUE = "14"; //show reports from last two weeks by default
     static final String SIMPLE_DATE_FORMAT_STRING = "dd/MM/yyyy";
+    static final String PROPERTY_METRICS_LISTING_FILE = "MetricsListing.txt";
 }

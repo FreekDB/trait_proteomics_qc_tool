@@ -28,8 +28,8 @@ import org.junit.Test;
 public class ChartUnitTest {
     private static final int REPORT_NUMBER = 6;
 
-    private ChartUnit chartUnit1, chartUnit2;
-    private XYSeries series; 
+    private ChartUnit chartUnit1, chartUnit2, chartUnit3;
+    private XYSeries series1, series2; 
 
     /**
      * Initialize a <code>ChartUnit</code>.
@@ -41,11 +41,16 @@ public class ChartUnitTest {
     	 */
     	String msrunName1 = "msrun1";
     	String msrunName2 = "msrun2";
-    	String ticMatrixFileName = "QCReports\\ctmm\\2013\\Feb\\QE1_121127_OPL1016_DC_Mefopa_CSF_AA3\\QE1_121127_OPL1016_DC_Mefopa_CSF_AA3 _ticmatrix.csv";
-    	File ticMatrixFile = new File(ticMatrixFileName);
-    	series = readXYSeries(msrunName1, ticMatrixFile);
-    	chartUnit1 = new ChartUnit(msrunName1, 1, series);
-    	chartUnit2 = new ChartUnit(msrunName2, 2, null); //initialize with empty series 
+    	String msrunName3 = "msrun3";
+    	String ticMatrixFileName1 = "QCReports\\ctmm\\2013\\Feb\\QE1_121127_OPL1016_DC_Mefopa_CSF_AA3\\QE1_121127_OPL1016_DC_Mefopa_CSF_AA3 _ticmatrix.csv";
+    	File ticMatrixFile1 = new File(ticMatrixFileName1);
+    	series1 = readXYSeries(msrunName1, ticMatrixFile1);
+    	String ticMatrixFileName2 = "QCReports\\ctmm\\2013\\Feb\\QE2_121206_OPL1016_DC_Mefopa_CSF_AF4\\QE2_121206_OPL1016_DC_Mefopa_CSF_AF4 _ticmatrix.csv";
+    	File ticMatrixFile2 = new File(ticMatrixFileName2);
+    	series2 = readXYSeries(msrunName1, ticMatrixFile2);
+    	chartUnit1 = new ChartUnit(msrunName1, 1, series1);
+    	chartUnit2 = new ChartUnit(msrunName2, 2, null); //initialize with empty series
+    	chartUnit3 = new ChartUnit(msrunName3, 3, series2);
     }
 
     /**
@@ -54,9 +59,13 @@ public class ChartUnitTest {
     @SuppressWarnings("deprecation")
 	@Test
     public void testgetMaxTicIntensity() {
-    	double maxIntensity = 22950831906.0;
+    	double maxIntensity1 = 22950831906.0;
+    	double maxIntensity2 = 12888332635.0;
+        System.out.println("maxIntensity1 = " + maxIntensity1 + " Obtained = " + chartUnit1.getMaxTicIntensity());
+        System.out.println("maxIntensity2 = " + maxIntensity2 + " Obtained = " + chartUnit3.getMaxTicIntensity());
         assertEquals(0, chartUnit2.getMaxTicIntensity(), 0);
-        assertEquals(maxIntensity, chartUnit1.getMaxTicIntensity(), 0);
+        assertEquals(maxIntensity1, chartUnit1.getMaxTicIntensity(), 0);
+        assertEquals(maxIntensity2, chartUnit3.getMaxTicIntensity(), 0);
     }
 
     /**
@@ -65,7 +74,7 @@ public class ChartUnitTest {
     @Test
     public void testSetGraphDataSeries() {
     	double maxIntensity = 22950831906.0;
-        chartUnit2.setGraphDataSeries(series);
+        chartUnit2.setGraphDataSeries(series1);
         assertEquals(maxIntensity, chartUnit2.getMaxTicIntensity(), 0);
     }
 

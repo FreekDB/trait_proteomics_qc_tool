@@ -57,6 +57,7 @@ import javax.swing.event.ChangeListener;
 
 import nl.ctmm.trait.proteomics.qcviewer.Main;
 import nl.ctmm.trait.proteomics.qcviewer.input.DataEntryForm;
+import nl.ctmm.trait.proteomics.qcviewer.input.MetricsParser;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnit;
 import nl.ctmm.trait.proteomics.qcviewer.utils.OpenBrowser;
 
@@ -93,16 +94,18 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 	private String currentSortCriteria = "";
 	private String newSortCriteria = "";
 	private Properties appProperties = null;
+	private MetricsParser mParser = null;
     /**
      * Creates a new instance of the demo.
      * 
      * @param title  the title.
      */
-    public ViewerFrame(final Properties appProperties, final String title, final List<ReportUnit> reportUnits, final List<String> qcParamNames) {
+    public ViewerFrame(final MetricsParser mParser, final Properties appProperties, final String title, final List<ReportUnit> reportUnits, final List<String> qcParamNames) {
         super(title);
     	System.out.println("ViewerFrame constructor");
         setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 25, CHART_HEIGHT * 10));
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        this.mParser = mParser; 
         this.qcParamNames = qcParamNames;
         this.appProperties = appProperties;
         setReportUnits(reportUnits);
@@ -482,7 +485,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         	deForm.displayDateFilterEntryForm();
 		} else if (evt.getActionCommand().equals("SelectMetrics")) {
 			//Display ChooseMetricsForm to select metrics to display
-        	ChooseMetricsForm cmForm = new ChooseMetricsForm();
+        	ChooseMetricsForm cmForm = new ChooseMetricsForm(mParser);
         	cmForm.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         	cmForm.pack();
         	RefineryUtilities.centerFrameOnScreen(cmForm);

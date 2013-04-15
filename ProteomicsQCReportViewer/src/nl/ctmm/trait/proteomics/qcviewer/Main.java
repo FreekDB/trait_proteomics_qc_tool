@@ -21,6 +21,7 @@ import javax.swing.WindowConstants;
 import nl.ctmm.trait.proteomics.qcviewer.gui.ViewerFrame;
 import nl.ctmm.trait.proteomics.qcviewer.gui.ViewerPanel;
 import nl.ctmm.trait.proteomics.qcviewer.input.DataEntryForm;
+import nl.ctmm.trait.proteomics.qcviewer.input.MetricsParser;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportReader;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnit;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
@@ -35,6 +36,7 @@ import org.jfree.ui.RefineryUtilities;
  */
 public class Main{
 	private Properties applicationProperties = null; 
+	private MetricsParser mParser = null;
 	/**
      * The logger for this class.
      */
@@ -54,6 +56,7 @@ public class Main{
      */
     public void runReportViewer() {
         applicationProperties = loadProperties();
+        mParser = new MetricsParser(applicationProperties);
        	String preferredRootDirectory = applicationProperties.getProperty(Constants.PROPERTY_ROOT_FOLDER);
         System.out.println("in Main preferredRootDirectory = " + preferredRootDirectory);
         DataEntryForm deForm = new DataEntryForm(this, applicationProperties);
@@ -199,7 +202,7 @@ public class Main{
     	System.out.println("Main startGuiVersion2");
     	final List<String> qcParamNames = getColumnNames(appProperties, Constants.PROPERTY_TOP_COLUMN_NAMESV2);
     	//Create ViewerFrame and set it visible
-        final ViewerFrame frame = new ViewerFrame(appProperties, Constants.APPLICATION_NAME + " " + Constants.APPLICATION_VERSION, reportUnits, qcParamNames);
+        final ViewerFrame frame = new ViewerFrame(mParser, appProperties, Constants.APPLICATION_NAME + " " + Constants.APPLICATION_VERSION, reportUnits, qcParamNames);
         frame.pack();
         RefineryUtilities.centerFrameOnScreen(frame);
         frame.setVisible(true);
