@@ -48,11 +48,9 @@ public class ReportReader extends JFrame {
 
     private int currentReportNum;
     private String serverAddress = "";
-    private MetricsParser mParser = null;
     private JsonMetricsReader jmReader = null; 
     
     public ReportReader(MetricsParser mParser) {
-    	this.mParser = mParser; 
     	jmReader = new JsonMetricsReader(mParser);
     }
 
@@ -283,8 +281,8 @@ public class ReportReader extends JFrame {
                 logger.fine("File " + dataFileName);
                 try {
                     if (dataFileName.equals("metrics.json")) {
-                        //readJsonValues(dataFile, reportUnit);
-                    	jmReader.readJsonValues(dataFile, reportUnit);
+                    	//readJsonValues(dataFile, reportUnit);
+                        reportUnit.metricsValues = jmReader.readJsonValues(dataFile, reportUnit);
                     } else if (dataFileName.endsWith("heatmap.png")) {
                         // todo equals instead of endsWith?
                         reportUnit.setHeatmap(ImageIO.read(dataFile), dataFileName);

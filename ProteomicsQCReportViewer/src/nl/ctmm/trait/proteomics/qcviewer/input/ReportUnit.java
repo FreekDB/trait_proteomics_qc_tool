@@ -3,6 +3,7 @@ package nl.ctmm.trait.proteomics.qcviewer.input;
 import java.awt.image.BufferedImage;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -46,6 +47,7 @@ public class ReportUnit {
     private BufferedImage ioncount = Utilities.getNotAvailableImage();
     private String heatmapName = Utilities.NOT_AVAILABLE_ICON_NAME;
     private String ioncountName = Utilities.NOT_AVAILABLE_ICON_NAME;
+    public HashMap<String, String> metricsValues = null;
     //ChartUnit to hold corresponding chart
     private ChartUnit ticChartUnit = null; 
 
