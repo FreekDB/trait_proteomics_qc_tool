@@ -98,6 +98,18 @@ public class ReportUnit {
         //Create default chart unit to handle problems due to missing series data 
         ticChartUnit = new ChartUnit(msrunName, reportNum, null);
     }
+    
+    /**
+     * Get value of metrics based on key
+     */
+    public String getMetricsValueFromKey(String key) {
+    	String value = "N/A";
+    	if (metricsValues.containsKey(key)) {
+    		value = metricsValues.get(key);
+    	} 
+    	System.out.println("Key = " + key + " Value = " + value);
+    	return value;
+    }
 
     /**
      * Get the value of parameter reportNum
@@ -392,5 +404,9 @@ public class ReportUnit {
 				return -1;
 			} else return 0; 
 		} else return -2; //invalid sort option 
+	}
+
+	public void setMetricsValues(HashMap<String, String> metricsValues) {
+		this.metricsValues = metricsValues;
 	}
 }

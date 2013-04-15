@@ -45,8 +45,7 @@ public class JsonMetricsReader {
             	//Check whether json file contains objectname
             	if (jsonObject.containsKey(objectName)) {
             		JSONObject jObject = (JSONObject) jsonObject.get(objectName);
-                	
-                	//System.out.print("Object = " + objectName + " paramName = " + paramName);
+                	//System.out.print("Key = " + (String) keys[i] + " Object = " + objectName + " paramName = " + paramName);
                 	if (paramName.equals("date") || paramName.equals("runtime")) { 
                 		paramValue = (String) jObject.get(paramName);
                 	} else {

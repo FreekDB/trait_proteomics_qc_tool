@@ -88,6 +88,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 	private List<ReportUnit> reportUnits = new ArrayList<ReportUnit>(); //preserve original report units 
 	private List<ReportUnit> orderedReportUnits = new ArrayList<ReportUnit>(); //use this list for display and other operations
 	private List<String> qcParamNames; 
+	private List<String> qcParamKeys;
 	private List<JRadioButton> sortButtons;
     private static final List<Color> LABEL_COLORS = Arrays.asList(
             Color.BLUE, Color.DARK_GRAY, Color.GRAY, Color.MAGENTA, Color.ORANGE, Color.RED, Color.BLACK);
@@ -95,6 +96,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 	private String newSortCriteria = "";
 	private Properties appProperties = null;
 	private MetricsParser mParser = null;
+
     /**
      * Creates a new instance of the demo.
      * 
@@ -107,6 +109,13 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.mParser = mParser; 
         this.qcParamNames = qcParamNames;
+        qcParamKeys = new ArrayList<String>();
+        //Extract qcParamKeys
+        for (int i = 0; i < qcParamNames.size(); ++i) {
+        	StringTokenizer stkz = new StringTokenizer(qcParamNames.get(i), ":");
+        	String key = stkz.nextToken() + ":" + stkz.nextToken();
+        	qcParamKeys.add(key);
+        }
         this.appProperties = appProperties;
         setReportUnits(reportUnits);
         setOrderedReportUnits(reportUnits);
@@ -676,12 +685,16 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         labelPanel.setBackground(Color.WHITE);
         GridLayout layout = new GridLayout(qcParamNames.size(),1);
         labelPanel.setLayout(layout);
-        labelPanel.setPreferredSize(new Dimension(200, CHART_HEIGHT));
+        labelPanel.setPreferredSize(new Dimension(300, CHART_HEIGHT));
         // add qcparam labels, one in each cell
         //No., File Size(MB), MS1Spectra, MS2Spectra, Measured, Runtime(hh:mm:ss), maxIntensity
         for (int i = 0; i < qcParamNames.size(); ++i) { 
     		Color fgColor = LABEL_COLORS.get(i%LABEL_COLORS.size());
-        	if (qcParamNames.get(i).trim().equalsIgnoreCase("No.")) {
+    		JLabel thisLabel = new JLabel(qcParamNames.get(i) + ": " + (reportUnit.getMetricsValueFromKey(qcParamKeys.get(i))));
+    		thisLabel.setFont(font);
+    		thisLabel.setForeground(fgColor);
+    		labelPanel.add(thisLabel);
+        	/*if (qcParamNames.get(i).trim().equalsIgnoreCase("No.")) {
         		JLabel thisLabel = new JLabel(qcParamNames.get(i) + ": " + (reportUnit.getReportNum()));
         		thisLabel.setFont(font);
         		thisLabel.setForeground(fgColor);
@@ -718,7 +731,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         		thisLabel.setForeground(fgColor);
         		thisLabel.setFont(font);
         		labelPanel.add(thisLabel);
-        	}
+        	}*/
         }
         JPanel displayPanel = new JPanel();
         displayPanel.add(checkPanel, 0);

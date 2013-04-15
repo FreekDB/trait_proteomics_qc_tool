@@ -282,7 +282,7 @@ public class ReportReader extends JFrame {
                 try {
                     if (dataFileName.equals("metrics.json")) {
                     	//readJsonValues(dataFile, reportUnit);
-                        reportUnit.metricsValues = jmReader.readJsonValues(dataFile, reportUnit);
+                        reportUnit.setMetricsValues(jmReader.readJsonValues(dataFile, reportUnit));
                     } else if (dataFileName.endsWith("heatmap.png")) {
                         // todo equals instead of endsWith?
                         reportUnit.setHeatmap(ImageIO.read(dataFile), dataFileName);
