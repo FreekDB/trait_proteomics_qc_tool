@@ -3,6 +3,7 @@ package nl.ctmm.trait.proteomics.qcviewer.input;
 import java.awt.Color;
 import java.awt.Font;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,6 +33,7 @@ public class ChartUnit {
     private NumberAxis rangeAxis = null;
     private XYBarRenderer renderer = null;
 	private XYPlot plot = null;
+	private double maxIntensity = 0; 
     private static final List<Color> GRAPH_COLORS = Arrays.asList(
            Color.BLUE, Color.DARK_GRAY, Color.GRAY, Color.MAGENTA, Color.ORANGE, 
            Color.PINK, Color.LIGHT_GRAY, Color.RED, Color.GREEN);
@@ -40,6 +42,12 @@ public class ChartUnit {
 		this.chartName = msrunName; 
 		this.reportNum = reportNum;
 		this.graphDataSeries = series;
+		String maxIntensityString = "N/A";
+		if (series != null) {
+			maxIntensity = series.getMaxY();
+			NumberFormat formatter = new DecimalFormat("0.0000E0");
+			maxIntensityString = formatter.format(maxIntensity);
+		}
 		domainAxis = new NumberAxis(null);
 	    rangeAxis = new NumberAxis(null);
 	    renderer = new XYBarRenderer();
@@ -66,8 +74,8 @@ public class ChartUnit {
 	    plot = new XYPlot(xyDataset, domainAxis, rangeAxis, renderer);
 	    rangeAxis.setNumberFormatOverride(new DecimalFormat("0E00"));
 	    int style = Font.BOLD;
-	    Font font = new Font ("Garamond", style , 11);
-	    ticChart = new JFreeChart(msrunName, font, plot, false);
+	    Font font = new Font ("Garamond", style , 13);
+	    ticChart = new JFreeChart(msrunName + " MaxIntensity = " + maxIntensityString, font, plot, false);
 	    // performance
 	    ticChart.setAntiAlias(false);
 	}
@@ -79,7 +87,7 @@ public class ChartUnit {
 	public double getMaxTicIntensity() {
 		if (graphDataSeries == null) {
 			return 0;
-		} else return rangeAxis.getRange().getUpperBound();
+		} else return maxIntensity;
 	}
 	
     /**

@@ -83,10 +83,10 @@ public class ChartUnitTest {
      */
     @Test
     public void testGetTicChartGetDomainAxis() {
-        assertEquals("Expecting JFreeChart class.", JFreeChart.class, chartUnit1.getTicChart());
-        assertEquals("Expecting JFreeChart class.", JFreeChart.class, chartUnit2.getTicChart());
-        assertEquals("Expecting NumberAxis class.", NumberAxis.class, chartUnit1.getDomainAxis());
-        assertEquals("Expecting NumberAxis class.", NumberAxis.class, chartUnit2.getDomainAxis());
+        assertEquals("Expecting JFreeChart class.", JFreeChart.class, chartUnit1.getTicChart().getClass());
+        assertEquals("Expecting JFreeChart class.", JFreeChart.class, chartUnit2.getTicChart().getClass());
+        assertEquals("Expecting NumberAxis class.", NumberAxis.class, chartUnit1.getDomainAxis().getClass());
+        assertEquals("Expecting NumberAxis class.", NumberAxis.class, chartUnit2.getDomainAxis().getClass());
     }
     
     /**

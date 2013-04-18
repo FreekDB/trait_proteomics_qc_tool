@@ -1,9 +1,9 @@
-#Thu Apr 18 12:07:57 CEST 2013
+#Thu Apr 18 13:56:11 CEST 2013
 RootFolder=C\:\\Program Files (x86)\\Apache Software Foundation\\Apache2.2\\htdocs\\ctmm
 GUIVersion=2
 ShowReportsFromDate=01/03/2013
 BottomColumnNames=Heatmap, Ioncount
-TopColumnNamesV2=dyn\:ds-2a\:Middle Peptide Retention Time Period (MS1 Scans),generic\:date\:Measured,generic\:f_size\:File Size (MB),ms1\:ms1-5a\:Precursor m/z - Peptide Ion m/z (Median),ms2\:ms2-1\:Ion Injection Times for IDs (MS2 Median),ms2\:ms2-2\:MS2 ID Spectra (S/N Median),
+TopColumnNamesV2=chrom\:c-4b\:Peak Widths at Half Max over (Last Decile),dyn\:ds-2a\:Middle Peptide Retention Time Period (MS1 Scans),dyn\:ds-3b\:MS1max/MS1sampled Abundance (Med Bottom 1/2),generic\:date\:Measured,generic\:ms2_spectra\:MS2 Spectra,ion\:is-1a\:MS1 During Middle (MS1 Jumps >10x),
 TopColumnNamesV1=No., File Size(MB), MS1Spectra, MS2Spectra, Measured(yyyy/mmm/dd), Runtime(hh\:mm\:ss), Heatmap, Ioncount
 DefaultReportsDisplayPeriod=14
 Server=10.13.1.103
