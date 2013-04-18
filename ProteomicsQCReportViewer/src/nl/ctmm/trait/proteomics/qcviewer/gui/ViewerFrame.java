@@ -26,6 +26,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -90,6 +91,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 	private List<String> qcParamNames; 
 	private List<String> qcParamKeys;
 	private List<String> qcParamValues;
+	private HashMap<String, String> selectedMetrics; //metrics and Params are interchangeable
 	private List<JRadioButton> sortButtons;
     private static final List<Color> LABEL_COLORS = Arrays.asList(
             Color.BLUE, Color.DARK_GRAY, Color.GRAY, Color.MAGENTA, Color.ORANGE, Color.RED, Color.BLACK);
@@ -115,12 +117,15 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         this.qcParamNames = qcParamNames;
         qcParamKeys = new ArrayList<String>();
         qcParamValues = new ArrayList<String>();
+        selectedMetrics = new HashMap<String, String>();
         //Extract qcParamKeys
         for (int i = 0; i < qcParamNames.size(); ++i) {
         	StringTokenizer stkz = new StringTokenizer(qcParamNames.get(i), ":");
         	String key = stkz.nextToken() + ":" + stkz.nextToken();
         	qcParamKeys.add(key);
-        	qcParamValues.add(stkz.nextToken()); 
+        	String value = stkz.nextToken();
+        	qcParamValues.add(value); 
+        	selectedMetrics.put(key, value);
         }
         this.appProperties = appProperties;
         setReportUnits(reportUnits);
@@ -295,9 +300,10 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                 BorderFactory.createEtchedBorder(), "Zoom All"));
         zoomPanel.add(zoomPanelRadio, 0);
         zoomPanel.add(zoomPanelForm, 1);
-        controlFrame.getContentPane().add(zoomPanel, 0);
+        //controlFrame.getContentPane().add(zoomPanel, 0);
         ButtonGroup sortGroup = new ButtonGroup();
-        layout = new GridLayout(qcParamNames.size()/2+1,6);
+        //layout = new GridLayout(qcParamValues.size()/2+1,6);
+        layout = new GridLayout(qcParamValues.size()/2+1,2);
         sortButtons = new ArrayList<JRadioButton>();
         JPanel sortPanel = new JPanel();
         sortPanel.setLayout(layout);
@@ -305,16 +311,18 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         sortPanel.setBackground(Color.WHITE); 
         int style = Font.BOLD;
 	    Font font = new Font ("Garamond", style , 11);
-        for (int i = 0; i < qcParamNames.size(); ++i) {
-        	JLabel thisLabel = new JLabel(qcParamNames.get(i) + ": ");
+        for (int i = 0; i < qcParamValues.size(); ++i) {
+        	JLabel thisLabel = new JLabel(qcParamValues.get(i) + ": ");
         	thisLabel.setFont(font);
-        	sortPanel.add(thisLabel);
+        	JPanel namePanel = new JPanel(new GridLayout(1,1));
+        	namePanel.add(thisLabel);
+        	//sortPanel.add(thisLabel);
         	//Sort ascending button
         	JRadioButton ascButton = new JRadioButton("Asc", false);
         	ascButton.setBackground(Color.WHITE);
         	ascButton.setActionCommand("Sort-" + qcParamNames.get(i) + "-Asc");
         	ascButton.addActionListener(this);
-        	sortPanel.add(ascButton);
+        	//sortPanel.add(ascButton);
         	sortGroup.add(ascButton);
         	sortButtons.add(ascButton);
         	//Sort descending button
@@ -322,12 +330,19 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         	desButton.setBackground(Color.WHITE);
         	desButton.setActionCommand("Sort-" + qcParamNames.get(i) + "-Des");
         	desButton.addActionListener(this);
-        	sortPanel.add(desButton); 
+        	//sortPanel.add(desButton); 
         	sortGroup.add(desButton); 
         	sortButtons.add(desButton);
+        	JPanel buttonPanel = new JPanel(new GridLayout(1,2));
+        	buttonPanel.add(ascButton);
+        	buttonPanel.add(desButton);
+        	JPanel metricPanel = new JPanel(new GridLayout(1,2));
+        	metricPanel.add(namePanel, 0);
+        	metricPanel.add(buttonPanel, 1);
+        	sortPanel.add(metricPanel);
         }
         //Add sorting according to Compare 
-    	JLabel thisLabel = new JLabel("Compare: ");
+    	/*JLabel thisLabel = new JLabel("Compare: ");
     	thisLabel.setFont(font);
     	sortPanel.add(thisLabel);
     	//Sort ascending button
@@ -345,7 +360,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     	desButton.addActionListener(this);
     	sortPanel.add(desButton); 
     	sortGroup.add(desButton); 
-    	sortButtons.add(desButton);
+    	sortButtons.add(desButton); */
         //Set first button selected
         sortButtons.get(0).setSelected(true);
         this.currentSortCriteria = sortButtons.get(0).getActionCommand(); 
@@ -500,7 +515,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         	deForm.displayDateFilterEntryForm();
 		} else if (evt.getActionCommand().equals("SelectMetrics")) {
 			//Display ChooseMetricsForm to select metrics to display
-        	ChooseMetricsForm cmForm = new ChooseMetricsForm(this, mParser);
+        	ChooseMetricsForm cmForm = new ChooseMetricsForm(this, mParser, selectedMetrics);
         	cmForm.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         	cmForm.pack();
         	RefineryUtilities.centerFrameOnScreen(cmForm);

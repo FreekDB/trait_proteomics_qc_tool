@@ -59,17 +59,24 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
 	SortedListModel move = new SortedListModel();
     JList dragFrom, moveTo;
     HashMap<String,String> metricsMap;
+    HashMap<String,String> selectedMetrics;
     MetricsParser mParser = null;
     ViewerFrame parent = null;
 
-    public ChooseMetricsForm(ViewerFrame parent, final MetricsParser mParser) {
+    public ChooseMetricsForm(ViewerFrame parent, final MetricsParser mParser, HashMap<String, String> selectedMetrics) {
         super("Select QC-Full Metrics for MSQC Report Viewer");
         this.mParser = mParser;
         this.parent = parent;
+        this.selectedMetrics = selectedMetrics;
         metricsMap = this.mParser.getMetricsListing(); 
         for (String key : metricsMap.keySet()) {
         	String value = metricsMap.get(key);
-        	from.add(key + ":" + value);
+        	//if selectedMetrics already contains key, then store it in move list
+        	if (selectedMetrics.containsKey(key)) {
+        		move.add(key + ":" + value);
+        	} else {
+        		from.add(key + ":" + value);
+        	}
         }
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -106,12 +113,12 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         p = new JPanel();
         //p.setLayout(new GridLayout(1,2));
         //p.setSize(new Dimension(100, 30));
-    	JButton SUBMIT = new JButton("SUBMIT");
+    	JButton SUBMIT = new JButton("OK");
     	SUBMIT.setSize(new Dimension(50, 30));
     	JButton CANCEL = new JButton("CANCEL"); 
     	CANCEL.setSize(new Dimension(50, 30));
   	  	SUBMIT.addActionListener(this);
-  	  	SUBMIT.setActionCommand("SUBMIT");
+  	  	SUBMIT.setActionCommand("OK");
   	  	CANCEL.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
 				dispose();
@@ -128,7 +135,7 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
 	@Override
 	 public void actionPerformed(ActionEvent ae) {
 		System.out.println("DataEntryFrame Action command = " + ae.getActionCommand());
-		if (ae.getActionCommand().equals("SUBMIT")) {
+		if (ae.getActionCommand().equals("OK")) {
 			//Send list of selected metrics to mParser for updating appProperties
 			mParser.updateMetricsToDisplay(move);
 			//Print contents of move list
@@ -143,7 +150,7 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
 			}
 			dispose();
 			if (parent != null) {
-				System.out.println("Invoke parentViewerFrame methods");
+				System.out.println("Invoke ViewerFrame methods");
 				parent.clean();
 				parent.dispose();
 				new Main().runReportViewer();

@@ -75,7 +75,7 @@ public class ChartUnit {
 	    rangeAxis.setNumberFormatOverride(new DecimalFormat("0E00"));
 	    int style = Font.BOLD;
 	    Font font = new Font ("Garamond", style , 13);
-	    ticChart = new JFreeChart(msrunName + " MaxIntensity = " + maxIntensityString, font, plot, false);
+	    ticChart = new JFreeChart(msrunName + "     MaxIntensity = " + maxIntensityString, font, plot, false);
 	    // performance
 	    ticChart.setAntiAlias(false);
 	}

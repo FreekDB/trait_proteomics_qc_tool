@@ -24,7 +24,7 @@ public class MetricsParser {
 	/*
 	 * Reads all the metrics from MetricsListing.txt file
 	 */
-    public void readMetricsListing() {
+    private void readMetricsListing() {
     	// Create a HashMap which stores Strings as the keys and values
     	allMetricsMap = new HashMap<String,String>();
     	BufferedReader br = null;
