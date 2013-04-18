@@ -97,19 +97,21 @@ public class ReportReader extends JFrame {
 						e.printStackTrace();
 					}
                     if (d.compareTo(fromDate)>=0 && d.compareTo(tillDate)<=0) {
-                    	System.out.println("Added - Last modified on: " + dateString + " is within limits From " 
-                    			+ sdf.format(fromDate) + " res = " +d.compareTo(fromDate) + " Till " + sdf.format(tillDate) + " res = " +d.compareTo(tillDate));
+                    	//System.out.println("Added - Last modified on: " + dateString + " is within limits From " 
+                    	//		+ sdf.format(fromDate) + " res = " +d.compareTo(fromDate) + " Till " + sdf.format(tillDate) + " res = " +d.compareTo(tillDate));
                     
                     	final File[] dataFiles = msRunDirectory.listFiles();
                     	//Check existence of "metrics.json", "heatmap.png", "ions.png", "_ticmatrix.csv"
                     	String errorMessage = checkDataFilesAvailability(yearDirectory.getName(), monthDirectory.getName(), msRunDirectory.getName(), dataFiles);
                     	if (!errorMessage.equals("")) {
-                    		System.out.println("ErrorMessage = " + errorMessage);
+                    	//	System.out.println("ErrorMessage = " + errorMessage);
                     		allErrorMessages += errorMessage + "\n";
                     	}
                     	reportUnits.add(createReportUnit(yearDirectory.getName(), monthDirectory.getName(), msRunDirectory.getName(), dataFiles));
-                    } else System.out.println("Skipped - Last modified on: " + dateString + " is outside limits From " 
-                    		+ sdf.format(fromDate) + " res = " +d.compareTo(fromDate) + " Till " + sdf.format(tillDate) + " res = " +d.compareTo(tillDate));
+                    } else {
+                    	//System.out.println("Skipped - Last modified on: " + dateString + " is outside limits From "
+                    	//		+ sdf.format(fromDate) + " res = " +d.compareTo(fromDate) + " Till " + sdf.format(tillDate) + " res = " +d.compareTo(tillDate));
+                    }
                 }
             }
         }
@@ -274,6 +276,7 @@ public class ReportReader extends JFrame {
      */
     private ReportUnit createReportUnit(final String year, final String month, final String msrunName, final File[] dataFiles) {
         currentReportNum++;
+        System.out.println("Creating report unit No. " + currentReportNum + " for msrun " + msrunName);
         final ReportUnit reportUnit = new ReportUnit(msrunName, currentReportNum);
         for (final File dataFile : dataFiles) {
             final String dataFileName = dataFile.getName();
@@ -282,7 +285,7 @@ public class ReportReader extends JFrame {
                 try {
                     if (dataFileName.equals("metrics.json")) {
                     	//readJsonValues(dataFile, reportUnit);
-                        reportUnit.setMetricsValues(jmReader.readJsonValues(dataFile, reportUnit));
+                        reportUnit.setMetricsValues(jmReader.readJsonValues(dataFile));
                     } else if (dataFileName.endsWith("heatmap.png")) {
                         // todo equals instead of endsWith?
                         reportUnit.setHeatmap(ImageIO.read(dataFile), dataFileName);

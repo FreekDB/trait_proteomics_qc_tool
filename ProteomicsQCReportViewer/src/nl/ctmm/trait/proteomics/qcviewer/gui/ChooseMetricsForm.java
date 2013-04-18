@@ -35,6 +35,7 @@ package nl.ctmm.trait.proteomics.qcviewer.gui;
 
 import javax.swing.*;
 
+import nl.ctmm.trait.proteomics.qcviewer.Main;
 import nl.ctmm.trait.proteomics.qcviewer.input.MetricsParser;
 
 import org.jfree.data.xy.XYSeries;
@@ -59,11 +60,12 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
     JList dragFrom, moveTo;
     HashMap<String,String> metricsMap;
     MetricsParser mParser = null;
+    ViewerFrame parent = null;
 
-    
-    public ChooseMetricsForm(final MetricsParser mParser) {
+    public ChooseMetricsForm(ViewerFrame parent, final MetricsParser mParser) {
         super("Select QC-Full Metrics for MSQC Report Viewer");
         this.mParser = mParser;
+        this.parent = parent;
         metricsMap = this.mParser.getMetricsListing(); 
         for (String key : metricsMap.keySet()) {
         	String value = metricsMap.get(key);
@@ -140,6 +142,12 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
 				System.out.println("from [" + i + "] = " + from.getElementAt(i));
 			}
 			dispose();
+			if (parent != null) {
+				System.out.println("Invoke parentViewerFrame methods");
+				parent.clean();
+				parent.dispose();
+				new Main().runReportViewer();
+			}
 		}
 		}
 

@@ -30,14 +30,16 @@ public class JsonMetricsReader {
      * @param jsonFile   the json file that contains the QC parameters.
      * @param reportUnit the report unit where the QC parameters will be stored.
      */
-    public HashMap<String, String> readJsonValues(final File jsonFile, final ReportUnit reportUnit) {
-        logger.fine("IN readJsonValues - reading file " + jsonFile.getName());
+    public HashMap<String, String> readJsonValues(final File jsonFile) {
+        System.out.println("IN readJsonValues - reading file " + jsonFile.getName());
         HashMap<String, String> metricsValues = new HashMap<String, String>();
+        Object[] keys = allMetricsMap.keySet().toArray();
+        //Initialize metricsValues to N/A
         try {
             final JSONObject jsonObject = (JSONObject) new JSONParser().parse(new FileReader(jsonFile));
-            Object[] keys = allMetricsMap.keySet().toArray();
-            String paramValue = "N/A";
+            
             for (int i = 0; i < keys.length; ++i) {
+            	String paramValue = "N/A";
             	//Split the key into jsonObject and parameters
             	StringTokenizer stkz = new StringTokenizer((String) keys[i], ":");
             	String objectName = stkz.nextToken();
@@ -51,9 +53,9 @@ public class JsonMetricsReader {
                 	} else {
                 		paramValue = (String) ((JSONArray) jObject.get(paramName)).get(1);
                 	}
-                	//System.out.println(" paramValue = " + paramValue);
             	}
             	metricsValues.put((String) keys[i], paramValue);
+            	//System.out.println("Key = " + (String) keys[i] + " paramValue = " + paramValue);
             }
         } catch (Exception e) {
             e.printStackTrace();

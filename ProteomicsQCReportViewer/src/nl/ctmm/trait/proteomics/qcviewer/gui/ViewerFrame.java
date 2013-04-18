@@ -83,15 +83,19 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 	List<ChartPanel> chartPanelList = new ArrayList<ChartPanel>(); //necessary for zooming
 	private List<Boolean> chartCheckBoxFlags = new ArrayList<Boolean>();
 	private static int CHART_HEIGHT = 150; 
-	private static int DESKTOP_PANE_WIDTH = 1130; 
+	private static int DESKTOP_PANE_WIDTH = 1270; 
 	private JTextField minText, maxText;
 	private List<ReportUnit> reportUnits = new ArrayList<ReportUnit>(); //preserve original report units 
 	private List<ReportUnit> orderedReportUnits = new ArrayList<ReportUnit>(); //use this list for display and other operations
 	private List<String> qcParamNames; 
 	private List<String> qcParamKeys;
+	private List<String> qcParamValues;
 	private List<JRadioButton> sortButtons;
     private static final List<Color> LABEL_COLORS = Arrays.asList(
             Color.BLUE, Color.DARK_GRAY, Color.GRAY, Color.MAGENTA, Color.ORANGE, Color.RED, Color.BLACK);
+	private static final int CHECK_PANEL_SIZE = 90;
+	private static final int LABEL_PANEL_SIZE = 350;
+	private static final int CHART_PANEL_SIZE = 800;
 	private String currentSortCriteria = "";
 	private String newSortCriteria = "";
 	private Properties appProperties = null;
@@ -110,11 +114,13 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         this.mParser = mParser; 
         this.qcParamNames = qcParamNames;
         qcParamKeys = new ArrayList<String>();
+        qcParamValues = new ArrayList<String>();
         //Extract qcParamKeys
         for (int i = 0; i < qcParamNames.size(); ++i) {
         	StringTokenizer stkz = new StringTokenizer(qcParamNames.get(i), ":");
         	String key = stkz.nextToken() + ":" + stkz.nextToken();
         	qcParamKeys.add(key);
+        	qcParamValues.add(stkz.nextToken()); 
         }
         this.appProperties = appProperties;
         setReportUnits(reportUnits);
@@ -494,7 +500,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         	deForm.displayDateFilterEntryForm();
 		} else if (evt.getActionCommand().equals("SelectMetrics")) {
 			//Display ChooseMetricsForm to select metrics to display
-        	ChooseMetricsForm cmForm = new ChooseMetricsForm(mParser);
+        	ChooseMetricsForm cmForm = new ChooseMetricsForm(this, mParser);
         	cmForm.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         	cmForm.pack();
         	RefineryUtilities.centerFrameOnScreen(cmForm);
@@ -642,7 +648,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     	System.out.println("ViewerFrame createChartFrame " + chartNum);
         //Create the visible chart panel
         ChartPanel chartPanel = new ChartPanel(chart);
-        chartPanel.setPreferredSize(new Dimension(800, CHART_HEIGHT - 10));
+        chartPanel.setPreferredSize(new Dimension(CHART_PANEL_SIZE, CHART_HEIGHT - 10));
         chartPanelList.add(chartPanel);
         final JInternalFrame frame = new JInternalFrame("Chart " + chartNum, true);
         frame.setName(Integer.toString(reportUnit.getReportNum() - 1)); //Set report index number as frame name
@@ -678,19 +684,23 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         //checkPanel.setLayout(layout);
         checkPanel.add(uriButton, 0);
         checkPanel.add(chartCheckBox, 1);
-        checkPanel.setPreferredSize(new Dimension(90, CHART_HEIGHT));
+        JLabel numLabel = new JLabel(Integer.toString(reportUnit.getReportNum()));
+        Font numFont = new Font ("Garamond", style , 22);
+        numLabel.setFont(numFont);
+		checkPanel.add(numLabel);
+        checkPanel.setPreferredSize(new Dimension(CHECK_PANEL_SIZE, CHART_HEIGHT));
         
         JPanel labelPanel = new JPanel();
         labelPanel.setFont(font);
         labelPanel.setBackground(Color.WHITE);
         GridLayout layout = new GridLayout(qcParamNames.size(),1);
         labelPanel.setLayout(layout);
-        labelPanel.setPreferredSize(new Dimension(300, CHART_HEIGHT));
+        labelPanel.setPreferredSize(new Dimension(LABEL_PANEL_SIZE, CHART_HEIGHT));
         // add qcparam labels, one in each cell
         //No., File Size(MB), MS1Spectra, MS2Spectra, Measured, Runtime(hh:mm:ss), maxIntensity
         for (int i = 0; i < qcParamNames.size(); ++i) { 
     		Color fgColor = LABEL_COLORS.get(i%LABEL_COLORS.size());
-    		JLabel thisLabel = new JLabel(qcParamNames.get(i) + ": " + (reportUnit.getMetricsValueFromKey(qcParamKeys.get(i))));
+    		JLabel thisLabel = new JLabel(qcParamValues.get(i) + ": " + (reportUnit.getMetricsValueFromKey(qcParamKeys.get(i))));
     		thisLabel.setFont(font);
     		thisLabel.setForeground(fgColor);
     		labelPanel.add(thisLabel);

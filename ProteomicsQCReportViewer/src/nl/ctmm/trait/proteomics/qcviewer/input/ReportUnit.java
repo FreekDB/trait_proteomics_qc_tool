@@ -47,7 +47,7 @@ public class ReportUnit {
     private BufferedImage ioncount = Utilities.getNotAvailableImage();
     private String heatmapName = Utilities.NOT_AVAILABLE_ICON_NAME;
     private String ioncountName = Utilities.NOT_AVAILABLE_ICON_NAME;
-    public HashMap<String, String> metricsValues = null;
+    public HashMap<?, ?> metricsValues = null;
     //ChartUnit to hold corresponding chart
     private ChartUnit ticChartUnit = null; 
 
@@ -104,8 +104,10 @@ public class ReportUnit {
      */
     public String getMetricsValueFromKey(String key) {
     	String value = "N/A";
-    	if (metricsValues.containsKey(key)) {
-    		value = metricsValues.get(key);
+    	if (metricsValues == null) { //Corresponding metrics.json file not found for this report
+    		return value; 
+    	} else if (metricsValues.containsKey(key)) {
+    		value = (String) metricsValues.get(key);
     	} 
     	System.out.println("Key = " + key + " Value = " + value);
     	return value;
@@ -407,6 +409,9 @@ public class ReportUnit {
 	}
 
 	public void setMetricsValues(HashMap<String, String> metricsValues) {
-		this.metricsValues = metricsValues;
+		System.out.println("In ReportUnit setMetricsValues. No. of metrics = " + metricsValues.size());
+		if (metricsValues instanceof HashMap<?, ?>) {
+			this.metricsValues = (HashMap<?, ?>) metricsValues.clone();
+		}
 	}
 }
