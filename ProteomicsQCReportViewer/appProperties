@@ -1,10 +1,10 @@
-#Thu Apr 18 15:57:23 CEST 2013
+#Fri Apr 19 11:40:04 CEST 2013
 RootFolder=C\:\\Program Files (x86)\\Apache Software Foundation\\Apache2.2\\htdocs\\ctmm
 GUIVersion=2
-ShowReportsFromDate=01/04/2013
+ShowReportsFromDate=01/03/2013
 BottomColumnNames=Heatmap, Ioncount
-TopColumnNamesV2=chrom\:c-1b\:Fraction of Repeat Peptide IDs with Divergent (+ 4 min),dyn\:ds-1a\:Ratios of Peptide Ions IDed (Once/Twice),generic\:date\:Measured,ms1\:ms1-5d\:Precursor m/z - Peptide Ion m/z (ppm InterQ),ms2\:ms2-2\:MS2 ID Spectra (S/N Median),pep\:p-2a\:Tryptic Peptide Counts (Identifications),
+TopColumnNamesV2=chrom\:c-1b\:Fraction of Repeat Peptide IDs with Divergent (+ 4 min),chrom\:c-4c\:Peak Widths at Half Max over (Median Value),dyn\:ds-3b\:MS1max/MS1sampled Abundance (Med Bottom 1/2),generic\:date\:Measured,
 TopColumnNamesV1=No., File Size(MB), MS1Spectra, MS2Spectra, Measured(yyyy/mmm/dd), Runtime(hh\:mm\:ss), Heatmap, Ioncount
 DefaultReportsDisplayPeriod=14
 Server=10.13.1.103
-ShowReportsTillDate=18/04/2013
+ShowReportsTillDate=19/04/2013

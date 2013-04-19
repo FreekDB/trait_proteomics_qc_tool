@@ -307,20 +307,22 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         sortButtons = new ArrayList<JRadioButton>();
         JPanel sortPanel = new JPanel();
         sortPanel.setLayout(layout);
-        sortPanel.setPreferredSize(new Dimension(600, 130));
+        sortPanel.setPreferredSize(new Dimension(700, 130));
         sortPanel.setBackground(Color.WHITE); 
         int style = Font.BOLD;
 	    Font font = new Font ("Garamond", style , 11);
         for (int i = 0; i < qcParamValues.size(); ++i) {
         	JLabel thisLabel = new JLabel(qcParamValues.get(i) + ": ");
         	thisLabel.setFont(font);
+        	thisLabel.setBackground(Color.WHITE);
         	JPanel namePanel = new JPanel(new GridLayout(1,1));
         	namePanel.add(thisLabel);
+        	namePanel.setBackground(Color.WHITE);
         	//sortPanel.add(thisLabel);
         	//Sort ascending button
         	JRadioButton ascButton = new JRadioButton("Asc", false);
         	ascButton.setBackground(Color.WHITE);
-        	ascButton.setActionCommand("Sort-" + qcParamNames.get(i) + "-Asc");
+        	ascButton.setActionCommand("Sort@" + qcParamKeys.get(i) + "@Asc");
         	ascButton.addActionListener(this);
         	//sortPanel.add(ascButton);
         	sortGroup.add(ascButton);
@@ -328,7 +330,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         	//Sort descending button
         	JRadioButton desButton = new JRadioButton("Des", false);
         	desButton.setBackground(Color.WHITE);
-        	desButton.setActionCommand("Sort-" + qcParamNames.get(i) + "-Des");
+        	desButton.setActionCommand("Sort@" + qcParamKeys.get(i) + "@Des");
         	desButton.addActionListener(this);
         	//sortPanel.add(desButton); 
         	sortGroup.add(desButton); 
@@ -342,25 +344,37 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         	sortPanel.add(metricPanel);
         }
         //Add sorting according to Compare 
-    	/*JLabel thisLabel = new JLabel("Compare: ");
+    	JLabel thisLabel = new JLabel("Compare: ");
     	thisLabel.setFont(font);
-    	sortPanel.add(thisLabel);
+    	thisLabel.setBackground(Color.WHITE);
+    	JPanel namePanel = new JPanel(new GridLayout(1,1));
+    	namePanel.setBackground(Color.WHITE);
+    	namePanel.add(thisLabel);
+    	//sortPanel.add(thisLabel);
     	//Sort ascending button
     	JRadioButton ascButton = new JRadioButton("Asc", false);
     	ascButton.setBackground(Color.WHITE);
-    	ascButton.setActionCommand("Sort-" + "Compare" + "-Asc");
+    	ascButton.setActionCommand("Sort@" + "Compare" + "@Asc");
     	ascButton.addActionListener(this);
-    	sortPanel.add(ascButton);
+    	//sortPanel.add(ascButton);
     	sortGroup.add(ascButton);
     	sortButtons.add(ascButton);
     	//Sort descending button
     	JRadioButton desButton = new JRadioButton("Des", false);
     	desButton.setBackground(Color.WHITE);
-    	desButton.setActionCommand("Sort-" + "Compare" + "-Des");
+    	desButton.setActionCommand("Sort@" + "Compare" + "@Des");
     	desButton.addActionListener(this);
-    	sortPanel.add(desButton); 
+    	//sortPanel.add(desButton); 
     	sortGroup.add(desButton); 
-    	sortButtons.add(desButton); */
+    	sortButtons.add(desButton); 
+    	JPanel buttonPanel = new JPanel(new GridLayout(1,2));
+    	buttonPanel.add(ascButton);
+    	buttonPanel.add(desButton);
+    	JPanel metricPanel = new JPanel(new GridLayout(1,2));
+    	metricPanel.add(namePanel, 0);
+    	metricPanel.add(buttonPanel, 1);
+    	sortPanel.add(metricPanel);
+    	
         //Set first button selected
         sortButtons.get(0).setSelected(true);
         this.currentSortCriteria = sortButtons.get(0).getActionCommand(); 
@@ -564,23 +578,23 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 	
     private void sortChartFrameList() {
 		System.out.println("sortChartFrameList From " + currentSortCriteria + " To " + newSortCriteria);
-		StringTokenizer stkz = new StringTokenizer(newSortCriteria, "-");
+		StringTokenizer stkz = new StringTokenizer(newSortCriteria, "@");
 		stkz.nextToken();
-		String sortParam = stkz.nextToken();
-		String sortOrder = stkz.nextToken(); 
-		System.out.println("Sort requested according to " + sortParam + " order " + sortOrder);
+		String sortKey = stkz.nextToken(); //e.g. generic:date
+		String sortOrder = stkz.nextToken(); //e.g. Asc or Des
+		System.out.println("Sort requested according to " + sortKey + " order " + sortOrder);
 		//Remove currently ordered report units and recreate them according to sort criteria
 		if (orderedReportUnits != null) {
 			orderedReportUnits.clear();
 		}
 		orderedReportUnits = new ArrayList<ReportUnit>();
-		if (!sortParam.equals("Compare")) { //Except for Compare based sort
+		if (!sortKey.equals("Compare")) { //Except for Compare based sort
 			orderedReportUnits.add(reportUnits.get(0)); //add initial element
 			//Sort in ascending order
 			for (int i = 1; i < reportUnits.size(); ++i) {
 				int insertAtIndex = orderedReportUnits.size(); //new element will be inserted at position j or at the end of list
 				for (int j = 0; j < orderedReportUnits.size(); ++j) {
-					int result = reportUnits.get(i).compareTo(orderedReportUnits.get(j), sortParam); //comparing new and old lists
+					int result = reportUnits.get(i).compareTo(orderedReportUnits.get(j), sortKey); //comparing new and old lists
 					if (result == -1) { //reportUnit(i) is < orderedUnit(j)
 						insertAtIndex = j;
 						break;
@@ -589,7 +603,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 				orderedReportUnits.add(insertAtIndex, reportUnits.get(i)); //Add to specified index
 				//System.out.println("i = " + i + " insertAtIndex = " + insertAtIndex + " new size = " + orderedReportUnits.size());
 			}	
-		} else if (sortParam.equals("Compare")) { 
+		} else if (sortKey.equals("Compare")) { 
 			//Check checkboxflag status and group those reports together at the beginning of orderedReportUnits 
 			//Add all selected reports first i refers to original report number
 			for (int i = 0; i < chartCheckBoxFlags.size(); ++i) {

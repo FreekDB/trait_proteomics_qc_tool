@@ -35,10 +35,10 @@ public class ReportUnit {
     private String fileSizeString = "-1.0";
     private String msrunName = ""; 
     private Double fileSize = -1.0;
-    private String ms1Spectra = "-1";
-    private String ms2Spectra = "-1";
-    private String measured = "";
-    private String runtime = "";
+    private String ms1Spectra = "N/A";
+    private String ms2Spectra = "N/A";
+    private String measured = "N/A";
+    private String runtime = "N/A";
     private URI detailsUri; 
     
     // todo: only public setters for heatmapName and ioncountName; handle images internally.
@@ -80,6 +80,7 @@ public class ReportUnit {
      * @param heatmapName    the name of the heatmap image.
      * @param ioncountName   the name of the ioncount image.
      */
+    //TODO: Check constructor usage in test cases and make sure to remove this constructor as everything is linked to metricsMap
     public ReportUnit(final String msrunName, final int reportNum, final String fileSizeString, final String ms1Spectra,
                       final String ms2Spectra, final String measured, final String runtime, final BufferedImage heatmap,
                       final BufferedImage ioncount, final String heatmapName, final String ioncountName) {
@@ -97,7 +98,7 @@ public class ReportUnit {
         this.ioncountName = ioncountName;
         //Create default chart unit to handle problems due to missing series data 
         ticChartUnit = new ChartUnit(msrunName, reportNum, null);
-    }
+    } 
     
     /**
      * Get value of metrics based on key
@@ -109,7 +110,7 @@ public class ReportUnit {
     	} else if (metricsValues.containsKey(key)) {
     		value = (String) metricsValues.get(key);
     	} 
-    	System.out.println("Key = " + key + " Value = " + value);
+    	//System.out.println("Key = " + key + " Value = " + value);
     	return value;
     }
 
@@ -341,33 +342,37 @@ public class ReportUnit {
         this.ioncount = ioncount;
     }
 
-    // todo: is this method still used?
-    public void setStrings(int reportNum, String fileSize, String ms1Spectra, String ms2Spectra, String measured,
-                           String runtime) {
-        this.reportNum = reportNum;
-        this.fileSizeString = fileSize;
-        this.ms1Spectra = ms1Spectra;
-        this.ms2Spectra = ms2Spectra;
-        this.measured = measured;
-        this.runtime = runtime;
-    }
-
-	public int compareTo(final ReportUnit otherUnit, final String sortParam) {
+	public int compareTo(final ReportUnit otherUnit, final String sortKey) {
 		//if this report unit has higher value, it returns 1, equal value 0, lower value -1
 		//No.,File Size(MB),MS1Spectra,MS2Spectra,Measured,Runtime(hh:mm:ss),maxIntensity
-		if (sortParam.equals("No.")) {
+		//return -2; //invalid sort option 
+		
+		//Primary check on N/A values
+		
+		String thisValue = this.getMetricsValueFromKey(sortKey);
+		String otherValue = otherUnit.getMetricsValueFromKey(sortKey);
+		System.out.println("thisValue = " + thisValue + " otherValue = " + otherValue);
+		if (thisValue.equals(otherValue)) {
+			return 0; 
+		} else if (otherValue.equals("N/A")) { //thisValue is valid and present
+			return 1;
+		} else if (thisValue.equals("N/A")) { //otherValue is valid and present
+			return -1;
+		}
+		
+		if (sortKey.equals("No.")) {
 			if (this.reportNum > otherUnit.reportNum) {
 				return 1;
 			} else if (this.reportNum < otherUnit.reportNum) {
 				return -1;
 			} else return 0; //equal reportNum
-		} else if (sortParam.equals("File Size(MB)")) {
+		} else if (sortKey.equals("generic:f_size")) {
 			if (this.fileSize > otherUnit.fileSize) {
 				return 1;
 			} else if (this.fileSize < otherUnit.fileSize) {
 				return -1;
 			} else return 0;
-		} else if (sortParam.equals("MS1Spectra")) {
+		} else if (sortKey.equals("generic:ms1_spectra")) {
 			StringTokenizer stkz1 = new StringTokenizer(this.ms1Spectra, " ");
 			StringTokenizer stkz2 = new StringTokenizer(otherUnit.ms1Spectra, " ");
 			int thisms1Spectra = Integer.parseInt(stkz1.nextToken());
@@ -377,7 +382,7 @@ public class ReportUnit {
 			} else if (thisms1Spectra < otherms1Spectra) {
 				return -1;
 			} else return 0;
-		} else if (sortParam.equals("MS2Spectra")) {
+		} else if (sortKey.equals("generic:ms2_spectra")) {
 			StringTokenizer stkz1 = new StringTokenizer(this.ms2Spectra, " ");
 			StringTokenizer stkz2 = new StringTokenizer(otherUnit.ms2Spectra, " ");
 			int thisms2Spectra = Integer.parseInt(stkz1.nextToken());
@@ -387,31 +392,46 @@ public class ReportUnit {
 			} else if (thisms2Spectra < otherms2Spectra) {
 				return -1;
 			} else return 0;
-		} else if (sortParam.equals("Measured")) {
+		} else if (sortKey.equals("generic:date")) {
 			if (this.measured.compareToIgnoreCase(otherUnit.measured) > 0) {
 				return 1;
 			} else if (this.measured.compareToIgnoreCase(otherUnit.measured) < 0) {
 				return -1;
 			} else return 0; 
-		} else if (sortParam.equals("Runtime(hh:mm:ss)")) {
+		} else if (sortKey.equals("generic:runtime")) {
 			if (this.runtime.compareToIgnoreCase(otherUnit.runtime) > 0) {
 				return 1;
 			} else if (this.runtime.compareToIgnoreCase(otherUnit.runtime) < 0) {
 				return -1;
 			} else return 0; 
-		} else if (sortParam.equals("maxIntensity")) {
+		} else if (sortKey.equals("maxIntensity")) {
 			if (this.getChartUnit().getMaxTicIntensity() > otherUnit.getChartUnit().getMaxTicIntensity()) { 
 				return 1;
 			} else if (this.getChartUnit().getMaxTicIntensity() < otherUnit.getChartUnit().getMaxTicIntensity()) { 
 				return -1;
 			} else return 0; 
-		} else return -2; //invalid sort option 
+		} else {
+			double thisDouble = Double.parseDouble(thisValue);
+			double otherDouble = Double.parseDouble(otherValue);
+			if (thisDouble > otherDouble) { 
+				return 1;
+			} else if (thisDouble < otherDouble) { 
+				return -1;
+			} else return 0; 
+		}
 	}
 
 	public void setMetricsValues(HashMap<String, String> metricsValues) {
 		System.out.println("In ReportUnit setMetricsValues. No. of metrics = " + metricsValues.size());
 		if (metricsValues instanceof HashMap<?, ?>) {
 			this.metricsValues = (HashMap<?, ?>) metricsValues.clone();
+			//Set values of certain parameters to aid in the comparison
+	        this.fileSizeString = this.getMetricsValueFromKey("generic:f_size");
+	        setFileSizeString(fileSizeString);
+	        this.ms1Spectra = this.getMetricsValueFromKey("generic:ms1_spectra");
+	        this.ms2Spectra = this.getMetricsValueFromKey("ggeneric:ms2_spectra");;
+	        this.measured = this.getMetricsValueFromKey("generic:date");;
+	        this.runtime = this.getMetricsValueFromKey("generic:runtime");;
 		}
 	}
 }
