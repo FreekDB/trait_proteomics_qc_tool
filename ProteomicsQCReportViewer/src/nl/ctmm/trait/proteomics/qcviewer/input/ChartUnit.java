@@ -34,6 +34,7 @@ public class ChartUnit {
     private XYBarRenderer renderer = null;
 	private XYPlot plot = null;
 	private double maxIntensity = 0; 
+	private String maxIntensityString = "N/A";
     private static final List<Color> GRAPH_COLORS = Arrays.asList(
            Color.BLUE, Color.DARK_GRAY, Color.GRAY, Color.MAGENTA, Color.ORANGE, 
            Color.PINK, Color.LIGHT_GRAY, Color.RED, Color.GREEN);
@@ -42,7 +43,7 @@ public class ChartUnit {
 		this.chartName = msrunName; 
 		this.reportNum = reportNum;
 		this.graphDataSeries = series;
-		String maxIntensityString = "N/A";
+		
 		if (series != null) {
 			maxIntensity = series.getMaxY();
 			NumberFormat formatter = new DecimalFormat("0.0000E0");
@@ -88,6 +89,15 @@ public class ChartUnit {
 		if (graphDataSeries == null) {
 			return 0;
 		} else return maxIntensity;
+	}
+	
+	
+	/**
+	 * Get max intensity of TIC graph in String format
+	 * @return Max intensity of TIC graph in String format
+	 */
+	public String getMaxTicIntensityString() {
+		return maxIntensityString;
 	}
 	
     /**

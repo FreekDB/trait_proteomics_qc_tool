@@ -3,6 +3,9 @@ package nl.ctmm.trait.proteomics.qcviewer.input;
 import java.awt.image.BufferedImage;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
@@ -351,7 +354,7 @@ public class ReportUnit {
 		
 		String thisValue = this.getMetricsValueFromKey(sortKey);
 		String otherValue = otherUnit.getMetricsValueFromKey(sortKey);
-		System.out.println("thisValue = " + thisValue + " otherValue = " + otherValue);
+		System.out.print("thisValue = " + thisValue + " otherValue = " + otherValue);
 		if (thisValue.equals(otherValue)) {
 			return 0; 
 		} else if (otherValue.equals("N/A")) { //thisValue is valid and present
@@ -359,7 +362,6 @@ public class ReportUnit {
 		} else if (thisValue.equals("N/A")) { //otherValue is valid and present
 			return -1;
 		}
-		
 		if (sortKey.equals("No.")) {
 			if (this.reportNum > otherUnit.reportNum) {
 				return 1;
@@ -393,11 +395,21 @@ public class ReportUnit {
 				return -1;
 			} else return 0;
 		} else if (sortKey.equals("generic:date")) {
-			if (this.measured.compareToIgnoreCase(otherUnit.measured) > 0) {
-				return 1;
-			} else if (this.measured.compareToIgnoreCase(otherUnit.measured) < 0) {
-				return -1;
-			} else return 0; 
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MMM/dd - HH:mm");
+			Date thisDate = null;
+			Date otherDate = null;
+			try {
+				thisDate = sdf.parse(this.measured);
+				otherDate = sdf.parse(otherUnit.measured);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			System.out.print(" ThisDate = " + thisDate + " OtherDate = " + otherDate);
+			if (thisDate.compareTo(otherDate) > 0) {
+				return 1; 
+			} else if (thisDate.compareTo(otherDate) < 0) {
+				return -1; 
+			} else return 0;
 		} else if (sortKey.equals("generic:runtime")) {
 			if (this.runtime.compareToIgnoreCase(otherUnit.runtime) > 0) {
 				return 1;

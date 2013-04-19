@@ -595,6 +595,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 				int insertAtIndex = orderedReportUnits.size(); //new element will be inserted at position j or at the end of list
 				for (int j = 0; j < orderedReportUnits.size(); ++j) {
 					int result = reportUnits.get(i).compareTo(orderedReportUnits.get(j), sortKey); //comparing new and old lists
+					System.out.println(" Result = " + result);
 					if (result == -1) { //reportUnit(i) is < orderedUnit(j)
 						insertAtIndex = j;
 						break;
