@@ -148,7 +148,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 	    final JSplitPane splitPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 	    //Add desktopPane for displaying graphs and other QC Control
 	    int totalReports = orderedReportUnits.size();
-	    desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, totalReports * CHART_HEIGHT));
+	    desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, totalReports * (CHART_HEIGHT + 15)));
 	    prepareChartsInAscendingOrder(true);
 	    splitPane2.add(new JScrollPane(desktopPane));
 	    ticGraphPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, 2 * CHART_HEIGHT));
@@ -300,9 +300,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                 BorderFactory.createEtchedBorder(), "Zoom All"));
         zoomPanel.add(zoomPanelRadio, 0);
         zoomPanel.add(zoomPanelForm, 1);
-        //controlFrame.getContentPane().add(zoomPanel, 0);
         ButtonGroup sortGroup = new ButtonGroup();
-        //layout = new GridLayout(qcParamValues.size()/2+1,6);
         layout = new GridLayout(qcParamValues.size()/2+1,2);
         sortButtons = new ArrayList<JRadioButton>();
         JPanel sortPanel = new JPanel();
@@ -318,13 +316,11 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         	JPanel namePanel = new JPanel(new GridLayout(1,1));
         	namePanel.add(thisLabel);
         	namePanel.setBackground(Color.WHITE);
-        	//sortPanel.add(thisLabel);
         	//Sort ascending button
         	JRadioButton ascButton = new JRadioButton("Asc", false);
         	ascButton.setBackground(Color.WHITE);
         	ascButton.setActionCommand("Sort@" + qcParamKeys.get(i) + "@Asc");
         	ascButton.addActionListener(this);
-        	//sortPanel.add(ascButton);
         	sortGroup.add(ascButton);
         	sortButtons.add(ascButton);
         	//Sort descending button
@@ -332,7 +328,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         	desButton.setBackground(Color.WHITE);
         	desButton.setActionCommand("Sort@" + qcParamKeys.get(i) + "@Des");
         	desButton.addActionListener(this);
-        	//sortPanel.add(desButton); 
         	sortGroup.add(desButton); 
         	sortButtons.add(desButton);
         	JPanel buttonPanel = new JPanel(new GridLayout(1,2));
@@ -350,13 +345,11 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     	JPanel namePanel = new JPanel(new GridLayout(1,1));
     	namePanel.setBackground(Color.WHITE);
     	namePanel.add(thisLabel);
-    	//sortPanel.add(thisLabel);
     	//Sort ascending button
     	JRadioButton ascButton = new JRadioButton("Asc", false);
     	ascButton.setBackground(Color.WHITE);
     	ascButton.setActionCommand("Sort@" + "Compare" + "@Asc");
     	ascButton.addActionListener(this);
-    	//sortPanel.add(ascButton);
     	sortGroup.add(ascButton);
     	sortButtons.add(ascButton);
     	//Sort descending button
@@ -364,7 +357,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     	desButton.setBackground(Color.WHITE);
     	desButton.setActionCommand("Sort@" + "Compare" + "@Des");
     	desButton.addActionListener(this);
-    	//sortPanel.add(desButton); 
     	sortGroup.add(desButton); 
     	sortButtons.add(desButton); 
     	JPanel buttonPanel = new JPanel(new GridLayout(1,2));
@@ -380,13 +372,11 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         this.currentSortCriteria = sortButtons.get(0).getActionCommand(); 
         sortPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createEtchedBorder(), "Sort Options"));
-        //controlFrame.getContentPane().add(sortPanel, 1);
         //Add logo to control frame
         BufferedImage oplLogo = null;
 		try {
 			oplLogo = ImageIO.read(new File("images\\opllogo.jpg"));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
         JLabel oplLabel = new JLabel(new ImageIcon(oplLogo));
@@ -661,11 +651,12 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         			chartFrame = createChartFrame(i, orderedReportUnits.get(index).getChartUnit().getTicChart(), orderedReportUnits.get(orderedReportUnits.size() - i - 1));
         		//} else chartFrame = createChartFrame(i, orderedReportUnits.get(index).getChartUnit().getTicChart(), orderedReportUnits.get(orderedReportUnits.size() - i - 1));
         	}
+        	chartFrame.setBorder(BorderFactory.createRaisedBevelBorder());
         	chartFrame.pack();
         	chartFrame.setLocation(0, yCoordinate);
         	chartFrame.setVisible(true);
         	desktopPane.add(chartFrame);
-        	yCoordinate += CHART_HEIGHT;
+        	yCoordinate += CHART_HEIGHT + 15;
         }
 	}
     
