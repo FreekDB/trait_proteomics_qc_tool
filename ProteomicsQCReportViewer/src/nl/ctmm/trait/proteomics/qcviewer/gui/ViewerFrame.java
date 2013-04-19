@@ -60,6 +60,7 @@ import nl.ctmm.trait.proteomics.qcviewer.Main;
 import nl.ctmm.trait.proteomics.qcviewer.input.DataEntryForm;
 import nl.ctmm.trait.proteomics.qcviewer.input.MetricsParser;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnit;
+import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 import nl.ctmm.trait.proteomics.qcviewer.utils.OpenBrowser;
 
 import org.jfree.chart.ChartMouseEvent;
@@ -372,20 +373,32 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         this.currentSortCriteria = sortButtons.get(0).getActionCommand(); 
         sortPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createEtchedBorder(), "Sort Options"));
-        //Add logo to control frame
+        //Add opllogo to control frame
         BufferedImage oplLogo = null;
 		try {
-			oplLogo = ImageIO.read(new File("images\\opllogo.jpg"));
+			oplLogo = ImageIO.read(new File(Constants.PROPERTY_OPL_LOGO_FILE));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
         JLabel oplLabel = new JLabel(new ImageIcon(oplLogo));
         JPanel oplPanel = new JPanel();
         oplPanel.add(oplLabel);
+        
+        //Add traitlogo to control frame
+        BufferedImage traitctmmLogo = null;
+		try {
+			traitctmmLogo = ImageIO.read(new File(Constants.PROPERTY_PROJECT_LOGO_FILE));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+        JLabel traitctmmLabel = new JLabel(new ImageIcon(traitctmmLogo));
+        JPanel traitctmmPanel = new JPanel();
+        traitctmmPanel.add(traitctmmLabel);
         JPanel controlPanel = new JPanel();
         controlPanel.add(oplPanel, 0);
         controlPanel.add(zoomPanel, 1);
         controlPanel.add(sortPanel, 2);
+        controlPanel.add(traitctmmPanel, 3);
         controlPanel.setBorder(null);
         controlFrame.getContentPane().add(controlPanel);
         controlFrame.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, 150));
