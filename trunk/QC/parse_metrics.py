@@ -172,8 +172,10 @@ def _extract_nist_metrics(metrics_file):
         # get the line which contains the actual data (metrics[mcl][metric][2])
         for metric in metrics[mcl].keys():
             # Search for paragraph header, store line number
-            index = next((num for num, line in enumerate(lines) if metrics[mcl][metric][0] in line), None)
+            #index = next((num for num, line in enumerate(lines) if metrics[mcl][metric][0] in line), None)
+            index = next((num for num, line in enumerate(lines) if line.startswith(metrics[mcl][metric][0])), None)
             if index:
+                print ("Metric ", metrics[mcl][metric][0], " index ", index)
                 regex = re.compile('{0}{1}'.format(re.escape(metrics[mcl][metric][-1]), num_regex))
                 # Add the offset to the index to get the line with the actual data of interest
                 result = regex.search(lines[index + metrics[mcl][metric][1]])

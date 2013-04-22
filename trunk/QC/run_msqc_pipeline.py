@@ -80,14 +80,20 @@ def qc_pipeline(indir, outdir, copylog):
         print("Outdir is ", outdir)
         print("Working_dir is ", working_dir)
         try:
-            print("@Stage 1: Preparation: Copying rawfile to newinputfilename ", abs_rawfile_path, abs_inputfile_path, datetime.now())   
-            shutil.copy(abs_rawfile_path, abs_inputfile_path)   
-            print("@Stage 1 completed. Input file is ", abs_inputfile_path, datetime.now())  
+            time1 = datetime.now()
+            print("@Stage 1: Preparation: Copying rawfile to newinputfilename ", abs_rawfile_path, abs_inputfile_path, time1)   
+            shutil.copy(abs_rawfile_path, abs_inputfile_path)
+            print("Input file is ", abs_inputfile_path)
+            time2 = datetime.now()
+            print("@Stage 1 completed. ", time2 - time1)  
             output = ("MSQC pipeline processing successfully completed for file ", abs_rawfile_path)
-            print("@Stage 2: Preparation: Creating folder to write QC report in html form", datetime.now())   
+            time3 = datetime.now()
+            print("@Stage 2: Preparation: Creating folder to write QC report in html form", time3)   
             # Create folder to contain html report
-            webdir = _manage_paths(basename)  
-            print("@Stage 2 completed. Report folder is ", webdir, datetime.now())
+            webdir = _manage_paths(basename) 
+            print("Report folder is ", webdir) 
+            time4 = datetime.now()
+            print("@Stage 2 completed. ", time4 - time3)
             # Run QC workflow - for performance improvement, use abs_inputfile_path instead of abs_rawfile_path
             #_raw_format_conversions(abs_rawfile_path, working_dir)
             #print("@Stage 3: Conversion: Converting RAW file to mzXML format", datetime.now())  --remove comment for QC-lite 
@@ -95,24 +101,35 @@ def qc_pipeline(indir, outdir, copylog):
             #print("@Stage 3 completed. ", datetime.now())  --remove comment for QC-lite 			
             #_run_nist(abs_inputfile_path, working_dir)
             #_run_nist(indir, abs_rawfile_path, working_dir)
-            print("@Stage 3: Running NIST pipeline for QC-Full", datetime.now()) 
+            time5 = datetime.now()
+            print("@Stage 3: Running NIST pipeline for QC-Full", time5) 
             _run_nist(working_dir, abs_inputfile_path, working_dir)
-            print("@Stage 3 completed. ", datetime.now()) 
-            print("@Stage 4: Running R Script on mzXML file for heatmap and TIC analysis", datetime.now()) 			
+            time6 = datetime.now()
+            print("@Stage 3 completed. ", time6 - time5) 
+            time7 = datetime.now()
+            print("@Stage 4: Running R Script on mzXML file for heatmap and TIC analysis", time7) 			
             _run_r_script(working_dir, webdir, basename)
-            print("@Stage 4 completed. ", datetime.now())  		
+            time8 = datetime.now()
+            print("@Stage 4 completed. ", time8 - time7)  		
             #metrics = create_metrics(working_dir, abs_rawfile_path, t_start)
-            print("@Stage 5: Calculating QC metrics values", datetime.now())  
+            time9 = datetime.now()
+            print("@Stage 5: Calculating QC metrics values", time9)  
             metrics = create_metrics(working_dir, abs_inputfile_path, t_start) 
-            print("@Stage 5 completed. ", datetime.now()) 
-            print("@Stage 6: Creating metrics report in ", webdir, datetime.now())  
+            time10 = datetime.now()
+            print("@Stage 5 completed. ", time10 - time9) 
+            time11 = datetime.now()
+            print("@Stage 6: Creating metrics report in ", webdir, time11)  
             _create_report(webdir, basename, metrics)  
-            print("@Stage 6 completed. ", datetime.now()) 
+            time12 = datetime.now()
+            print("@Stage 6 completed. ", time12 - time11) 
             #TODO: Selectively cleanup mzXML and other files
-            print("@Stage 7: Cleanup copied RAW data file from ", abs_inputfile_path, datetime.now())	
+            time13 = datetime.now()
+            print("@Stage 7: Cleanup copied RAW data file from ", abs_inputfile_path, time13)	
             #Cleanup the abs_inputfile_path 
             os.remove(abs_inputfile_path) 
-            print("@Stage 7 completed. ", datetime.now())
+            time14 = datetime.now()
+            print("@Stage 7 completed. ", time14 - time13)
+            print("@Total processing time (days seconds microseconds)", time14 - time1)
         except subprocess.CalledProcessError, e:
             print("@error : ", e.output, datetime.now())
             output = e.output
@@ -125,7 +142,7 @@ def qc_pipeline(indir, outdir, copylog):
 
         # Cleanup (remove everything in working directory)
         #TODO: Selectively cleanup mzXML and other files
-        #_cleanup(working_dir)
+        _cleanup(working_dir)
 
 
 def _get_filelist(indir, copylog):
