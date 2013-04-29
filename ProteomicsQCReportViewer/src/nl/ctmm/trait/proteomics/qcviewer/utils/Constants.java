@@ -28,5 +28,8 @@ public interface Constants {
     static final String SIMPLE_DATE_FORMAT_STRING = "dd/MM/yyyy";
     static final String PROPERTY_METRICS_LISTING_FILE = "MetricsListing.txt";
     static final String PROPERTY_PROJECT_LOGO_FILE = "images\\traitctmm.jpg";
+    static final String PROPERTY_NIST_LOGO_FILE = "images\\nistlogo.jpg";
+    static final String PROPERTY_NBIC_LOGO_FILE = "images\\nbiclogo.png";
     static final String PROPERTY_OPL_LOGO_FILE = "images\\opllogo.jpg";
+    static final String PROPERTY_CTMM_LOGO_FILE = "images\\ctmmlogo.jpg";
 }

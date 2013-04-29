@@ -575,8 +575,11 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 			new Main().runReportViewer();
 		} else if (evt.getActionCommand().equals("About")) {
 			System.out.println("Pressed About button..");
-			JOptionPane.showMessageDialog(this,"Soon you will see more information about this software.",
-					  "Status",JOptionPane.INFORMATION_MESSAGE);
+			//JOptionPane.showMessageDialog(this,"Soon you will see more information about this software.",
+			//		  "Status",JOptionPane.INFORMATION_MESSAGE);
+			AboutFrame aboutFrame = new AboutFrame();
+			aboutFrame.setVisible(true);
+			aboutFrame.revalidate();
 		}
 	}
 	
