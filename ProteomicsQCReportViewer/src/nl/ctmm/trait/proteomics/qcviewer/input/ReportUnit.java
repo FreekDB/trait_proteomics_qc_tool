@@ -181,7 +181,7 @@ public class ReportUnit {
      */
     public void setFileSizeString(final String fileSizeString) {
         this.fileSizeString = fileSizeString;
-        fileSize = (fileSizeString != null && !fileSizeString.trim().isEmpty())
+        fileSize = (!fileSizeString.equals("N/A") && fileSizeString != null && !fileSizeString.trim().isEmpty())
                 ? Double.parseDouble(fileSizeString)
                 : null;
     }

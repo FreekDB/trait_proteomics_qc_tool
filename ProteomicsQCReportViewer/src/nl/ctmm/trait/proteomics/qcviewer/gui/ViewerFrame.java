@@ -14,6 +14,8 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
@@ -161,7 +163,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         splitPane1.add(controlFrame);
 	    splitPane1.add(splitPane2);
 	    splitPane1.setOneTouchExpandable(true); //hide-show feature
-	    splitPane1.setDividerLocation(140); //control panel will appear 140 pixels large
+	    splitPane1.setDividerLocation(150); //control panel will appear 140 pixels large
 	    splitPane1.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 15, (int)(6.5 * CHART_HEIGHT)));
 	    getContentPane().add(splitPane1, "Center");
 	    setJMenuBar(createMenuBar());
@@ -238,6 +240,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     	final JInternalFrame controlFrame = new JInternalFrame("Control Panel", true);
         javax.swing.plaf.InternalFrameUI ifu= controlFrame.getUI();
         ((javax.swing.plaf.basic.BasicInternalFrameUI)ifu).setNorthPane(null);
+        controlFrame.setBorder(null);
         GridLayout layout = new GridLayout(2,1);
         JPanel zoomPanel = new JPanel();
         zoomPanel.setLayout(layout);
@@ -399,12 +402,41 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         controlPanel.add(zoomPanel, 1);
         controlPanel.add(sortPanel, 2);
         controlPanel.add(traitctmmPanel, 3);
-        controlPanel.setBorder(null);
+
         controlFrame.getContentPane().add(controlPanel);
-        controlFrame.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, 150));
+        controlFrame.setSize(new Dimension(DESKTOP_PANE_WIDTH + 30, 150));
         controlFrame.pack();
         controlFrame.setLocation(0, 0);
-        controlFrame.setBorder(null);
+        controlFrame.setBackground(Color.WHITE);
+        controlFrame.setForeground(Color.WHITE);
+        //TO avoid resizing and repositioning of components in the controlFrame
+        controlFrame.addComponentListener(new ComponentListener() {  
+            public void componentResized(ComponentEvent e) {  
+                JInternalFrame f = (JInternalFrame)e.getSource();  
+                f.setSize(new Dimension(DESKTOP_PANE_WIDTH + 30, 150));
+            }
+
+			@Override
+			public void componentHidden(ComponentEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void componentMoved(ComponentEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void componentShown(ComponentEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}  
+        });  
+        
+        
+        
         controlFrame.setVisible(true);
         return controlFrame;
     }
