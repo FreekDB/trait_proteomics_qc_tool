@@ -85,7 +85,7 @@ def qc_pipeline(indir, outdir, copylog):
             shutil.copy(abs_rawfile_path, abs_inputfile_path)
             print("Input file is ", abs_inputfile_path)
             time2 = datetime.now()
-            print("@Stage 1 completed. ", time2 - time1)  
+            print("@Completed Stage 1 copying ", time2 - time1)  
             output = ("MSQC pipeline processing successfully completed for file ", abs_rawfile_path)
             time3 = datetime.now()
             print("@Stage 2: Preparation: Creating folder to write QC report in html form", time3)   
@@ -93,7 +93,7 @@ def qc_pipeline(indir, outdir, copylog):
             webdir = _manage_paths(basename) 
             print("Report folder is ", webdir) 
             time4 = datetime.now()
-            print("@Stage 2 completed. ", time4 - time3)
+            print("@Completed Stage 2 MakingReportFolder ", time4 - time3)
             # Run QC workflow - for performance improvement, use abs_inputfile_path instead of abs_rawfile_path
             #_raw_format_conversions(abs_rawfile_path, working_dir)
             #print("@Stage 3: Conversion: Converting RAW file to mzXML format", datetime.now())  --remove comment for QC-lite 
@@ -105,30 +105,31 @@ def qc_pipeline(indir, outdir, copylog):
             print("@Stage 3: Running NIST pipeline for QC-Full", time5) 
             _run_nist(working_dir, abs_inputfile_path, working_dir)
             time6 = datetime.now()
-            print("@Stage 3 completed. ", time6 - time5) 
+            print("@Completed Stage 3 NISTPipeline ", time6 - time5) 
             time7 = datetime.now()
             print("@Stage 4: Running R Script on mzXML file for heatmap and TIC analysis", time7) 			
             _run_r_script(working_dir, webdir, basename)
             time8 = datetime.now()
-            print("@Stage 4 completed. ", time8 - time7)  		
-            #metrics = create_metrics(working_dir, abs_rawfile_path, t_start)
+            print("@Stage 4 RScriptTIC completed. ", time8 - time7)  		
             time9 = datetime.now()
             print("@Stage 5: Calculating QC metrics values", time9)  
             metrics = create_metrics(working_dir, abs_inputfile_path, t_start) 
             time10 = datetime.now()
-            print("@Stage 5 completed. ", time10 - time9) 
+            print("@Completed Stage 5 MetricsCalculation ", time10 - time9) 
             time11 = datetime.now()
             print("@Stage 6: Creating metrics report in ", webdir, time11)  
             _create_report(webdir, basename, metrics)  
             time12 = datetime.now()
-            print("@Stage 6 completed. ", time12 - time11) 
+            print("@Completed Stage 6 MetricsReport ", time12 - time11) 
             #TODO: Selectively cleanup mzXML and other files
             time13 = datetime.now()
             print("@Stage 7: Cleanup copied RAW data file from ", abs_inputfile_path, time13)	
             #Cleanup the abs_inputfile_path 
             os.remove(abs_inputfile_path) 
+            # Cleanup (remove everything in working directory)
+            #_cleanup(working_dir)
             time14 = datetime.now()
-            print("@Stage 7 completed. ", time14 - time13)
+            print("@Completed Stage 7 Cleanup ", time14 - time13)
             print("@Total processing time (days seconds microseconds)", time14 - time1)
         except subprocess.CalledProcessError, e:
             print("@error : ", e.output, datetime.now())
@@ -139,11 +140,6 @@ def qc_pipeline(indir, outdir, copylog):
         print("@output : ", output)
         # Update log-file showing completed analysis
         _log_progress(_PROGRES_LOG, rawfile, 'completed')
-
-        # Cleanup (remove everything in working directory)
-        #TODO: Selectively cleanup mzXML and other files
-        _cleanup(working_dir)
-
 
 def _get_filelist(indir, copylog):
     """
@@ -268,7 +264,8 @@ def _run_nist(indir, rawfile, outdir):
     log.info("Running NIST..")
 
     # NIST settings
-    nist_library = 'jurkat'
+    #nist_library = 'jurkat'
+    nist_library = 'humanqtof'
     search_engine = 'SpectraST'
     mode = 'full'
     fasta = normpath('{0}/libs/{1}.fasta'.format(_NIST, nist_library))
@@ -313,17 +310,16 @@ def _run_r_script(outdir, webdir, basename):
     @param basename: RAW file name (without ext) used to identify mzXML file
     '''
     log.info("Creating Graphics..")
-
-    # Execute Rscript
-    rcmd = ['Rscript',
-            _R_GRAPHICS,
+    oplreaderjar = normpath('{0}/oplreader.jar'.format(_QC_HOME))
+    # Execute oplreader
+    rcmd = ['java',
+            '-jar',
+            oplreaderjar,
             outdir,
             basename,
-            webdir,
-            '1']  # MS level (1 or 2)
-
+            webdir]  
+    print rcmd
     check_call(rcmd, shell=True)
-
 
 def _create_report(webdir, basename, metrics):
     '''

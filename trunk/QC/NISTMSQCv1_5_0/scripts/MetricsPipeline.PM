@@ -1287,10 +1287,12 @@ sub run_nistms_metrics {
     my $self = shift;
     my ($cntr, $skipped) = (0,0);
     my ($cmd, $series_cntr);
+    $cmd .=" < $self->{_bin_path}\\newline.txt";
+    print "$cmd\n";
     #print "Point 1\n";
     if ( $self->{_ini_tag} ) { # Manual editing of ms.ini file re-run
         #print "Point 2\n";
-        $cmd = "$self->{'nistms_metrics.exe'} $self->{_ms_ini} $self->{_ini_tag} $self->{_mode}";
+        $cmd = "$self->{'nistms_metrics.exe'} $self->{_ms_ini} $self->{_ini_tag} $self->{_mode} < $self->{_bin_path}\\newline.txt";
         open(INI, "<$self->{_ms_ini}") || die "Could not open $self->{_ms_ini}\n";
         my @lines = ();
         while (<INI>) {
@@ -1324,7 +1326,7 @@ sub run_nistms_metrics {
         #print "Point 5\n";
         my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
         my $date_stamp = sprintf "%4d-%02d-%02d_%02d:%02d:%02d", $year+1900,$mon+1,$mday,$hour,$min,$sec;
-        $cmd = "$self->{'nistms_metrics.exe'} \"$self->{_ms_ini}\" $date_stamp $self->{_mode}";
+        $cmd = "$self->{'nistms_metrics.exe'} \"$self->{_ms_ini}\" $date_stamp $self->{_mode}  < $self->{_bin_path}\\newline.txt";
         # Process the existing ms.ini file.
         open(INI, ">>$self->{_ms_ini}") || die "Could not open $self->{_ms_ini}\n";
         # Print the tcurrent runs.

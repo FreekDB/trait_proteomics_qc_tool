@@ -175,7 +175,7 @@ def _extract_nist_metrics(metrics_file):
             #index = next((num for num, line in enumerate(lines) if metrics[mcl][metric][0] in line), None)
             index = next((num for num, line in enumerate(lines) if line.startswith(metrics[mcl][metric][0])), None)
             if index:
-                print ("Metric ", metrics[mcl][metric][0], " index ", index)
+                #print ("Metric ", metrics[mcl][metric][0], " index ", index)
                 regex = re.compile('{0}{1}'.format(re.escape(metrics[mcl][metric][-1]), num_regex))
                 # Add the offset to the index to get the line with the actual data of interest
                 result = regex.search(lines[index + metrics[mcl][metric][1]])
@@ -190,11 +190,13 @@ def _extract_nist_metrics(metrics_file):
 
     return nist_metrics
 
-
+    '''
 def _extract_rlog_metrics(logfile):
+    '''
     '''
     Return dictionary of values extracted from R logfile.
     @param logfile: R-logfile to scan for # of scans, # of peaks and other generic metrics
+    '''
     '''
     rlog_metrics = {}
 
@@ -216,6 +218,34 @@ def _extract_rlog_metrics(logfile):
     ms2_peaks = ms2_peaks.group(1) if ms2_peaks else "NA"
     rlog_metrics['ms2_spectra'] = ['MS2 Spectra', '{0} ({1})'.format(ms2_num, ms2_peaks)]
 
+    return rlog_metrics
+    '''
+
+def _extract_rlog_metrics(logfile):
+    '''
+    Return dictionary of values extracted from R logfile.
+    @param logfile: R-logfile to scan for # of scans, # of peaks and other generic metrics
+    '''
+    rlog_metrics = {}
+
+    # Extracting metrics (MS1, MS2 scans) from R log file
+    with open(logfile, 'r') as rlogfile:
+        rlog = ''.join(rlogfile.readlines())
+
+    #TODO extract these patterns to an external dictionary, analogous to get_default_nist_metrics
+    # Values are set to NA if not found
+    ms1_num = re.search('Number of MS1 scans: ([0-9]+)', rlog)
+    ms1_num = ms1_num.group(1) if ms1_num else "NA"
+    rlog_metrics['ms1_spectra'] = ['MS1 Spectra', '{0}'.format(ms1_num)]
+
+    ms2_num = re.search('Number of MS2 scans: ([0-9]+)', rlog)
+    ms2_num = ms2_num.group(1) if ms2_num else "NA"
+    rlog_metrics['ms2_spectra'] = ['MS2 Spectra', '{0}'.format(ms2_num)]
+
+    maxIntensity = re.search('maxIntensity: ([a-zA-Z0-9.]+)', rlog)
+    maxIntensity = maxIntensity.group(1) if maxIntensity else "NA"
+    rlog_metrics['maxIntensity'] = ['maxIntensity', '{0}'.format(maxIntensity)]
+    
     return rlog_metrics
 
 
