@@ -46,9 +46,9 @@ public class JsonMetricsReader {
             	String paramName = stkz.nextToken();
             	//Check whether json file contains objectname
             	//Uncomment following line to include generic parameter. 
-            	//if (jsonObject.containsKey(objectName)) {
+            	if (jsonObject.containsKey(objectName)) {
             	//Comment following line to include generic parameter
-            	if (!objectName.equals("generic") && jsonObject.containsKey(objectName)) {
+            	//if (!objectName.equals("generic") && jsonObject.containsKey(objectName)) {
             		JSONObject jObject = (JSONObject) jsonObject.get(objectName);
                 	//System.out.println("Key = " + (String) keys[i] + " Object = " + objectName + " paramName = " + paramName);
                 	if (paramName.equals("date") || paramName.equals("runtime")) { 
