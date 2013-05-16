@@ -1,0 +1,60 @@
+Thu May 16 11:44:35 CEST 2013
+<html>In Folder data01QE2_130409_OPL1013_CvA_Bonemarrow_TiOx_S5 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder PH090924_HCW090828_293NE_P3A02 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder PH090924_HCW090828_293NE_P3A03 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder PH090924_HCW090828_293NE_P3A04 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder PH090924_HCW090828_293NE_P3A05 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder PH090924_HCW090828_293NE_P3A06 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder QE1_130108_OPL1005_YL_lysRIVM_NKI_BRCA_H1 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder QE1_130215_OPL1013_LYS_CACO2_2 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder QE2_120918_OPL0000_phosmix2L_pulled_tip_12 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder QE2_130506_OPL0000_jurkat2ug_01 following filetypes are missing:heatmap.png ions.png </html>
+
+Thu May 16 12:57:53 CEST 2013
+<html>In Folder data01QE2_130409_OPL1013_CvA_Bonemarrow_TiOx_S5 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder PH090924_HCW090828_293NE_P3A02 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder PH090924_HCW090828_293NE_P3A03 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder PH090924_HCW090828_293NE_P3A04 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder PH090924_HCW090828_293NE_P3A05 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder PH090924_HCW090828_293NE_P3A06 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder QE1_130108_OPL1005_YL_lysRIVM_NKI_BRCA_H1 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder QE1_130215_OPL1013_LYS_CACO2_2 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder QE2_120918_OPL0000_phosmix2L_pulled_tip_12 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder QE2_130506_OPL0000_jurkat2ug_01 following filetypes are missing:heatmap.png ions.png </html>
+
+Thu May 16 13:37:52 CEST 2013
+<html>In Folder data01QE2_130409_OPL1013_CvA_Bonemarrow_TiOx_S5 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder PH090924_HCW090828_293NE_P3A02 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder PH090924_HCW090828_293NE_P3A03 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder PH090924_HCW090828_293NE_P3A04 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder PH090924_HCW090828_293NE_P3A05 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder PH090924_HCW090828_293NE_P3A06 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder QE1_130108_OPL1005_YL_lysRIVM_NKI_BRCA_H1 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder QE1_130215_OPL1013_LYS_CACO2_2 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder QE2_120918_OPL0000_phosmix2L_pulled_tip_12 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder QE2_130506_OPL0000_jurkat2ug_01 following filetypes are missing:heatmap.png ions.png </html>
+
+Thu May 16 13:41:08 CEST 2013
+<html>In Folder data01QE2_130409_OPL1013_CvA_Bonemarrow_TiOx_S5 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder PH090924_HCW090828_293NE_P3A02 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder PH090924_HCW090828_293NE_P3A03 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder PH090924_HCW090828_293NE_P3A04 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder PH090924_HCW090828_293NE_P3A05 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder PH090924_HCW090828_293NE_P3A06 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder QE1_130108_OPL1005_YL_lysRIVM_NKI_BRCA_H1 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder QE1_130215_OPL1013_LYS_CACO2_2 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder QE2_120918_OPL0000_phosmix2L_pulled_tip_12 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder QE2_130506_OPL0000_jurkat2ug_01 following filetypes are missing:heatmap.png ions.png </html>
+
+Thu May 16 13:41:35 CEST 2013
+<html>In Folder data01QE2_130409_OPL1013_CvA_Bonemarrow_TiOx_S5 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder PH090924_HCW090828_293NE_P3A02 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder PH090924_HCW090828_293NE_P3A03 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder PH090924_HCW090828_293NE_P3A04 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder PH090924_HCW090828_293NE_P3A05 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder PH090924_HCW090828_293NE_P3A06 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder QE1_130108_OPL1005_YL_lysRIVM_NKI_BRCA_H1 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder QE1_130215_OPL1013_LYS_CACO2_2 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder QE2_120918_OPL0000_phosmix2L_pulled_tip_12 following filetypes are missing:heatmap.png ions.png </html>
+<html>In Folder QE2_130506_OPL0000_jurkat2ug_01 following filetypes are missing:heatmap.png ions.png </html>
+

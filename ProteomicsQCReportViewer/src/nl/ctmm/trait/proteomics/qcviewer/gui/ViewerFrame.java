@@ -510,9 +510,23 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 		System.out.println("Corresponding action command is " + evt.getActionCommand() 
 				+ " evt class = " + evt.getClass());
 		//Check whether Details button is pressed - in order to open corresponding hyperlink 
-		if (evt.getActionCommand().startsWith("http://")) {
+		/*
+		 * Replace following with opening DetailsFrame for corresponding report
+		 * if (evt.getActionCommand().startsWith("http://")) {
 			OpenBrowser.openURL(evt.getActionCommand().trim());
-		} //Check whether zoom to particular range is pressed 
+		} */
+		if (evt.getActionCommand().startsWith("Details")) {
+			//Parse actioncommand to get reportUnit number
+			StringTokenizer stkz = new StringTokenizer(evt.getActionCommand(), "-");
+			stkz.nextToken();
+			int reportNum = Integer.parseInt(stkz.nextToken());
+			System.out.println("Details requested for reportNum " + reportNum);
+			ReportUnit rUnit = reportUnits.get(reportNum);
+			DetailsFrame detailsFrame = new DetailsFrame(rUnit);
+			detailsFrame.setVisible(true);
+			detailsFrame.revalidate();
+		}
+		//Check whether zoom to particular range is pressed 
 		else if (evt.getActionCommand().equals("ZoomMinMax")) { 
 			ZoomMinMax();
 		} //Check whether zoom in - all is selected
@@ -737,6 +751,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         } else chartCheckBox.setSelected(false);
         chartCheckBox.addItemListener(this);
         
+        /*
+         * Replacing following code to show entire report in new frame
         //Create a button for viewing URL based report
         JButton uriButton = new JButton("Details");
         uriButton.setFont(font);
@@ -745,6 +761,14 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         uriButton.setActionCommand(reportUnit.getDetailsUri().toString());
         uriButton.addActionListener(this);
         //uriButton.setBackground(Color.WHITE);
+        */
+        JButton uriButton = new JButton("Details");
+        uriButton.setFont(font);
+        uriButton.setPreferredSize(new Dimension(80, 20));
+        //Hyperlink to be replaced with path to browser report
+        uriButton.setActionCommand("Details-" + Integer.toString(reportUnit.getReportNum()));
+        uriButton.addActionListener(this);
+        
         JPanel checkPanel = new JPanel();
         checkPanel.setFont(font);
         checkPanel.setBackground(Color.WHITE);
@@ -773,44 +797,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     		thisLabel.setFont(font);
     		thisLabel.setForeground(fgColor);
     		labelPanel.add(thisLabel);
-        	/*if (qcParamNames.get(i).trim().equalsIgnoreCase("No.")) {
-        		JLabel thisLabel = new JLabel(qcParamNames.get(i) + ": " + (reportUnit.getReportNum()));
-        		thisLabel.setFont(font);
-        		thisLabel.setForeground(fgColor);
-        		labelPanel.add(thisLabel);
-        	} else if (qcParamNames.get(i).trim().equalsIgnoreCase("File Size(MB)")) {
-        		JLabel thisLabel = new JLabel(qcParamNames.get(i) + ": " + reportUnit.getFileSizeString());
-        		thisLabel.setFont(font);
-        		thisLabel.setForeground(fgColor);
-        		labelPanel.add(thisLabel);
-        	} else if (qcParamNames.get(i).trim().equalsIgnoreCase("MS1Spectra")) {
-        		JLabel thisLabel = new JLabel(qcParamNames.get(i) + ": " + reportUnit.getMs1Spectra());
-        		thisLabel.setFont(font);
-        		thisLabel.setForeground(fgColor);
-        		labelPanel.add(thisLabel);
-        	} else if (qcParamNames.get(i).trim().equalsIgnoreCase("MS2Spectra")) {
-        		JLabel thisLabel = new JLabel(qcParamNames.get(i) + ": " + reportUnit.getMs2Spectra());
-        		thisLabel.setFont(font);
-        		thisLabel.setForeground(fgColor);
-        		labelPanel.add(thisLabel);
-        	} else if (qcParamNames.get(i).trim().equalsIgnoreCase("Measured")) {
-        		JLabel thisLabel = new JLabel(qcParamNames.get(i) + ": " + reportUnit.getMeasured());
-        		thisLabel.setFont(font);
-        		thisLabel.setForeground(fgColor);
-        		labelPanel.add(thisLabel);
-        	} else if (qcParamNames.get(i).trim().equalsIgnoreCase("Runtime(hh:mm:ss)")) {
-        		JLabel thisLabel = new JLabel(qcParamNames.get(i) + ": " + reportUnit.getRuntime());
-        		thisLabel.setFont(font);
-        		thisLabel.setForeground(fgColor);
-        		labelPanel.add(thisLabel);
-        	} else if (qcParamNames.get(i).trim().equalsIgnoreCase("maxIntensity")) {
-        		double maxIntensity = reportUnit.getChartUnit().getMaxTicIntensity(); 
-        		NumberFormat formatter = new DecimalFormat("0.0000E0");
-        		JLabel thisLabel = new JLabel(qcParamNames.get(i) + ": " + formatter.format(maxIntensity));
-        		thisLabel.setForeground(fgColor);
-        		thisLabel.setFont(font);
-        		labelPanel.add(thisLabel);
-        	}*/
         }
         JPanel displayPanel = new JPanel();
         displayPanel.add(checkPanel, 0);

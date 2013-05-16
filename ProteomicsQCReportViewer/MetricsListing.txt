@@ -12,6 +12,7 @@ dyn:ds-3a:MS1max/MS1sampled Abundance (Median All IDs)
 dyn:ds-3b:MS1max/MS1sampled Abundance (Med Bottom 1/2)
 generic:date:Measured
 generic:ms2_spectra:MS2 Spectra
+generic:maxIntensity:maxIntensity
 generic:runtime:runtime
 generic:f_size:File Size (MB)
 generic:ms1_spectra:MS1 Spectra

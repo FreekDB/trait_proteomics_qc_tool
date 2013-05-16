@@ -446,4 +446,10 @@ public class ReportUnit {
 	        this.runtime = this.getMetricsValueFromKey("generic:runtime");;
 		}
 	}
+	
+	public HashMap<?, ?> getMetricsValues() {
+		if (metricsValues != null) {
+			return metricsValues;
+		} else return null;
+	}
 }
