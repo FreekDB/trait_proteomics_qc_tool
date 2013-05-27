@@ -1,6 +1,8 @@
 package nl.ctmm.trait.proteomics.qcviewer.gui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -10,6 +12,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -20,8 +24,13 @@ import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumn;
 
+import nl.ctmm.trait.proteomics.qcviewer.input.MetricsParser;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnit;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Utilities;
@@ -30,161 +39,81 @@ import org.jfree.ui.RefineryUtilities;
 
 public class DetailsFrame extends JFrame implements ActionListener {
 
-	private JFrame aboutFrame; 
-    int style = Font.PLAIN;
+	private static final long serialVersionUID = 1L;
+	int style = Font.PLAIN;
     Font font = new Font ("Garamond", style , 11);
+ // Instance attributes used in this example
+ 	private	JPanel		topPanel;
+ 	private	JTable		table;
+ 	private	JScrollPane scrollPane;
     
-	public DetailsFrame(ReportUnit rUnit) {
-		super ("QC Metrics Values for RAW file " + rUnit.getMsrunName());
-		JPanel mainPanel = new JPanel();
-		mainPanel.setPreferredSize(new Dimension(500, 700));
+	public DetailsFrame(HashMap<String, String> metricsListing, ReportUnit rUnit) {
+		super ("All QC Metrics Values for " + rUnit.getMsrunName());
+		setSize(520, 740);
+		setBackground( Color.gray );
+
+		// Create a panel to hold all other components
+		topPanel = new JPanel();
+		topPanel.setLayout( new BorderLayout());
+
+		// Create columns names
+		String columnNames[] = { "Metrics ID", "Description", "Value" };
+
+		//Read metricsListing - key - metricsID Value - MetricName
+		System.out.println("In DetailsFrame - preparing to create dataset" );
+		// Create data to show inside the table
+		String dataValues[][] = new String[metricsListing.size()][3];
+		int index = 0; 
+		//Read metricsValues corresponding to rUnit
+		HashMap<?, ?> metricsValues = rUnit.getMetricsValues();
+		Iterator<?> it = metricsListing.entrySet().iterator();
+	    while (it.hasNext()) {
+	        Map.Entry pairs = (Map.Entry)it.next();
+	        String listingKey = (String) pairs.getKey();
+	        String listingValue = (String) pairs.getValue();
+	        //Use listingKey to get value of metrics from metricsValues
+	        String metricsValue = (String) metricsValues.get(listingKey);
+	        //This corresponds to one row in the metricsTable
+	        System.out.println("listingKey = " + listingKey + " listingValue = " + listingValue
+	        		+ " metricsValue = " + metricsValue);
+	        String[] row = new String[3];
+	        row[0] = listingKey;
+	        row[1] = listingValue;
+	        row[2] = metricsValue;
+			dataValues[index] = row;
+	        ++index;
+	    }
 		
-		
-		/*if (metricsValues instanceof HashMap<?, ?>) {
-			this.metricsValues = (HashMap<?, ?>) metricsValues.clone();
-		}*/
-		
-		
-		
-		JTextArea descText = getDescriptionJTextArea();
-        JScrollPane areaScrollPane = new JScrollPane(descText);
-        areaScrollPane.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createEtchedBorder(), "Proteomics Quality Control"));
-        areaScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        areaScrollPane.setHorizontalScrollBarPolicy(
-                        JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        areaScrollPane.setPreferredSize(new Dimension(500, 200));
-        areaScrollPane.setBackground(Color.WHITE);
-		mainPanel.add(areaScrollPane, 0);
-		JTextArea refsText = getReferencesTextArea();
-		areaScrollPane = new JScrollPane(refsText);
-        areaScrollPane.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createEtchedBorder(), "References"));
-        areaScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        areaScrollPane.setHorizontalScrollBarPolicy(
-                        JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        areaScrollPane.setPreferredSize(new Dimension(500, 150));
-        areaScrollPane.setBackground(Color.WHITE);
-		mainPanel.add(areaScrollPane, 1);
-		JTextArea detailsText = getDetailsTextArea();
-		areaScrollPane = new JScrollPane(detailsText);
-        areaScrollPane.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createEtchedBorder(), "Download & Contact Details"));
-        areaScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        areaScrollPane.setHorizontalScrollBarPolicy(
-                        JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        areaScrollPane.setPreferredSize(new Dimension(500, 100));
-        areaScrollPane.setBackground(Color.WHITE);
-        mainPanel.add(areaScrollPane, 2);
-        JLabel oplLabel = createAcknowledgementLabel("http://www.oncoproteomics.nl", Constants.PROPERTY_OPL_LOGO_FILE);
-		JLabel nistLabel = createAcknowledgementLabel("http://www.nist.gov", Constants.PROPERTY_NIST_LOGO_FILE);
-		JLabel ctmmLabel = createAcknowledgementLabel("http://www.ctmm.nl", Constants.PROPERTY_CTMM_LOGO_FILE);
-		JLabel projectLabel = createAcknowledgementLabel("http://www.ctmm-trait.nl", Constants.PROPERTY_PROJECT_LOGO_FILE);
-		JLabel nbicLabel = createAcknowledgementLabel("http://www.nbic.nl", Constants.PROPERTY_NBIC_LOGO_FILE);
-		JPanel labelPanel = new JPanel();
-		labelPanel.setLayout(new GridLayout(5, 1));
-		labelPanel.add(oplLabel, 0);
-		labelPanel.add(nistLabel, 1);
-		labelPanel.add(ctmmLabel, 2);
-		labelPanel.add(projectLabel, 3);
-		labelPanel.add(nbicLabel, 4);
-		labelPanel.setBackground(Color.WHITE);
-		areaScrollPane = new JScrollPane(labelPanel);
-        areaScrollPane.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createEtchedBorder(), "Acknowledgements"));
-        areaScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        areaScrollPane.setHorizontalScrollBarPolicy(
-                        JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        areaScrollPane.setPreferredSize(new Dimension(500, 200));
-        areaScrollPane.setBackground(Color.WHITE);
-		mainPanel.add(areaScrollPane, 3);
-    	JButton SUBMIT = new JButton("OK");
-    	SUBMIT.setSize(new Dimension(50, 30));
+		// Create a new table instance
+		table = new JTable(dataValues, columnNames);
+		table.setAutoCreateRowSorter(true);
+		table.setDefaultRenderer(Object.class, new TableCellRender()); 
+		table.setFont(font);
+		TableColumn column0 = table.getColumnModel().getColumn(0);
+		column0.setPreferredWidth(130);
+		TableColumn column1 = table.getColumnModel().getColumn(1);
+		column1.setPreferredWidth(320);
+		TableColumn column2 = table.getColumnModel().getColumn(2);
+		column2.setPreferredWidth(150);
+		JTableHeader header = table.getTableHeader();
+		int hStyle = Font.BOLD;
+	    Font hFont = new Font ("Garamond", hStyle , 12);
+		header.setBackground(Color.yellow);
+		header.setFont(hFont);
+		// Add the table to a scrolling pane
+		scrollPane = new JScrollPane(table);
+		topPanel.add(scrollPane, BorderLayout.CENTER);
+
+		JButton SUBMIT = new JButton("OK");
+    	SUBMIT.setPreferredSize(new Dimension(80, 30));
   	  	SUBMIT.addActionListener(this);
   	  	SUBMIT.setActionCommand("OK");
-  	    mainPanel.add(SUBMIT);
-		getContentPane().add(mainPanel);
-		setBounds(0, 0, 520, 740);
+  	  	JPanel buttonPanel = new JPanel();
+  	  	buttonPanel.add(SUBMIT);
+  	  	topPanel.add(buttonPanel, BorderLayout.SOUTH);
+		getContentPane().add(topPanel);
+		setBounds(0, 0, 540, 780);
 		RefineryUtilities.centerFrameOnScreen(this);
-	}
-	
-	private JTextArea getDescriptionJTextArea() {
-        //Create a text area.
-        JTextArea textArea = new JTextArea(
-        		"Proteomics deals with the large-scale study of proteins and has become a powerful technology in " + 
-        		"discovery of drug targets and biomarkers. Modern day proteomics is largely based on nano-liquid " +
-        		"chromatography coupled to high-resolution tandem mass spectrometry (nanoLC-MS/MS). However, the " + 
-        		"reproducibility of MS results is considered by many as insufficient. In part, inadequate quality " + 
-        		"control (QC) might be responsible for the lack of reproducibility [1].\n " + 
-        		"The importance of well-established QC has become a focal point in the field of proteomics [2]. The " + 
-        		"National Institute of Standards (NIST) has developed a QC pipeline for evaluating analytical " + 
-        		"performance of a common discovery-based proteomics platform by monitoring selected output from a " + 
-        		"LC-MS/MS system. This pipeline is known as NIST MSQC Pipeline [3]. The 46 QC metrics for monitoring " + 
-        		"chromatographic performance, electrospray source stability, MS1 and MS2 signals, dynamic sampling of " + 
-        		"ions for MS/MS, and peptide identification are described in [4]. Application of these metrics enables " + 
-        		"rational, quantitative quality assessment for proteomics and other LC-MS/MS analytical applications.\n " + 
-        		"The Netherlands Bioinformatics Institute (NBIC) has adapted the NIST MSQC Pipeline to suit the " + 
-        		"proteomics QC requirements of the OncoProteomics Laboratory (OPL). The adapted pipeline is named as " + 
-        		"NBIC-NIST MSQC Pipeline. Compared to the NIST MSQC Pipeline, the adapted version triggers pipeline " + 
-        		"processing on the availability of a new RAW data file in a fully automatic fashion– and creates a " + 
-        		"web-based QC report combining the NIST metrics with a number of custom metrics.  The custom-made MSQC " + 
-        		"Report Viewer aggregates and shows all available QC reports generated by the MSQC pipeline report " + 
-        		"directory. It includes functionality of sorting, filtering, zooming and comparing these reports as " + 
-        		"per the need of proteomics researchers." 
-        );
-        textArea.setFont(font);
-        textArea.setEditable(false);
-        textArea.setLineWrap(true);
-        textArea.setWrapStyleWord(true);
-        return textArea;
-	}
-	
-	private JTextArea getReferencesTextArea() {
-        //Create a text area.
-        JTextArea textArea = new JTextArea(
-        		"[1] Köcher, T., Pichler, P., Swart, R. and Mechtler, K., Quality control in LC-MS/MS, Wiley " + 
-        		"Proteomics, 11(6), pp. 1026-1030, Feb 2011.\n" + 
-        		"[2] PRIME-XS-Deliverable 13.1, Deliverable 13.1 - Suite of tools that allow automatic quality control " +
-        		"on the acquired data, 16 Feb 2012.\n" + 
-        		"[3] NIST LC-MS/MS Metrics for Monitoring Variability in Proteomics Experiments, National Institute of " +  
-        		"Standards and Technology - United States Department of Commerce, June 2011, available online: " +
-        		"http://peptide.nist.gov/metrics/, last accessed: 22 Jan 2013.\n" +  
-        		"[4] Rudnick P. A. et. al., Performance Metrics for Liquid Chromatography-Tandem Mass Spectrometry " + 
-        		"Systems in Proteomics Analyses, Molecular and Cell Proteomics, 9(2), pp. 225–241, Feb 2010."
-        );
-        textArea.setFont(font);
-        textArea.setEditable(false);
-        textArea.setLineWrap(true);
-        textArea.setWrapStyleWord(true);
-        return textArea;
-	}
-	
-	private JTextArea getDetailsTextArea() {
-        //Create a text area.
-        JTextArea textArea = new JTextArea(
-        		"Project homepage: https://trac.nbic.nl/svn/proteomics/ProteomicsQCReportViewer\n" + 
-        		"SVN Repository: https://trac.nbic.nl/svn/proteomics/ProteomicsQCReportViewer\n" + 
-        		"Version: 1.6.5\n" +
-        		"Contact: Dr. Thang V. Pham (t.pham@vumc.nl)"
-        );
-        textArea.setFont(font);
-        textArea.setEditable(false);
-        textArea.setLineWrap(true);
-        textArea.setWrapStyleWord(true);
-        return textArea;
-	}
-	
-	private JLabel createAcknowledgementLabel(String labelText, String iconPath) {
-        //Add opllogo to control frame
-        BufferedImage logo = null;
-		try {
-			logo = ImageIO.read(new File(iconPath));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		logo = Utilities.scaleImage(logo, 0, 100, 100);
-        JLabel oplLabel = new JLabel(labelText, new ImageIcon(logo), JLabel.LEFT);
-        return oplLabel;
 	}
 
 	@Override
@@ -193,5 +122,28 @@ public class DetailsFrame extends JFrame implements ActionListener {
 			dispose();
 		}
 	}
+	
+	class TableCellRender extends DefaultTableCellRenderer {  
 
+		private static final long serialVersionUID = 1L;
+
+		public TableCellRender() {  
+			setOpaque(true);  
+		}  
+		   
+		public Component getTableCellRendererComponent (JTable table, 
+			Object obj, boolean isSelected, boolean hasFocus, int row, int column) {
+			Component cell = super.getTableCellRendererComponent(table, obj, isSelected, hasFocus, row, column);
+			if (isSelected) {
+				cell.setBackground(Color.green);
+			} else {
+				if (row % 2 == 0) {
+					cell.setBackground(Color.white);
+				} else {
+					cell.setBackground(Color.lightGray);
+				}
+			}
+			return cell;
+		}
+	}   
 }

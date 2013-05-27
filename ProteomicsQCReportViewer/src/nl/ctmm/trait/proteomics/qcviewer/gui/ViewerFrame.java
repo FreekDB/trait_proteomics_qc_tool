@@ -522,7 +522,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 			int reportNum = Integer.parseInt(stkz.nextToken());
 			System.out.println("Details requested for reportNum " + reportNum);
 			ReportUnit rUnit = reportUnits.get(reportNum);
-			DetailsFrame detailsFrame = new DetailsFrame(rUnit);
+			DetailsFrame detailsFrame = new DetailsFrame(mParser.getMetricsListing(), rUnit);
 			detailsFrame.setVisible(true);
 			detailsFrame.revalidate();
 		}
