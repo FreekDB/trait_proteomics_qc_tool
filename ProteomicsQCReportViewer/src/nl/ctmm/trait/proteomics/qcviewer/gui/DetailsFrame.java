@@ -87,6 +87,7 @@ public class DetailsFrame extends JFrame implements ActionListener {
 		// Create a new table instance
 		table = new JTable(dataValues, columnNames);
 		table.setAutoCreateRowSorter(true);
+		table.getRowSorter().toggleSortOrder(0);
 		table.setDefaultRenderer(Object.class, new TableCellRender()); 
 		table.setFont(font);
 		TableColumn column0 = table.getColumnModel().getColumn(0);
