@@ -11,6 +11,7 @@ public interface Constants {
     static final String APPLICATION_VERSION = "1.6.5";
     static final String PROPERTIES_FILE_NAME = "appProperties";
     static final String PROPERTY_ROOT_FOLDER = "RootFolder";
+    static final String PROPERTY_PROGRESS_LOG = "qc_status.log";
     static final String DEFAULT_ROOT_FOLDER = "QCReports\\ctmm";
     static final String PROPERTY_TOP_COLUMN_NAMESV1 = "TopColumnNamesV1";
     static final String PROPERTY_TOP_COLUMN_NAMESV2 = "TopColumnNamesV2";

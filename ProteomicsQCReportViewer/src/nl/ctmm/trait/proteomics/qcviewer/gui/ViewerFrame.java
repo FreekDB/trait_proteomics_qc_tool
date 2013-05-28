@@ -7,6 +7,7 @@ package nl.ctmm.trait.proteomics.qcviewer.gui;
  * Swing layout: http://www.cs101.org/courses/fall05/resources/swinglayout/
  */
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -105,18 +106,21 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 	private String newSortCriteria = "";
 	private Properties appProperties = null;
 	private MetricsParser mParser = null;
+	private String pipelineStatus = "";
 
     /**
      * Creates a new instance of the demo.
      * 
      * @param title  the title.
+     * @param pipelineStatus 
      */
-    public ViewerFrame(final MetricsParser mParser, final Properties appProperties, final String title, final List<ReportUnit> reportUnits, final List<String> qcParamNames) {
+    public ViewerFrame(final MetricsParser mParser, final Properties appProperties, final String title, final List<ReportUnit> reportUnits, final List<String> qcParamNames, String pipelineStatus) {
         super(title);
     	System.out.println("ViewerFrame constructor");
         setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 25, CHART_HEIGHT * 10));
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.mParser = mParser; 
+        this.pipelineStatus = pipelineStatus; 
         this.qcParamNames = qcParamNames;
         qcParamKeys = new ArrayList<String>();
         qcParamValues = new ArrayList<String>();
@@ -163,7 +167,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         splitPane1.add(controlFrame);
 	    splitPane1.add(splitPane2);
 	    splitPane1.setOneTouchExpandable(true); //hide-show feature
-	    splitPane1.setDividerLocation(150); //control panel will appear 140 pixels large
+	    splitPane1.setDividerLocation(170); //control panel will appear 170 pixels large
 	    splitPane1.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 15, (int)(6.5 * CHART_HEIGHT)));
 	    getContentPane().add(splitPane1, "Center");
 	    setJMenuBar(createMenuBar());
@@ -241,6 +245,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         javax.swing.plaf.InternalFrameUI ifu= controlFrame.getUI();
         ((javax.swing.plaf.basic.BasicInternalFrameUI)ifu).setNorthPane(null);
         controlFrame.setBorder(null);
+        controlFrame.setLayout(new BorderLayout(0, 0));
+        controlFrame.setBackground(Color.WHITE);
         GridLayout layout = new GridLayout(2,1);
         JPanel zoomPanel = new JPanel();
         zoomPanel.setLayout(layout);
@@ -402,9 +408,15 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         controlPanel.add(zoomPanel, 1);
         controlPanel.add(sortPanel, 2);
         controlPanel.add(traitctmmPanel, 3);
-
-        controlFrame.getContentPane().add(controlPanel);
-        controlFrame.setSize(new Dimension(DESKTOP_PANE_WIDTH + 30, 150));
+        controlFrame.getContentPane().add(controlPanel, BorderLayout.NORTH);
+        JLabel statusLabel = new JLabel(pipelineStatus);
+        statusLabel.setFont(font);
+        statusLabel.setBackground(Color.CYAN);
+        JPanel statusPanel = new JPanel();
+        statusPanel.setBackground(Color.CYAN); 
+        statusPanel.add(statusLabel);
+        controlFrame.getContentPane().add(statusPanel, BorderLayout.SOUTH);
+        controlFrame.setSize(new Dimension(DESKTOP_PANE_WIDTH + 30, 170));
         controlFrame.pack();
         controlFrame.setLocation(0, 0);
         controlFrame.setBackground(Color.WHITE);
@@ -413,7 +425,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         controlFrame.addComponentListener(new ComponentListener() {  
             public void componentResized(ComponentEvent e) {  
                 JInternalFrame f = (JInternalFrame)e.getSource();  
-                f.setSize(new Dimension(DESKTOP_PANE_WIDTH + 30, 150));
+                f.setSize(new Dimension(DESKTOP_PANE_WIDTH + 30, 170));
             }
 
 			@Override
@@ -510,18 +522,14 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 		System.out.println("Corresponding action command is " + evt.getActionCommand() 
 				+ " evt class = " + evt.getClass());
 		//Check whether Details button is pressed - in order to open corresponding hyperlink 
-		/*
-		 * Replace following with opening DetailsFrame for corresponding report
-		 * if (evt.getActionCommand().startsWith("http://")) {
-			OpenBrowser.openURL(evt.getActionCommand().trim());
-		} */
+
 		if (evt.getActionCommand().startsWith("Details")) {
 			//Parse actioncommand to get reportUnit number
 			StringTokenizer stkz = new StringTokenizer(evt.getActionCommand(), "-");
 			stkz.nextToken();
 			int reportNum = Integer.parseInt(stkz.nextToken());
 			System.out.println("Details requested for reportNum " + reportNum);
-			ReportUnit rUnit = reportUnits.get(reportNum);
+			ReportUnit rUnit = reportUnits.get(reportNum - 1); //-1 to adjust index
 			DetailsFrame detailsFrame = new DetailsFrame(mParser.getMetricsListing(), rUnit);
 			detailsFrame.setVisible(true);
 			detailsFrame.revalidate();

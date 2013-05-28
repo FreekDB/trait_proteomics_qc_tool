@@ -22,6 +22,7 @@ import nl.ctmm.trait.proteomics.qcviewer.gui.ViewerFrame;
 import nl.ctmm.trait.proteomics.qcviewer.gui.ViewerPanel;
 import nl.ctmm.trait.proteomics.qcviewer.input.DataEntryForm;
 import nl.ctmm.trait.proteomics.qcviewer.input.MetricsParser;
+import nl.ctmm.trait.proteomics.qcviewer.input.ProgressLogReader;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportReader;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnit;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
@@ -59,6 +60,10 @@ public class Main{
         mParser = new MetricsParser(applicationProperties);
        	String preferredRootDirectory = applicationProperties.getProperty(Constants.PROPERTY_ROOT_FOLDER);
         System.out.println("in Main preferredRootDirectory = " + preferredRootDirectory);
+       	String progressLogFilePath = preferredRootDirectory + "\\" + Constants.PROPERTY_PROGRESS_LOG;
+        System.out.println("progressLogFilePath = " + progressLogFilePath);
+        ProgressLogReader plogReader = new ProgressLogReader(progressLogFilePath);
+        String pipelineStatus = plogReader.getCurrentStatus();
         DataEntryForm deForm = new DataEntryForm(this, applicationProperties);
         deForm.setRootDirectoryName(preferredRootDirectory);
         deForm.displayInitialDialog();
@@ -105,7 +110,7 @@ public class Main{
         		startGuiVersion1(applicationProperties, reportUnits);
         	} else
         	{
-        		startGuiVersion2(applicationProperties, reportUnits);
+        		startGuiVersion2(applicationProperties, reportUnits, pipelineStatus);
         	}
         }
     }
@@ -198,11 +203,12 @@ public class Main{
      * @param appProperties the application properties.
      * @param reportUnits   the report units to be displayed.
      */
-    private void startGuiVersion2(final Properties appProperties, final List<ReportUnit> reportUnits) {
+    private void startGuiVersion2(final Properties appProperties, final List<ReportUnit> reportUnits, final String pipelineStatus) {
     	System.out.println("Main startGuiVersion2");
     	final List<String> qcParamNames = getColumnNames(appProperties, Constants.PROPERTY_TOP_COLUMN_NAMESV2);
     	//Create ViewerFrame and set it visible
-        final ViewerFrame frame = new ViewerFrame(mParser, appProperties, Constants.APPLICATION_NAME + " " + Constants.APPLICATION_VERSION, reportUnits, qcParamNames);
+        final ViewerFrame frame = new ViewerFrame(mParser, appProperties, Constants.APPLICATION_NAME + " " + 
+        		Constants.APPLICATION_VERSION, reportUnits, qcParamNames, pipelineStatus);
         frame.pack();
         RefineryUtilities.centerFrameOnScreen(frame);
         frame.setVisible(true);
