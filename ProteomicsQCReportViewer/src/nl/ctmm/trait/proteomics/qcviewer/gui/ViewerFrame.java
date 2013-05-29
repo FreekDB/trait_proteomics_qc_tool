@@ -107,8 +107,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 	private Properties appProperties = null;
 	private MetricsParser mParser = null;
 	private String pipelineStatus = "";
+	private JSplitPane splitPane1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT); 
 	private JSplitPane splitPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT); 
-	private JInternalFrame controlFrame; 
 	private JLabel statusLabel;
 	private JPanel statusPanel;
 
@@ -151,24 +151,19 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * Automatically refresh viewerframe
      */
     public void refreshViewerFrame(final List<ReportUnit> reportUnits, String pipelineStatus) {
+    	this.pipelineStatus = pipelineStatus; 
     	setReportUnits(reportUnits);
         setOrderedReportUnits(reportUnits);
+        splitPane1.removeAll();
         splitPane2.removeAll();
-	    //Add desktopPane for displaying graphs and other QC Control
-	    int totalReports = orderedReportUnits.size();
-	    desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, totalReports * (CHART_HEIGHT + 15)));
-	    prepareChartsInAscendingOrder(true);
-	    splitPane2.add(new JScrollPane(desktopPane), 0);
-	    ticGraphPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, 2 * CHART_HEIGHT));
-	    splitPane2.add(new JScrollPane(ticGraphPane), 1);
-	    int style = Font.BOLD;
-	    Font font = new Font ("Garamond", style , 11);
-	    statusPanel.removeAll();
-        statusLabel = new JLabel(pipelineStatus);
-        statusLabel.setFont(font);
-        statusLabel.setBackground(Color.CYAN);
-        statusPanel.setBackground(Color.CYAN); 
-        statusPanel.add(statusLabel);
+        if (ticGraphPane != null) {
+        	ticGraphPane.removeAll();
+        }
+		if (desktopPane != null) {
+	    	desktopPane.removeAll(); 
+	    }
+		getContentPane().removeAll();
+	    assembleComponents();
 	    setVisible(true);
 	    revalidate();
     }
@@ -179,9 +174,9 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private void assembleComponents() { 
     	System.out.println("ViewerFrame assembleComponents");
         //We need two split panes to create 3 regions in the main frame
-        final JSplitPane splitPane1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+
         //Add static (immovable) Control frame
-	    controlFrame = getControlFrame();
+    	JInternalFrame controlFrame = getControlFrame();
 	    //Add desktopPane for displaying graphs and other QC Control
 	    int totalReports = orderedReportUnits.size();
 	    desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, totalReports * (CHART_HEIGHT + 15)));
@@ -200,8 +195,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 	    splitPane1.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 15, (int)(6.5 * CHART_HEIGHT)));
 	    getContentPane().add(splitPane1, "Center");
 	    setJMenuBar(createMenuBar());
-	    setVisible(true);
-	    revalidate();
     }
     
     /**
@@ -273,7 +266,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     
     private JInternalFrame getControlFrame() {
     	System.out.println("ViewerFrame getControlFrame");
-    	controlFrame = new JInternalFrame("Control Panel", true);
+    	JInternalFrame controlFrame = new JInternalFrame("Control Panel", true);
         javax.swing.plaf.InternalFrameUI ifu= controlFrame.getUI();
         ((javax.swing.plaf.basic.BasicInternalFrameUI)ifu).setNorthPane(null);
         controlFrame.setBorder(null);
@@ -748,15 +741,11 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         	JInternalFrame chartFrame;
         	if (flag) {
         		System.out.print("Report URI = " + orderedReportUnits.get(i).getDetailsUri() + " ");
-        		//if (orderedReportUnits.get(i).getChartUnit() == null) {
         			chartFrame = createChartFrame(i, orderedReportUnits.get(i).getChartUnit().getTicChart(), orderedReportUnits.get(i));
-        		//} else chartFrame = createChartFrame(i, orderedReportUnits.get(i).getChartUnit().getTicChart(), orderedReportUnits.get(i));
         	} else {
         		int index = orderedReportUnits.size() - i - 1;
         		System.out.print("Report URI = " + orderedReportUnits.get(index).getDetailsUri() + " ");
-        		//if (orderedReportUnits.get(index).getChartUnit() == null) {
-        			chartFrame = createChartFrame(i, orderedReportUnits.get(index).getChartUnit().getTicChart(), orderedReportUnits.get(orderedReportUnits.size() - i - 1));
-        		//} else chartFrame = createChartFrame(i, orderedReportUnits.get(index).getChartUnit().getTicChart(), orderedReportUnits.get(orderedReportUnits.size() - i - 1));
+        		chartFrame = createChartFrame(i, orderedReportUnits.get(index).getChartUnit().getTicChart(), orderedReportUnits.get(orderedReportUnits.size() - i - 1));
         	}
         	chartFrame.setBorder(BorderFactory.createRaisedBevelBorder());
         	chartFrame.pack();
@@ -795,24 +784,12 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         	chartCheckBox.setSelected(true); 
         } else chartCheckBox.setSelected(false);
         chartCheckBox.addItemListener(this);
-        
-        /*
-         * Replacing following code to show entire report in new frame
-        //Create a button for viewing URL based report
-        JButton uriButton = new JButton("Details");
-        uriButton.setFont(font);
-        uriButton.setPreferredSize(new Dimension(80, 20));
+        JButton detailsButton = new JButton("Details");
+        detailsButton.setFont(font);
+        detailsButton.setPreferredSize(new Dimension(80, 20));
         //Hyperlink to be replaced with path to browser report
-        uriButton.setActionCommand(reportUnit.getDetailsUri().toString());
-        uriButton.addActionListener(this);
-        //uriButton.setBackground(Color.WHITE);
-        */
-        JButton uriButton = new JButton("Details");
-        uriButton.setFont(font);
-        uriButton.setPreferredSize(new Dimension(80, 20));
-        //Hyperlink to be replaced with path to browser report
-        uriButton.setActionCommand("Details-" + Integer.toString(reportUnit.getReportNum()));
-        uriButton.addActionListener(this);
+        detailsButton.setActionCommand("Details-" + Integer.toString(reportUnit.getReportNum()));
+        detailsButton.addActionListener(this);
         
         JPanel checkPanel = new JPanel();
         checkPanel.setFont(font);
@@ -820,7 +797,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         checkPanel.setForeground(Color.WHITE); 
         //GridLayout layout = new GridLayout(2, 1);
         //checkPanel.setLayout(layout);
-        checkPanel.add(uriButton, 0);
+        checkPanel.add(detailsButton, 0);
         checkPanel.add(chartCheckBox, 1);
         JLabel numLabel = new JLabel(Integer.toString(reportUnit.getReportNum()));
         Font numFont = new Font ("Garamond", style , 22);
