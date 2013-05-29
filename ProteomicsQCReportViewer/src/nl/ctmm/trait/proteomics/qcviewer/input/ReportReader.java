@@ -47,7 +47,7 @@ public class ReportReader extends JFrame {
     );
 
     private int currentReportNum;
-    private String serverAddress = "";
+    //private String serverAddress = "";
     private JsonMetricsReader jmReader = null; 
     
     public ReportReader(MetricsParser mParser) {
@@ -64,7 +64,7 @@ public class ReportReader extends JFrame {
      * @param fromDate 
      * @return a list with report units.
      */
-    public List<ReportUnit> retrieveReports(final String rootDirectoryName, String serverAddress, final Date fromDate, final Date tillDate) {
+    public List<ReportUnit> retrieveReports(final String rootDirectoryName, final Date fromDate, final Date tillDate) {
         // todo msrun versus msreading directory?
         /*The directory has three levels - year, month and msrun.
         The msreading directory may contain following three files of importance:
@@ -77,7 +77,6 @@ public class ReportReader extends JFrame {
 	    3) msrun*_ions.png
 	    */
     	String allErrorMessages = ""; 
-    	this.serverAddress = serverAddress;
         final List<ReportUnit> reportUnits = new ArrayList<ReportUnit>();
         logger.log(Level.ALL, "Root folder = " + rootDirectoryName);
         for (final File yearDirectory : getYearDirectories(rootDirectoryName)) {
@@ -117,7 +116,7 @@ public class ReportReader extends JFrame {
         }
         if (!allErrorMessages.equals("")) {
         	saveErrorMessages(allErrorMessages);
-        	JOptionPane.showMessageDialog(this, allErrorMessages, "MSQC Check Warning Messages",JOptionPane.ERROR_MESSAGE);
+        	//JOptionPane.showMessageDialog(this, allErrorMessages, "MSQC Check Warning Messages",JOptionPane.ERROR_MESSAGE);
         }
         return reportUnits;
     }
@@ -305,9 +304,6 @@ public class ReportReader extends JFrame {
                 logger.fine("Directory " + dataFileName);
             }
         }
-        //Set the URI
-        String detailsUri = "http://" + this.serverAddress + Constants.SERVER_LINK_POSTAMBLE + "/" + year + "/" + month + "/" + msrunName + "/";
-        reportUnit.setDetailsUri(detailsUri);
         return reportUnit;
     }
 

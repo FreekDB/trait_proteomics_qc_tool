@@ -107,6 +107,10 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 	private Properties appProperties = null;
 	private MetricsParser mParser = null;
 	private String pipelineStatus = "";
+	private JSplitPane splitPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT); 
+	private JInternalFrame controlFrame; 
+	private JLabel statusLabel;
+	private JPanel statusPanel;
 
     /**
      * Creates a new instance of the demo.
@@ -144,6 +148,32 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     }
     
     /**
+     * Automatically refresh viewerframe
+     */
+    public void refreshViewerFrame(final List<ReportUnit> reportUnits, String pipelineStatus) {
+    	setReportUnits(reportUnits);
+        setOrderedReportUnits(reportUnits);
+        splitPane2.removeAll();
+	    //Add desktopPane for displaying graphs and other QC Control
+	    int totalReports = orderedReportUnits.size();
+	    desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, totalReports * (CHART_HEIGHT + 15)));
+	    prepareChartsInAscendingOrder(true);
+	    splitPane2.add(new JScrollPane(desktopPane), 0);
+	    ticGraphPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, 2 * CHART_HEIGHT));
+	    splitPane2.add(new JScrollPane(ticGraphPane), 1);
+	    int style = Font.BOLD;
+	    Font font = new Font ("Garamond", style , 11);
+	    statusPanel.removeAll();
+        statusLabel = new JLabel(pipelineStatus);
+        statusLabel.setFont(font);
+        statusLabel.setBackground(Color.CYAN);
+        statusPanel.setBackground(Color.CYAN); 
+        statusPanel.add(statusLabel);
+	    setVisible(true);
+	    revalidate();
+    }
+    
+    /**
      * Assemble components of the ViewerFrame
      */
     private void assembleComponents() { 
@@ -151,15 +181,14 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         //We need two split panes to create 3 regions in the main frame
         final JSplitPane splitPane1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         //Add static (immovable) Control frame
-	    JInternalFrame controlFrame = getControlFrame();
-	    final JSplitPane splitPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+	    controlFrame = getControlFrame();
 	    //Add desktopPane for displaying graphs and other QC Control
 	    int totalReports = orderedReportUnits.size();
 	    desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, totalReports * (CHART_HEIGHT + 15)));
 	    prepareChartsInAscendingOrder(true);
-	    splitPane2.add(new JScrollPane(desktopPane));
+	    splitPane2.add(new JScrollPane(desktopPane), 0);
 	    ticGraphPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, 2 * CHART_HEIGHT));
-	    splitPane2.add(new JScrollPane(ticGraphPane));
+	    splitPane2.add(new JScrollPane(ticGraphPane), 1);
 	    //Set initial tic Graph - specify complete chart in terms of orderedReportUnits
 	    setTicGraphPaneChart(orderedReportUnits.get(0).getReportNum() - 1);
 	    splitPane2.setOneTouchExpandable(true); //hide-show feature
@@ -216,7 +245,10 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private void setReportUnits(final List<ReportUnit> reportUnits) {
     	System.out.println("ViewerFrame setReportUnits No. of reportUnits = " + reportUnits.size());
-        this.reportUnits = reportUnits;
+    	if (this.reportUnits != null) {
+    		this.reportUnits.clear();
+    	}
+    	this.reportUnits = reportUnits;
         //Initialize chartCheckBoxFlags to false
         for (int i = 0; i < reportUnits.size(); ++i) {
         	chartCheckBoxFlags.add(false);
@@ -241,7 +273,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     
     private JInternalFrame getControlFrame() {
     	System.out.println("ViewerFrame getControlFrame");
-    	final JInternalFrame controlFrame = new JInternalFrame("Control Panel", true);
+    	controlFrame = new JInternalFrame("Control Panel", true);
         javax.swing.plaf.InternalFrameUI ifu= controlFrame.getUI();
         ((javax.swing.plaf.basic.BasicInternalFrameUI)ifu).setNorthPane(null);
         controlFrame.setBorder(null);
@@ -414,10 +446,10 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         controlPanel.add(sortPanel, 2);
         controlPanel.add(traitctmmPanel, 3);
         controlFrame.getContentPane().add(controlPanel, BorderLayout.NORTH);
-        JLabel statusLabel = new JLabel(pipelineStatus);
+        statusLabel = new JLabel(pipelineStatus);
         statusLabel.setFont(font);
         statusLabel.setBackground(Color.CYAN);
-        JPanel statusPanel = new JPanel();
+        statusPanel = new JPanel();
         statusPanel.setBackground(Color.CYAN); 
         statusPanel.add(statusLabel);
         controlFrame.getContentPane().add(statusPanel, BorderLayout.SOUTH);
@@ -427,10 +459,10 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         //controlFrame.setBackground(Color.WHITE);
         //controlFrame.setForeground(Color.WHITE);
         //TO avoid resizing and repositioning of components in the controlFrame
-        controlFrame.addComponentListener(new ComponentListener() {  
+        controlPanel.addComponentListener(new ComponentListener() {  
             public void componentResized(ComponentEvent e) {  
-                JInternalFrame f = (JInternalFrame)e.getSource();  
-                //f.setSize(new Dimension(DESKTOP_PANE_WIDTH + 30, 170));
+            	//JPanel controlPanel = (JPanel)e.getSource();  
+            	//controlPanel.setSize(new Dimension(DESKTOP_PANE_WIDTH + 30, 170));
             }
 
 			@Override

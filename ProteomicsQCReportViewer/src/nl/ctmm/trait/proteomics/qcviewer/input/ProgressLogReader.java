@@ -104,7 +104,7 @@ public class ProgressLogReader implements FileChangeListener {
 		System.out.println("ProgressLogReader: logFile changed. Refreshing current status..");
 		refreshCurrentStatus(logFile);
 		System.out.println("Now current status is " + getCurrentStatus());
-		owner.notifyProgressLogFileChanged();
+		owner.notifyProgressLogFileChanged(getCurrentStatus());
 	}
 }
 

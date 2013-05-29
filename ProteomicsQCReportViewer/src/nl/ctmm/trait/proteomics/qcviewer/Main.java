@@ -1,6 +1,5 @@
 package nl.ctmm.trait.proteomics.qcviewer;
 
-import java.awt.Dimension;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -16,15 +15,11 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.JFrame;
-import javax.swing.WindowConstants;
-
 import nl.ctmm.trait.proteomics.qcviewer.gui.ViewerFrame;
-import nl.ctmm.trait.proteomics.qcviewer.gui.ViewerPanel;
 import nl.ctmm.trait.proteomics.qcviewer.input.DataEntryForm;
 import nl.ctmm.trait.proteomics.qcviewer.input.MetricsParser;
-import nl.ctmm.trait.proteomics.qcviewer.input.ProgressLogReader;
 import nl.ctmm.trait.proteomics.qcviewer.input.ProgressLogMonitor;
+import nl.ctmm.trait.proteomics.qcviewer.input.ProgressLogReader;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportReader;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnit;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
@@ -40,6 +35,10 @@ import org.jfree.ui.RefineryUtilities;
 public class Main{
 	private Properties applicationProperties = null; 
 	private MetricsParser mParser = null;
+	private String pipelineStatus = "";
+    private Date fromDate = null, tillDate = null;
+    private ViewerFrame frame;
+    private DataEntryForm deForm;
 	/**
      * The logger for this class.
      */
@@ -65,7 +64,7 @@ public class Main{
        	String progressLogFilePath = preferredRootDirectory + "\\" + Constants.PROPERTY_PROGRESS_LOG;
         System.out.println("progressLogFilePath = " + progressLogFilePath);
         ProgressLogReader plogReader = new ProgressLogReader(this, progressLogFilePath);
-        String pipelineStatus = plogReader.getCurrentStatus();
+        pipelineStatus = plogReader.getCurrentStatus();
         
         //Experimenting with ProgressLogMonitor
         ProgressLogMonitor plogMonitor = ProgressLogMonitor.getInstance();
@@ -76,11 +75,10 @@ public class Main{
 			System.out.println("progress log file not found. Configured path: " + progressLogFilePath);
 		} //initial period is 5 seconds 
         
-        DataEntryForm deForm = new DataEntryForm(this, applicationProperties);
+        deForm = new DataEntryForm(this, applicationProperties);
         deForm.setRootDirectoryName(preferredRootDirectory);
         deForm.displayInitialDialog();
-        String server = applicationProperties.getProperty(Constants.PROPERTY_PREFERRED_WEBSERVER);
-        Date fromDate = null, tillDate = null;
+
         //Determine date interval for which to display reports for
         SimpleDateFormat sdf = new SimpleDateFormat(Constants.SIMPLE_DATE_FORMAT_STRING);
 		sdf.setLenient(false);
@@ -101,7 +99,6 @@ public class Main{
     		}
         }
         if (tillDate == null) { //The date interval is not specified. 
-        	int daysNum = Integer.parseInt(applicationProperties.getProperty(Constants.DEFALUT_REPORTS_DISPLAY_PERIOD, Constants.DEFALUT_REPORTS_DISPLAY_PERIOD_VALUE));
         	tillDate = new Date(); //Till Date is current date
         	Calendar now = Calendar.getInstance();
         	now.add(Calendar.DATE, -14); 
@@ -110,7 +107,7 @@ public class Main{
         	System.out.println("fromDate = " + sdf.format(fromDate) + " tillDate = " + sdf.format(tillDate));
         }
         System.out.println("fromDate = " + sdf.format(fromDate) + " tillDate = " + sdf.format(tillDate));
-        final List<ReportUnit> reportUnits = getReportUnits(preferredRootDirectory, server, fromDate, tillDate);
+        final List<ReportUnit> reportUnits = getReportUnits(preferredRootDirectory, fromDate, tillDate);
         deForm.disposeInitialDialog();
         if (reportUnits.size() == 0) { //There exist no reports in current root directory
         	//Get new location to read reports from
@@ -122,9 +119,24 @@ public class Main{
         }
     }
     
-    public void notifyProgressLogFileChanged() {
-		// TODO Refresh ReportViewer automatically on this notification
-		
+    public void notifyProgressLogFileChanged(String newPipelineStatus) {
+		/* Refresh ReportViewer automatically on this notification
+		 * The tillDate has to be updated as currentTime - since the pipeline status has changed.
+		 * FromDate could be specified by the user
+		 */
+		pipelineStatus = newPipelineStatus; 
+		Calendar now = Calendar.getInstance();
+		tillDate = now.getTime();
+		String preferredRootDirectory = applicationProperties.getProperty(Constants.PROPERTY_ROOT_FOLDER);
+		final List<ReportUnit> reportUnits = getReportUnits(preferredRootDirectory, fromDate, tillDate);
+		if (reportUnits.size() == 0) { //There exist no reports in current root directory
+	      	//Get new location to read reports from
+	       	deForm.displayErrorMessage("No Reports found in " + preferredRootDirectory);
+	       	deForm.displayRootDirectoryChooser();
+	    } else { 
+	    //Refresh ViewerFrame
+	    	frame.refreshViewerFrame(reportUnits, pipelineStatus);
+	    }
 	}
     
     /**
@@ -181,8 +193,8 @@ public class Main{
      * @param applicationProperties2 
      * @return the list with report units.
      */
-    private List<ReportUnit> getReportUnits(final String rootDirectoryName, String server, Date fromDate, Date tillDate) {
-        return new ReportReader(mParser).retrieveReports(rootDirectoryName, server, fromDate, tillDate);
+    private List<ReportUnit> getReportUnits(final String rootDirectoryName, Date fromDate, Date tillDate) {
+        return new ReportReader(mParser).retrieveReports(rootDirectoryName, fromDate, tillDate);
     }
 
     /**
@@ -195,7 +207,7 @@ public class Main{
     	System.out.println("Main startGuiVersion2");
     	final List<String> qcParamNames = getColumnNames(appProperties, Constants.PROPERTY_TOP_COLUMN_NAMESV2);
     	//Create ViewerFrame and set it visible
-        final ViewerFrame frame = new ViewerFrame(mParser, appProperties, Constants.APPLICATION_NAME + " " + 
+        frame = new ViewerFrame(mParser, appProperties, Constants.APPLICATION_NAME + " " + 
         		Constants.APPLICATION_VERSION, reportUnits, qcParamNames, pipelineStatus);
         frame.pack();
         RefineryUtilities.centerFrameOnScreen(frame);
