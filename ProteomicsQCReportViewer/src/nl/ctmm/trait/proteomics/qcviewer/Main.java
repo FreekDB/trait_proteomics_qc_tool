@@ -3,6 +3,7 @@ package nl.ctmm.trait.proteomics.qcviewer;
 import java.awt.Dimension;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.ParseException;
@@ -23,6 +24,7 @@ import nl.ctmm.trait.proteomics.qcviewer.gui.ViewerPanel;
 import nl.ctmm.trait.proteomics.qcviewer.input.DataEntryForm;
 import nl.ctmm.trait.proteomics.qcviewer.input.MetricsParser;
 import nl.ctmm.trait.proteomics.qcviewer.input.ProgressLogReader;
+import nl.ctmm.trait.proteomics.qcviewer.input.ProgressLogMonitor;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportReader;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnit;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
@@ -62,8 +64,18 @@ public class Main{
         System.out.println("in Main preferredRootDirectory = " + preferredRootDirectory);
        	String progressLogFilePath = preferredRootDirectory + "\\" + Constants.PROPERTY_PROGRESS_LOG;
         System.out.println("progressLogFilePath = " + progressLogFilePath);
-        ProgressLogReader plogReader = new ProgressLogReader(progressLogFilePath);
+        ProgressLogReader plogReader = new ProgressLogReader(this, progressLogFilePath);
         String pipelineStatus = plogReader.getCurrentStatus();
+        
+        //Experimenting with ProgressLogMonitor
+        ProgressLogMonitor plogMonitor = ProgressLogMonitor.getInstance();
+        try {
+			plogMonitor.addFileChangeListener(plogReader, progressLogFilePath, 5000);
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+			System.out.println("progress log file not found. Configured path: " + progressLogFilePath);
+		} //initial period is 5 seconds 
+        
         DataEntryForm deForm = new DataEntryForm(this, applicationProperties);
         deForm.setRootDirectoryName(preferredRootDirectory);
         deForm.displayInitialDialog();
@@ -105,15 +117,15 @@ public class Main{
         	deForm.displayErrorMessage("No Reports found in " + preferredRootDirectory);
         	deForm.displayRootDirectoryChooser();
         } else {
-        	final int GUIversion = Integer.parseInt(applicationProperties.getProperty(Constants.PROPERTY_GUI_VERSION));
-        	if (GUIversion == 1) {
-        		startGuiVersion1(applicationProperties, reportUnits);
-        	} else
-        	{
-        		startGuiVersion2(applicationProperties, reportUnits, pipelineStatus);
-        	}
+        	//Always start with GUiversion2
+        	startGuiVersion2(applicationProperties, reportUnits, pipelineStatus);
         }
     }
+    
+    public void notifyProgressLogFileChanged() {
+		// TODO Refresh ReportViewer automatically on this notification
+		
+	}
     
     /**
      * Writes QC Report Summary to a CSV file 
@@ -174,30 +186,6 @@ public class Main{
     }
 
     /**
-     * Create and start the GUI - Version 1 of QC Report Viewer.
-     *
-     * @param appProperties the application properties.
-     * @param reportUnits   the report units to be displayed.
-     */
-    private void startGuiVersion1(final Properties appProperties, final List<ReportUnit> reportUnits) {
-        // First show the frame.
-        final JFrame frame = new JFrame(Constants.APPLICATION_NAME + " " + Constants.APPLICATION_VERSION);
-        //frame.setBounds(200, 40, 1024, 678);
-        frame.setSize(new Dimension(1366, 768));
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        // Next put the components in the frame.
-        final List<String> mainColumnNames = getColumnNames(appProperties, Constants.PROPERTY_TOP_COLUMN_NAMESV1);
-        final List<String> imagesColumnNames = getColumnNames(appProperties, Constants.PROPERTY_BOTTOM_COLUMN_NAMES);
-        final ViewerPanel viewerPanel = new ViewerPanel(mainColumnNames, imagesColumnNames);
-        viewerPanel.setReportUnits(reportUnits);
-        frame.getContentPane().add(viewerPanel);
-        frame.setVisible(true);
-        // Finally refresh the frame.
-        frame.getContentPane().validate();
-        frame.getContentPane().repaint();
-    }
-
-    /**
      * Create and start the GUI - Version 2 of QC Report Viewer.
      *
      * @param appProperties the application properties.
@@ -224,4 +212,6 @@ public class Main{
     private List<String> getColumnNames(final Properties applicationProperties, final String propertyName) {
         return Arrays.asList(applicationProperties.getProperty(propertyName).split(","));
     }
+
+	
 }

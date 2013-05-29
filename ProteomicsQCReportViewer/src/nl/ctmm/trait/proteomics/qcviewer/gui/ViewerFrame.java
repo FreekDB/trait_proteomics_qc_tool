@@ -404,6 +404,11 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         JPanel traitctmmPanel = new JPanel();
         traitctmmPanel.add(traitctmmLabel);
         JPanel controlPanel = new JPanel();
+        //controlPanel.setBackground(Color.WHITE);
+        //oplPanel.setBackground(Color.WHITE);
+        //zoomPanel.setBackground(Color.WHITE);
+        //sortPanel.setBackground(Color.WHITE);
+        //traitctmmPanel.setBackground(Color.WHITE);
         controlPanel.add(oplPanel, 0);
         controlPanel.add(zoomPanel, 1);
         controlPanel.add(sortPanel, 2);
@@ -419,13 +424,13 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         controlFrame.setSize(new Dimension(DESKTOP_PANE_WIDTH + 30, 170));
         controlFrame.pack();
         controlFrame.setLocation(0, 0);
-        controlFrame.setBackground(Color.WHITE);
-        controlFrame.setForeground(Color.WHITE);
+        //controlFrame.setBackground(Color.WHITE);
+        //controlFrame.setForeground(Color.WHITE);
         //TO avoid resizing and repositioning of components in the controlFrame
         controlFrame.addComponentListener(new ComponentListener() {  
             public void componentResized(ComponentEvent e) {  
                 JInternalFrame f = (JInternalFrame)e.getSource();  
-                f.setSize(new Dimension(DESKTOP_PANE_WIDTH + 30, 170));
+                //f.setSize(new Dimension(DESKTOP_PANE_WIDTH + 30, 170));
             }
 
 			@Override

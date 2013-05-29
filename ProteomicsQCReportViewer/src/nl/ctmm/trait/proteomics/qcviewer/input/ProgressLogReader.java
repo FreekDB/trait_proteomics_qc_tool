@@ -3,6 +3,7 @@ package nl.ctmm.trait.proteomics.qcviewer.input;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -10,13 +11,16 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.StringTokenizer;
 
+import nl.ctmm.trait.proteomics.qcviewer.Main;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 
-public class ProgressLogReader {
+public class ProgressLogReader implements FileChangeListener {
 
 	String currentStatus = ""; 
+	Main owner; 
 	
-	public ProgressLogReader (String progressLogFilePath) {
+	public ProgressLogReader (Main owner, String progressLogFilePath) {
+		this.owner = owner; 
 		File logFile = new File(progressLogFilePath);
 		parseCurrentStatus(logFile);
 		System.out.println("Current QC Pipeline Status: " + currentStatus);
@@ -24,6 +28,10 @@ public class ProgressLogReader {
 	
 	public String getCurrentStatus() {
 		return currentStatus; 
+	}
+	
+	public void refreshCurrentStatus(File logFile) {
+		parseCurrentStatus (logFile);
 	}
 	
 	private void parseCurrentStatus (File logFile) {
@@ -42,8 +50,10 @@ public class ProgressLogReader {
 			}
 			System.out.println("Last line of the logFile is : ");
 			System.out.println(lastLine);
-		} catch (Exception e) {
+		} catch (IOException e) {
 			System.out.println(e.toString());
+			currentStatus = "Logfile doesn't exist. | | | | | Configured filepath = " + logFile.getAbsolutePath();
+			return;
 		}
 		/*Get timestamp without microseconds. 
 		 * No support for microseconds in Java SimpleDateFormat 
@@ -77,16 +87,24 @@ public class ProgressLogReader {
 					stkz.nextToken();
 					stkz.nextToken();
 					String rawFileName = stkz.nextToken();
-					currentStatus = "Currently analyzing " + rawFileName + " active for " + 
+					currentStatus = "Currently analyzing " + rawFileName + " | | | | | Active for " + 
 							diffDays + " days, " + diffHours + " hours, " + diffMinutes + " minutes, " + diffSeconds + " seconds.";
 				} else if (lastLine.endsWith("completed")) {
-					currentStatus = "Idle.. inactive for " + 
+					currentStatus = "Idle.. | | | | | Inactive for " + 
 							diffDays + " days, " + diffHours + " hours, " + diffMinutes + " minutes, " + diffSeconds + " seconds.";
 				}
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
 		} else currentStatus = "QC pipeline logfile " + Constants.PROPERTY_PROGRESS_LOG + " is empty.";
+	}
+
+	@Override
+	public void fileChanged(File logFile) {
+		System.out.println("ProgressLogReader: logFile changed. Refreshing current status..");
+		refreshCurrentStatus(logFile);
+		System.out.println("Now current status is " + getCurrentStatus());
+		owner.notifyProgressLogFileChanged();
 	}
 }
 
