@@ -148,23 +148,20 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     }
     
     /**
-     * Automatically refresh viewerframe
+     * Update pipelineStatus in the report viewer
      */
-    public void refreshViewerFrame(final List<ReportUnit> reportUnits, String pipelineStatus) {
-    	this.pipelineStatus = pipelineStatus; 
-    	setReportUnits(reportUnits);
-        setOrderedReportUnits(reportUnits);
-        splitPane1.removeAll();
-        splitPane2.removeAll();
-        if (ticGraphPane != null) {
-        	ticGraphPane.removeAll();
-        }
-		if (desktopPane != null) {
-	    	desktopPane.removeAll(); 
-	    }
-		getContentPane().removeAll();
-	    assembleComponents();
-	    setVisible(true);
+    public void updatePipelineStatus(final String newPipelineStatus) {
+    	System.out.println("ViewerFrame updatePipelineStatus");
+    	this.pipelineStatus = newPipelineStatus; 
+    	statusPanel.removeAll();
+        int style = Font.BOLD;
+	    Font font = new Font ("Garamond", style , 11);
+	    String status = pipelineStatus + " | | | | | Number of report units = " + orderedReportUnits.size();
+    	statusLabel = new JLabel (status);
+    	statusLabel.setFont(font);
+    	statusLabel.setBackground(Color.CYAN);
+    	statusPanel.setBackground(Color.CYAN);
+    	statusPanel.add(statusLabel);
 	    revalidate();
     }
     
@@ -246,6 +243,29 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         for (int i = 0; i < reportUnits.size(); ++i) {
         	chartCheckBoxFlags.add(false);
         }
+    }
+    
+    /**
+     * Adds the report units to existing reportUnits list
+     *
+     * @param reportUnits the report units to be displayed.
+     */
+    private void addReportUnits(final List<ReportUnit> newReportUnits) {
+    	System.out.println("ViewerFrame addReportUnits No. of newReportUnits = " + newReportUnits.size());
+    	int reportUnitsSize = reportUnits.size();
+    	int newReportUnitsSize = newReportUnits.size();
+    	System.out.println("Num of existing report units = " + reportUnitsSize + 
+    			"Num of new report units = " + newReportUnitsSize);
+        for (int i = 0; i < newReportUnitsSize; ++i) {
+        	//Add to existing reportUnits andorderedReportUnits
+            //Initialize chartCheckBoxFlags to false
+        	reportUnits.add(newReportUnits.get(i));
+       		orderedReportUnits.add(newReportUnits.get(i));
+        	chartCheckBoxFlags.add(false);
+        }
+        System.out.println("After merging existing and new report units num report units = " + reportUnits.size());
+        System.out.println("num of ordered report units = " + orderedReportUnits.size());
+
     }
     
     /**
@@ -439,7 +459,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         controlPanel.add(sortPanel, 2);
         controlPanel.add(traitctmmPanel, 3);
         controlFrame.getContentPane().add(controlPanel, BorderLayout.NORTH);
-        statusLabel = new JLabel(pipelineStatus);
+        String status = pipelineStatus + " | | | | | Number of report units = " + orderedReportUnits.size(); 
+        statusLabel = new JLabel(status);
         statusLabel.setFont(font);
         statusLabel.setBackground(Color.CYAN);
         statusPanel = new JPanel();

@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -39,6 +40,7 @@ public class Main{
     private Date fromDate = null, tillDate = null;
     private ViewerFrame frame;
     private DataEntryForm deForm;
+    private ArrayList<ReportUnit> reportUnits;
 	/**
      * The logger for this class.
      */
@@ -107,7 +109,7 @@ public class Main{
         	System.out.println("fromDate = " + sdf.format(fromDate) + " tillDate = " + sdf.format(tillDate));
         }
         System.out.println("fromDate = " + sdf.format(fromDate) + " tillDate = " + sdf.format(tillDate));
-        final List<ReportUnit> reportUnits = getReportUnits(preferredRootDirectory, fromDate, tillDate);
+        this.reportUnits = (ArrayList<ReportUnit>) getReportUnits(preferredRootDirectory, fromDate, tillDate);
         deForm.disposeInitialDialog();
         if (reportUnits.size() == 0) { //There exist no reports in current root directory
         	//Get new location to read reports from
@@ -128,14 +130,33 @@ public class Main{
 		Calendar now = Calendar.getInstance();
 		tillDate = now.getTime();
 		String preferredRootDirectory = applicationProperties.getProperty(Constants.PROPERTY_ROOT_FOLDER);
-		final List<ReportUnit> reportUnits = getReportUnits(preferredRootDirectory, fromDate, tillDate);
-		if (reportUnits.size() == 0) { //There exist no reports in current root directory
+		ArrayList<ReportUnit> updatedReportUnits = (ArrayList<ReportUnit>) getReportUnits(preferredRootDirectory, fromDate, tillDate);
+		if (updatedReportUnits.size() == 0) { //There exist no reports in current root directory
 	      	//Get new location to read reports from
 	       	deForm.displayErrorMessage("No Reports found in " + preferredRootDirectory);
 	       	deForm.displayRootDirectoryChooser();
 	    } else { 
-	    //Refresh ViewerFrame
-	    	frame.refreshViewerFrame(reportUnits, pipelineStatus);
+	    	//Compare newReportUnits with reportUnits
+	    	ArrayList <ReportUnit> newReportUnits = new ArrayList<ReportUnit>();
+	    	for (int i = 0; i < updatedReportUnits.size(); ++i) {
+	    		//if not in reportUnits, then add to newReportUnits
+	    		ReportUnit thisReportUnit = updatedReportUnits.get(i);
+	    		if (reportUnits.contains(thisReportUnit)) {
+	    			System.out.println("thisReportUnit already exists in reportUnits. " + thisReportUnit.getMsrunName());
+	    			//newReportUnits.add(thisReportUnit);
+	    		} else {
+	    			System.out.println("thisReportUnit does not exist in reportUnits. " + thisReportUnit.getMsrunName());
+	    		}
+	    	}
+	    	System.out.println("updatedReportUnits size is " + updatedReportUnits.size() + 
+	    			" newReportUnits size is " + newReportUnits.size());
+	    	reportUnits.removeAll(reportUnits);
+	    	System.out.println("After removing all reportUnits size of List is " + reportUnits.size());
+	    	reportUnits = (ArrayList<ReportUnit>) updatedReportUnits.clone();
+	    	updatedReportUnits = null;
+	    	System.out.println("After updating all reportUnits size of List is " + reportUnits.size());
+	    	//Refresh ViewerFrame pipelineStatus
+	    	frame.updatePipelineStatus(pipelineStatus);
 	    }
 	}
     

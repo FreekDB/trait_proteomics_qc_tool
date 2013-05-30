@@ -434,7 +434,7 @@ public class ReportUnit {
 	}
 
 	public void setMetricsValues(HashMap<String, String> metricsValues) {
-		System.out.println("In ReportUnit setMetricsValues. No. of metrics = " + metricsValues.size());
+		//System.out.println("In ReportUnit setMetricsValues. No. of metrics = " + metricsValues.size());
 		if (metricsValues instanceof HashMap<?, ?>) {
 			this.metricsValues = (HashMap<?, ?>) metricsValues.clone();
 			//Set values of certain parameters to aid in the comparison

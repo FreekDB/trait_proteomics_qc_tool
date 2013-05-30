@@ -31,7 +31,7 @@ public class JsonMetricsReader {
      * @param reportUnit the report unit where the QC parameters will be stored.
      */
     public HashMap<String, String> readJsonValues(final File jsonFile) {
-        System.out.println("IN readJsonValues - reading file " + jsonFile.getName());
+        //System.out.println("IN readJsonValues - reading file " + jsonFile.getName());
         HashMap<String, String> metricsValues = new HashMap<String, String>();
         Object[] keys = allMetricsMap.keySet().toArray();
         //Initialize metricsValues to N/A
