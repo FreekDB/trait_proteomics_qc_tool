@@ -111,6 +111,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 	private JSplitPane splitPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT); 
 	private JLabel statusLabel;
 	private JPanel statusPanel;
+	private int yCoordinate;
 
     /**
      * Creates a new instance of the demo.
@@ -146,6 +147,30 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         // Finally refresh the frame.
         revalidate();
     }
+    
+    /*
+     * New report units are available
+     */
+    public void updateReportUnits(List<ReportUnit> newReportUnits, final String newPipelineStatus) {
+    	int numReportUnits = orderedReportUnits.size();
+    	for (int i = 0; i < newReportUnits.size(); ++i) {
+    		ReportUnit thisUnit = newReportUnits.get(i);
+    		reportUnits.add(thisUnit);
+    		orderedReportUnits.add(thisUnit);
+    		chartCheckBoxFlags.add(false);
+    		//update desktopFrame
+    	    JInternalFrame chartFrame = createChartFrame(i + numReportUnits, thisUnit.getChartUnit().getTicChart(), thisUnit);
+    		chartFrame.setBorder(BorderFactory.createRaisedBevelBorder());
+    		chartFrame.pack();
+    		chartFrame.setLocation(0, yCoordinate);
+    		desktopPane.add(chartFrame);
+    		chartFrame.setVisible(true);
+    	}
+	    int totalReports = orderedReportUnits.size();
+	    desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, totalReports * (CHART_HEIGHT + 15)));
+		updatePipelineStatus(newPipelineStatus);
+		revalidate();
+	}
     
     /**
      * Update pipelineStatus in the report viewer
@@ -243,29 +268,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         for (int i = 0; i < reportUnits.size(); ++i) {
         	chartCheckBoxFlags.add(false);
         }
-    }
-    
-    /**
-     * Adds the report units to existing reportUnits list
-     *
-     * @param reportUnits the report units to be displayed.
-     */
-    private void addReportUnits(final List<ReportUnit> newReportUnits) {
-    	System.out.println("ViewerFrame addReportUnits No. of newReportUnits = " + newReportUnits.size());
-    	int reportUnitsSize = reportUnits.size();
-    	int newReportUnitsSize = newReportUnits.size();
-    	System.out.println("Num of existing report units = " + reportUnitsSize + 
-    			"Num of new report units = " + newReportUnitsSize);
-        for (int i = 0; i < newReportUnitsSize; ++i) {
-        	//Add to existing reportUnits andorderedReportUnits
-            //Initialize chartCheckBoxFlags to false
-        	reportUnits.add(newReportUnits.get(i));
-       		orderedReportUnits.add(newReportUnits.get(i));
-        	chartCheckBoxFlags.add(false);
-        }
-        System.out.println("After merging existing and new report units num report units = " + reportUnits.size());
-        System.out.println("num of ordered report units = " + orderedReportUnits.size());
-
     }
     
     /**
@@ -509,7 +511,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 	    if (ticGraphPane != null) {
 	    	ticGraphPane.removeAll();
 	    }
-        int yCoordinate = 0;
+        yCoordinate  = 0;
         //Create the visible chart panel
         final ChartPanel chartPanel = new ChartPanel(reportUnits.get(reportNum).getChartUnit().getTicChart());
         chartPanel.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, 2 * CHART_HEIGHT));

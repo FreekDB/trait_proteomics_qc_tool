@@ -17,6 +17,7 @@ import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 public class ProgressLogReader implements FileChangeListener {
 
 	String currentStatus = ""; 
+	boolean completed = false; 
 	Main owner; 
 	
 	public ProgressLogReader (Main owner, String progressLogFilePath) {
@@ -83,6 +84,7 @@ public class ProgressLogReader implements FileChangeListener {
 				System.out.print(diffMinutes + " minutes, ");
 				System.out.println(diffSeconds + " seconds.");
 				if (lastLine.endsWith("running")) {
+					completed = false; 
 					stkz = new StringTokenizer(lastLine);
 					stkz.nextToken();
 					stkz.nextToken();
@@ -90,6 +92,7 @@ public class ProgressLogReader implements FileChangeListener {
 					currentStatus = "Currently analyzing " + rawFileName + " | | | | | Active for " + 
 							diffDays + " days, " + diffHours + " hours, " + diffMinutes + " minutes, " + diffSeconds + " seconds.";
 				} else if (lastLine.endsWith("completed")) {
+					completed = true;
 					currentStatus = "Idle.. | | | | | Inactive for " + 
 							diffDays + " days, " + diffHours + " hours, " + diffMinutes + " minutes, " + diffSeconds + " seconds.";
 				}
@@ -104,7 +107,12 @@ public class ProgressLogReader implements FileChangeListener {
 		System.out.println("ProgressLogReader: logFile changed. Refreshing current status..");
 		refreshCurrentStatus(logFile);
 		System.out.println("Now current status is " + getCurrentStatus());
-		owner.notifyProgressLogFileChanged(getCurrentStatus());
+		if (completed) {
+			//New report is available
+			owner.notifyNewReportAvailable(getCurrentStatus());
+		} else {
+			owner.notifyProgressLogFileChanged(getCurrentStatus());
+		}
 	}
 }
 
