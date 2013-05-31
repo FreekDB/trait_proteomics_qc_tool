@@ -111,7 +111,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 	private JSplitPane splitPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT); 
 	private JLabel statusLabel;
 	private JPanel statusPanel;
-	private int yCoordinate;
+	private int yCoordinate = 0;
 
     /**
      * Creates a new instance of the demo.
@@ -152,6 +152,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * New report units are available
      */
     public void updateReportUnits(List<ReportUnit> newReportUnits, final String newPipelineStatus) {
+    	System.out.println("In updateReportUnits yCoordinate = " + yCoordinate);
     	int numReportUnits = orderedReportUnits.size();
     	for (int i = 0; i < newReportUnits.size(); ++i) {
     		ReportUnit thisUnit = newReportUnits.get(i);
@@ -165,6 +166,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     		chartFrame.setLocation(0, yCoordinate);
     		desktopPane.add(chartFrame);
     		chartFrame.setVisible(true);
+    		System.out.println("yCoordinate = " + yCoordinate);
+    		yCoordinate +=  CHART_HEIGHT + 15;
     	}
 	    int totalReports = orderedReportUnits.size();
 	    desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, totalReports * (CHART_HEIGHT + 15)));
@@ -511,7 +514,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 	    if (ticGraphPane != null) {
 	    	ticGraphPane.removeAll();
 	    }
-        yCoordinate  = 0;
+        int yCoordinate = 0;
         //Create the visible chart panel
         final ChartPanel chartPanel = new ChartPanel(reportUnits.get(reportNum).getChartUnit().getTicChart());
         chartPanel.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, 2 * CHART_HEIGHT));
@@ -758,7 +761,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 		if (chartPanelList != null) {
 			chartPanelList.clear();
 		}
-        int yCoordinate = 0;
+        yCoordinate = 0;
         System.out.println("No. of orderedReportUnits = " + orderedReportUnits.size());
         for (int i = 0; i < orderedReportUnits.size(); ++i) {
         	JInternalFrame chartFrame;
@@ -775,6 +778,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         	chartFrame.setLocation(0, yCoordinate);
         	chartFrame.setVisible(true);
         	desktopPane.add(chartFrame);
+        	System.out.println("yCoordinate = " + yCoordinate);
         	yCoordinate += CHART_HEIGHT + 15;
         }
 	}
