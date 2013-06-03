@@ -43,6 +43,7 @@ public class ReportUnit {
     private String measured = "N/A";
     private String runtime = "N/A";
     private URI detailsUri; 
+    private boolean errorFlag = false; //to signify that one or more files belonging to this report are missing
     
     // todo: only public setters for heatmapName and ioncountName; handle images internally.
     private BufferedImage heatmap = Utilities.getNotAvailableImage();
@@ -120,6 +121,15 @@ public class ReportUnit {
     /**
      * Get the value of parameter reportNum
      *
+     * @set Serial number of current ReportUnit
+     */
+    public void setReportNum(int reportNum) {
+        this.reportNum = reportNum;
+    }
+    
+    /**
+     * Get the value of parameter reportNum
+     *
      * @return Serial number of current ReportUnit
      */
     public int getReportNum() {
@@ -135,6 +145,24 @@ public class ReportUnit {
         return msrunName;
     }
 
+    /**
+     * Get the value of errorFlag
+     * 
+     * @return value of errorFlag 
+     */
+    
+    public boolean getErrorFlag() {
+    	return errorFlag; 
+    }
+    
+    /**
+     * Set the value of errorFlag
+     * 
+     */
+    
+    public void setErrorFlag(boolean flag) {
+    	errorFlag = flag; 
+    }
     
     /**
      * Get the value of parameter fileSize as a string.

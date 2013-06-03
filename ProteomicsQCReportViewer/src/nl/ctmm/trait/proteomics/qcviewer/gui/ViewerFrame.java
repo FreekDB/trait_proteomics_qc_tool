@@ -154,23 +154,25 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     public void updateReportUnits(List<ReportUnit> newReportUnits, final String newPipelineStatus) {
     	System.out.println("In updateReportUnits yCoordinate = " + yCoordinate);
     	int numReportUnits = orderedReportUnits.size();
-    	for (int i = 0; i < newReportUnits.size(); ++i) {
-    		ReportUnit thisUnit = newReportUnits.get(i);
-    		reportUnits.add(thisUnit);
-    		orderedReportUnits.add(thisUnit);
-    		chartCheckBoxFlags.add(false);
-    		//update desktopFrame
-    	    JInternalFrame chartFrame = createChartFrame(i + numReportUnits, thisUnit.getChartUnit().getTicChart(), thisUnit);
-    		chartFrame.setBorder(BorderFactory.createRaisedBevelBorder());
-    		chartFrame.pack();
-    		chartFrame.setLocation(0, yCoordinate);
-    		desktopPane.add(chartFrame);
-    		chartFrame.setVisible(true);
-    		System.out.println("yCoordinate = " + yCoordinate);
-    		yCoordinate +=  CHART_HEIGHT + 15;
+    	if (newReportUnits.size() > 0) {
+    		for (int i = 0; i < newReportUnits.size(); ++i) {
+        		ReportUnit thisUnit = newReportUnits.get(i);
+        		reportUnits.add(thisUnit);
+        		orderedReportUnits.add(thisUnit);
+        		chartCheckBoxFlags.add(false);
+        		//update desktopFrame
+        	    JInternalFrame chartFrame = createChartFrame(i + numReportUnits, thisUnit.getChartUnit().getTicChart(), thisUnit);
+        		chartFrame.setBorder(BorderFactory.createRaisedBevelBorder());
+        		chartFrame.pack();
+        		chartFrame.setLocation(0, yCoordinate);
+        		desktopPane.add(chartFrame);
+        		chartFrame.setVisible(true);
+        		System.out.println("yCoordinate = " + yCoordinate);
+        		yCoordinate +=  CHART_HEIGHT + 15;
+        	}
+    	    int totalReports = orderedReportUnits.size();
+    	    desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, totalReports * (CHART_HEIGHT + 15)));
     	}
-	    int totalReports = orderedReportUnits.size();
-	    desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, totalReports * (CHART_HEIGHT + 15)));
 		updatePipelineStatus(newPipelineStatus);
 		revalidate();
 	}

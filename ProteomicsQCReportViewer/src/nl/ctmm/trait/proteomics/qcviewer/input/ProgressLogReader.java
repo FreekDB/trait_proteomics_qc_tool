@@ -17,8 +17,10 @@ import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 public class ProgressLogReader implements FileChangeListener {
 
 	String currentStatus = ""; 
+	String runningMsrunName = ""; 
 	boolean completed = false; 
-	Main owner; 
+	Main owner;
+	private BufferedReader br; 
 	
 	public ProgressLogReader (Main owner, String progressLogFilePath) {
 		this.owner = owner; 
@@ -31,6 +33,10 @@ public class ProgressLogReader implements FileChangeListener {
 		return currentStatus; 
 	}
 	
+	public String getRunningMsrunName() {
+		return runningMsrunName; 
+	}
+	
 	public void refreshCurrentStatus(File logFile) {
 		parseCurrentStatus (logFile);
 	}
@@ -39,7 +45,7 @@ public class ProgressLogReader implements FileChangeListener {
 		String lastLine = "";
 		try {
 			InputStreamReader streamReader = new InputStreamReader(new FileInputStream(logFile));
-			BufferedReader br = new BufferedReader(streamReader);
+			br = new BufferedReader(streamReader);
 			System.out.println(logFile.getName());
 			//Also check for empty lines and white spaces
 			while (br.ready()) {
@@ -91,7 +97,14 @@ public class ProgressLogReader implements FileChangeListener {
 					String rawFileName = stkz.nextToken();
 					currentStatus = "Currently analyzing " + rawFileName + " | | | | | Active for " + 
 							diffDays + " days, " + diffHours + " hours, " + diffMinutes + " minutes, " + diffSeconds + " seconds.";
+					runningMsrunName = rawFileName; 
+					runningMsrunName = runningMsrunName.trim(); 
+					//Remove last .RAW from runningMsrunName
+			    	int msrunLength = runningMsrunName.length();
+			    	runningMsrunName = runningMsrunName.substring(0, msrunLength - 4); //Remove trailing .RAW extension
+			    	System.out.println("ProgressLogReader runningMsrunName = " + runningMsrunName);
 				} else if (lastLine.endsWith("completed")) {
+					runningMsrunName = "";
 					completed = true;
 					currentStatus = "Idle.. | | | | | Inactive for " + 
 							diffDays + " days, " + diffHours + " hours, " + diffMinutes + " minutes, " + diffSeconds + " seconds.";
@@ -109,9 +122,11 @@ public class ProgressLogReader implements FileChangeListener {
 		System.out.println("Now current status is " + getCurrentStatus());
 		if (completed) {
 			//New report is available
-			owner.notifyNewReportAvailable(getCurrentStatus());
+			//owner.notifyNewReportAvailable(getCurrentStatus(), true);
+			owner.notifyProgressLogFileChanged(getCurrentStatus(), true);
 		} else {
-			owner.notifyProgressLogFileChanged(getCurrentStatus());
+			//owner.notifyNewReportAvailable(getCurrentStatus(), false);
+			owner.notifyProgressLogFileChanged(getCurrentStatus(), false);
 		}
 	}
 }

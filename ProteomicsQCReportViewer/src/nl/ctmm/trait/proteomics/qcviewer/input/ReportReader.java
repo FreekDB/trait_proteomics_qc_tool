@@ -98,15 +98,16 @@ public class ReportReader extends JFrame {
                     if (d.compareTo(fromDate)>=0 && d.compareTo(tillDate)<=0) {
                     	//System.out.println("Added - Last modified on: " + dateString + " is within limits From " 
                     	//		+ sdf.format(fromDate) + " res = " +d.compareTo(fromDate) + " Till " + sdf.format(tillDate) + " res = " +d.compareTo(tillDate));
-                    
+                        boolean errorFlag = false; 
                     	final File[] dataFiles = msRunDirectory.listFiles();
                     	//Check existence of "metrics.json", "heatmap.png", "ions.png", "_ticmatrix.csv"
                     	String errorMessage = checkDataFilesAvailability(yearDirectory.getName(), monthDirectory.getName(), msRunDirectory.getName(), dataFiles);
                     	if (!errorMessage.equals("")) {
+                    		errorFlag = true;
                     	//	System.out.println("ErrorMessage = " + errorMessage);
                     		allErrorMessages += errorMessage + "\n";
                     	}
-                    	reportUnits.add(createReportUnit(yearDirectory.getName(), monthDirectory.getName(), msRunDirectory.getName(), dataFiles));
+                    	reportUnits.add(createReportUnit(yearDirectory.getName(), monthDirectory.getName(), msRunDirectory.getName(), dataFiles, errorFlag));
                     } else {
                     	//System.out.println("Skipped - Last modified on: " + dateString + " is outside limits From "
                     	//		+ sdf.format(fromDate) + " res = " +d.compareTo(fromDate) + " Till " + sdf.format(tillDate) + " res = " +d.compareTo(tillDate));
@@ -142,15 +143,12 @@ public class ReportReader extends JFrame {
                 }
             }
         }
-        if (metrics && heatmap && ionCount && ticMatrix) {
+        if (metrics && ionCount && ticMatrix) {
         	overall = true;
         } else {
         	errorMessage = "<html>In Folder " + msrunName + " following filetypes are missing:";
         	if (!metrics) {
         		errorMessage += "metrics.json ";
-        	}
-        	if (!heatmap) {
-        		errorMessage += "heatmap.png ";
         	}
         	if (!ionCount) {
         		errorMessage += "ions.png ";
@@ -273,10 +271,11 @@ public class ReportReader extends JFrame {
      * @param dataFiles the files used to initialize the report unit.
      * @return the new report unit.
      */
-    private ReportUnit createReportUnit(final String year, final String month, final String msrunName, final File[] dataFiles) {
+    private ReportUnit createReportUnit(final String year, final String month, final String msrunName, final File[] dataFiles, boolean errorFlag) {
         currentReportNum++;
         System.out.println("Creating report unit No. " + currentReportNum + " for msrun " + msrunName);
         final ReportUnit reportUnit = new ReportUnit(msrunName, currentReportNum);
+        reportUnit.setErrorFlag(errorFlag); 
         for (final File dataFile : dataFiles) {
             final String dataFileName = dataFile.getName();
             if (dataFile.isFile()) {

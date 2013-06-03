@@ -41,7 +41,9 @@ public class Main{
     private Date fromDate = null, tillDate = null;
     private ViewerFrame frame;
     private DataEntryForm deForm;
+    private int reportNum = 0; 
     private Hashtable<String, ReportUnit> reportUnitsTable;
+    private ProgressLogReader plogReader; 
 	/**
      * The logger for this class.
      */
@@ -66,7 +68,7 @@ public class Main{
         System.out.println("in Main preferredRootDirectory = " + preferredRootDirectory);
        	String progressLogFilePath = preferredRootDirectory + "\\" + Constants.PROPERTY_PROGRESS_LOG;
         System.out.println("progressLogFilePath = " + progressLogFilePath);
-        ProgressLogReader plogReader = new ProgressLogReader(this, progressLogFilePath);
+        plogReader = new ProgressLogReader(this, progressLogFilePath);
         pipelineStatus = plogReader.getCurrentStatus();
         
         //Experimenting with ProgressLogMonitor
@@ -115,6 +117,8 @@ public class Main{
         //populate reportUnitsTable
         for (int i = 0; i < reportUnits.size(); ++i) {
         	ReportUnit thisUnit = reportUnits.get(i);
+        	++reportNum; 
+        	thisUnit.setReportNum(reportNum);
         	reportUnitsTable.put(thisUnit.getMsrunName(), thisUnit);
         }
         deForm.disposeInitialDialog();
@@ -128,12 +132,12 @@ public class Main{
         }
     }
     
-    public void notifyNewReportAvailable(String newPipelineStatus) {
+    public void notifyProgressLogFileChanged(String newPipelineStatus, boolean completed) {
 		/* Refresh ReportViewer automatically on this notification
 		 * The tillDate has to be updated as currentTime - since the pipeline status has changed.
 		 * FromDate could be specified by the user
 		 */
-
+    	String runningMsrunName = plogReader.getRunningMsrunName();
 		Calendar now = Calendar.getInstance();
 		tillDate = now.getTime();
 		String preferredRootDirectory = applicationProperties.getProperty(Constants.PROPERTY_ROOT_FOLDER);
@@ -145,33 +149,37 @@ public class Main{
 	    } else { 
 	    	//Compare newReportUnits with reportUnits
 	    	ArrayList <ReportUnit> newReportUnits = new ArrayList<ReportUnit>();
-	    	ArrayList <ReportUnit> updatedReportUnits = new ArrayList<ReportUnit>();
 	    	for (int i = 0; i < reportUnits.size(); ++i) {
 	    		//if not in reportUnits, then add to newReportUnits
 	    		ReportUnit thisUnit = reportUnits.get(i);
 	    		String thisMsrun = thisUnit.getMsrunName();
-	    		if (reportUnitsTable.containsKey(thisMsrun)) {
-	    			ReportUnit existingUnit = reportUnitsTable.get(thisMsrun);
-	    			if (existingUnit.equals(thisUnit)) {
-	    				System.out.println("thisUnit already exists in reportUnitsTable. " + thisUnit.getMsrunName());
-	    			} else {
-	    				System.out.println("thisUnit exists in reportUnitsTable, however its not equal. Updating hashtable.. " + thisUnit.getMsrunName());
-	    				reportUnitsTable.put(thisUnit.getMsrunName(), thisUnit);
-	    				updatedReportUnits.add(thisUnit);
-	    			}
+	    		if (!thisMsrun.equals(runningMsrunName)) { //Currently processing this msrun. Do not include in the report
+		    		if (reportUnitsTable.containsKey(thisMsrun)) {
+		    			ReportUnit existingUnit = reportUnitsTable.get(thisMsrun);
+		    			//System.out.println("thisUnit already exists in reportUnitsTable. " + thisUnit.getMsrunName());
+		    			int existingNum = existingUnit.getReportNum(); 
+		    			//Assign this number to thisUnit and update reportUnitsTable
+		    			thisUnit.setReportNum(existingNum);
+		    			reportUnitsTable.remove(thisMsrun);
+		    			reportUnitsTable.put(thisMsrun, thisUnit);
+	    				System.out.println("Updating hashtable.. " + thisUnit.getMsrunName());
+		    		} else {
+		    			++reportNum; 
+		    			System.out.println("Does not exist in reportUnitsTable. " + thisUnit.getMsrunName() + " Adding to new report units with reportNum " + reportNum);
+		    			thisUnit.setReportNum(reportNum);
+		    			newReportUnits.add(thisUnit);
+		    			//Add to hashTable
+		    			reportUnitsTable.put(thisUnit.getMsrunName(), thisUnit);
+		    		}
 	    		} else {
-	    			System.out.println("thisUnit does not exist in reportUnitsTable. " + thisUnit.getMsrunName() + " Adding to new report units.");
-	    			newReportUnits.add(thisUnit);
-	    			//Add to hashTable
-	    			reportUnitsTable.put(thisUnit.getMsrunName(), thisUnit);
+	    			System.out.println("Skipped report unit " + thisMsrun + 
+	    	    			" Logfile says it is running " + runningMsrunName);
 	    		}
 	    	}
-	    	System.out.println("updatedReportUnits size is " + updatedReportUnits.size() + 
+	    	System.out.println("ReportUnitsTable size is " + reportUnitsTable.size() + 
 	    			" newReportUnits size is " + newReportUnits.size());
 	    	reportUnits.removeAll(reportUnits);
 	    	reportUnits = null;
-	    	updatedReportUnits = null;
-	    	System.out.println("After processing all reportUnits size of Table is " + reportUnitsTable.size());
 	    	//Refresh ViewerFrame with new Report Units
 	    	frame.updateReportUnits(newReportUnits, newPipelineStatus);
 	    }
