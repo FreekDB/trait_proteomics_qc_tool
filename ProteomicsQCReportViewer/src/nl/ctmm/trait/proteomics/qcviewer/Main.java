@@ -10,8 +10,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -42,8 +44,9 @@ public class Main{
     private ViewerFrame frame;
     private DataEntryForm deForm;
     private int reportNum = 0; 
-    private Hashtable<String, ReportUnit> reportUnitsTable;
+    private Hashtable<String, ReportUnit> reportUnitsTable = new Hashtable<String, ReportUnit>();
     private ProgressLogReader plogReader; 
+    private String preferredRootDirectory;
 	/**
      * The logger for this class.
      */
@@ -64,7 +67,7 @@ public class Main{
     public void runReportViewer() {
         applicationProperties = loadProperties();
         mParser = new MetricsParser(applicationProperties);
-       	String preferredRootDirectory = applicationProperties.getProperty(Constants.PROPERTY_ROOT_FOLDER);
+       	preferredRootDirectory = applicationProperties.getProperty(Constants.PROPERTY_ROOT_FOLDER);
         System.out.println("in Main preferredRootDirectory = " + preferredRootDirectory);
        	String progressLogFilePath = preferredRootDirectory + "\\" + Constants.PROPERTY_PROGRESS_LOG;
         System.out.println("progressLogFilePath = " + progressLogFilePath);
@@ -112,14 +115,28 @@ public class Main{
         	System.out.println("fromDate = " + sdf.format(fromDate) + " tillDate = " + sdf.format(tillDate));
         }
         System.out.println("fromDate = " + sdf.format(fromDate) + " tillDate = " + sdf.format(tillDate));
+        processInitialReports();
+        /*for testing 0 reports condition
+        ArrayList<ReportUnit> displayableReportUnits = new ArrayList<ReportUnit>();
+        startGuiVersion2(applicationProperties, displayableReportUnits, pipelineStatus);*/
+    }
+    
+    public void processInitialReports() { 
+        String runningMsrunName = plogReader.getRunningMsrunName();
         ArrayList<ReportUnit> reportUnits = (ArrayList<ReportUnit>) getReportUnits(preferredRootDirectory, fromDate, tillDate);
-        reportUnitsTable = new Hashtable<String, ReportUnit>();
+        ArrayList<ReportUnit> displayableReportUnits = new ArrayList<ReportUnit>();
         //populate reportUnitsTable
-        for (int i = 0; i < reportUnits.size(); ++i) {
+        int reportUnitsSize = reportUnits.size();
+        System.out.println("reportUnitsSize = " + reportUnitsSize + " runningMsrunName = " + runningMsrunName);
+        for (int i = 0; i < reportUnitsSize; ++i) {
         	ReportUnit thisUnit = reportUnits.get(i);
-        	++reportNum; 
-        	thisUnit.setReportNum(reportNum);
-        	reportUnitsTable.put(thisUnit.getMsrunName(), thisUnit);
+        	String thisMsrun = thisUnit.getMsrunName();
+    		if (!thisMsrun.equals(runningMsrunName)) { //Currently processing this msrun. Do not include in the report
+    			++reportNum; 
+    			thisUnit.setReportNum(reportNum);
+    			reportUnitsTable.put(thisUnit.getMsrunName(), thisUnit);
+    			displayableReportUnits.add(thisUnit);
+    		} 
         }
         deForm.disposeInitialDialog();
         if (reportUnits.size() == 0) { //There exist no reports in current root directory
@@ -128,7 +145,8 @@ public class Main{
         	deForm.displayRootDirectoryChooser();
         } else {
         	//Always start with GUiversion2
-        	startGuiVersion2(applicationProperties, reportUnits, pipelineStatus);
+        	reportUnits.removeAll(reportUnits);
+        	startGuiVersion2(applicationProperties, displayableReportUnits, pipelineStatus);
         }
     }
     
@@ -227,7 +245,6 @@ public class Main{
         final Properties appProperties = new Properties();
         // Set default properties.
         appProperties.setProperty(Constants.PROPERTY_ROOT_FOLDER, Constants.DEFAULT_ROOT_FOLDER);
-        appProperties.setProperty(Constants.PROPERTY_TOP_COLUMN_NAMESV1, Constants.DEFAULT_TOP_COLUMN_NAMES);
         appProperties.setProperty(Constants.PROPERTY_TOP_COLUMN_NAMESV2, Constants.DEFAULT_TOP_COLUMN_NAMES);
         appProperties.setProperty(Constants.PROPERTY_BOTTOM_COLUMN_NAMES, Constants.DEFAULT_BOTTOM_COLUMN_NAMES);
         // Load actual properties from file.

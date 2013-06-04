@@ -11,6 +11,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -143,6 +144,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         setReportUnits(reportUnits);
         setOrderedReportUnits(reportUnits);
         assembleComponents();
+        setResizable(false);
         setVisible(true);
         // Finally refresh the frame.
         revalidate();
@@ -206,22 +208,42 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     	JInternalFrame controlFrame = getControlFrame();
 	    //Add desktopPane for displaying graphs and other QC Control
 	    int totalReports = orderedReportUnits.size();
-	    desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, totalReports * (CHART_HEIGHT + 15)));
-	    prepareChartsInAscendingOrder(true);
-	    splitPane2.add(new JScrollPane(desktopPane), 0);
-	    ticGraphPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, 2 * CHART_HEIGHT));
-	    splitPane2.add(new JScrollPane(ticGraphPane), 1);
-	    //Set initial tic Graph - specify complete chart in terms of orderedReportUnits
-	    setTicGraphPaneChart(orderedReportUnits.get(0).getReportNum() - 1);
-	    splitPane2.setOneTouchExpandable(true); //hide-show feature
-	    splitPane2.setDividerLocation(500); //DesktopPane holding graphs will appear 500 pixels large
-        splitPane1.add(controlFrame);
-	    splitPane1.add(splitPane2);
-	    splitPane1.setOneTouchExpandable(true); //hide-show feature
-	    splitPane1.setDividerLocation(170); //control panel will appear 170 pixels large
-	    splitPane1.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 15, (int)(6.5 * CHART_HEIGHT)));
-	    getContentPane().add(splitPane1, "Center");
-	    setJMenuBar(createMenuBar());
+	    
+	    if (totalReports != 0) {
+	    	desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, totalReports * (CHART_HEIGHT + 15)));
+	    	prepareChartsInAscendingOrder(true);
+	    	splitPane2.add(new JScrollPane(desktopPane), 0);
+	    	ticGraphPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, 2 * CHART_HEIGHT));
+	    	splitPane2.add(new JScrollPane(ticGraphPane), 1);
+	    	//Set initial tic Graph - specify complete chart in terms of orderedReportUnits
+	    	setTicGraphPaneChart(orderedReportUnits.get(0).getReportNum() - 1);
+	    	splitPane2.setOneTouchExpandable(true); //hide-show feature
+	    	splitPane2.setDividerLocation(500); //DesktopPane holding graphs will appear 500 pixels large
+	    	splitPane1.add(controlFrame);
+	    	splitPane1.add(splitPane2);
+	    	splitPane1.setOneTouchExpandable(true); //hide-show feature
+	    	splitPane1.setDividerLocation(170); //control panel will appear 170 pixels large
+	    	splitPane1.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 15, (int)(6.5 * CHART_HEIGHT)));
+	    	getContentPane().add(splitPane1, "Center");
+	    	setJMenuBar(createMenuBar());
+	    } else {
+	    	//desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, totalReports * (CHART_HEIGHT + 15)));
+	    	//prepareChartsInAscendingOrder(true);
+	    	splitPane2.add(new JScrollPane(desktopPane), 0);
+	    	ticGraphPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, 2 * CHART_HEIGHT));
+	    	splitPane2.add(new JScrollPane(ticGraphPane), 1);
+	    	//Set initial tic Graph - specify complete chart in terms of orderedReportUnits
+	    	//setTicGraphPaneChart(orderedReportUnits.get(0).getReportNum() - 1);
+	    	splitPane2.setOneTouchExpandable(true); //hide-show feature
+	    	splitPane2.setDividerLocation(500); //DesktopPane holding graphs will appear 500 pixels large
+	    	splitPane1.add(controlFrame);
+	    	splitPane1.add(splitPane2);
+	    	splitPane1.setOneTouchExpandable(true); //hide-show feature
+	    	splitPane1.setDividerLocation(170); //control panel will appear 170 pixels large
+	    	splitPane1.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 15, (int)(6.5 * CHART_HEIGHT)));
+	    	getContentPane().add(splitPane1, "Center");
+	    	setJMenuBar(createMenuBar());
+	    }
     }
     
     /**
@@ -235,10 +257,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     	settingsMenu.add(newDirAction);
     	newDirAction.setActionCommand("ChangeRootDirectory");
     	newDirAction.addActionListener(this);
-    	JMenuItem newWebserAction = new JMenuItem("Set Webserver...");
-    	settingsMenu.add(newWebserAction);
-    	newWebserAction.setActionCommand("ChangeServer");
-    	newWebserAction.addActionListener(this);
     	JMenuItem filterAction = new JMenuItem("Set Filter...");
     	settingsMenu.add(filterAction);
     	filterAction.setActionCommand("SetFilter");
@@ -251,10 +269,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     	settingsMenu.add(aboutAction);
     	aboutAction.setActionCommand("About");
     	aboutAction.addActionListener(this);    	
-    	JMenuItem newRefAction = new JMenuItem("Refresh");
-    	settingsMenu.add(newRefAction);
-    	newRefAction.setActionCommand("Refresh");
-    	newRefAction.addActionListener(this);
     	return menuBar;
     }
     
@@ -455,16 +469,13 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         JLabel traitctmmLabel = new JLabel(new ImageIcon(traitctmmLogo));
         JPanel traitctmmPanel = new JPanel();
         traitctmmPanel.add(traitctmmLabel);
-        JPanel controlPanel = new JPanel();
-        //controlPanel.setBackground(Color.WHITE);
-        //oplPanel.setBackground(Color.WHITE);
-        //zoomPanel.setBackground(Color.WHITE);
-        //sortPanel.setBackground(Color.WHITE);
-        //traitctmmPanel.setBackground(Color.WHITE);
+        JPanel controlPanel = new JPanel(new FlowLayout());
+        //controlPanel.setPreferredSize(new Dimension(800, 150));
         controlPanel.add(oplPanel, 0);
         controlPanel.add(zoomPanel, 1);
         controlPanel.add(sortPanel, 2);
         controlPanel.add(traitctmmPanel, 3);
+        
         controlFrame.getContentPane().add(controlPanel, BorderLayout.NORTH);
         String status = pipelineStatus + " | | | | | Number of report units = " + orderedReportUnits.size(); 
         statusLabel = new JLabel(status);
@@ -477,6 +488,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         controlFrame.setSize(new Dimension(DESKTOP_PANE_WIDTH + 30, 170));
         controlFrame.pack();
         controlFrame.setLocation(0, 0);
+        controlFrame.setResizable(false); 
         //controlFrame.setBackground(Color.WHITE);
         //controlFrame.setForeground(Color.WHITE);
         //TO avoid resizing and repositioning of components in the controlFrame
@@ -634,10 +646,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 			//Get new location to read reports from
         	DataEntryForm deForm = new DataEntryForm(this, appProperties);
         	deForm.displayRootDirectoryChooser();
-		} else if (evt.getActionCommand().equals("ChangeServer")) {
-			//Get new server location to read web-based report
-        	DataEntryForm deForm = new DataEntryForm(this, appProperties);
-        	deForm.displayPreferredServerEntryForm();
 		} else if (evt.getActionCommand().equals("SetFilter")) {
 			//Get new location to read reports from
         	DataEntryForm deForm = new DataEntryForm(this, appProperties);
@@ -649,14 +657,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         	cmForm.pack();
         	RefineryUtilities.centerFrameOnScreen(cmForm);
         	cmForm.setVisible(true);
-		} else if (evt.getActionCommand().equals("Refresh")) {
-			clean();
-			dispose();
-			new Main().runReportViewer();
 		} else if (evt.getActionCommand().equals("About")) {
 			System.out.println("Pressed About button..");
-			//JOptionPane.showMessageDialog(this,"Soon you will see more information about this software.",
-			//		  "Status",JOptionPane.INFORMATION_MESSAGE);
 			AboutFrame aboutFrame = new AboutFrame();
 			aboutFrame.setVisible(true);
 			aboutFrame.revalidate();
