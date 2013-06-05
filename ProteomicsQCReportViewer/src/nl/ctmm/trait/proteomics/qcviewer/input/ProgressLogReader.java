@@ -3,15 +3,21 @@ package nl.ctmm.trait.proteomics.qcviewer.input;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.StringTokenizer;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import nl.ctmm.trait.proteomics.qcviewer.Main;
+import nl.ctmm.trait.proteomics.qcviewer.input.ProgressLogMonitor.FileMonitorTask;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 
 public class ProgressLogReader implements FileChangeListener {
@@ -21,12 +27,22 @@ public class ProgressLogReader implements FileChangeListener {
 	boolean completed = false; 
 	Main owner;
 	private BufferedReader br; 
+	private Timer timer;
+    private Hashtable<String, StatusMonitorTask> timerEntries;
+	File logFile; 
 	
 	public ProgressLogReader (Main owner, String progressLogFilePath) {
 		this.owner = owner; 
-		File logFile = new File(progressLogFilePath);
+		logFile = new File(progressLogFilePath);
 		parseCurrentStatus(logFile);
 		System.out.println("Current QC Pipeline Status: " + currentStatus);
+	    // Create timer, run timer thread as daemon.
+	    timer = new Timer(true);
+	    timerEntries = new Hashtable<String, StatusMonitorTask>();
+	    
+	    StatusMonitorTask task = new StatusMonitorTask(this);
+	    timerEntries.put("StatusMonitor", task);
+	    timer.schedule(task, 5000, 5000);
 	}
 	
 	public String getCurrentStatus() {
@@ -37,8 +53,9 @@ public class ProgressLogReader implements FileChangeListener {
 		return runningMsrunName; 
 	}
 	
-	public void refreshCurrentStatus(File logFile) {
-		parseCurrentStatus (logFile);
+	public void pushPipelineStatus() {
+		parseCurrentStatus(logFile);
+		owner.notifyUpdatePipelineStatus(currentStatus);
 	}
 	
 	private void parseCurrentStatus (File logFile) {
@@ -118,7 +135,7 @@ public class ProgressLogReader implements FileChangeListener {
 	@Override
 	public void fileChanged(File logFile) {
 		System.out.println("ProgressLogReader: logFile changed. Refreshing current status..");
-		refreshCurrentStatus(logFile);
+		parseCurrentStatus(logFile);
 		System.out.println("Now current status is " + getCurrentStatus());
 		if (completed) {
 			//New report is available
@@ -129,6 +146,23 @@ public class ProgressLogReader implements FileChangeListener {
 			owner.notifyProgressLogFileChanged(getCurrentStatus(), false);
 		}
 	}
+	
+	  /**
+	   * File monitoring task.
+	   */
+	  class StatusMonitorTask extends TimerTask {
+	    ProgressLogReader owner; 
+
+	    public StatusMonitorTask(ProgressLogReader owner) {
+	    	this.owner = owner; 
+	    	System.out.println("StatusMonitorTask Constructor"); 
+	    }
+
+	    public void run() {
+	    	System.out.println("StatusMonitorTask running owner.pushPipelineStatus()"); 
+	    	owner.pushPipelineStatus();
+	    }
+	  }
 }
 
 /*

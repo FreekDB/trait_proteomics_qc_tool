@@ -72,7 +72,10 @@ public class DetailsFrame extends JFrame implements ActionListener {
 	        String listingKey = (String) pairs.getKey();
 	        String listingValue = (String) pairs.getValue();
 	        //Use listingKey to get value of metrics from metricsValues
-	        String metricsValue = (String) metricsValues.get(listingKey);
+	        String metricsValue = "N/A"; 
+	        if (metricsValues != null) {
+	        	metricsValue = (String) metricsValues.get(listingKey);
+	        }
 	        //This corresponds to one row in the metricsTable
 	        System.out.println("listingKey = " + listingKey + " listingValue = " + listingValue
 	        		+ " metricsValue = " + metricsValue);

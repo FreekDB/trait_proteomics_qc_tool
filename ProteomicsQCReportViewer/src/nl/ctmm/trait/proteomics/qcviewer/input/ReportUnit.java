@@ -382,83 +382,80 @@ public class ReportUnit {
 		
 		String thisValue = this.getMetricsValueFromKey(sortKey);
 		String otherValue = otherUnit.getMetricsValueFromKey(sortKey);
-		System.out.print("thisValue = " + thisValue + " otherValue = " + otherValue);
-		if (thisValue.equals(otherValue)) {
-			return 0; 
-		} else if (otherValue.equals("N/A")) { //thisValue is valid and present
-			return 1;
-		} else if (thisValue.equals("N/A")) { //otherValue is valid and present
-			return -1;
-		}
-		if (sortKey.equals("No.")) {
-			if (this.reportNum > otherUnit.reportNum) {
+		System.out.print("thisValue = " + thisValue + " otherValue = " + otherValue + " ");
+		try {
+			if (thisValue.equals(otherValue)) {
+				return 0; 
+			} else if (otherValue.equals("N/A")) { //thisValue is valid and present
 				return 1;
-			} else if (this.reportNum < otherUnit.reportNum) {
+			} else if (thisValue.equals("N/A")) { //otherValue is valid and present
 				return -1;
-			} else return 0; //equal reportNum
-		} else if (sortKey.equals("generic:f_size")) {
-			if (this.fileSize > otherUnit.fileSize) {
-				return 1;
-			} else if (this.fileSize < otherUnit.fileSize) {
+			}else if (sortKey.equals("No.")) {
+				if (this.reportNum > otherUnit.reportNum) {
+					return 1;
+				} else if (this.reportNum < otherUnit.reportNum) {
 				return -1;
-			} else return 0;
-		} else if (sortKey.equals("generic:ms1_spectra")) {
-			StringTokenizer stkz1 = new StringTokenizer(this.ms1Spectra, " ");
-			StringTokenizer stkz2 = new StringTokenizer(otherUnit.ms1Spectra, " ");
-			int thisms1Spectra = Integer.parseInt(stkz1.nextToken());
-			int otherms1Spectra = Integer.parseInt(stkz2.nextToken());
-			if (thisms1Spectra > otherms1Spectra) {
-				return 1;
-			} else if (thisms1Spectra < otherms1Spectra) {
-				return -1;
-			} else return 0;
-		} else if (sortKey.equals("generic:ms2_spectra")) {
-			StringTokenizer stkz1 = new StringTokenizer(this.ms2Spectra, " ");
-			StringTokenizer stkz2 = new StringTokenizer(otherUnit.ms2Spectra, " ");
-			int thisms2Spectra = Integer.parseInt(stkz1.nextToken());
-			int otherms2Spectra = Integer.parseInt(stkz2.nextToken());
-			if (thisms2Spectra > otherms2Spectra) {
-				return 1;
-			} else if (thisms2Spectra < otherms2Spectra) {
-				return -1;
-			} else return 0;
-		} else if (sortKey.equals("generic:date")) {
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MMM/dd - HH:mm");
-			Date thisDate = null;
-			Date otherDate = null;
-			try {
+				} else return 0; //equal reportNum
+			} else if (sortKey.equals("generic:f_size")) {
+				if (this.fileSize > otherUnit.fileSize) {
+					return 1;
+				} else if (this.fileSize < otherUnit.fileSize) {
+					return -1;
+				} else return 0;
+			} else if (sortKey.equals("generic:ms1_spectra")) {
+				int thisms1Spectra = Integer.parseInt(thisValue);
+				int otherms1Spectra = Integer.parseInt(otherValue);
+				if (thisms1Spectra > otherms1Spectra) {
+					return 1;
+				} else if (thisms1Spectra < otherms1Spectra) {
+					return -1;
+				} else return 0;
+			} else if (sortKey.equals("generic:ms2_spectra")) {
+				int thisms2Spectra = Integer.parseInt(thisValue);
+				int otherms2Spectra = Integer.parseInt(otherValue);
+				if (thisms2Spectra > otherms2Spectra) {
+					return 1;
+				} else if (thisms2Spectra < otherms2Spectra) {
+					return -1;
+				} else return 0;
+			} else if (sortKey.equals("generic:date")) {
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MMM/dd - HH:mm");
+				Date thisDate = null;
+				Date otherDate = null;
 				thisDate = sdf.parse(this.measured);
 				otherDate = sdf.parse(otherUnit.measured);
-			} catch (ParseException e) {
-				e.printStackTrace();
+				System.out.print(" ThisDate = " + thisDate + " OtherDate = " + otherDate);
+				if (thisDate.compareTo(otherDate) > 0) {
+					return 1; 
+				} else if (thisDate.compareTo(otherDate) < 0) {
+					return -1; 
+				} else return 0;
+			} else if (sortKey.equals("generic:runtime")) {
+				if (this.runtime.compareToIgnoreCase(otherUnit.runtime) > 0) {
+					return 1;
+				} else if (this.runtime.compareToIgnoreCase(otherUnit.runtime) < 0) {
+					return -1;
+				} else return 0; 
+			} else if (sortKey.equals("maxIntensity")) {
+				if (this.getChartUnit().getMaxTicIntensity() > otherUnit.getChartUnit().getMaxTicIntensity()) { 
+					return 1;
+				} else if (this.getChartUnit().getMaxTicIntensity() < otherUnit.getChartUnit().getMaxTicIntensity()) { 
+					return -1;
+				} else return 0; 
+			} else {
+				double thisDouble = Double.parseDouble(thisValue);
+				double otherDouble = Double.parseDouble(otherValue);
+				if (thisDouble > otherDouble) { 
+					return 1;
+				} else if (thisDouble < otherDouble) { 
+					return -1;
+				} else return 0; 
 			}
-			System.out.print(" ThisDate = " + thisDate + " OtherDate = " + otherDate);
-			if (thisDate.compareTo(otherDate) > 0) {
-				return 1; 
-			} else if (thisDate.compareTo(otherDate) < 0) {
-				return -1; 
-			} else return 0;
-		} else if (sortKey.equals("generic:runtime")) {
-			if (this.runtime.compareToIgnoreCase(otherUnit.runtime) > 0) {
-				return 1;
-			} else if (this.runtime.compareToIgnoreCase(otherUnit.runtime) < 0) {
-				return -1;
-			} else return 0; 
-		} else if (sortKey.equals("maxIntensity")) {
-			if (this.getChartUnit().getMaxTicIntensity() > otherUnit.getChartUnit().getMaxTicIntensity()) { 
-				return 1;
-			} else if (this.getChartUnit().getMaxTicIntensity() < otherUnit.getChartUnit().getMaxTicIntensity()) { 
-				return -1;
-			} else return 0; 
-		} else {
-			double thisDouble = Double.parseDouble(thisValue);
-			double otherDouble = Double.parseDouble(otherValue);
-			if (thisDouble > otherDouble) { 
-				return 1;
-			} else if (thisDouble < otherDouble) { 
-				return -1;
-			} else return 0; 
+		} catch (Exception e) {
+			System.out.println("Exception type " + e.getClass().toString() + " thisValue = " + thisValue + " otherValue = " + otherValue);
+			//e.printStackTrace();
 		}
+		return 0; 
 	}
 
 	public void setMetricsValues(HashMap<String, String> metricsValues) {
@@ -469,7 +466,7 @@ public class ReportUnit {
 	        this.fileSizeString = this.getMetricsValueFromKey("generic:f_size");
 	        setFileSizeString(fileSizeString);
 	        this.ms1Spectra = this.getMetricsValueFromKey("generic:ms1_spectra");
-	        this.ms2Spectra = this.getMetricsValueFromKey("ggeneric:ms2_spectra");;
+	        this.ms2Spectra = this.getMetricsValueFromKey("generic:ms2_spectra");;
 	        this.measured = this.getMetricsValueFromKey("generic:date");;
 	        this.runtime = this.getMetricsValueFromKey("generic:runtime");;
 		}

@@ -204,7 +204,7 @@ public class Main{
 	}
     
     
-    public void notifyProgressLogFileChanged(String newPipelineStatus) {
+    public void notifyUpdatePipelineStatus(String newPipelineStatus) {
 		/* Refresh ReportViewer automatically on this notification
 		 */
 		pipelineStatus = newPipelineStatus; 

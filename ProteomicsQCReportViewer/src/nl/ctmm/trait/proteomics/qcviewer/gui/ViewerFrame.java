@@ -155,7 +155,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     public void updateReportUnits(List<ReportUnit> newReportUnits, final String newPipelineStatus) {
     	System.out.println("In updateReportUnits yCoordinate = " + yCoordinate);
-    	int numReportUnits = orderedReportUnits.size();
+    	int numReportUnits = reportUnits.size();
     	if (newReportUnits.size() > 0) {
     		for (int i = 0; i < newReportUnits.size(); ++i) {
         		ReportUnit thisUnit = newReportUnits.get(i);
@@ -172,7 +172,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         		System.out.println("yCoordinate = " + yCoordinate);
         		yCoordinate +=  CHART_HEIGHT + 15;
         	}
-    	    int totalReports = orderedReportUnits.size();
+    	    int totalReports = reportUnits.size();
     	    desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, totalReports * (CHART_HEIGHT + 15)));
     	}
 		updatePipelineStatus(newPipelineStatus);
@@ -770,11 +770,9 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         for (int i = 0; i < orderedReportUnits.size(); ++i) {
         	JInternalFrame chartFrame;
         	if (flag) {
-        		System.out.print("Report URI = " + orderedReportUnits.get(i).getDetailsUri() + " ");
-        			chartFrame = createChartFrame(i, orderedReportUnits.get(i).getChartUnit().getTicChart(), orderedReportUnits.get(i));
+        		chartFrame = createChartFrame(i, orderedReportUnits.get(i).getChartUnit().getTicChart(), orderedReportUnits.get(i));
         	} else {
         		int index = orderedReportUnits.size() - i - 1;
-        		System.out.print("Report URI = " + orderedReportUnits.get(index).getDetailsUri() + " ");
         		chartFrame = createChartFrame(i, orderedReportUnits.get(index).getChartUnit().getTicChart(), orderedReportUnits.get(orderedReportUnits.size() - i - 1));
         	}
         	chartFrame.setBorder(BorderFactory.createRaisedBevelBorder());
@@ -793,7 +791,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * @return An internal frame.
      */
     private JInternalFrame createChartFrame(int chartNum, JFreeChart chart, ReportUnit reportUnit) {
-    	System.out.println("ViewerFrame createChartFrame " + chartNum);
+    	System.out.print("ViewerFrame createChartFrame " + chartNum + " ");
         //Create the visible chart panel
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new Dimension(CHART_PANEL_SIZE, CHART_HEIGHT - 10));
