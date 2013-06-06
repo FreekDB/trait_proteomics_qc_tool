@@ -30,20 +30,20 @@ public class ProgressLogReader implements FileChangeListener {
 	private Timer timer;
     private Hashtable<String, StatusMonitorTask> timerEntries;
 	File logFile; 
-	
-	public ProgressLogReader (Main owner, String progressLogFilePath) {
-		this.owner = owner; 
+
+	public ProgressLogReader (String progressLogFilePath) {
+		this.owner = Main.getInstance(); 
 		logFile = new File(progressLogFilePath);
 		parseCurrentStatus(logFile);
 		System.out.println("Current QC Pipeline Status: " + currentStatus);
 	    // Create timer, run timer thread as daemon.
 	    timer = new Timer(true);
 	    timerEntries = new Hashtable<String, StatusMonitorTask>();
-	    
 	    StatusMonitorTask task = new StatusMonitorTask(this);
 	    timerEntries.put("StatusMonitor", task);
 	    timer.schedule(task, 5000, 5000);
 	}
+
 	
 	public String getCurrentStatus() {
 		return currentStatus; 
@@ -63,7 +63,7 @@ public class ProgressLogReader implements FileChangeListener {
 		try {
 			InputStreamReader streamReader = new InputStreamReader(new FileInputStream(logFile));
 			br = new BufferedReader(streamReader);
-			System.out.println(logFile.getName());
+			//System.out.println(logFile.getName());
 			//Also check for empty lines and white spaces
 			while (br.ready()) {
 				String thisLine = br.readLine();
@@ -72,8 +72,6 @@ public class ProgressLogReader implements FileChangeListener {
 					lastLine = thisLine; 
 				}
 			}
-			System.out.println("Last line of the logFile is : ");
-			System.out.println(lastLine);
 		} catch (IOException e) {
 			System.out.println(e.toString());
 			currentStatus = "Logfile doesn't exist. | | | | | Configured filepath = " + logFile.getAbsolutePath();
@@ -93,19 +91,19 @@ public class ProgressLogReader implements FileChangeListener {
 			DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			try {
 				Date logDate = sdf.parse(timeStamp);
-				System.out.println("Parsed log date is " + logDate.toString());
+				//System.out.println("Parsed log date is " + logDate.toString());
 				Date currentDate = new Date (System.currentTimeMillis());
-				System.out.println("Current date is " + currentDate.toString());
+				//System.out.println("Current date is " + currentDate.toString());
 				//in milliseconds
 				long diff = currentDate.getTime() - logDate.getTime();
 				long diffSeconds = diff / 1000 % 60;
 				long diffMinutes = diff / (60 * 1000) % 60;
 				long diffHours = diff / (60 * 60 * 1000) % 24;
 				long diffDays = diff / (24 * 60 * 60 * 1000);
-				System.out.print(diffDays + " days, ");
-				System.out.print(diffHours + " hours, ");
-				System.out.print(diffMinutes + " minutes, ");
-				System.out.println(diffSeconds + " seconds.");
+				//System.out.print(diffDays + " days, ");
+				//System.out.print(diffHours + " hours, ");
+				//System.out.print(diffMinutes + " minutes, ");
+				//System.out.println(diffSeconds + " seconds.");
 				if (lastLine.endsWith("running")) {
 					completed = false; 
 					stkz = new StringTokenizer(lastLine);
@@ -119,7 +117,7 @@ public class ProgressLogReader implements FileChangeListener {
 					//Remove last .RAW from runningMsrunName
 			    	int msrunLength = runningMsrunName.length();
 			    	runningMsrunName = runningMsrunName.substring(0, msrunLength - 4); //Remove trailing .RAW extension
-			    	System.out.println("ProgressLogReader runningMsrunName = " + runningMsrunName);
+			    	//System.out.println("ProgressLogReader runningMsrunName = " + runningMsrunName);
 				} else if (lastLine.endsWith("completed")) {
 					runningMsrunName = "";
 					completed = true;
@@ -138,11 +136,8 @@ public class ProgressLogReader implements FileChangeListener {
 		parseCurrentStatus(logFile);
 		System.out.println("Now current status is " + getCurrentStatus());
 		if (completed) {
-			//New report is available
-			//owner.notifyNewReportAvailable(getCurrentStatus(), true);
 			owner.notifyProgressLogFileChanged(getCurrentStatus(), true);
 		} else {
-			//owner.notifyNewReportAvailable(getCurrentStatus(), false);
 			owner.notifyProgressLogFileChanged(getCurrentStatus(), false);
 		}
 	}
@@ -155,11 +150,10 @@ public class ProgressLogReader implements FileChangeListener {
 
 	    public StatusMonitorTask(ProgressLogReader owner) {
 	    	this.owner = owner; 
-	    	System.out.println("StatusMonitorTask Constructor"); 
 	    }
 
 	    public void run() {
-	    	System.out.println("StatusMonitorTask running owner.pushPipelineStatus()"); 
+	    	//System.out.println("StatusMonitorTask running owner.pushPipelineStatus()"); 
 	    	owner.pushPipelineStatus();
 	    }
 	  }

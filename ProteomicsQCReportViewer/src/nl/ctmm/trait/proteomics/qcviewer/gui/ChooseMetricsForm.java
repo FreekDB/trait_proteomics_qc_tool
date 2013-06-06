@@ -153,7 +153,8 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
 				System.out.println("Invoke ViewerFrame methods");
 				parent.clean();
 				parent.dispose();
-				new Main().runReportViewer();
+				//new Main().runReportViewer();
+				Main.getInstance().runReportViewer();
 			}
 		}
 		}

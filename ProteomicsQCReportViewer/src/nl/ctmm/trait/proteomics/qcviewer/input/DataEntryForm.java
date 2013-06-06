@@ -101,7 +101,8 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 				parentViewerFrame.dispose();
 			}
 		    dispose();
-			new Main().runReportViewer();
+			//new Main().runReportViewer();
+			Main.getInstance().runReportViewer();
 	    } 
 	 }
     
@@ -127,7 +128,8 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
     					parentViewerFrame.clean();
     					parentViewerFrame.dispose();
     					updatePreferredServer(preferredServer);
-    					new Main().runReportViewer();
+    					//new Main().runReportViewer();
+    					Main.getInstance().runReportViewer();
     				}
     			}
             }});
@@ -207,7 +209,8 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 					parentViewerFrame.clean();
 					parentViewerFrame.dispose();
 					updatePreferredRootDirectory(preferredRootDirectory);
-					new Main().runReportViewer();
+					//new Main().runReportViewer();
+					Main.getInstance().runReportViewer();
 				}
 			} else displayErrorMessage ("Enter valid root directory.");
 		} else if (ae.getActionCommand().equals("SUBMITSER")) {
@@ -223,7 +226,8 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 					parentViewerFrame.clean();
 					parentViewerFrame.dispose();
 					updatePreferredServer(preferredServer);
-					new Main().runReportViewer();
+					//new Main().runReportViewer();
+					Main.getInstance().runReportViewer();
 				}
 			}
 		} else if (ae.getActionCommand().startsWith("CANCEL")) {
@@ -323,7 +327,7 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 								parentViewerFrame.clean();
 								parentViewerFrame.dispose();
 							}
-							new Main().runReportViewer();
+							Main.getInstance().runReportViewer();
 						}
 					} catch (ParseException e) {
 						e.printStackTrace();

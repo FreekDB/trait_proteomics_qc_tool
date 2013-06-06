@@ -183,7 +183,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * Update pipelineStatus in the report viewer
      */
     public void updatePipelineStatus(final String newPipelineStatus) {
-    	System.out.println("ViewerFrame updatePipelineStatus");
+    	//System.out.println("ViewerFrame updatePipelineStatus");
     	this.pipelineStatus = newPipelineStatus; 
     	statusPanel.removeAll();
         int style = Font.BOLD;

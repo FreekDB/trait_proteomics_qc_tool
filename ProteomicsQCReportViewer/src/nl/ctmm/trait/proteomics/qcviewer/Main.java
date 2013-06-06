@@ -47,6 +47,7 @@ public class Main{
     private Hashtable<String, ReportUnit> reportUnitsTable = new Hashtable<String, ReportUnit>();
     private ProgressLogReader plogReader; 
     private String preferredRootDirectory;
+    private static Main instance = new Main();
 	/**
      * The logger for this class.
      */
@@ -58,9 +59,22 @@ public class Main{
      * @param arguments the command-line arguments, which are currently not used.
      */
     public static void main(final String[] arguments) {
-        new Main().runReportViewer();
+    	Main instance = Main.getInstance();
+    	instance.runReportViewer();
     }
 
+    /**
+     * Gets the Main instance.
+     * 
+     * @return Main instance
+     */
+    public static Main getInstance() {
+    	if (instance == null) {
+    		instance = new Main();
+    	}
+      return instance;
+    }
+    
     /**
      * Start the QC Report Viewer.
      */
@@ -71,7 +85,7 @@ public class Main{
         System.out.println("in Main preferredRootDirectory = " + preferredRootDirectory);
        	String progressLogFilePath = preferredRootDirectory + "\\" + Constants.PROPERTY_PROGRESS_LOG;
         System.out.println("progressLogFilePath = " + progressLogFilePath);
-        plogReader = new ProgressLogReader(this, progressLogFilePath);
+        plogReader = new ProgressLogReader(progressLogFilePath);
         pipelineStatus = plogReader.getCurrentStatus();
         
         //Experimenting with ProgressLogMonitor
@@ -122,23 +136,37 @@ public class Main{
     }
     
     public void processInitialReports() { 
+    	System.out.println("Main: In processInitialReports..");
         String runningMsrunName = plogReader.getRunningMsrunName();
         ArrayList<ReportUnit> reportUnits = (ArrayList<ReportUnit>) getReportUnits(preferredRootDirectory, fromDate, tillDate);
+        //Reinitialize reportUnitsTable
+        reportUnitsTable = new Hashtable<String, ReportUnit>();
+        reportNum = 0; 
         ArrayList<ReportUnit> displayableReportUnits = new ArrayList<ReportUnit>();
         //populate reportUnitsTable
         int reportUnitsSize = reportUnits.size();
-        System.out.println("reportUnitsSize = " + reportUnitsSize + " runningMsrunName = " + runningMsrunName);
+        System.out.println("All reportUnitsSize = " + reportUnitsSize + " runningMsrunName = " + runningMsrunName);
         for (int i = 0; i < reportUnitsSize; ++i) {
         	ReportUnit thisUnit = reportUnits.get(i);
         	String thisMsrun = thisUnit.getMsrunName();
     		if (!thisMsrun.equals(runningMsrunName)) { //Currently processing this msrun. Do not include in the report
     			++reportNum; 
     			thisUnit.setReportNum(reportNum);
+    			
+    			//for identifying duplicate reports
+    			if (reportUnitsTable.containsKey(thisMsrun)) {
+    				System.out.println("Alert!! Already exists in ReportUnitsTable " + thisMsrun);
+    			}
+    			
     			reportUnitsTable.put(thisUnit.getMsrunName(), thisUnit);
     			displayableReportUnits.add(thisUnit);
-    		} 
+    		} else {
+    			System.out.println("Skipped report unit " + thisMsrun + 
+    	    			" Logfile says it is running " + runningMsrunName);
+    		}
         }
         deForm.disposeInitialDialog();
+        System.out.println("ReportUnitsTable size is " + reportUnitsTable.size());
         if (reportUnits.size() == 0) { //There exist no reports in current root directory
         	//Get new location to read reports from
         	deForm.displayErrorMessage("No Reports found in " + preferredRootDirectory);
@@ -167,6 +195,7 @@ public class Main{
 	    } else { 
 	    	//Compare newReportUnits with reportUnits
 	    	ArrayList <ReportUnit> newReportUnits = new ArrayList<ReportUnit>();
+	    	int numUpdates = 0; 
 	    	for (int i = 0; i < reportUnits.size(); ++i) {
 	    		//if not in reportUnits, then add to newReportUnits
 	    		ReportUnit thisUnit = reportUnits.get(i);
@@ -180,7 +209,8 @@ public class Main{
 		    			thisUnit.setReportNum(existingNum);
 		    			reportUnitsTable.remove(thisMsrun);
 		    			reportUnitsTable.put(thisMsrun, thisUnit);
-	    				System.out.println("Updating hashtable.. " + thisUnit.getMsrunName());
+		    			++numUpdates; 
+	    				//System.out.println("Updating hashtable.. " + thisUnit.getMsrunName());
 		    		} else {
 		    			++reportNum; 
 		    			System.out.println("Does not exist in reportUnitsTable. " + thisUnit.getMsrunName() + " Adding to new report units with reportNum " + reportNum);
@@ -194,8 +224,8 @@ public class Main{
 	    	    			" Logfile says it is running " + runningMsrunName);
 	    		}
 	    	}
-	    	System.out.println("ReportUnitsTable size is " + reportUnitsTable.size() + 
-	    			" newReportUnits size is " + newReportUnits.size());
+	    	System.out.println("ReportUnitsTable size is " + reportUnitsTable.size() + " Updated " + numUpdates + 
+	    			" entries. newReportUnits size is " + newReportUnits.size());
 	    	reportUnits.removeAll(reportUnits);
 	    	reportUnits = null;
 	    	//Refresh ViewerFrame with new Report Units
@@ -209,7 +239,9 @@ public class Main{
 		 */
 		pipelineStatus = newPipelineStatus; 
 	    //Refresh ViewerFrame pipelineStatus
-	    frame.updatePipelineStatus(pipelineStatus);
+		if (frame != null) {
+			frame.updatePipelineStatus(pipelineStatus);
+		}
 	}
     
     /**

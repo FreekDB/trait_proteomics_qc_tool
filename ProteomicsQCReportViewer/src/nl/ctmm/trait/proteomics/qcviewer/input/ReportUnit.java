@@ -382,7 +382,7 @@ public class ReportUnit {
 		
 		String thisValue = this.getMetricsValueFromKey(sortKey);
 		String otherValue = otherUnit.getMetricsValueFromKey(sortKey);
-		System.out.print("thisValue = " + thisValue + " otherValue = " + otherValue + " ");
+		//System.out.print("thisValue = " + thisValue + " otherValue = " + otherValue + " ");
 		try {
 			if (thisValue.equals(otherValue)) {
 				return 0; 
@@ -424,7 +424,7 @@ public class ReportUnit {
 				Date otherDate = null;
 				thisDate = sdf.parse(this.measured);
 				otherDate = sdf.parse(otherUnit.measured);
-				System.out.print(" ThisDate = " + thisDate + " OtherDate = " + otherDate);
+				//System.out.print(" ThisDate = " + thisDate + " OtherDate = " + otherDate);
 				if (thisDate.compareTo(otherDate) > 0) {
 					return 1; 
 				} else if (thisDate.compareTo(otherDate) < 0) {
