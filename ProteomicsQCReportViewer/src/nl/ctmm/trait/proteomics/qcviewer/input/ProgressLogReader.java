@@ -72,7 +72,7 @@ public class ProgressLogReader implements FileChangeListener {
 					lastLine = thisLine; 
 				}
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			System.out.println(e.toString());
 			currentStatus = "Logfile doesn't exist. | | | | | Configured filepath = " + logFile.getAbsolutePath();
 			return;
