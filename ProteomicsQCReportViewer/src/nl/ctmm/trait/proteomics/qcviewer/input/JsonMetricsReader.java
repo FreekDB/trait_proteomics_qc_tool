@@ -37,7 +37,6 @@ public class JsonMetricsReader {
         //Initialize metricsValues to N/A
         try {
             final JSONObject jsonObject = (JSONObject) new JSONParser().parse(new FileReader(jsonFile));
-            
             for (int i = 0; i < keys.length; ++i) {
             	String paramValue = "N/A";
             	//Split the key into jsonObject and parameters
@@ -50,12 +49,14 @@ public class JsonMetricsReader {
             	//Comment following line to include generic parameter
             	//if (!objectName.equals("generic") && jsonObject.containsKey(objectName)) {
             		JSONObject jObject = (JSONObject) jsonObject.get(objectName);
-                	//System.out.println("Key = " + (String) keys[i] + " Object = " + objectName + " paramName = " + paramName);
-                	if (paramName.equals("date") || paramName.equals("runtime")) { 
-                		paramValue = (String) jObject.get(paramName);
-                	} else {
-                		paramValue = (String) ((JSONArray) jObject.get(paramName)).get(1);
-                	}
+            		if (jObject.containsKey(paramName)) {
+                    	//System.out.println("Key = " + (String) keys[i] + " Object = " + objectName + " paramName = " + paramName);
+                    	if (paramName.equals("date") || paramName.equals("runtime")) { 
+                    		paramValue = (String) jObject.get(paramName);
+                    	} else {
+                    		paramValue = (String) ((JSONArray) jObject.get(paramName)).get(1);
+                    	}
+            		}
             	}
             	metricsValues.put((String) keys[i], paramValue);
             	//System.out.println("Key = " + (String) keys[i] + " paramValue = " + paramValue);

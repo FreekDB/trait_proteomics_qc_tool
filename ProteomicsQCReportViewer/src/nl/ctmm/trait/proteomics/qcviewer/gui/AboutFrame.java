@@ -153,7 +153,7 @@ public class AboutFrame extends JFrame implements ActionListener {
         //Create a text area.
         JTextArea textArea = new JTextArea(
         		"Project homepage: https://trac.nbic.nl/svn/proteomics/ProteomicsQCReportViewer\n" + 
-        		"SVN Repository: https://trac.nbic.nl/svn/proteomics/ProteomicsQCReportViewer\n" + 
+        		"Github Repository: https://github.com/ppawar/TrialOfTraitProteomicsQCTool/\n" + 
         		"Version: 1.6.5\n" +
         		"Contact: Dr. Thang V. Pham (t.pham@vumc.nl)"
         );

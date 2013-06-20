@@ -88,7 +88,6 @@ public class Main{
         plogReader = new ProgressLogReader(progressLogFilePath);
         pipelineStatus = plogReader.getCurrentStatus();
         
-        //Experimenting with ProgressLogMonitor
         ProgressLogMonitor plogMonitor = ProgressLogMonitor.getInstance();
         try {
 			plogMonitor.addFileChangeListener(plogReader, progressLogFilePath, 5000);
@@ -130,9 +129,6 @@ public class Main{
         }
         System.out.println("fromDate = " + sdf.format(fromDate) + " tillDate = " + sdf.format(tillDate));
         processInitialReports();
-        /*for testing 0 reports condition
-        ArrayList<ReportUnit> displayableReportUnits = new ArrayList<ReportUnit>();
-        startGuiVersion2(applicationProperties, displayableReportUnits, pipelineStatus);*/
     }
     
     public void processInitialReports() { 
