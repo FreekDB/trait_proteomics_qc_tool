@@ -37,6 +37,11 @@ import nl.ctmm.trait.proteomics.qcviewer.utils.Utilities;
 
 import org.jfree.ui.RefineryUtilities;
 
+/**
+ * The class for displaying complete QC metrics report corresponding to one report unit.
+ *
+ * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
+ */
 public class DetailsFrame extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
@@ -47,6 +52,11 @@ public class DetailsFrame extends JFrame implements ActionListener {
  	private	JTable		table;
  	private	JScrollPane scrollPane;
     
+ 	/**
+ 	 * Constructor
+ 	 * @param metricsListing List of all QC metrics
+ 	 * @param rUnit Report unit consisting of all QC metrics values
+ 	 */
 	public DetailsFrame(HashMap<String, String> metricsListing, ReportUnit rUnit) {
 		super ("All QC Metrics Values for " + rUnit.getMsrunName());
 		setSize(520, 740);
@@ -60,7 +70,7 @@ public class DetailsFrame extends JFrame implements ActionListener {
 		String columnNames[] = { "Metrics ID", "Description", "Value" };
 
 		//Read metricsListing - key - metricsID Value - MetricName
-		System.out.println("In DetailsFrame - preparing to create dataset" );
+		System.out.println("In DetailsFrame - preparing to create dataset for " + rUnit.getMsrunName());
 		// Create data to show inside the table
 		String dataValues[][] = new String[metricsListing.size()][3];
 		int index = 0; 
@@ -77,8 +87,8 @@ public class DetailsFrame extends JFrame implements ActionListener {
 	        	metricsValue = (String) metricsValues.get(listingKey);
 	        }
 	        //This corresponds to one row in the metricsTable
-	        System.out.println("listingKey = " + listingKey + " listingValue = " + listingValue
-	        		+ " metricsValue = " + metricsValue);
+	        //System.out.println("listingKey = " + listingKey + " listingValue = " + listingValue
+	        //		+ " metricsValue = " + metricsValue);
 	        String[] row = new String[3];
 	        row[0] = listingKey;
 	        row[1] = listingValue;
@@ -107,7 +117,6 @@ public class DetailsFrame extends JFrame implements ActionListener {
 		// Add the table to a scrolling pane
 		scrollPane = new JScrollPane(table);
 		topPanel.add(scrollPane, BorderLayout.CENTER);
-
 		JButton SUBMIT = new JButton("OK");
     	SUBMIT.setPreferredSize(new Dimension(80, 30));
   	  	SUBMIT.addActionListener(this);
@@ -120,6 +129,9 @@ public class DetailsFrame extends JFrame implements ActionListener {
 		RefineryUtilities.centerFrameOnScreen(this);
 	}
 
+	/**
+	 * Event handler for user actions such as pressing the OK button
+	 */
 	@Override
 	public void actionPerformed(ActionEvent ae) {
 		if (ae.getActionCommand().equals("OK")) {
@@ -127,10 +139,13 @@ public class DetailsFrame extends JFrame implements ActionListener {
 		}
 	}
 	
+	/**
+	 * Renderer class specifying cell backgrounds for the details table
+	 * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
+	 *
+	 */
 	class TableCellRender extends DefaultTableCellRenderer {  
-
 		private static final long serialVersionUID = 1L;
-
 		public TableCellRender() {  
 			setOpaque(true);  
 		}  

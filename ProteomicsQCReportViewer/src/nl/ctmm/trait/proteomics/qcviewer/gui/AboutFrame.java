@@ -26,12 +26,21 @@ import nl.ctmm.trait.proteomics.qcviewer.utils.Utilities;
 
 import org.jfree.ui.RefineryUtilities;
 
+/**
+ * The class for displaying About information of the Report Viewer.
+ *
+ * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
+ */
+
 public class AboutFrame extends JFrame implements ActionListener {
 
 	private JFrame aboutFrame; 
     int style = Font.PLAIN;
     Font font = new Font ("Garamond", style , 11);
     
+    /**
+     * Constructor
+     */
 	public AboutFrame() {
 		super ("About MSQC Report Viewer");
 		JPanel mainPanel = new JPanel();
@@ -98,6 +107,10 @@ public class AboutFrame extends JFrame implements ActionListener {
 		RefineryUtilities.centerFrameOnScreen(this);
 	}
 	
+	/**
+	 * Get description text 
+	 * @return JTextArea Text area for the description text
+	 */
 	private JTextArea getDescriptionJTextArea() {
         //Create a text area.
         JTextArea textArea = new JTextArea(
@@ -129,6 +142,10 @@ public class AboutFrame extends JFrame implements ActionListener {
         return textArea;
 	}
 	
+	/**
+	 * Get references text 
+	 * @return JTextArea Text area for the references text
+	 */
 	private JTextArea getReferencesTextArea() {
         //Create a text area.
         JTextArea textArea = new JTextArea(
@@ -149,6 +166,11 @@ public class AboutFrame extends JFrame implements ActionListener {
         return textArea;
 	}
 	
+	/**
+	 * Get details text 
+	 * @return JTextArea Text area for the project and contact details text
+	 */
+	
 	private JTextArea getDetailsTextArea() {
         //Create a text area.
         JTextArea textArea = new JTextArea(
@@ -164,6 +186,12 @@ public class AboutFrame extends JFrame implements ActionListener {
         return textArea;
 	}
 	
+	/**
+	 * Create acknowledgement label
+	 * @param labelText Text of the acknowledgement label
+	 * @param iconPath Logo of the institution 
+	 * @return Label and logo in JLabel format
+	 */
 	private JLabel createAcknowledgementLabel(String labelText, String iconPath) {
         //Add opllogo to control frame
         BufferedImage logo = null;
@@ -176,7 +204,10 @@ public class AboutFrame extends JFrame implements ActionListener {
         JLabel oplLabel = new JLabel(labelText, new ImageIcon(logo), JLabel.LEFT);
         return oplLabel;
 	}
-
+	
+	/**
+	 * Event handler for user actions such as pressing the OK button
+	 */
 	@Override
 	public void actionPerformed(ActionEvent ae) {
 		if (ae.getActionCommand().equals("OK")) {

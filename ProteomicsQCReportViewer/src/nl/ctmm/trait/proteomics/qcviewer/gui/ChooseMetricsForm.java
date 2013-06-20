@@ -33,28 +33,42 @@
 
 package nl.ctmm.trait.proteomics.qcviewer.gui;
 
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashMap;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.DropMode;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.TransferHandler;
 
 import nl.ctmm.trait.proteomics.qcviewer.Main;
 import nl.ctmm.trait.proteomics.qcviewer.input.MetricsParser;
 
-import org.jfree.data.xy.XYSeries;
-
-import java.awt.*;
-import java.awt.datatransfer.*;
-import java.awt.event.*;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
+/**
+ * The class for displaying Metrics selection form - drag n drop user interface.
+ *
+ * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
+ */
 
 public class ChooseMetricsForm extends JFrame implements ActionListener {
     
+	private static final long serialVersionUID = -4740722105234150323L;
 	SortedListModel from = new SortedListModel();
 	SortedListModel move = new SortedListModel();
     JList dragFrom, moveTo;
@@ -63,6 +77,12 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
     MetricsParser mParser = null;
     ViewerFrame parent = null;
 
+    /**
+     * Constructor of metrics selection form
+     * @param parent ViewerFrame is the parent 
+     * @param mParser Instance of MetricsParser
+     * @param selectedMetrics HashMap of previously selected metrics
+     */
     public ChooseMetricsForm(ViewerFrame parent, final MetricsParser mParser, HashMap<String, String> selectedMetrics) {
         super("Select QC-Full Metrics for MSQC Report Viewer");
         this.mParser = mParser;
@@ -111,8 +131,6 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         add(p, BorderLayout.CENTER);
         
         p = new JPanel();
-        //p.setLayout(new GridLayout(1,2));
-        //p.setSize(new Dimension(100, 30));
     	JButton SUBMIT = new JButton("OK");
     	SUBMIT.setSize(new Dimension(50, 30));
     	JButton CANCEL = new JButton("CANCEL"); 
@@ -132,6 +150,9 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         getContentPane().setPreferredSize(new Dimension(830, 340));
     }
 
+    /**
+     * The user has performed actions such as pressing the OK button
+     */
 	@Override
 	 public void actionPerformed(ActionEvent ae) {
 		System.out.println("DataEntryFrame Action command = " + ae.getActionCommand());
@@ -165,18 +186,15 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         String origin;
         //ToTransferHandler
         public ToFromTransferHandler(String origin, int action) { 
-        	//System.out.println("In ToFromTransferHandler...");
             this.action = action;
             this.origin = origin;
         }
         
         public int getSourceActions(JComponent comp) {
-        	//System.out.println("In getSourceActions...");
             return COPY_OR_MOVE;
         }
         
         public Transferable createTransferable(JComponent comp) {
-        	//System.out.println("In createTransferable...");
         	String selection = "";
             if (origin.equalsIgnoreCase("dragFrom")) {
             	index = dragFrom.getSelectedIndex();
@@ -196,7 +214,6 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         }
 
         public void exportDone(JComponent comp, Transferable trans, int action) {
-        	//System.out.println("In exportDone...");
             if (action != MOVE) {
                 return;
             }
@@ -212,7 +229,6 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         }
         
         public boolean canImport(TransferHandler.TransferSupport support) {
-        	//System.out.println("In canImport...");
             if (!support.isDrop()) {
                 return false;
             }
@@ -234,7 +250,6 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         }
 
         public boolean importData(TransferHandler.TransferSupport support) {
-        	//System.out.println("In importData...");
             // if we can't handle the import, say so
             if (!canImport(support)) {
                 return false;
@@ -253,7 +268,6 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
             }
             JList list = (JList)support.getComponent();
             SortedListModel model = (SortedListModel)list.getModel();
-            //model.insertElementAt(data, index);
             model.add(data);
             Rectangle rect = list.getCellBounds(index, index);
             list.scrollRectToVisible(rect);
