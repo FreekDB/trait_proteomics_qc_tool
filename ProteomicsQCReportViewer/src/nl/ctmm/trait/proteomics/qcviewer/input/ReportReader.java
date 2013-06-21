@@ -59,8 +59,7 @@ public class ReportReader extends JFrame {
      * relevant data.
      *
      * @param rootDirectoryName the root directory that contains the year directories.
-     * @param serverAddress 
-     * @param tillDate 
+     * @param tillDate
      * @param fromDate 
      * @return a list with report units.
      */
