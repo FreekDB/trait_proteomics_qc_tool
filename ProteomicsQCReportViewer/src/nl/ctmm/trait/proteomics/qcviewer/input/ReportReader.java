@@ -38,10 +38,10 @@ import org.json.simple.parser.JSONParser;
  */
 public class ReportReader extends JFrame {
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	private static final Logger logger = Logger.getLogger(ReportReader.class.getName());
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+    private static final Logger logger = Logger.getLogger(ReportReader.class.getName());
     private static final List<String> MONTH_DIRS = Arrays.asList(
             "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
     );
@@ -51,7 +51,7 @@ public class ReportReader extends JFrame {
     private JsonMetricsReader jmReader = null; 
     
     public ReportReader(MetricsParser mParser) {
-    	jmReader = new JsonMetricsReader(mParser);
+        jmReader = new JsonMetricsReader(mParser);
     }
 
     /**
@@ -59,23 +59,23 @@ public class ReportReader extends JFrame {
      * relevant data.
      *
      * @param rootDirectoryName the root directory that contains the year directories.
-     * @param tillDate
-     * @param fromDate 
+     * @param fromDate the start of the date range to search.
+     * @param tillDate the end of the date range to search.
      * @return a list with report units.
      */
     public List<ReportUnit> retrieveReports(final String rootDirectoryName, final Date fromDate, final Date tillDate) {
         // todo msrun versus msreading directory?
         /*The directory has three levels - year, month and msrun.
         The msreading directory may contain following three files of importance:
-	    1) metrics.json: String file which has following format: 
-	    {"generic": {"date": "2012/Nov/07 - 14:18", "ms2_spectra": 
-	    ["MS2 Spectra", "22298 (22298)"], "runtime": "0:16:23", 
-	    "f_size": ["File Size (MB)", "830.9"], "ms1_spectra": 
-	    ["MS1 Spectra", "7707 (7707)"]}}
-	    2) msrun*_heatmap.png
-	    3) msrun*_ions.png
-	    */
-    	String allErrorMessages = ""; 
+        1) metrics.json: String file which has following format: 
+        {"generic": {"date": "2012/Nov/07 - 14:18", "ms2_spectra": 
+        ["MS2 Spectra", "22298 (22298)"], "runtime": "0:16:23", 
+        "f_size": ["File Size (MB)", "830.9"], "ms1_spectra": 
+        ["MS1 Spectra", "7707 (7707)"]}}
+        2) msrun*_heatmap.png
+        3) msrun*_ions.png
+        */
+        String allErrorMessages = ""; 
         final List<ReportUnit> reportUnits = new ArrayList<ReportUnit>();
         logger.log(Level.ALL, "Root folder = " + rootDirectoryName);
         for (final File yearDirectory : getYearDirectories(rootDirectoryName)) {
@@ -89,34 +89,34 @@ public class ReportReader extends JFrame {
                     SimpleDateFormat sdf = new SimpleDateFormat(Constants.SIMPLE_DATE_FORMAT_STRING);
                     String dateString = sdf.format(d);
                     try {
-						d = sdf.parse(dateString);
-					} catch (ParseException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+                        d = sdf.parse(dateString);
+                    } catch (ParseException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
                     if (d.compareTo(fromDate)>=0 && d.compareTo(tillDate)<=0) {
-                    	//System.out.println("Added - Last modified on: " + dateString + " is within limits From " 
-                    	//		+ sdf.format(fromDate) + " res = " +d.compareTo(fromDate) + " Till " + sdf.format(tillDate) + " res = " +d.compareTo(tillDate));
+                        //System.out.println("Added - Last modified on: " + dateString + " is within limits From " 
+                        //        + sdf.format(fromDate) + " res = " +d.compareTo(fromDate) + " Till " + sdf.format(tillDate) + " res = " +d.compareTo(tillDate));
                         boolean errorFlag = false; 
-                    	final File[] dataFiles = msRunDirectory.listFiles();
-                    	//Check existence of "metrics.json", "heatmap.png", "ions.png", "_ticmatrix.csv"
-                    	String errorMessage = checkDataFilesAvailability(yearDirectory.getName(), monthDirectory.getName(), msRunDirectory.getName(), dataFiles);
-                    	if (!errorMessage.equals("")) {
-                    		errorFlag = true;
-                    	//	System.out.println("ErrorMessage = " + errorMessage);
-                    		allErrorMessages += errorMessage + "\n";
-                    	}
-                    	reportUnits.add(createReportUnit(yearDirectory.getName(), monthDirectory.getName(), msRunDirectory.getName(), dataFiles, errorFlag));
+                        final File[] dataFiles = msRunDirectory.listFiles();
+                        //Check existence of "metrics.json", "heatmap.png", "ions.png", "_ticmatrix.csv"
+                        String errorMessage = checkDataFilesAvailability(yearDirectory.getName(), monthDirectory.getName(), msRunDirectory.getName(), dataFiles);
+                        if (!errorMessage.equals("")) {
+                            errorFlag = true;
+                        //    System.out.println("ErrorMessage = " + errorMessage);
+                            allErrorMessages += errorMessage + "\n";
+                        }
+                        reportUnits.add(createReportUnit(yearDirectory.getName(), monthDirectory.getName(), msRunDirectory.getName(), dataFiles, errorFlag));
                     } else {
-                    	//System.out.println("Skipped - Last modified on: " + dateString + " is outside limits From "
-                    	//		+ sdf.format(fromDate) + " res = " +d.compareTo(fromDate) + " Till " + sdf.format(tillDate) + " res = " +d.compareTo(tillDate));
+                        //System.out.println("Skipped - Last modified on: " + dateString + " is outside limits From "
+                        //        + sdf.format(fromDate) + " res = " +d.compareTo(fromDate) + " Till " + sdf.format(tillDate) + " res = " +d.compareTo(tillDate));
                     }
                 }
             }
         }
         if (!allErrorMessages.equals("")) {
-        	saveErrorMessages(allErrorMessages);
-        	//JOptionPane.showMessageDialog(this, allErrorMessages, "MSQC Check Warning Messages",JOptionPane.ERROR_MESSAGE);
+            saveErrorMessages(allErrorMessages);
+            //JOptionPane.showMessageDialog(this, allErrorMessages, "MSQC Check Warning Messages",JOptionPane.ERROR_MESSAGE);
         }
         return reportUnits;
     }
@@ -125,14 +125,14 @@ public class ReportReader extends JFrame {
      * Check existence of "metrics.json", "heatmap.png", "ions.png", "_ticmatrix.csv"
      */
     private String checkDataFilesAvailability(final String year, final String month, final String msrunName, final File[] dataFiles) {
-    	String errorMessage = "";
-    	boolean metrics = false, heatmap = false, ionCount = false, ticMatrix = false, overall = false;
+        String errorMessage = "";
+        boolean metrics = false, heatmap = false, ionCount = false, ticMatrix = false, overall = false;
         for (final File dataFile : dataFiles) {
             final String dataFileName = dataFile.getName();
             if (dataFile.isFile()) {
                 logger.fine("File " + dataFileName);
                 if (dataFileName.equals("metrics.json")) {
-                   	metrics = true;
+                       metrics = true;
                 } else if (dataFileName.endsWith("heatmap.png")) {
                     heatmap = true;
                 } else if (dataFileName.endsWith("ions.png")) {
@@ -143,36 +143,36 @@ public class ReportReader extends JFrame {
             }
         }
         if (metrics && ionCount && ticMatrix) {
-        	overall = true;
+            overall = true;
         } else {
-        	errorMessage = "<html>In Folder " + msrunName + " following filetypes are missing:";
-        	if (!metrics) {
-        		errorMessage += "metrics.json ";
-        	}
-        	if (!ionCount) {
-        		errorMessage += "ions.png ";
-        	}
-        	if (!ticMatrix) {
-        		errorMessage += "_ticmatrix.csv ";
-        	}
-        	errorMessage += "</html>";
+            errorMessage = "<html>In Folder " + msrunName + " following filetypes are missing:";
+            if (!metrics) {
+                errorMessage += "metrics.json ";
+            }
+            if (!ionCount) {
+                errorMessage += "ions.png ";
+            }
+            if (!ticMatrix) {
+                errorMessage += "_ticmatrix.csv ";
+            }
+            errorMessage += "</html>";
         }
         return errorMessage;
     }
     
     private void saveErrorMessages(String allErrorMessages) {
-    	try {
-        	//Save errorMessages to errorMEssages.txt file
+        try {
+            //Save errorMessages to errorMEssages.txt file
             FileWriter fWriter = new FileWriter("QCReports\\errorMessages.txt", true);
             BufferedWriter bWriter = new BufferedWriter(fWriter);
-    		Date date = new Date();
-    		bWriter.write(date.toString() + "\n");
-			bWriter.write(allErrorMessages + "\n");
-			bWriter.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+            Date date = new Date();
+            bWriter.write(date.toString() + "\n");
+            bWriter.write(allErrorMessages + "\n");
+            bWriter.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     
@@ -281,7 +281,7 @@ public class ReportReader extends JFrame {
                 logger.fine("File " + dataFileName);
                 try {
                     if (dataFileName.equals("metrics.json")) {
-                    	//readJsonValues(dataFile, reportUnit);
+                        //readJsonValues(dataFile, reportUnit);
                         reportUnit.setMetricsValues(jmReader.readJsonValues(dataFile));
                     } else if (dataFileName.endsWith("heatmap.png")) {
                         // todo equals instead of endsWith?
@@ -335,30 +335,30 @@ public class ReportReader extends JFrame {
      */
     private XYSeries readXYSeries(final String msrunName, final File ticMatrixFile) {
         BufferedReader br = null;
-    	try {
-    		br = new BufferedReader(new FileReader(ticMatrixFile));
-    	} catch (FileNotFoundException e) {
-    		e.printStackTrace();
-    	}
+        try {
+            br = new BufferedReader(new FileReader(ticMatrixFile));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         String line;
         XYSeries series = new XYSeries(msrunName);
         try {
             br.readLine(); //skip first line
-    		while ((line = br.readLine()) != null) {
-    		    StringTokenizer st = new StringTokenizer(line, ",");
-    		    // The first token is the x value.
-    		    String xValue = st.nextToken();
-    		    // The last token is the y value.
-    		    String yValue = st.nextToken();
-    		    float x = Float.parseFloat(xValue)/60;
-    		    float y = Float.parseFloat(yValue);
-    		    series.add(x, y);
-    		    //System.out.println("xValue = " + xValue + " x = " + x);
-    		}
-    	    br.close();
-    	} catch (NumberFormatException | IOException e) {
-    		e.printStackTrace();
-    	}
+            while ((line = br.readLine()) != null) {
+                StringTokenizer st = new StringTokenizer(line, ",");
+                // The first token is the x value.
+                String xValue = st.nextToken();
+                // The last token is the y value.
+                String yValue = st.nextToken();
+                float x = Float.parseFloat(xValue)/60;
+                float y = Float.parseFloat(yValue);
+                series.add(x, y);
+                //System.out.println("xValue = " + xValue + " x = " + x);
+            }
+            br.close();
+        } catch (NumberFormatException | IOException e) {
+            e.printStackTrace();
+        }
         return series;
     }
 }

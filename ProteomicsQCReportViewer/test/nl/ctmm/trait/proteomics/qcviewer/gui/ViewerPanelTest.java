@@ -82,9 +82,8 @@ public class ViewerPanelTest {
     public void testSetReportUnits() {
         assertEquals(columnCount, viewerPanel.getMainTable().getColumnCount());
         assertEquals(0, viewerPanel.getMainTable().getRowCount());
-        /*public ReportUnit(String msrunName, int reportNum)*/
         for (int reportCount = 0; reportCount < 7; reportCount++) {
-            final List<ReportUnit> reportUnits = new ArrayList<ReportUnit>();
+            final List<ReportUnit> reportUnits = new ArrayList<>();
             for (int reportIndex = 0; reportIndex < reportCount; reportIndex++)
                 reportUnits.add(new ReportUnit("msrun" + reportIndex, reportIndex));
             viewerPanel.setReportUnits(reportUnits);

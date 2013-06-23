@@ -16,7 +16,7 @@ import org.junit.Test;
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
 public class ReportReaderTest {
-    // todo: code coverage: Cobertura? CodeCover?
+    // TODO: code coverage: Cobertura? CodeCover? [Freek]
 
     private ReportReader reportReader;
 
@@ -33,11 +33,12 @@ public class ReportReaderTest {
      */
     @Test
     public void testRetrieveReportsActualData() {
-    	/*
-    	 * public List<ReportUnit> retrieveReports(final String rootDirectoryName, String serverAddress, final Date fromDate, final Date tillDate)
-    	 */
-    	final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-    	Date fromDate = null, tillDate = null;
+        /*
+         * public List<ReportUnit> retrieveReports(final String rootDirectoryName, String serverAddress,
+         *                                         final Date fromDate, final Date tillDate)
+         */
+        final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        Date fromDate = null, tillDate = null;
         try { 
             fromDate = sdf.parse("01/01/2013"); 
             tillDate = sdf.parse("21/06/2013");
@@ -63,8 +64,8 @@ public class ReportReaderTest {
      */
     @Test
     public void testRetrieveReportsNonExistingDirectory() {
-    	final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-    	Date fromDate = null, tillDate = null;
+        final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        Date fromDate = null, tillDate = null;
         try { 
             fromDate = sdf.parse("01/01/2013"); 
             tillDate = sdf.parse("10/04/2013"); 
