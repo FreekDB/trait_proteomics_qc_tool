@@ -8,7 +8,7 @@ import nl.ctmm.trait.proteomics.qcviewer.gui.ImagesTableModelTest;
 import nl.ctmm.trait.proteomics.qcviewer.gui.ImagesTableTest;
 import nl.ctmm.trait.proteomics.qcviewer.gui.ViewerPanelTest;
 import nl.ctmm.trait.proteomics.qcviewer.gui.ScrollDesktopTest;
-import nl.ctmm.trait.proteomics.qcviewer.input.ChartUnitTest;
+import nl.ctmm.trait.proteomics.qcviewer.gui.ChartUnitTest;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportReaderTest;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnitTest;
 import nl.ctmm.trait.proteomics.qcviewer.utils.UtilitiesTest;
