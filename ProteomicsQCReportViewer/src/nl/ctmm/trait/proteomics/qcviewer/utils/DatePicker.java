@@ -2,6 +2,7 @@ package nl.ctmm.trait.proteomics.qcviewer.utils;
 
 /**
  * Taken from http://www.roseindia.net/tutorial/java/swing/datePicker.html
+ * TODO: check the license to make sure we can use this class. [Freek]
  */
 
 import java.awt.*;
@@ -12,7 +13,7 @@ import org.jfree.ui.RefineryUtilities;
 
 public class DatePicker {
 	int month = java.util.Calendar.getInstance().get(java.util.Calendar.MONTH);
-	int year = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);;
+	int year = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
 	JLabel l = new JLabel("", JLabel.CENTER);
 	String day = "";
 	JDialog d;
