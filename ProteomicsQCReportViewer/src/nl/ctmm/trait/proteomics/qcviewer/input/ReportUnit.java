@@ -3,11 +3,9 @@ package nl.ctmm.trait.proteomics.qcviewer.input;
 import java.awt.image.BufferedImage;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,7 +51,7 @@ public class ReportUnit {
     private String ioncountName = Utilities.NOT_AVAILABLE_ICON_NAME;
     public HashMap<?, ?> metricsValues = null;
     //ChartUnit to hold corresponding chart
-    private ChartUnit ticChartUnit = null; 
+    private ChartUnit ticChartUnit = null;
 
     /**
      * One row in the QC Report Viewer table corresponds to one QC ReportUnit.
