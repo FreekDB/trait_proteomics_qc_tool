@@ -14,11 +14,11 @@ import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnit;
  */
 public class MainTableModel extends DefaultTableModel {
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+     * 
+     */
+    private static final long serialVersionUID = 1L;
 
-	/**
+    /**
      * The report units to be displayed by this table model.
      */
     private List<ReportUnit> reportUnits;
@@ -105,7 +105,7 @@ public class MainTableModel extends DefaultTableModel {
 //    }
 
     /**
-     * All cells are read only.
+     * All cells are read-only.
      *
      * @param rowIndex    the row whose value is to be queried.
      * @param columnIndex the column whose value is to be queried.

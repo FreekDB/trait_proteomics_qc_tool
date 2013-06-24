@@ -14,21 +14,22 @@ import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnit;
  */
 public class ImagesTableModel extends DefaultTableModel {
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	/**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    /**
      * The report unit to be displayed by this table model.
      */
     private ReportUnit reportUnit;
 
     /**
-     * Constructs a images table model which contains a single QC report unit.
+     * Constructs an images table model which contains a single QC report unit.
      *
      * @param reportUnit the report unit to be displayed.
      */
     public ImagesTableModel(final List<String> columnNames, final ReportUnit reportUnit) {
-        super(new Vector<String>(columnNames), reportUnit != null ? 1 : 0);
+        super(new Vector<>(columnNames), reportUnit != null ? 1 : 0);
         this.reportUnit = reportUnit;
     }
 
@@ -87,7 +88,7 @@ public class ImagesTableModel extends DefaultTableModel {
     }
 
     /**
-     * All cells are read only.
+     * All cells are read-only.
      *
      * @param rowIndex    the row whose value is to be queried.
      * @param columnIndex the column whose value is to be queried.
