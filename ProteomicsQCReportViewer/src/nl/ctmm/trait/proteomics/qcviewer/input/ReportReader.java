@@ -47,7 +47,6 @@ public class ReportReader extends JFrame {
     );
 
     private int currentReportNum;
-    //private String serverAddress = "";
     private JsonMetricsReader jmReader = null; 
     
     public ReportReader(MetricsParser mParser) {
@@ -91,16 +90,13 @@ public class ReportReader extends JFrame {
                     try {
                         d = sdf.parse(dateString);
                     } catch (ParseException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                     if (d.compareTo(fromDate)>=0 && d.compareTo(tillDate)<=0) {
-                        //System.out.println("Added - Last modified on: " + dateString + " is within limits From " 
-                        //        + sdf.format(fromDate) + " res = " +d.compareTo(fromDate) + " Till " + sdf.format(tillDate) + " res = " +d.compareTo(tillDate));
                         boolean errorFlag = false; 
                         final File[] dataFiles = msRunDirectory.listFiles();
                         //Check existence of "metrics.json", "heatmap.png", "ions.png", "_ticmatrix.csv"
-                        String errorMessage = checkDataFilesAvailability(yearDirectory.getName(), monthDirectory.getName(), msRunDirectory.getName(), dataFiles);
+                        String errorMessage = checkDataFilesAvailability(msRunDirectory.getName(), dataFiles);
                         if (!errorMessage.equals("")) {
                             errorFlag = true;
                         //    System.out.println("ErrorMessage = " + errorMessage);
@@ -122,35 +118,31 @@ public class ReportReader extends JFrame {
     }
 
     /**
-     * Check existence of "metrics.json", "heatmap.png", "ions.png", "_ticmatrix.csv"
+     * Check whether the report directory contains "metrics.json", and "_ticmatrix.csv" files
+     * @param msrunName Folder containing QC Report
+     * @param dataFiles list of files in folder msrunName
+     * @return errorMessage if the "metrics.json", and "_ticmatrix.csv" files not found
      */
-    private String checkDataFilesAvailability(final String year, final String month, final String msrunName, final File[] dataFiles) {
+    private String checkDataFilesAvailability(final String msrunName, final File[] dataFiles) {
         String errorMessage = "";
-        boolean metrics = false, heatmap = false, ionCount = false, ticMatrix = false, overall = false;
+        boolean metrics = false, ticMatrix = false, overall = false;
         for (final File dataFile : dataFiles) {
             final String dataFileName = dataFile.getName();
             if (dataFile.isFile()) {
                 logger.fine("File " + dataFileName);
                 if (dataFileName.equals("metrics.json")) {
                        metrics = true;
-                } else if (dataFileName.endsWith("heatmap.png")) {
-                    heatmap = true;
-                } else if (dataFileName.endsWith("ions.png")) {
-                    ionCount = true;
                 } else if (dataFileName.endsWith("_ticmatrix.csv")) {
                     ticMatrix = true;
                 }
             }
         }
-        if (metrics && ionCount && ticMatrix) {
+        if (metrics && ticMatrix) {
             overall = true;
         } else {
             errorMessage = "<html>In Folder " + msrunName + " following filetypes are missing:";
             if (!metrics) {
                 errorMessage += "metrics.json ";
-            }
-            if (!ionCount) {
-                errorMessage += "ions.png ";
             }
             if (!ticMatrix) {
                 errorMessage += "_ticmatrix.csv ";
@@ -160,6 +152,10 @@ public class ReportReader extends JFrame {
         return errorMessage;
     }
     
+    /**
+     * Save errorMessages to errorMEssages.txt file
+     * @param allErrorMessages 
+     */
     private void saveErrorMessages(String allErrorMessages) {
         try {
             //Save errorMessages to errorMEssages.txt file
@@ -170,7 +166,6 @@ public class ReportReader extends JFrame {
             bWriter.write(allErrorMessages + "\n");
             bWriter.close();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -260,13 +255,11 @@ public class ReportReader extends JFrame {
     /**
      * Create a report unit and fill it with data from an array of files.
      * We use three specific files:
-     * 1) metrics.json: String file which has following format:
-     * {"generic": {"date": "2012/Nov/07 - 14:18", "ms2_spectra": ["MS2 Spectra", "22298 (22298)"],
+     * 1) metrics.json: String file containing values of all QC metrics in json object format
+     * e.g. {"generic": {"date": "2012/Nov/07 - 14:18", "ms2_spectra": ["MS2 Spectra", "22298 (22298)"],
      * "runtime": "0:16:23", "f_size": ["File Size (MB)", "830.9"],
      * "ms1_spectra": ["MS1 Spectra", "7707 (7707)"]}}
-     * 2) msrun*_heatmap.png
-     * 3) msrun*_ions.png
-     *
+     * 2) msrun*_ticmatrix.csv: CSV file containing x and y axis values for drawing ticGraph
      * @param dataFiles the files used to initialize the report unit.
      * @return the new report unit.
      */
@@ -279,25 +272,11 @@ public class ReportReader extends JFrame {
             final String dataFileName = dataFile.getName();
             if (dataFile.isFile()) {
                 logger.fine("File " + dataFileName);
-                try {
-                    if (dataFileName.equals("metrics.json")) {
-                        //readJsonValues(dataFile, reportUnit);
-                        reportUnit.setMetricsValues(jmReader.readJsonValues(dataFile));
-                    } else if (dataFileName.endsWith("heatmap.png")) {
-                        // todo equals instead of endsWith?
-                        reportUnit.setHeatmap(ImageIO.read(dataFile), dataFileName);
-                    } else if (dataFileName.endsWith("ions.png")) {
-                        // todo equals instead of endsWith?
-                        reportUnit.setIoncount(ImageIO.read(dataFile), dataFileName);
-                    } else if (dataFileName.endsWith("_ticmatrix.csv")) {
-                        // todo equals instead of endsWith?
-                        reportUnit.createChartUnit(readXYSeries(msrunName, dataFile));
-                    }
-                } catch (IOException e) {
-                    System.out.println(e.toString());
-                    // todo handle this exception: preferably show what has gone wrong.
-                    //todo add support for error dialogues
-                }
+                if (dataFileName.equals("metrics.json")) {
+				    reportUnit.setMetricsValues(jmReader.readJsonValues(dataFile));
+				} else if (dataFileName.endsWith("_ticmatrix.csv")) {
+				    reportUnit.createChartUnit(readXYSeries(msrunName, dataFile));
+				}
             } else if (dataFile.isDirectory()) {
                 logger.fine("Directory " + dataFileName);
             }
@@ -305,28 +284,6 @@ public class ReportReader extends JFrame {
         return reportUnit;
     }
 
-
-    /**
-     * Read the QC parameters from the json file.
-     *
-     * @param jsonFile   the json file that contains the QC parameters.
-     * @param reportUnit the report unit where the QC parameters will be stored.
-     */
-    private void readJsonValues(final File jsonFile, final ReportUnit reportUnit) {
-        logger.fine("IN readJsonValues - reading file " + jsonFile.getName());
-        try {
-            final JSONObject jsonObject = (JSONObject) new JSONParser().parse(new FileReader(jsonFile));
-            final JSONObject genericObject = (JSONObject) jsonObject.get("generic");
-            reportUnit.setFileSizeString((String) ((JSONArray) genericObject.get("f_size")).get(1));
-            reportUnit.setMs1Spectra((String) ((JSONArray) genericObject.get("ms1_spectra")).get(1));
-            reportUnit.setMs2Spectra((String) ((JSONArray) genericObject.get("ms2_spectra")).get(1));
-            reportUnit.setMeasured((String) genericObject.get("date"));
-            reportUnit.setRuntime((String) genericObject.get("runtime"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    
     /**
      * Create XYSeries by reading TIC matrix file that contains X & Y axis values representing TIC graph
      * @param msrunName
@@ -348,12 +305,11 @@ public class ReportReader extends JFrame {
                 StringTokenizer st = new StringTokenizer(line, ",");
                 // The first token is the x value.
                 String xValue = st.nextToken();
-                // The last token is the y value.
+                // The second token is the y value.
                 String yValue = st.nextToken();
                 float x = Float.parseFloat(xValue)/60;
                 float y = Float.parseFloat(yValue);
                 series.add(x, y);
-                //System.out.println("xValue = " + xValue + " x = " + x);
             }
             br.close();
         } catch (NumberFormatException | IOException e) {
