@@ -1,5 +1,8 @@
 package nl.ctmm.trait.proteomics.qcviewer.gui;
 
+/*
+ * Taken from http://www.java2s.com/Tutorial/Java/0240__Swing/extendsJDesktopPaneimplementsScrollable.htm
+ */
 import java.awt.Dimension;
 import java.awt.Rectangle;
 
