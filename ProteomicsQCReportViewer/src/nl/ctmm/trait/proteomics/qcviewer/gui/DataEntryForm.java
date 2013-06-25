@@ -105,63 +105,6 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 	    } 
 	 }
     
-    public void displayPreferredServerEntryForm () {
-    	JLabel instruction = new JLabel();
-    	instruction.setText("Enter server IP address:");
-    	JLabel label = new JLabel();
-    	label.setText("Server IP:");
-    	inputText = new JTextField(15);
-    	inputText.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent e){
-                //Process event like Submit button pressed
-            	System.out.println("Enter pressed in server settings..");
-            	String preferredServer = inputText.getText();
-    			if (!preferredServer.trim().equals("")) { //appProperty not empty
-    				System.out.println("Preferred web server= " + preferredServer);
-    				dispose();
-    				if (parentMain != null) {
-    					updatePreferredServer(preferredServer);
-    					parentMain.runReportViewer();
-    				} else if (parentViewerFrame != null) {
-    					System.out.println("Invoke parentViewerFrame methods");
-    					parentViewerFrame.clean();
-    					parentViewerFrame.dispose();
-    					updatePreferredServer(preferredServer);
-    					//new Main().runReportViewer();
-    					Main.getInstance().runReportViewer();
-    				}
-    			}
-            }});
-    	JButton SUBMIT = new JButton("SUBMIT");
-    	SUBMIT.setPreferredSize(new Dimension(50, 20));
-    	JButton CANCEL = new JButton("CANCEL"); 
-    	CANCEL.setPreferredSize(new Dimension(50, 20));
-  	  	SUBMIT.addActionListener(this);
-  	  	SUBMIT.setActionCommand("SUBMITSER");
-  	    CANCEL.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent ae) {
-				dispose();
-			}
-		});
-    	JPanel warningPanel = new JPanel(new GridLayout(1,1));
-    	warningPanel.add(instruction);
-    	JPanel inputPanel = new JPanel(new GridLayout(2,2));
-    	inputPanel.setPreferredSize(new Dimension(120, 40));
-    	inputPanel.add(label);
-    	inputPanel.add(inputText);
-    	inputPanel.add(SUBMIT);
-    	inputPanel.add(CANCEL);
-    	JPanel displayPanel = new JPanel(new GridLayout(2, 1)); 
-    	displayPanel.add(warningPanel, 0);
-    	displayPanel.add(inputPanel, 1);
-    	displayPanel.setPreferredSize(new Dimension(220, 80));
-    	add(displayPanel);
-    	setSize(new Dimension(300, 150));
-    	RefineryUtilities.centerFrameOnScreen(this);
-    	setVisible(true);
-    	revalidate();
-    }
-    
     /**
      * Sets the preferredRootDirectory 
      */
@@ -180,7 +123,7 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
     /**
      * Sets the preferredServer 
      */
-    private void updatePreferredServer(String newWebserver) {
+    /*private void updatePreferredServer(String newWebserver) {
     	System.out.println("Changing server to " + newWebserver);
     	appProperties.setProperty(Constants.PROPERTY_PREFERRED_WEBSERVER, newWebserver);
 		try {
@@ -190,7 +133,7 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-    }
+    }*/
     
 	@Override
 	 public void actionPerformed(ActionEvent ae) {
@@ -212,23 +155,6 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 					Main.getInstance().runReportViewer();
 				}
 			} else displayErrorMessage ("Enter valid root directory.");
-		} else if (ae.getActionCommand().equals("SUBMITSER")) {
-			String preferredServer = inputText.getText();
-			if (!preferredServer.trim().equals("")) { //appProperty not empty
-				System.out.println("Preferred web server= " + preferredServer);
-				dispose();
-				if (parentMain != null) {
-					updatePreferredServer(preferredServer);
-					parentMain.runReportViewer();
-				} else if (parentViewerFrame != null) {
-					System.out.println("Invoke parentViewerFrame methods");
-					parentViewerFrame.clean();
-					parentViewerFrame.dispose();
-					updatePreferredServer(preferredServer);
-					//new Main().runReportViewer();
-					Main.getInstance().runReportViewer();
-				}
-			}
 		} else if (ae.getActionCommand().startsWith("CANCEL")) {
 			if (parentViewerFrame != null) {
 				System.out.println("Invoke parentViewerFrame methods");
