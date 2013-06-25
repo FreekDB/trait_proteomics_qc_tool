@@ -46,6 +46,8 @@ public class Main {
     private Map<String, ReportUnit> reportUnitsTable = new HashMap<>();
     //Reads the pipeline log file - qc_status.log from the preferredRootDirectory
     private ProgressLogReader progressLogReader;
+    //Monitors the pipeline log file - qc_status.log from the preferredRootDirectory
+    private ProgressLogMonitor progressLogMonitor; 
     //The directory to which QC pipeline writes the QC reports
     private String preferredRootDirectory;
     private static Main instance = new Main();
@@ -125,7 +127,7 @@ public class Main {
         processInitialReports();
         //Start the progress log monitor to monitor qc_status.log file
         // TODO: keep a reference to this progressLogMonitor (declare as a field)? [Freek]
-        final ProgressLogMonitor progressLogMonitor = ProgressLogMonitor.getInstance();
+        progressLogMonitor = ProgressLogMonitor.getInstance();
         try {
 			progressLogMonitor.addFileChangeListener(progressLogReader, progressLogFilePath, 5000);
 		} catch (FileNotFoundException e1) {
@@ -205,7 +207,11 @@ public class Main {
                 final String thisMsrun = thisUnit.getMsrunName();
                 if (!thisMsrun.equals(runningMsrunName)) {
                     // TODO: can someone explain the comment below? [Freek]
-                    //Currently processing this msrun. Do not include in the report
+                    /* The pipeline is currently processing runningMsrunName. e.g. 
+                     * 2013-06-04 13:40:01.165000	QE2_101109_OPL0004_TSV_mousecelllineL_Q1_2.raw	running
+                     * The QC report is being generated. 
+                     * Hence do not add this report yet to the reportUnitsTable.  
+                     */
                     if (reportUnitsTable.containsKey(thisMsrun)) {
                         ReportUnit existingUnit = reportUnitsTable.get(thisMsrun);
                         int existingNum = existingUnit.getReportNum();
