@@ -41,7 +41,7 @@ public class ReportReaderTest {
         Date fromDate = null, tillDate = null;
         try { 
             fromDate = sdf.parse("01/01/2013"); 
-            tillDate = sdf.parse("21/06/2013");
+            tillDate = sdf.parse("30/06/2013");
         } catch (ParseException e) { 
             System.out.println("Unparsable using " + sdf);
         }

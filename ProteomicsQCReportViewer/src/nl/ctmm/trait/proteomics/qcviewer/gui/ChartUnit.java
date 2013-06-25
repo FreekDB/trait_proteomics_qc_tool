@@ -54,6 +54,9 @@ public class ChartUnit {
             maxIntensity = series.getMaxY();
             NumberFormat formatter = new DecimalFormat("0.0000E0");
             maxIntensityString = formatter.format(maxIntensity);
+        } else {
+        	maxIntensity = 0; 
+        	maxIntensityString = "0";
         }
         domainAxis = new NumberAxis(null);
         rangeAxis = new NumberAxis(null);
@@ -111,7 +114,15 @@ public class ChartUnit {
      * @param series
      */
     public void setGraphDataSeries(XYSeries series) {
-        this.graphDataSeries = series;
+        if (series != null) {
+            maxIntensity = series.getMaxY();
+            NumberFormat formatter = new DecimalFormat("0.0000E0");
+            maxIntensityString = formatter.format(maxIntensity);
+            this.graphDataSeries = series;
+        } else {
+        	maxIntensity = 0; 
+        	maxIntensityString = "0";
+        }
     }
     
     /**

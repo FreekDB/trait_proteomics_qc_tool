@@ -34,7 +34,7 @@ public class ReportUnit {
     QC Runtime 0:16:15
     */
     private int reportNum = -1;
-    private String fileSizeString = "-1.0";
+    private String fileSizeString = "N/A";
     private String msrunName = ""; 
     private Double fileSize = -1.0;
     private String ms1Spectra = "N/A";
@@ -171,10 +171,14 @@ public class ReportUnit {
      * @param fileSizeString size of the RAW MS data file (in MB)
      */
     public void setFileSizeString(final String fileSizeString) {
-        this.fileSizeString = fileSizeString;
-        fileSize = (!fileSizeString.equals("N/A") && fileSizeString != null && !fileSizeString.trim().isEmpty())
-                ? Double.parseDouble(fileSizeString)
-                : null;
+    	if (fileSizeString == null) {
+    		this.fileSizeString = "N/A";
+    		fileSize = null;
+    	} else {
+            fileSize = (!fileSizeString.equals("N/A") && fileSizeString != null && !fileSizeString.trim().isEmpty())
+                    ? Double.parseDouble(fileSizeString)
+                    : null;
+    	}
     }
 
     /**

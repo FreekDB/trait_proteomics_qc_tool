@@ -37,11 +37,11 @@ public class ReportUnitTest {
     	Double fileSize = -1.0;
         assertEquals(REPORT_NUMBER, reportUnit.getReportNum());
         assertEquals(fileSize, reportUnit.getFileSize());
-        assertEquals("-1.0", reportUnit.getFileSizeString());
-        assertEquals("-1", reportUnit.getMs1Spectra());
-        assertEquals("-1", reportUnit.getMs2Spectra());
-        assertEquals("", reportUnit.getMeasured());
-        assertEquals("", reportUnit.getRuntime());
+        assertEquals("N/A", reportUnit.getFileSizeString());
+        assertEquals("N/A", reportUnit.getMs1Spectra());
+        assertEquals("N/A", reportUnit.getMs2Spectra());
+        assertEquals("N/A", reportUnit.getMeasured());
+        assertEquals("N/A", reportUnit.getRuntime());
         assertNotNull(reportUnit.getHeatmap());
         assertEquals(Utilities.NOT_AVAILABLE_ICON_NAME, reportUnit.getHeatmapName());
         assertNotNull(reportUnit.getScaledHeatmap());

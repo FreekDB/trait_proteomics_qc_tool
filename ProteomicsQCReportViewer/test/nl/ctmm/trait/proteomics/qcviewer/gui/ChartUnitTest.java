@@ -39,10 +39,10 @@ public class ChartUnitTest {
     	String msrunName1 = "msrun1";
     	String msrunName2 = "msrun2";
     	String msrunName3 = "msrun3";
-    	String ticMatrixFileName1 = "QCReports\\ctmm\\2013\\Feb\\QE1_121127_OPL1016_DC_Mefopa_CSF_AA3\\QE1_121127_OPL1016_DC_Mefopa_CSF_AA3 _ticmatrix.csv";
+    	String ticMatrixFileName1 = "QCReports\\2013\\Jun\\data01QE2_130409_OPL1013_CvA_Bonemarrow_TiOx_H1\\data01QE2_130409_OPL1013_CvA_Bonemarrow_TiOx_H1_ticmatrix.csv";
     	File ticMatrixFile1 = new File(ticMatrixFileName1);
     	series1 = readXYSeries(msrunName1, ticMatrixFile1);
-    	String ticMatrixFileName2 = "QCReports\\ctmm\\2013\\Feb\\QE2_121206_OPL1016_DC_Mefopa_CSF_AF4\\QE2_121206_OPL1016_DC_Mefopa_CSF_AF4 _ticmatrix.csv";
+    	String ticMatrixFileName2 = "QCReports\\2013\\Jun\\QE2_130124_OPL0000_jurkat2ug_01\\QE2_130124_OPL0000_jurkat2ug_01_ticmatrix.csv";
     	File ticMatrixFile2 = new File(ticMatrixFileName2);
     	series2 = readXYSeries(msrunName1, ticMatrixFile2);
     	chartUnit1 = new ChartUnit(msrunName1, 1, series1);
@@ -56,13 +56,13 @@ public class ChartUnitTest {
     @SuppressWarnings("deprecation")
 	@Test
     public void testgetMaxTicIntensity() {
-    	double maxIntensity1 = 22950831906.0;
-    	double maxIntensity2 = 12888332635.0;
+    	double maxIntensity1 = 8.98197E9;
+    	double maxIntensity2 = 1.03135E10;
         System.out.println("maxIntensity1 = " + maxIntensity1 + " Obtained = " + chartUnit1.getMaxTicIntensity());
         System.out.println("maxIntensity2 = " + maxIntensity2 + " Obtained = " + chartUnit3.getMaxTicIntensity());
         assertEquals(0, chartUnit2.getMaxTicIntensity(), 0);
-        assertEquals(maxIntensity1, chartUnit1.getMaxTicIntensity(), 0);
-        assertEquals(maxIntensity2, chartUnit3.getMaxTicIntensity(), 0);
+        assertEquals(maxIntensity1, chartUnit1.getMaxTicIntensity(), 10000);
+        assertEquals(maxIntensity2, chartUnit3.getMaxTicIntensity(), 10000);
     }
 
     /**
@@ -70,9 +70,9 @@ public class ChartUnitTest {
      */
     @Test
     public void testSetGraphDataSeries() {
-    	double maxIntensity = 22950831906.0;
+    	double maxIntensity = 8.98197E9;
         chartUnit2.setGraphDataSeries(series1);
-        assertEquals(maxIntensity, chartUnit2.getMaxTicIntensity(), 0);
+        assertEquals(maxIntensity, chartUnit2.getMaxTicIntensity(), 10000);
     }
 
     /**
