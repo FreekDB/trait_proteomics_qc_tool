@@ -1,9 +1,9 @@
-#Fri Jun 21 11:40:51 CEST 2013
+#Mon Jun 24 16:46:22 CEST 2013
 GUIVersion=2
-ShowReportsFromDate=01/06/2013
 ShowReportsTillDate=27/06/2013
+ShowReportsFromDate=01/06/2013
 TopColumnNamesV2=generic\:date\:Measured,generic\:ms1_spectra\:MS1 Spectra,pep\:p-2a\:Tryptic Peptide Counts (Identifications),pep\:p-2b\:Tryptic Peptide Counts (Ions),pep\:p-2c\:Tryptic Peptide Counts (Peptides),pep\:p-3\:Peptide Counts (Semi/Tryp Peps),
-DefaultReportsDisplayPeriod=14
 Server=10.13.1.103
-RootFolder=QCReports
+DefaultReportsDisplayPeriod=14
+RootFolder=C\:\\qc-data\\QCArchive27Feb\\archive\\htdocs\\ctmm
 BottomColumnNames=Heatmap, Ioncount
