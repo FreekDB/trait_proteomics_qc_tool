@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import nl.ctmm.trait.proteomics.qcviewer.gui.ChartUnit;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Utilities;
 
 import org.jfree.data.xy.XYSeries;
