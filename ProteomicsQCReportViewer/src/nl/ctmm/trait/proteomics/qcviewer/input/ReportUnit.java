@@ -69,41 +69,6 @@ public class ReportUnit {
     }
 
     /**
-     * Create a report unit specifying values for all fields.
-     *
-     * @param msrunName      the unique msrun name - also represents RAW file uniquely
-     * @param reportNum      the unique report number.
-     * @param fileSizeString the file size (as a string).
-     * @param ms1Spectra     the number of MS1 spectra.
-     * @param ms2Spectra     the number of MS2 spectra.
-     * @param measured       todo???
-     * @param runtime        the runtime (todo: of the proteomics machine or QC pipeline?).
-     * @param heatmap        the heatmap image.
-     * @param ioncount       the ioncount image.
-     * @param heatmapName    the name of the heatmap image.
-     * @param ioncountName   the name of the ioncount image.
-     */
-    //TODO: Check constructor usage in test cases and make sure to remove this constructor as everything is linked to metricsMap
-    public ReportUnit(final String msrunName, final int reportNum, final String fileSizeString, final String ms1Spectra,
-                      final String ms2Spectra, final String measured, final String runtime, final BufferedImage heatmap,
-                      final BufferedImage ioncount, final String heatmapName, final String ioncountName) {
-        this.msrunName = msrunName;
-        this.reportNum = reportNum;
-        this.fileSizeString = fileSizeString;
-        setFileSizeString(fileSizeString);
-        this.ms1Spectra = ms1Spectra;
-        this.ms2Spectra = ms2Spectra;
-        this.measured = measured;
-        this.runtime = runtime;
-        this.heatmap = heatmap;
-        this.ioncount = ioncount;
-        this.heatmapName = heatmapName;
-        this.ioncountName = ioncountName;
-        //Create default chart unit to handle problems due to missing series data 
-        ticChartUnit = new ChartUnit(msrunName, reportNum, null);
-    } 
-    
-    /**
      * Get value of metrics based on key
      */
     public String getMetricsValueFromKey(String key) {
