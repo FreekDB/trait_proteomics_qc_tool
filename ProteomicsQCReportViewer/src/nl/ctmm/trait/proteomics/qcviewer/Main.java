@@ -16,8 +16,8 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import nl.ctmm.trait.proteomics.qcviewer.gui.DataEntryForm;
 import nl.ctmm.trait.proteomics.qcviewer.gui.ViewerFrame;
-import nl.ctmm.trait.proteomics.qcviewer.input.DataEntryForm;
 import nl.ctmm.trait.proteomics.qcviewer.input.MetricsParser;
 import nl.ctmm.trait.proteomics.qcviewer.input.ProgressLogMonitor;
 import nl.ctmm.trait.proteomics.qcviewer.input.ProgressLogReader;

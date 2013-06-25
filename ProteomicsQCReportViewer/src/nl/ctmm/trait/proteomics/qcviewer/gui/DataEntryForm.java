@@ -1,4 +1,4 @@
-package nl.ctmm.trait.proteomics.qcviewer.input;
+package nl.ctmm.trait.proteomics.qcviewer.gui;
 
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -23,7 +23,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import nl.ctmm.trait.proteomics.qcviewer.Main;
-import nl.ctmm.trait.proteomics.qcviewer.gui.ViewerFrame;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 import nl.ctmm.trait.proteomics.qcviewer.utils.DatePicker;
 
