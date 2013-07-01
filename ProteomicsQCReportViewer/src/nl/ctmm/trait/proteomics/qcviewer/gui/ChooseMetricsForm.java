@@ -64,6 +64,7 @@ import nl.ctmm.trait.proteomics.qcviewer.input.MetricsParser;
  * The class for displaying Metrics selection form - drag n drop user interface.
  *
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
+ * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
 
 public class ChooseMetricsForm extends JFrame implements ActionListener {
@@ -71,7 +72,7 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
     private static final long serialVersionUID = -4740722105234150323L;
     SortedListModel from = new SortedListModel();
     SortedListModel move = new SortedListModel();
-    JList dragFrom, moveTo;
+    JList<String> dragFrom, moveTo;
     HashMap<String,String> metricsMap;
     HashMap<String,String> selectedMetrics;
     MetricsParser mParser = null;
@@ -100,7 +101,7 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         }
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        dragFrom = new JList(from);
+        dragFrom = new JList<String>(from);
         //dragFrom.setTransferHandler(new FromTransferHandler());
         dragFrom.setTransferHandler(new ToFromTransferHandler("dragFrom", TransferHandler.MOVE));
         dragFrom.setDragEnabled(true);
@@ -113,7 +114,7 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         sp.setAlignmentX(0f);
         p.add(sp);
         add(p, BorderLayout.WEST);
-        moveTo = new JList(move);
+        moveTo = new JList<String>(move);
         //moveTo.setTransferHandler(new ToTransferHandler(TransferHandler.MOVE));
         moveTo.setTransferHandler(new ToFromTransferHandler("moveTo", TransferHandler.MOVE));
         moveTo.setDropMode(DropMode.INSERT);
@@ -181,7 +182,9 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         }
 
     class ToFromTransferHandler extends TransferHandler {
-        private int index = 0;
+
+		private static final long serialVersionUID = 1L;
+		private int index = 0;
         int action; 
         String origin;
         //ToTransferHandler
@@ -266,7 +269,7 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
             } catch (java.io.IOException e) {
                 return false;
             }
-            JList list = (JList)support.getComponent();
+            JList<String> list = (JList)support.getComponent();
             SortedListModel model = (SortedListModel)list.getModel();
             model.add(data);
             Rectangle rect = list.getCellBounds(index, index);

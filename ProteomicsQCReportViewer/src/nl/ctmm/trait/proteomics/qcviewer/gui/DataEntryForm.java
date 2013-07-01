@@ -31,7 +31,10 @@ import org.jfree.ui.RefineryUtilities;
 public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 
 	/**
-	 * 
+	 * Cosists of following forms to accept user input: PreferredRootDirectory - from which to read QC reports,
+	 * Date selection form to select dates for showing QC reports within those dates  
+	 * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
+	 * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
 	 */
 	private static final long serialVersionUID = 1L;
 	JTextField inputText; 
@@ -42,22 +45,39 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 	JLabel message1 = null;
 	String rootDirectoryName = "";
 	
+	/**
+	 * Constructor - whereas parent is Main class
+	 * @param parent Instance of Main class
+	 * @param appProperties Application properties
+	 */
 	public DataEntryForm(final Main parent, final Properties appProperties) {
 		super("DataEntry Frame");
 		this.parentMain = parent; 
 		this.appProperties = appProperties; 
 	}
-	
+
+	/**
+	 * Constructor - whereas parent is ViewerFrame class
+	 * @param parent Instance of ViewerFrame class
+	 * @param appProperties Application properties
+	 */
 	public DataEntryForm(final ViewerFrame parent, final Properties appProperties) {
 		super("DataEntry Frame");
 		this.parentViewerFrame = parent; 
 		this.appProperties = appProperties;
 	}
 	
+	/**
+	 * Set preferred root directory to read QC reports from
+	 * @param rootDirectoryName Name of the preferred root directory 
+	 */
 	public void setRootDirectoryName(String rootDirectoryName) {
 		this.rootDirectoryName = rootDirectoryName;
 	}
 	
+	/**
+	 * Display initial dialog while starting the QC report Viewer
+	 */
 	public void displayInitialDialog() {
 		message1 = new JLabel("<html>Reading reports from " + rootDirectoryName + "</html>");
 		initialDialog = new JDialog();
@@ -71,6 +91,9 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 		System.out.println("Displaying initial dialog with message " + message1.getText());
 	}
 	
+	/**
+	 * Dispose initial dialogue
+	 */
 	public void disposeInitialDialog() {
 		if (initialDialog != null) {
 			initialDialog.dispose();
@@ -78,14 +101,21 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 		}
 	}
 	
+	/**
+	 * Display error message in a dialog
+	 * @param errorMessage Error message to be shown in a dialog
+	 */
 	public void displayErrorMessage (String errorMessage) {
     	JOptionPane.showMessageDialog(this, errorMessage,
 				  "Error",JOptionPane.ERROR_MESSAGE);
 	}
 	
+	/**
+	 * Display chooser form to select preferred root directory
+	 */
 	 public void displayRootDirectoryChooser () {
 	 JFileChooser chooser = new JFileChooser();
-	 	chooser.setName("Select Report Folder");
+	 	chooser.setName("Select Preferred Root Directory");
 		chooser.setFileSelectionMode( JFileChooser.DIRECTORIES_ONLY);
 	    int returnVal = chooser.showOpenDialog(null);
 	    String preferredRootDirectory = null;
@@ -105,9 +135,10 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 	    } 
 	 }
     
-    /**
-     * Sets the preferredRootDirectory 
-     */
+	 /**
+	  * Save selected root directory in the application properties file
+	  * @param newRootDirectory Root directory selected by user
+	  */
     private void updatePreferredRootDirectory(String newRootDirectory) {
     	System.out.println("Changing root directory to " + newRootDirectory);
     	appProperties.setProperty(Constants.PROPERTY_ROOT_FOLDER, newRootDirectory);
@@ -121,20 +152,8 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
     }
     
     /**
-     * Sets the preferredServer 
+     * Process user input events for the class DataEntryForm
      */
-    /*private void updatePreferredServer(String newWebserver) {
-    	System.out.println("Changing server to " + newWebserver);
-    	appProperties.setProperty(Constants.PROPERTY_PREFERRED_WEBSERVER, newWebserver);
-		try {
-			FileOutputStream out = new FileOutputStream(Constants.PROPERTIES_FILE_NAME);
-			appProperties.store(out, null);
-	    	out.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-    }*/
-    
 	@Override
 	 public void actionPerformed(ActionEvent ae) {
 		System.out.println("DataEntryFrame Action command = " + ae.getActionCommand());
@@ -168,7 +187,10 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 	public void run() {
 		displayInitialDialog();
 	}
-
+	
+	/**
+	 * Display date filter form to select From Date and Till Date for displaying QC reports
+	 */
 	public void displayDateFilterEntryForm() {
 		JLabel label1 = new JLabel("From Date:");
 		final JTextField text1 = new JTextField(10);

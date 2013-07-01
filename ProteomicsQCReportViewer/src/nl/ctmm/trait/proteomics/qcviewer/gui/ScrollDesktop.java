@@ -11,7 +11,7 @@ import javax.swing.Scrollable;
 
 public class ScrollDesktop extends JDesktopPane implements Scrollable {
     /**
-     *
+     * This class represents Scrollable JDesktopPane
      */
     private static final long serialVersionUID = 1L;
 

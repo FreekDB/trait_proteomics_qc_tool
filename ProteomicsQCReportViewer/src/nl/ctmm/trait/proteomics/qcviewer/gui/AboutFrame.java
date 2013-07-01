@@ -33,11 +33,12 @@ import org.jfree.ui.RefineryUtilities;
 
 public class AboutFrame extends JFrame implements ActionListener {
 
-    int style = Font.PLAIN;
+	private static final long serialVersionUID = 1L;
+	int style = Font.PLAIN;
     Font font = new Font ("Garamond", style , 11);
     
     /**
-     * Constructor
+     * Constructor of the AboutFrame
      */
     public AboutFrame() {
         super ("About MSQC Report Viewer");

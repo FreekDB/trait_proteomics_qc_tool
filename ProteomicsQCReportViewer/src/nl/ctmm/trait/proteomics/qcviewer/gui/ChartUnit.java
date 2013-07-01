@@ -25,9 +25,7 @@ import org.jfree.data.xy.XYSeriesCollection;
  */
 
 public class ChartUnit {
-    private String chartName = "";
     private XYSeries graphDataSeries = null;
-    private int reportNum; 
     private JFreeChart ticChart = null; 
     private NumberAxis domainAxis = null;
     private NumberAxis rangeAxis = null;
@@ -45,9 +43,8 @@ public class ChartUnit {
      * @param reportNum Number of report unit to which the ChartUnit belongs
      * @param series XYseries points for the TIC graph
      */
-    public ChartUnit(final String msrunName, final int reportNum, final XYSeries series) {
-        this.chartName = msrunName; 
-        this.reportNum = reportNum;
+    @SuppressWarnings("deprecation")
+	public ChartUnit(final String msrunName, final int reportNum, final XYSeries series) {
         this.graphDataSeries = series;
         
         if (series != null) {

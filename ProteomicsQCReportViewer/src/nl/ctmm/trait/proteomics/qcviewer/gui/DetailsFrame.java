@@ -28,6 +28,7 @@ import org.jfree.ui.RefineryUtilities;
  * The class for displaying complete QC metrics report corresponding to one report unit.
  *
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
+ * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
 public class DetailsFrame extends JFrame implements ActionListener {
 
@@ -73,9 +74,6 @@ public class DetailsFrame extends JFrame implements ActionListener {
             if (metricsValues != null) {
                 metricsValue = (String) metricsValues.get(listingKey);
             }
-            //This corresponds to one row in the metricsTable
-            //System.out.println("listingKey = " + listingKey + " listingValue = " + listingValue
-            //        + " metricsValue = " + metricsValue);
             String[] row = new String[3];
             row[0] = listingKey;
             row[1] = listingValue;
@@ -128,7 +126,6 @@ public class DetailsFrame extends JFrame implements ActionListener {
     
     /**
      * Renderer class specifying cell backgrounds for the details table
-     * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
      *
      */
     class TableCellRender extends DefaultTableCellRenderer {  

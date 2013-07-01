@@ -1,8 +1,8 @@
-#Tue Jun 25 15:32:02 CEST 2013
+#Mon Jul 01 09:46:27 CEST 2013
 GUIVersion=2
 ShowReportsFromDate=01/06/2013
 ShowReportsTillDate=30/06/2013
-TopColumnNamesV2=generic\:date\:Measured,generic\:maxIntensity\:maxIntensity,generic\:ms1_spectra\:MS1 Spectra,pep\:p-2b\:Tryptic Peptide Counts (Ions),pep\:p-3\:Peptide Counts (Semi/Tryp Peps),
+TopColumnNamesV2=chrom\:c-4a\:Peak Widths at Half Max over (First Decile),dyn\:ds-1b\:Ratios of Peptide Ions IDed (Twice/Thrice),generic\:date\:Measured,generic\:maxIntensity\:maxIntensity,pep\:p-2b\:Tryptic Peptide Counts (Ions),pep\:p-3\:Peptide Counts (Semi/Tryp Peps),
 DefaultReportsDisplayPeriod=14
 Server=10.13.1.103
-RootFolder=QCReports
+RootFolder=C\:\\qc-data\\QCArchive27Feb\\archive\\htdocs\\ctmm

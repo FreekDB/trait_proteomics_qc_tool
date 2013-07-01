@@ -68,7 +68,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.ui.RefineryUtilities;
 
 /**
- * ViewerFrame with the GUI for the QC Report Viewer V2.
+ * ViewerFrame with the GUI for the QC Report Viewer.
  *
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
