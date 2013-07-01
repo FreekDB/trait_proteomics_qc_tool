@@ -13,22 +13,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-import javax.imageio.ImageIO;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 
 import org.jfree.data.xy.XYSeries;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 
 /**
  * This class contains the logic to read the directory/file structure and prepare data to be displayed.
@@ -125,7 +119,7 @@ public class ReportReader extends JFrame {
      */
     private String checkDataFilesAvailability(final String msrunName, final File[] dataFiles) {
         String errorMessage = "";
-        boolean metrics = false, ticMatrix = false, overall = false;
+        boolean metrics = false, ticMatrix = false;
         for (final File dataFile : dataFiles) {
             final String dataFileName = dataFile.getName();
             if (dataFile.isFile()) {
@@ -138,7 +132,6 @@ public class ReportReader extends JFrame {
             }
         }
         if (metrics && ticMatrix) {
-            overall = true;
         } else {
             errorMessage = "<html>In Folder " + msrunName + " following filetypes are missing:";
             if (!metrics) {

@@ -85,7 +85,7 @@ public class ReportUnit {
     /**
      * Get the value of parameter reportNum
      *
-     * @set Serial number of current ReportUnit
+     * @param reportNum Serial number of current ReportUnit
      */
     public void setReportNum(int reportNum) {
         this.reportNum = reportNum;
@@ -200,7 +200,6 @@ public class ReportUnit {
         try {
             this.detailsUri = new URI(detailsUri);
         } catch (URISyntaxException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }

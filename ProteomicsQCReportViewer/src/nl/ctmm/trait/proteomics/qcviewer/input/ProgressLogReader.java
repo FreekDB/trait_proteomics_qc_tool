@@ -15,6 +15,7 @@ import java.util.TimerTask;
 
 import nl.ctmm.trait.proteomics.qcviewer.Main;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
+import nl.ctmm.trait.proteomics.qcviewer.input.FileChangeListener;
 
 /**
  * The class for reading qc_status.log file. It contains QC pipeline entries in following format:
@@ -173,22 +174,3 @@ public class ProgressLogReader implements FileChangeListener {
       }
 }
 
-/*
- * def _read_logfile(status_log):
-    with open(status_log, 'r') as logfile:
-        data = logfile.readlines()
-    # Get / parse the timestamp of the latest update and calculate difference
-    last_update = data[-1].strip().split('\t')
-    t_start = strptime(last_update[0], '%Y-%m-%d %H:%M:%S.%f')
-    t_diff = datetime.now() - datetime.fromtimestamp(mktime(t_start))
-    # Remove milliseconds from time difference
-    t_diff = str(t_diff).split('.')[0]
-
-    if last_update[2] == 'running':
-        img = '<img border="0" src="/ctmm/report/images/check_icon.png" height="18">'
-        logline = '{0} Currently analyzing <b><i>{1}</i></b> (active for: {2})'.format(img, last_update[1], t_diff)
-    else:
-        img = '<img border="0" src="/ctmm/report/images/warning_icon.png" height="18">'
-        logline = '{0} Idle.. (inactive for: {1})'.format(img, t_diff)
-    return logline
-*/

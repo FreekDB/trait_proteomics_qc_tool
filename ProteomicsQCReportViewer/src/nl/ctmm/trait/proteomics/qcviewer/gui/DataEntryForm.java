@@ -28,14 +28,15 @@ import nl.ctmm.trait.proteomics.qcviewer.utils.DatePicker;
 
 import org.jfree.ui.RefineryUtilities;
 
+/**
+ * Cosists of following forms to accept user input: PreferredRootDirectory - from which to read QC reports,
+ * Date selection form to select dates for showing QC reports within those dates  
+ * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
+ * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
+ */
+
 public class DataEntryForm extends JFrame implements ActionListener, Runnable{
 
-	/**
-	 * Cosists of following forms to accept user input: PreferredRootDirectory - from which to read QC reports,
-	 * Date selection form to select dates for showing QC reports within those dates  
-	 * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
-	 * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
-	 */
 	private static final long serialVersionUID = 1L;
 	JTextField inputText; 
 	Main parentMain = null; 

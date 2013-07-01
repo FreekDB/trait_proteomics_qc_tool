@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.HashMap;
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -19,11 +18,8 @@ import org.json.simple.parser.JSONParser;
 
 public class JsonMetricsReader {
 
-    private static final Logger logger = Logger.getLogger(ReportReader.class.getName());
-    private MetricsParser mParser = null; 
     private HashMap<String, String> allMetricsMap = null;
     public JsonMetricsReader(MetricsParser mParser) {
-        this.mParser = mParser;
         //Keys of allMetricsMap to be used for reading JSON metrics values
         allMetricsMap = mParser.getMetricsListing();
     }
@@ -49,7 +45,6 @@ public class JsonMetricsReader {
                 if (jsonObject.containsKey(objectName)) {
                     JSONObject jObject = (JSONObject) jsonObject.get(objectName);
                     if (jObject.containsKey(paramName)) {
-                        //System.out.println("Key = " + (String) keys[i] + " Object = " + objectName + " paramName = " + paramName);
                         if (paramName.equals("date") || paramName.equals("runtime")) { 
                             paramValue = (String) jObject.get(paramName);
                         } else {
