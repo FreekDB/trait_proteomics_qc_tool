@@ -30,12 +30,13 @@ _R_GRAPHICS = resource_filename(__name__, 'r_ms_graphics.R')
 
 # Paths (These should be adapted for the system they run on)
 # Location of the 'ctmm' subfolder in the Apache 'htdocs' folder
-_REPORT_DIR = normpath('C:/qc-data/QCArchive27Feb/archive/htdocs/ctmm')
+_REPORT_DIR = normpath('E:/qc-tool-pp/trait_proteomics_qc_tool-master/ProteomicsQCPipeline/Reports')
+
 # QC progress log used to log all processed RAW files (by default located within the _REPORT_DIR)
 _PROGRES_LOG = normpath('{0}/{1}'.format(_REPORT_DIR, 'qc_status.log'))
 
 # Root folder for the QC pipeline
-_QC_HOME = normpath('C:/qc-data/QCArchive27Feb/archive/QC')
+_QC_HOME = normpath('E:/qc-tool-pp/trait_proteomics_qc_tool-master/ProteomicsQCPipeline/QC')
 # NIST pipeline folder (by default located within _QC_HOME)
 # _NIST = normpath('NISTMSQCv1_2_0_CTMM')
 _NIST = normpath('NISTMSQCv1_5_0')
@@ -127,7 +128,7 @@ def qc_pipeline(indir, outdir, copylog):
             #Cleanup the abs_inputfile_path 
             os.remove(abs_inputfile_path) 
             # Cleanup (remove everything in working directory)
-            _cleanup(working_dir)
+            #_cleanup(working_dir)
             time14 = datetime.now()
             print("@Completed Stage 7 Cleanup ", time14 - time13)
             print("@Total processing time (days seconds microseconds)", time14 - time1)
@@ -272,7 +273,8 @@ def _run_nist(indir, rawfile, outdir):
     #nist_library = 'Speclib0_5'
     #nist_library = 'Speclib0_6'
     #nist_library = 'Jurkat28new0.999'
-    nist_library = 'Jurkat28_0.8m'
+    #nist_library = 'Jurkat28_0.8m'
+    nist_library = 'Jurkat28_0.99'
     search_engine = 'SpectraST'
     mode = 'full'
     fasta = normpath('{0}/libs/{1}.fasta'.format(_NIST, nist_library))
@@ -337,22 +339,22 @@ def _create_report(webdir, basename, metrics):
     '''
     log.info("Creating report..")
 
-    with open(normpath('templates/report.html'), 'r') as report_template:
-        template = report_template.readlines()
+    #with open(normpath('templates/report.html'), 'r') as report_template:
+    #    template = report_template.readlines()
 
-    report_template = Template(''.join(template))
-    report_updated = report_template.safe_substitute(raw_file='{0}.RAW'.format(basename),
-                                                     date=metrics['generic']['date'],
-                                                     runtime=metrics['generic']['runtime'],
-                                                     # Figures
-                                                     heatmap_img='{0}_heatmap.png'.format(basename),
-                                                     ions_img='{0}_ions.png'.format(basename),
-                                                     heatmap_pdf='{0}_heatmap.pdf'.format(basename),
-                                                     ions_pdf='{0}_ions.pdf'.format(basename))
+    #report_template = Template(''.join(template))
+    #report_updated = report_template.safe_substitute(raw_file='{0}.RAW'.format(basename),
+    #                                                 date=metrics['generic']['date'],
+    #                                                 runtime=metrics['generic']['runtime'],
+    #                                                 # Figures
+    #                                                 heatmap_img='{0}_heatmap.png'.format(basename),
+    #                                                 ions_img='{0}_ions.png'.format(basename),
+    #                                                 heatmap_pdf='{0}_heatmap.pdf'.format(basename),
+    #                                                 ions_pdf='{0}_ions.pdf'.format(basename))
 
     # Write report file to directory holding all reports for this month
-    with open(normpath('{0}/index.html'.format(webdir)), 'w') as report_html:
-        report_html.writelines(report_updated)
+    #with open(normpath('{0}/index.html'.format(webdir)), 'w') as report_html:
+    #    report_html.writelines(report_updated)
 
     # Store NIST metrics together with the report
     export_metrics_json(metrics, webdir)
