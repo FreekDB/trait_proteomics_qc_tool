@@ -30,9 +30,9 @@ _R_GRAPHICS = resource_filename(__name__, 'r_ms_graphics.R')
 
 # Paths (These should be adapted for the system they run on)
 # Location of the 'ctmm' subfolder in the Apache 'htdocs' folder
-_WEB_DIR = normpath('C:/Program Files (x86)/Apache Software Foundation/Apache2.2/htdocs/ctmm')
-# QC progress log used to log all processed RAW files (by default located within the _WEB_DIR)
-_PROGRES_LOG = normpath('{0}/{1}'.format(_WEB_DIR, 'qc_status.log'))
+_REPORT_DIR = normpath('C:/qc-data/QCArchive27Feb/archive/htdocs/ctmm')
+# QC progress log used to log all processed RAW files (by default located within the _REPORT_DIR)
+_PROGRES_LOG = normpath('{0}/{1}'.format(_REPORT_DIR, 'qc_status.log'))
 
 # Root folder for the QC pipeline
 _QC_HOME = normpath('C:/qc-data/QCArchive27Feb/archive/QC')
@@ -107,10 +107,10 @@ def qc_pipeline(indir, outdir, copylog):
             time6 = datetime.now()
             print("@Completed Stage 3 NISTPipeline ", time6 - time5) 
             time7 = datetime.now()
-            print("@Stage 4: Running R Script on mzXML file for heatmap and TIC analysis", time7) 			
+            print("@Stage 4: Running OPLReader program on mzXML file for TIC analysis", time7) 			
             _run_r_script(working_dir, webdir, basename)
             time8 = datetime.now()
-            print("@Stage 4 RScriptTIC completed. ", time8 - time7)  		
+            print("@Stage 4 OPLReader program completed. ", time8 - time7)  		
             time9 = datetime.now()
             print("@Stage 5: Calculating QC metrics values", time9)  
             metrics = create_metrics(working_dir, abs_inputfile_path, t_start) 
@@ -127,7 +127,7 @@ def qc_pipeline(indir, outdir, copylog):
             #Cleanup the abs_inputfile_path 
             os.remove(abs_inputfile_path) 
             # Cleanup (remove everything in working directory)
-            #_cleanup(working_dir)
+            _cleanup(working_dir)
             time14 = datetime.now()
             print("@Completed Stage 7 Cleanup ", time14 - time13)
             print("@Total processing time (days seconds microseconds)", time14 - time1)
@@ -244,8 +244,8 @@ def _manage_paths(basename):
     @param basename: name of the .RAW file without extension
     '''
     ctime = gmtime()
-    print _WEB_DIR
-    tree = normpath('{root}/{year}/{month}/{base}'.format(root=_WEB_DIR,
+    print _REPORT_DIR
+    tree = normpath('{root}/{year}/{month}/{base}'.format(root=_REPORT_DIR,
                                                           year=strftime("%Y", ctime),
                                                           month=strftime("%b", ctime),
                                                           base=basename))
@@ -265,7 +265,14 @@ def _run_nist(indir, rawfile, outdir):
 
     # NIST settings
     #nist_library = 'jurkat'
-    nist_library = 'humanqtof'
+    #nist_library = 'humanqtof'
+    #nist_library = 'jurkat28'
+    #nist_library = 'jurkathuman01'
+    #nist_library = 'Jurkat28new095'
+    #nist_library = 'Speclib0_5'
+    #nist_library = 'Speclib0_6'
+    #nist_library = 'Jurkat28new0.999'
+    nist_library = 'Jurkat28_0.8m'
     search_engine = 'SpectraST'
     mode = 'full'
     fasta = normpath('{0}/libs/{1}.fasta'.format(_NIST, nist_library))
