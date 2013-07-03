@@ -128,7 +128,7 @@ def qc_pipeline(indir, outdir, copylog):
             #Cleanup the abs_inputfile_path 
             os.remove(abs_inputfile_path) 
             # Cleanup (remove everything in working directory)
-            #_cleanup(working_dir)
+            _cleanup(working_dir)
             time14 = datetime.now()
             print("@Completed Stage 7 Cleanup ", time14 - time13)
             print("@Total processing time (days seconds microseconds)", time14 - time1)
