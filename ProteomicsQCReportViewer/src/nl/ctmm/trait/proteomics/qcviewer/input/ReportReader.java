@@ -300,6 +300,7 @@ public class ReportReader extends JFrame {
                 String xValue = st.nextToken();
                 // The second token is the y value.
                 String yValue = st.nextToken();
+                System.out.println("Line = " + line + " xValue = " + xValue + " yValue = " + yValue);
                 float x = Float.parseFloat(xValue)/60;
                 float y = Float.parseFloat(yValue);
                 series.add(x, y);
