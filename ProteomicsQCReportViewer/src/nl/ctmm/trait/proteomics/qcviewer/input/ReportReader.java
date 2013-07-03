@@ -247,7 +247,7 @@ public class ReportReader extends JFrame {
 
     /**
      * Create a report unit and fill it with data from an array of files.
-     * We use three specific files:
+     * We use two specific files:
      * 1) metrics.json: String file containing values of all QC metrics in json object format
      * e.g. {"generic": {"date": "2012/Nov/07 - 14:18", "ms2_spectra": ["MS2 Spectra", "22298 (22298)"],
      * "runtime": "0:16:23", "f_size": ["File Size (MB)", "830.9"],
@@ -293,14 +293,15 @@ public class ReportReader extends JFrame {
         String line;
         XYSeries series = new XYSeries(msrunName);
         try {
-            br.readLine(); //skip first line
+            br.readLine(); //skip first line e.g. ms1Spectra,9239
+            br.readLine(); //skip second line e.g. ms2Spectra,34040
+            br.readLine(); //skip third line e.g. maxIntensity,7.8563E9
             while ((line = br.readLine()) != null) {
                 StringTokenizer st = new StringTokenizer(line, ",");
                 // The first token is the x value.
                 String xValue = st.nextToken();
                 // The second token is the y value.
                 String yValue = st.nextToken();
-                System.out.println("Line = " + line + " xValue = " + xValue + " yValue = " + yValue);
                 float x = Float.parseFloat(xValue)/60;
                 float y = Float.parseFloat(yValue);
                 series.add(x, y);

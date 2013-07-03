@@ -1,7 +1,7 @@
-#Mon Jul 01 09:46:27 CEST 2013
+#Wed Jul 03 15:21:02 CEST 2013
 GUIVersion=2
-ShowReportsFromDate=01/07/2013
 ShowReportsTillDate=30/07/2013
-TopColumnNamesV2=chrom\:c-4a\:Peak Widths at Half Max over (First Decile),dyn\:ds-1b\:Ratios of Peptide Ions IDed (Twice/Thrice),generic\:date\:Measured,generic\:maxIntensity\:maxIntensity,pep\:p-2b\:Tryptic Peptide Counts (Ions),pep\:p-3\:Peptide Counts (Semi/Tryp Peps),
+ShowReportsFromDate=01/07/2013
+TopColumnNamesV2=generic\:date\:Measured,generic\:f_size\:File Size (MB),generic\:maxIntensity\:maxIntensity,generic\:ms1_spectra\:MS1 Spectra,generic\:ms2_spectra\:MS2 Spectra,generic\:runtime\:runtime,
 DefaultReportsDisplayPeriod=14
-RootFolder=E\:\\qc-tool-pp\\trait_proteomics_qc_tool-master\\ProteomicsQCPipeline\\Reports
+RootFolder=..\\ProteomicsQCPipeline\\Reports
