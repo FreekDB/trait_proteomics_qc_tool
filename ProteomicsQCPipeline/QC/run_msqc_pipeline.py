@@ -332,29 +332,12 @@ def _run_r_script(outdir, webdir, basename):
 
 def _create_report(webdir, basename, metrics):
     '''
-    Uses the report template in combination with the metrics to construct a report
-    @param webdir: location in which the report (index.html) should be placed
+    Writes all the metrics values to json file
+    @param webdir: location in which the json file should be placed
     @param basename: RAW filename (without ext) to identify currently processed file
     @param metrics: dictionary holding all metrics (generic)
     '''
     log.info("Creating report..")
-
-    #with open(normpath('templates/report.html'), 'r') as report_template:
-    #    template = report_template.readlines()
-
-    #report_template = Template(''.join(template))
-    #report_updated = report_template.safe_substitute(raw_file='{0}.RAW'.format(basename),
-    #                                                 date=metrics['generic']['date'],
-    #                                                 runtime=metrics['generic']['runtime'],
-    #                                                 # Figures
-    #                                                 heatmap_img='{0}_heatmap.png'.format(basename),
-    #                                                 ions_img='{0}_ions.png'.format(basename),
-    #                                                 heatmap_pdf='{0}_heatmap.pdf'.format(basename),
-    #                                                 ions_pdf='{0}_ions.pdf'.format(basename))
-
-    # Write report file to directory holding all reports for this month
-    #with open(normpath('{0}/index.html'.format(webdir)), 'w') as report_html:
-    #    report_html.writelines(report_updated)
 
     # Store NIST metrics together with the report
     export_metrics_json(metrics, webdir)
