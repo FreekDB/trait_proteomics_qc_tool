@@ -272,9 +272,9 @@ def _run_nist(indir, rawfile, outdir):
     #nist_library = 'Jurkat28new095'
     #nist_library = 'Speclib0_5'
     #nist_library = 'Speclib0_6'
-    #nist_library = 'Jurkat28new0.999'
+    nist_library = 'Jurkat28new0.999'
     #nist_library = 'Jurkat28_0.8m'
-    nist_library = 'Jurkat28_0.99'
+    #nist_library = 'Jurkat28_0.99'
     search_engine = 'SpectraST'
     mode = 'full'
     fasta = normpath('{0}/libs/{1}.fasta'.format(_NIST, nist_library))
