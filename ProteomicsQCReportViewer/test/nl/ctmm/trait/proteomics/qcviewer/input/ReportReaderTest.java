@@ -55,8 +55,6 @@ public class ReportReaderTest {
         assertEquals("11532", reportUnit6.getMs2Spectra());
         assertEquals("2013/Jul/03 - 16:25", reportUnit6.getMeasured());
         assertEquals("0:01:02", reportUnit6.getRuntime());
-        assertEquals(Utilities.NOT_AVAILABLE_ICON_NAME, reportUnit6.getHeatmapName());
-        assertEquals(Utilities.NOT_AVAILABLE_ICON_NAME, reportUnit6.getIoncountName());
     }
 
     /**

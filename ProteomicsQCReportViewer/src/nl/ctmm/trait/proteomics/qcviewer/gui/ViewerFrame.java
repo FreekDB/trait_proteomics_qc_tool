@@ -199,7 +199,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private void assembleComponents() { 
         System.out.println("ViewerFrame assembleComponents");
         //We need two split panes to create 3 regions in the main frame
-
         //Add static (immovable) Control frame
         JInternalFrame controlFrame = getControlFrame();
         //Add desktopPane for displaying graphs and other QC Control
@@ -466,7 +465,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         JPanel traitctmmPanel = new JPanel();
         traitctmmPanel.add(traitctmmLabel);
         JPanel controlPanel = new JPanel(new FlowLayout());
-        //controlPanel.setPreferredSize(new Dimension(800, 150));
         controlPanel.add(oplPanel, 0);
         controlPanel.add(zoomPanel, 1);
         controlPanel.add(sortPanel, 2);
@@ -485,7 +483,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         controlFrame.pack();
         controlFrame.setLocation(0, 0);
         controlFrame.setResizable(false); 
-
         //TODO avoid resizing and repositioning of components in the controlFrame
         controlPanel.addComponentListener(new ComponentListener() {  
             public void componentResized(ComponentEvent e) {  
@@ -495,25 +492,16 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 
             @Override
             public void componentHidden(ComponentEvent arg0) {
-                // TODO Auto-generated method stub
-                
             }
 
             @Override
             public void componentMoved(ComponentEvent arg0) {
-                // TODO Auto-generated method stub
-                
             }
 
             @Override
             public void componentShown(ComponentEvent arg0) {
-                // TODO Auto-generated method stub
-                
             }  
         });  
-        
-        
-        
         controlFrame.setVisible(true);
         return controlFrame;
     }
@@ -577,7 +565,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         }
         System.out.println("minValue = " + minValue + " maxValue = " + maxValue + " min = " + min + " max = " + max);
         Iterator<ChartPanel> it = chartPanelList.iterator();
-        System.out.println("Number of chart panels = " + chartPanelList.size());
         while(it.hasNext()) {
             ChartPanel cPanel = (ChartPanel) it.next();
             JFreeChart chart = cPanel.getChart(); 
@@ -641,10 +628,9 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                 cPanel.repaint();
             }
         } else if (evt.getActionCommand().startsWith("Sort")) {
+        	//Sort chart frame list according to chosen Sort criteria
             newSortCriteria = evt.getActionCommand();
-            //if (! newSortCriteria.equals(currentSortCriteria)) {
-                sortChartFrameList();
-            //} else System.out.println("Already sorted according to " + newSortCriteria);
+            sortChartFrameList();
         } else if (evt.getActionCommand().equals("ChangeRootDirectory")) {
             //Get new location to read reports from
             DataEntryForm deForm = new DataEntryForm(this, appProperties);
@@ -661,7 +647,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             RefineryUtilities.centerFrameOnScreen(cmForm);
             cmForm.setVisible(true);
         } else if (evt.getActionCommand().equals("About")) {
-            System.out.println("Pressed About button..");
+            //Display AboutFrame
             AboutFrame aboutFrame = new AboutFrame();
             aboutFrame.setVisible(true);
             aboutFrame.revalidate();
@@ -724,14 +710,12 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                 int insertAtIndex = orderedReportUnits.size(); //new element will be inserted at position j or at the end of list
                 for (int j = 0; j < orderedReportUnits.size(); ++j) {
                     int result = reportUnits.get(i).compareTo(orderedReportUnits.get(j), sortKey); //comparing new and old lists
-                    System.out.println(" Result = " + result);
                     if (result == -1) { //reportUnit(i) is < orderedUnit(j)
                         insertAtIndex = j;
                         break;
                     }
                 }
                 orderedReportUnits.add(insertAtIndex, reportUnits.get(i)); //Add to specified index
-                //System.out.println("i = " + i + " insertAtIndex = " + insertAtIndex + " new size = " + orderedReportUnits.size());
             }    
         } else if (sortKey.equals("Compare")) { 
             //Check checkboxflag status and group those reports together at the beginning of orderedReportUnits 
@@ -745,7 +729,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             //Later add all deselected reports 
             for (int i = 0; i < chartCheckBoxFlags.size(); ++i) {
                 if (!chartCheckBoxFlags.get(i)) {
-                    System.out.println("Deselected report index = " + i);
                     orderedReportUnits.add(reportUnits.get(i));
                 }
             }
@@ -801,7 +784,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private JInternalFrame createChartFrame(int chartNum, JFreeChart chart, ReportUnit reportUnit) {
         System.out.print("ViewerFrame createChartFrame " + chartNum + " ");
-        //Create the visible chart panel
+        //Create the visible chart frame consisting of three panels: 1) checkPanel 2) labelPanel 3) chartPanel
+        //ChartPanel is rightmost panel holding TIC chart
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new Dimension(CHART_PANEL_SIZE, CHART_HEIGHT - 10));
         chartPanelList.add(chartPanel);
@@ -825,16 +809,14 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         JButton detailsButton = new JButton("Details");
         detailsButton.setFont(font);
         detailsButton.setPreferredSize(new Dimension(80, 20));
-        //Hyperlink to be replaced with path to browser report
+        //Use Details button to display all QC metrics values 
         detailsButton.setActionCommand("Details-" + Integer.toString(reportUnit.getReportNum()));
         detailsButton.addActionListener(this);
-        
+        //The leftmost panel holding reportNum, detailsButton and chartCheckBox
         JPanel checkPanel = new JPanel();
         checkPanel.setFont(font);
         checkPanel.setBackground(Color.WHITE);
         checkPanel.setForeground(Color.WHITE); 
-        //GridLayout layout = new GridLayout(2, 1);
-        //checkPanel.setLayout(layout);
         checkPanel.add(detailsButton, 0);
         checkPanel.add(chartCheckBox, 1);
         JLabel numLabel = new JLabel(Integer.toString(reportUnit.getReportNum()));
@@ -842,7 +824,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         numLabel.setFont(numFont);
         checkPanel.add(numLabel);
         checkPanel.setPreferredSize(new Dimension(CHECK_PANEL_SIZE, CHART_HEIGHT));
-        
+        //The middle panel displaying values of selected metrics
         JPanel labelPanel = new JPanel();
         labelPanel.setFont(font);
         labelPanel.setBackground(Color.WHITE);

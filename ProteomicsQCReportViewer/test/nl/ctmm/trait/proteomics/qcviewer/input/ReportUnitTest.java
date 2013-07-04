@@ -42,11 +42,6 @@ public class ReportUnitTest {
         assertEquals("N/A", reportUnit.getMs2Spectra());
         assertEquals("N/A", reportUnit.getMeasured());
         assertEquals("N/A", reportUnit.getRuntime());
-        assertNotNull(reportUnit.getHeatmap());
-        assertEquals(Utilities.NOT_AVAILABLE_ICON_NAME, reportUnit.getHeatmapName());
-        assertNotNull(reportUnit.getScaledHeatmap());
-        assertNotNull(reportUnit.getIoncount());
-        assertEquals(Utilities.NOT_AVAILABLE_ICON_NAME, reportUnit.getIoncountName());
     }
 
     /**
@@ -68,15 +63,5 @@ public class ReportUnitTest {
         reportUnit.setFileSizeString("");
         assertNull(reportUnit.getFileSize());
     }
-
-    /**
-     * Check that calls <code>getScaledHeatmap</code> return one and the same cached object.
-     */
-    @Test
-    public void testGetScaledHeatmapIsCached() {
-        final BufferedImage scaledHeatmap1 = reportUnit.getScaledHeatmap();
-        final BufferedImage scaledHeatmap2 = reportUnit.getScaledHeatmap();
-        assertNotNull(scaledHeatmap1);
-        assertEquals(scaledHeatmap1, scaledHeatmap2);
-    }
+ 
 }

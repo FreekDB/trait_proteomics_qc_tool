@@ -27,7 +27,7 @@ public class ChartUnit {
             Color.BLUE, Color.DARK_GRAY, Color.GRAY, Color.MAGENTA, Color.ORANGE,
             Color.PINK, Color.LIGHT_GRAY, Color.RED, Color.GREEN);
 
-    private XYSeries graphDataSeries;
+	private XYSeries graphDataSeries;
     private JFreeChart ticChart;
     private NumberAxis domainAxis;
     private double maxIntensity;
@@ -69,10 +69,10 @@ public class ChartUnit {
         renderer.setGradientPaintTransformer(null);
         renderer.setSeriesOutlinePaint(0, currentColor);
 
-        // TODO: check whether this is equivalent to calling setFillPaint and setPaint without series index. [Freek]
+        //setBaseFillPaint is equivalent to setFillPaint(deprecated) [Freek] 
+        //setBasePaint is equivalent to setPaint(deprecated) [Freek]
         renderer.setBaseFillPaint(currentColor);
         renderer.setBasePaint(currentColor);
-
         renderer.setBarPainter(new StandardXYBarPainter());
         renderer.setSeriesStroke(0, null);
         renderer.setBasePaint(Color.WHITE);
@@ -98,6 +98,7 @@ public class ChartUnit {
      */
     public void setGraphDataSeries(final XYSeries series) {
         this.graphDataSeries = series;
+        maxIntensity = graphDataSeries.getMaxY();
     }
     
     /**

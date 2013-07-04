@@ -102,7 +102,6 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         dragFrom = new JList<String>(from);
-        //dragFrom.setTransferHandler(new FromTransferHandler());
         dragFrom.setTransferHandler(new ToFromTransferHandler("dragFrom", TransferHandler.MOVE));
         dragFrom.setDragEnabled(true);
         dragFrom.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -115,7 +114,6 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         p.add(sp);
         add(p, BorderLayout.WEST);
         moveTo = new JList<String>(move);
-        //moveTo.setTransferHandler(new ToTransferHandler(TransferHandler.MOVE));
         moveTo.setTransferHandler(new ToFromTransferHandler("moveTo", TransferHandler.MOVE));
         moveTo.setDropMode(DropMode.INSERT);
         moveTo.setDragEnabled(true);
@@ -160,16 +158,6 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         if (ae.getActionCommand().equals("OK")) {
             //Send list of selected metrics to mParser for updating appProperties
             mParser.updateMetricsToDisplay(move);
-            //Print contents of move list
-            System.out.print("Printing contents of Move list\n");
-            for (int i = 0; i < move.getSize(); ++i) {
-                System.out.println("move [" + i + "] = " + move.getElementAt(i));
-            }
-            //Print contents of from list
-            System.out.print("Printing contents of From list\n");
-            for (int i = 0; i < from.getSize(); ++i) {
-                System.out.println("from [" + i + "] = " + from.getElementAt(i));
-            }
             dispose();
             if (parent != null) {
                 System.out.println("Invoke ViewerFrame methods");
@@ -179,7 +167,7 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
                 Main.getInstance().runReportViewer();
             }
         }
-        }
+    }
 
     class ToFromTransferHandler extends TransferHandler {
 
@@ -212,7 +200,6 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
                 }
                 selection = (String)moveTo.getSelectedValue();
             }
-            System.out.println("Selected String = " + selection);
             return new StringSelection(selection);
         }
 
@@ -222,12 +209,8 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
             }
             if (origin.equalsIgnoreCase("dragFrom")) {
                 from.removeElementAt(index);
-                System.out.println("Removed element: from index " + index + " from size " + from.getSize());
-                System.out.println("Added element: move size " + move.getSize());
             } else if (origin.equalsIgnoreCase("moveTo")) {
                 move.removeElementAt(index);
-                System.out.println("Removed element: move index " + index + " move size " + move.getSize());
-                System.out.println("Added element: from size " + from.getSize());
             }
         }
         

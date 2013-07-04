@@ -57,16 +57,10 @@ public class ReportReader extends JFrame {
      * @return a list with report units.
      */
     public List<ReportUnit> retrieveReports(final String rootDirectoryName, final Date fromDate, final Date tillDate) {
-        // todo msrun versus msreading directory?
         /*The directory has three levels - year, month and msrun.
-        The msreading directory may contain following three files of importance:
-        1) metrics.json: String file which has following format: 
-        {"generic": {"date": "2012/Nov/07 - 14:18", "ms2_spectra": 
-        ["MS2 Spectra", "22298 (22298)"], "runtime": "0:16:23", 
-        "f_size": ["File Size (MB)", "830.9"], "ms1_spectra": 
-        ["MS1 Spectra", "7707 (7707)"]}}
-        2) msrun*_heatmap.png
-        3) msrun*_ions.png
+        The msrun directory may contain following three files of importance:
+        1) metrics.json: String file containing values of all QC metrics in json object format 
+        2) msrun*_ticmatrix.csv
         */
         String allErrorMessages = ""; 
         final List<ReportUnit> reportUnits = new ArrayList<ReportUnit>();
@@ -89,25 +83,22 @@ public class ReportReader extends JFrame {
                     if (d.compareTo(fromDate)>=0 && d.compareTo(tillDate)<=0) {
                         boolean errorFlag = false; 
                         final File[] dataFiles = msRunDirectory.listFiles();
-                        //Check existence of "metrics.json", "heatmap.png", "ions.png", "_ticmatrix.csv"
+                        //Check existence of "metrics.json", "_ticmatrix.csv"
                         String errorMessage = checkDataFilesAvailability(msRunDirectory.getName(), dataFiles);
                         if (!errorMessage.equals("")) {
                             errorFlag = true;
-                        //    System.out.println("ErrorMessage = " + errorMessage);
                             allErrorMessages += errorMessage + "\n";
                         }
                         reportUnits.add(createReportUnit(yearDirectory.getName(), monthDirectory.getName(), msRunDirectory.getName(), dataFiles, errorFlag));
-                    } else {
-                        //System.out.println("Skipped - Last modified on: " + dateString + " is outside limits From "
-                        //        + sdf.format(fromDate) + " res = " +d.compareTo(fromDate) + " Till " + sdf.format(tillDate) + " res = " +d.compareTo(tillDate));
-                    }
+                    } 
                 }
             }
         }
-        if (!allErrorMessages.equals("")) {
-            saveErrorMessages(allErrorMessages);
+        /*TODO: Check whether errorMessages functionality is required
+         * if (!allErrorMessages.equals("")) {
+            //saveErrorMessages(allErrorMessages);
             //JOptionPane.showMessageDialog(this, allErrorMessages, "MSQC Check Warning Messages",JOptionPane.ERROR_MESSAGE);
-        }
+        }*/
         return reportUnits;
     }
 
@@ -163,7 +154,6 @@ public class ReportReader extends JFrame {
         }
     }
 
-    
     /**
      * Retrieve the year directories in the root directory.
      *

@@ -53,16 +53,16 @@ public class ChartUnitTest {
     /**
      * Test the <code>getMaxTicIntensity</code> method.
      */
-    @SuppressWarnings("deprecation")
+    
 	@Test
     public void testgetMaxTicIntensity() {
     	double maxIntensity1 = 5.99102E9;
     	double maxIntensity2 = 0.0;
     	double maxIntensity3 = 2.77233E10;
         assertEquals(0, chartUnit2.getMaxTicIntensity(), 0);
-        assertEquals(maxIntensity1, chartUnit1.getMaxTicIntensity(), 10000);
+        assertEquals(maxIntensity1, chartUnit1.getMaxTicIntensity(), 10);
         assertEquals(maxIntensity2, chartUnit2.getMaxTicIntensity(), 0);
-        assertEquals(maxIntensity3, chartUnit3.getMaxTicIntensity(), 10000);
+        assertEquals(maxIntensity3, chartUnit3.getMaxTicIntensity(), 10);
     }
 
     /**
@@ -74,7 +74,7 @@ public class ChartUnitTest {
     public void testSetGraphDataSeries() {
     	double maxIntensity = 5.99102E9;
         chartUnit2.setGraphDataSeries(xySeries);
-        assertEquals(maxIntensity, chartUnit2.getMaxTicIntensity(), 10000);
+        assertEquals(maxIntensity, chartUnit2.getMaxTicIntensity(), 10);
     }
 
     /**

@@ -12,11 +12,21 @@ import java.util.StringTokenizer;
 import nl.ctmm.trait.proteomics.qcviewer.gui.SortedListModel;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 
+/**
+ * The class for parsing metrics IDs and names from MetricsListing.txt file
+ *
+ * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
+ * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
+ */
 public class MetricsParser {
 
     private Properties appProperties = null; 
     private HashMap<String,String> allMetricsMap = null;
     
+    /**
+     * Constructor
+     * @param appProperties Application properties
+     */
     public MetricsParser(final Properties appProperties) {
         this.appProperties = appProperties;
     }
@@ -71,7 +81,7 @@ public class MetricsParser {
         for (int i = 0; i < move.getSize(); ++i) { 
             selectedMetrics = selectedMetrics.concat((String)move.getElementAt(i) + ",");
         }
-         appProperties.setProperty(Constants.PROPERTY_TOP_COLUMN_NAMESV2, selectedMetrics);
+        appProperties.setProperty(Constants.PROPERTY_TOP_COLUMN_NAMESV2, selectedMetrics);
         try {
             FileOutputStream out = new FileOutputStream(Constants.PROPERTIES_FILE_NAME);
             appProperties.store(out, null);

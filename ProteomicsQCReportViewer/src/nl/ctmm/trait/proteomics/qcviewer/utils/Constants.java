@@ -12,10 +12,8 @@ public interface Constants {
     static final String PROPERTIES_FILE_NAME = "appProperties";
     static final String PROPERTY_ROOT_FOLDER = "RootFolder";
     static final String PROPERTY_PROGRESS_LOG = "qc_status.log";
-    static final String DEFAULT_ROOT_FOLDER = "QCReports\\ctmm";
+    static final String DEFAULT_ROOT_FOLDER = "QCReports";
     static final String PROPERTY_TOP_COLUMN_NAMESV2 = "TopColumnNamesV2";
-    static final String DEFAULT_TOP_COLUMN_NAMES = "No., File Size, MS1 Spectra, MS2 Spectra, Measured, Runtime, " +
-                                                   "Heatmap, Ioncount";
     static final String PROPERTY_GUI_VERSION = "GUIVersion"; 
     static final String PROPERTY_SHOW_REPORTS_FROM_DATE = "ShowReportsFromDate";
     static final String PROPERTY_SHOW_REPORTS_TILL_DATE = "ShowReportsTillDate";

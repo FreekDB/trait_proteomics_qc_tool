@@ -1,7 +1,7 @@
-#Wed Jul 03 15:21:02 CEST 2013
+#Thu Jul 04 16:21:33 CEST 2013
 GUIVersion=2
 ShowReportsTillDate=30/07/2013
 ShowReportsFromDate=01/07/2013
-TopColumnNamesV2=generic\:date\:Measured,generic\:f_size\:File Size (MB),generic\:maxIntensity\:maxIntensity,generic\:ms1_spectra\:MS1 Spectra,generic\:ms2_spectra\:MS2 Spectra,generic\:runtime\:runtime,
+TopColumnNamesV2=chrom\:c-4a\:Peak Widths at Half Max over (First Decile),dyn\:ds-2b\:Middle Peptide Retention Time Period (MS2 scans),dyn\:ds-3a\:MS1max/MS1sampled Abundance (Median All IDs),generic\:date\:Measured,generic\:f_size\:File Size (MB),
 DefaultReportsDisplayPeriod=14
-RootFolder=..\\ProteomicsQCPipeline\\Reports
+RootFolder=QCReports
