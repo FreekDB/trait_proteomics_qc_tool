@@ -39,10 +39,10 @@ public class ChartUnitTest {
     	String msrunName1 = "msrun1";
     	String msrunName2 = "msrun2";
     	String msrunName3 = "msrun3";
-    	String ticMatrixFileName1 = "QCReports\\2013\\Jun\\data01QE2_130409_OPL1013_CvA_Bonemarrow_TiOx_H1\\data01QE2_130409_OPL1013_CvA_Bonemarrow_TiOx_H1_ticmatrix.csv";
+    	String ticMatrixFileName1 = "QCReports\\2013\\Jul\\QE1_130108_OPL1005_YL_lysRIVM_NKI_BRCA_H1\\QE1_130108_OPL1005_YL_lysRIVM_NKI_BRCA_H1_ticmatrix.csv";
     	File ticMatrixFile1 = new File(ticMatrixFileName1);
     	series1 = readXYSeries(msrunName1, ticMatrixFile1);
-    	String ticMatrixFileName2 = "QCReports\\2013\\Jun\\QE2_130124_OPL0000_jurkat2ug_01\\QE2_130124_OPL0000_jurkat2ug_01_ticmatrix.csv";
+    	String ticMatrixFileName2 = "QCReports\\2013\\Jul\\QE2_120822_OPL0000_jurkat2ug_02\\QE2_120822_OPL0000_jurkat2ug_02_ticmatrix.csv";
     	File ticMatrixFile2 = new File(ticMatrixFileName2);
     	series2 = readXYSeries(msrunName1, ticMatrixFile2);
     	chartUnit1 = new ChartUnit(msrunName1, 1, series1);
@@ -56,8 +56,8 @@ public class ChartUnitTest {
     @SuppressWarnings("deprecation")
 	@Test
     public void testgetMaxTicIntensity() {
-    	double maxIntensity1 = 8.98197E9;
-    	double maxIntensity2 = 1.03135E10;
+    	double maxIntensity1 = 5.99102E9;
+    	double maxIntensity2 = 2.77233E10;
         System.out.println("maxIntensity1 = " + maxIntensity1 + " Obtained = " + chartUnit1.getMaxTicIntensity());
         System.out.println("maxIntensity2 = " + maxIntensity2 + " Obtained = " + chartUnit3.getMaxTicIntensity());
         assertEquals(0, chartUnit2.getMaxTicIntensity(), 0);
@@ -70,7 +70,7 @@ public class ChartUnitTest {
      */
     @Test
     public void testSetGraphDataSeries() {
-    	double maxIntensity = 8.98197E9;
+    	double maxIntensity = 5.99102E9;
         chartUnit2.setGraphDataSeries(series1);
         assertEquals(maxIntensity, chartUnit2.getMaxTicIntensity(), 10000);
     }
