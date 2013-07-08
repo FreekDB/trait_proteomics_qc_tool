@@ -15,12 +15,7 @@ public class GuiTestUtils {
      * @return the new report unit.
      */
     public static ReportUnit createReportUnit(final int reportNumber) {
-    	// public ReportUnit(final String msrunName, final int reportNum, final String fileSizeString,
-        //                   final String ms1Spectra, final String ms2Spectra, final String measured,
-        //                   final String runtime, final BufferedImage heatmap, final BufferedImage ioncount,
-        //                   final String heatmapName, final String ioncountName)
-        return new ReportUnit("msrun", reportNumber, reportNumber + "1", reportNumber + "2", reportNumber + "3",
-                              reportNumber + "4", reportNumber + "5", null, null, reportNumber + "heatmap.png",
-                              reportNumber + "ions.png");
+    	//    public ReportUnit(String msrunName, int reportNum) 
+        return new ReportUnit("msrun", reportNumber);
     }
 }

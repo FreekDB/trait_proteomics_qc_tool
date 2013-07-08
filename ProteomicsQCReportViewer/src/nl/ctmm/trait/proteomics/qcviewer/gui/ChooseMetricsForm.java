@@ -64,14 +64,15 @@ import nl.ctmm.trait.proteomics.qcviewer.input.MetricsParser;
  * The class for displaying Metrics selection form - drag n drop user interface.
  *
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
+ * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
 
 public class ChooseMetricsForm extends JFrame implements ActionListener {
     
-	private static final long serialVersionUID = -4740722105234150323L;
-	SortedListModel from = new SortedListModel();
-	SortedListModel move = new SortedListModel();
-    JList dragFrom, moveTo;
+    private static final long serialVersionUID = -4740722105234150323L;
+    SortedListModel from = new SortedListModel();
+    SortedListModel move = new SortedListModel();
+    JList<String> dragFrom, moveTo;
     HashMap<String,String> metricsMap;
     HashMap<String,String> selectedMetrics;
     MetricsParser mParser = null;
@@ -90,18 +91,17 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         this.selectedMetrics = selectedMetrics;
         metricsMap = this.mParser.getMetricsListing(); 
         for (String key : metricsMap.keySet()) {
-        	String value = metricsMap.get(key);
-        	//if selectedMetrics already contains key, then store it in move list
-        	if (selectedMetrics.containsKey(key)) {
-        		move.add(key + ":" + value);
-        	} else {
-        		from.add(key + ":" + value);
-        	}
+            String value = metricsMap.get(key);
+            //if selectedMetrics already contains key, then store it in move list
+            if (selectedMetrics.containsKey(key)) {
+                move.add(key + ":" + value);
+            } else {
+                from.add(key + ":" + value);
+            }
         }
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        dragFrom = new JList(from);
-        //dragFrom.setTransferHandler(new FromTransferHandler());
+        dragFrom = new JList<String>(from);
         dragFrom.setTransferHandler(new ToFromTransferHandler("dragFrom", TransferHandler.MOVE));
         dragFrom.setDragEnabled(true);
         dragFrom.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -113,8 +113,7 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         sp.setAlignmentX(0f);
         p.add(sp);
         add(p, BorderLayout.WEST);
-        moveTo = new JList(move);
-        //moveTo.setTransferHandler(new ToTransferHandler(TransferHandler.MOVE));
+        moveTo = new JList<String>(move);
         moveTo.setTransferHandler(new ToFromTransferHandler("moveTo", TransferHandler.MOVE));
         moveTo.setDropMode(DropMode.INSERT);
         moveTo.setDragEnabled(true);
@@ -131,20 +130,20 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         add(p, BorderLayout.CENTER);
         
         p = new JPanel();
-    	JButton SUBMIT = new JButton("OK");
-    	SUBMIT.setSize(new Dimension(50, 30));
-    	JButton CANCEL = new JButton("CANCEL"); 
-    	CANCEL.setSize(new Dimension(50, 30));
-  	  	SUBMIT.addActionListener(this);
-  	  	SUBMIT.setActionCommand("OK");
-  	  	CANCEL.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent ae) {
-				dispose();
-			}
-		});
-  	  	p.add(SUBMIT, 0);
-  	  	p.add(CANCEL, 1);
-  	  	add(p, BorderLayout.PAGE_END);
+        JButton SUBMIT = new JButton("OK");
+        SUBMIT.setSize(new Dimension(50, 30));
+        JButton CANCEL = new JButton("CANCEL"); 
+        CANCEL.setSize(new Dimension(50, 30));
+            SUBMIT.addActionListener(this);
+            SUBMIT.setActionCommand("OK");
+            CANCEL.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ae) {
+                dispose();
+            }
+        });
+            p.add(SUBMIT, 0);
+            p.add(CANCEL, 1);
+            add(p, BorderLayout.PAGE_END);
         
         ((JPanel)getContentPane()).setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
         getContentPane().setPreferredSize(new Dimension(830, 340));
@@ -153,35 +152,27 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
     /**
      * The user has performed actions such as pressing the OK button
      */
-	@Override
-	 public void actionPerformed(ActionEvent ae) {
-		System.out.println("DataEntryFrame Action command = " + ae.getActionCommand());
-		if (ae.getActionCommand().equals("OK")) {
-			//Send list of selected metrics to mParser for updating appProperties
-			mParser.updateMetricsToDisplay(move);
-			//Print contents of move list
-			System.out.print("Printing contents of Move list\n");
-			for (int i = 0; i < move.getSize(); ++i) {
-				System.out.println("move [" + i + "] = " + move.getElementAt(i));
-			}
-			//Print contents of from list
-			System.out.print("Printing contents of From list\n");
-			for (int i = 0; i < from.getSize(); ++i) {
-				System.out.println("from [" + i + "] = " + from.getElementAt(i));
-			}
-			dispose();
-			if (parent != null) {
-				System.out.println("Invoke ViewerFrame methods");
-				parent.clean();
-				parent.dispose();
-				//new Main().runReportViewer();
-				Main.getInstance().runReportViewer();
-			}
-		}
-		}
+    @Override
+     public void actionPerformed(ActionEvent ae) {
+        System.out.println("DataEntryFrame Action command = " + ae.getActionCommand());
+        if (ae.getActionCommand().equals("OK")) {
+            //Send list of selected metrics to mParser for updating appProperties
+            mParser.updateMetricsToDisplay(move);
+            dispose();
+            if (parent != null) {
+                System.out.println("Invoke ViewerFrame methods");
+                parent.clean();
+                parent.dispose();
+                //new Main().runReportViewer();
+                Main.getInstance().runReportViewer();
+            }
+        }
+    }
 
     class ToFromTransferHandler extends TransferHandler {
-        private int index = 0;
+
+		private static final long serialVersionUID = 1L;
+		private int index = 0;
         int action; 
         String origin;
         //ToTransferHandler
@@ -195,21 +186,20 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         }
         
         public Transferable createTransferable(JComponent comp) {
-        	String selection = "";
+            String selection = "";
             if (origin.equalsIgnoreCase("dragFrom")) {
-            	index = dragFrom.getSelectedIndex();
+                index = dragFrom.getSelectedIndex();
                 if (index < 0 || index >= from.getSize()) {
                     return null;
                 }
                 selection = (String)dragFrom.getSelectedValue();
             } else if (origin.equalsIgnoreCase("moveTo")) {
-            	index = moveTo.getSelectedIndex();
+                index = moveTo.getSelectedIndex();
                 if (index < 0 || index >= move.getSize()) {
                     return null;
                 }
                 selection = (String)moveTo.getSelectedValue();
             }
-            System.out.println("Selected String = " + selection);
             return new StringSelection(selection);
         }
 
@@ -218,13 +208,9 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
                 return;
             }
             if (origin.equalsIgnoreCase("dragFrom")) {
-            	from.removeElementAt(index);
-            	System.out.println("Removed element: from index " + index + " from size " + from.getSize());
-            	System.out.println("Added element: move size " + move.getSize());
+                from.removeElementAt(index);
             } else if (origin.equalsIgnoreCase("moveTo")) {
-            	move.removeElementAt(index);
-            	System.out.println("Removed element: move index " + index + " move size " + move.getSize());
-            	System.out.println("Added element: from size " + from.getSize());
+                move.removeElementAt(index);
             }
         }
         
@@ -234,8 +220,8 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
             }
             //check for size of move
             if (move.getSize() > 5 && origin.equalsIgnoreCase("moveTo")) {
-            	System.out.println("Limit of move list exceeded. Max 6. Origin = " + origin);
-            	return false;
+                System.out.println("Limit of move list exceeded. Max 6. Origin = " + origin);
+                return false;
             }
             // we only import Strings
             if (!support.isDataFlavorSupported(DataFlavor.stringFlavor)) {
@@ -266,7 +252,7 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
             } catch (java.io.IOException e) {
                 return false;
             }
-            JList list = (JList)support.getComponent();
+            JList<String> list = (JList)support.getComponent();
             SortedListModel model = (SortedListModel)list.getModel();
             model.add(data);
             Rectangle rect = list.getCellBounds(index, index);

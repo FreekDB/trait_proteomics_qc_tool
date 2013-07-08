@@ -69,7 +69,7 @@ public class ProgressLogMonitor {
    * 
    * @param listener
    *          listener to notify when the file changed.
-   * @param fileName
+   * @param file
    *          name of the file to monitor.
    * @param period
    *          polling period in milliseconds.
@@ -170,8 +170,9 @@ interface FileChangeListener {
   /**
    * Invoked when a file changes.
    * 
-   * @param fileName
+   * @param file
    *          name of changed file.
    */
+	
   public void fileChanged(File file);
 }

@@ -66,8 +66,8 @@ def _get_default_nist_metrics():
         'ms1': {
             'ms1-1': ['Ion Injection Times for IDs', 1, 'MS1 Median'],
             'ms1-2a': ['MS1 During Middle', 1, 'S/N Median'],
-            #'ms1-2b': ['MS1 During Middle', 2, 'TIC Median/1000'], nistms_metrics.exe
-            'ms1-2b': ['MS1 During Middle', 2, 'TIC Medi/10000'],
+            'ms1-2b': ['MS1 During Middle', 2, 'TIC Median/1000'], 
+            #'ms1-2b': ['MS1 During Middle', 2, 'TIC Medi/10000'],
             'ms1-3a': ['MS1 ID Max', 6, '95/5 MidRT'],
             'ms1-3b': ['MS1 ID Max', 1, 'Median'],
             'ms1-5a': ['Precursor m/z - Peptide Ion m/z', 2, 'Median'],
@@ -108,8 +108,8 @@ def _get_default_nist_metrics():
             # FIXME: escaping does not work (it does in interactive Python environment)
             #'is-1a': ['MS1 During Middle', 14, 'MS1 Jumps >10x'], Modified by Pravin
             #'is-1b': ['MS1 During Middle', 15, 'MS1 Falls <.1x'], Modified by Pravin
-            'is-1a': ['MS1 During Middle', 20, 'MS1 Jumps >10x'],
-            'is-1b': ['MS1 During Middle', 21, 'MS1 Falls <.1x'],
+            'is-1a': ['MS1 During Middle', 13, 'MS1 Jumps >10x'],
+            'is-1b': ['MS1 During Middle', 14, 'MS1 Falls <.1x'],
             'is-2': ['Precursor m/z for IDs', 1, 'Median'],
             #'is-3a': ['Ion IDs by Charge State', 1, 'Charge +1'], Modified by Pravin
             #'is-3b': ['Ion IDs by Charge State', 3, 'Charge +3'], Modified by Pravin
