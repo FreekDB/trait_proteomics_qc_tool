@@ -7,7 +7,11 @@ import java.util.*;
 
 public class SortedListModel extends AbstractListModel {
 
-  // Define a SortedSet
+ /**
+ * SortedListModel to sort list elements during metrics selection 
+ */
+	private static final long serialVersionUID = 1L;
+// Define a SortedSet
   SortedSet model;
 
   public SortedListModel() {

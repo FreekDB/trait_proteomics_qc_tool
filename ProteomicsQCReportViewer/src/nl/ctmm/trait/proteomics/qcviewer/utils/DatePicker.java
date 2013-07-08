@@ -65,7 +65,6 @@ public class DatePicker {
 		d.add(p1, BorderLayout.CENTER);
 		d.add(p2, BorderLayout.SOUTH);
 		d.pack();
-		//d.setLocationRelativeTo(parent);
 		displayDate();
 		RefineryUtilities.centerFrameOnScreen(d);
 		d.setVisible(true);

@@ -15,6 +15,16 @@ import java.util.TimerTask;
 
 import nl.ctmm.trait.proteomics.qcviewer.Main;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
+import nl.ctmm.trait.proteomics.qcviewer.input.FileChangeListener;
+
+/**
+ * The class for reading qc_status.log file. It contains QC pipeline entries in following format:
+ *
+ * 2013-06-04 13:40:01.165000    QE2_101109_OPL0004_TSV_mousecelllineL_Q1_2.raw    running
+ * 2013-06-04 13:40:01.191000    QE2_101109_OPL0004_TSV_mousecelllineL_Q1_2.raw    completed
+ * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
+ * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
+ */
 
 public class ProgressLogReader implements FileChangeListener {
     String currentStatus = ""; 
@@ -26,6 +36,11 @@ public class ProgressLogReader implements FileChangeListener {
     private Hashtable<String, StatusMonitorTask> timerEntries;
     File logFile; 
 
+    /**
+     * Constructor of ProgressLogReader: Parses current status from the logFile and
+     * initiates a timer to monitor changes in the logFile
+     * @param progressLogFilePath Absolute path to the progressLogFile
+     */
     public ProgressLogReader (String progressLogFilePath) {
         this.owner = Main.getInstance(); 
         logFile = new File(progressLogFilePath);
@@ -39,26 +54,39 @@ public class ProgressLogReader implements FileChangeListener {
         timer.schedule(task, 5000, 5000);
     }
 
-    
+    /**
+     * Get current status from the progressLogFile
+     * @return currentStatus
+     */
     public String getCurrentStatus() {
         return currentStatus; 
     }
     
+    /**
+     * Get the name of MS RAW file being processed by the QC pipeline
+     * @return name of MS RAW file being processed currently
+     */
     public String getRunningMsrunName() {
         return runningMsrunName; 
     }
     
+    /**
+     * Push current pipeline status to the Main class
+     */
     public void pushPipelineStatus() {
         parseCurrentStatus(logFile);
         owner.notifyUpdatePipelineStatus(currentStatus);
     }
     
+    /**
+     * Parse current pipeline status from the logFile
+     * @param logFile 
+     */
     private void parseCurrentStatus (File logFile) {
         String lastLine = "";
         try {
             InputStreamReader streamReader = new InputStreamReader(new FileInputStream(logFile));
             br = new BufferedReader(streamReader);
-            //System.out.println(logFile.getName());
             //Also check for empty lines and white spaces
             while (br.ready()) {
                 String thisLine = br.readLine();
@@ -76,8 +104,8 @@ public class ProgressLogReader implements FileChangeListener {
          * No support for microseconds in Java SimpleDateFormat 
          * Refer to http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
          * Example of lastLine: 
-         * 2013-05-28 11:11:52.617000	data01QE2_130409_OPL1013_CvA_Bonemarrow_TiOx_S5.raw    running
-         * 2013-05-28 13:04:16.180000	QE1_130108_OPL1005_YL_lysRIVM_NKI_BRCA_H1.raw    completed
+         * 2013-05-28 11:11:52.617000    data01QE2_130409_OPL1013_CvA_Bonemarrow_TiOx_S5.raw    running
+         * 2013-05-28 13:04:16.180000    QE1_130108_OPL1005_YL_lysRIVM_NKI_BRCA_H1.raw    completed
          */
         lastLine = lastLine.trim();
         if (lastLine.startsWith("20")) { //Hopefully not the Y2K problem!!!!
@@ -86,19 +114,13 @@ public class ProgressLogReader implements FileChangeListener {
             DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             try {
                 Date logDate = sdf.parse(timeStamp);
-                //System.out.println("Parsed log date is " + logDate.toString());
                 Date currentDate = new Date (System.currentTimeMillis());
-                //System.out.println("Current date is " + currentDate.toString());
                 //in milliseconds
                 long diff = currentDate.getTime() - logDate.getTime();
                 long diffSeconds = diff / 1000 % 60;
                 long diffMinutes = diff / (60 * 1000) % 60;
                 long diffHours = diff / (60 * 60 * 1000) % 24;
                 long diffDays = diff / (24 * 60 * 60 * 1000);
-                //System.out.print(diffDays + " days, ");
-                //System.out.print(diffHours + " hours, ");
-                //System.out.print(diffMinutes + " minutes, ");
-                //System.out.println(diffSeconds + " seconds.");
                 if (lastLine.endsWith("running")) {
                     completed = false; 
                     stkz = new StringTokenizer(lastLine);
@@ -109,10 +131,9 @@ public class ProgressLogReader implements FileChangeListener {
                             diffDays + " days, " + diffHours + " hours, " + diffMinutes + " minutes, " + diffSeconds + " seconds.";
                     runningMsrunName = rawFileName; 
                     runningMsrunName = runningMsrunName.trim(); 
-                    //Remove last .RAW from runningMsrunName
+                    //Remove trailing .RAW from runningMsrunName
                     int msrunLength = runningMsrunName.length();
                     runningMsrunName = runningMsrunName.substring(0, msrunLength - 4); //Remove trailing .RAW extension
-                    //System.out.println("ProgressLogReader runningMsrunName = " + runningMsrunName);
                 } else if (lastLine.endsWith("completed")) {
                     runningMsrunName = "";
                     completed = true;
@@ -148,28 +169,8 @@ public class ProgressLogReader implements FileChangeListener {
         }
 
         public void run() {
-            //System.out.println("StatusMonitorTask running owner.pushPipelineStatus()"); 
             owner.pushPipelineStatus();
         }
       }
 }
 
-/*
- * def _read_logfile(status_log):
-    with open(status_log, 'r') as logfile:
-        data = logfile.readlines()
-    # Get / parse the timestamp of the latest update and calculate difference
-    last_update = data[-1].strip().split('\t')
-    t_start = strptime(last_update[0], '%Y-%m-%d %H:%M:%S.%f')
-    t_diff = datetime.now() - datetime.fromtimestamp(mktime(t_start))
-    # Remove milliseconds from time difference
-    t_diff = str(t_diff).split('.')[0]
-
-    if last_update[2] == 'running':
-        img = '<img border="0" src="/ctmm/report/images/check_icon.png" height="18">'
-        logline = '{0} Currently analyzing <b><i>{1}</i></b> (active for: {2})'.format(img, last_update[1], t_diff)
-    else:
-        img = '<img border="0" src="/ctmm/report/images/warning_icon.png" height="18">'
-        logline = '{0} Idle.. (inactive for: {1})'.format(img, t_diff)
-    return logline
-*/

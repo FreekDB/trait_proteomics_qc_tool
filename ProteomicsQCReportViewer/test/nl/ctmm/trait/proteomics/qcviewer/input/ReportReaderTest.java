@@ -40,23 +40,21 @@ public class ReportReaderTest {
         final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         Date fromDate = null, tillDate = null;
         try { 
-            fromDate = sdf.parse("01/01/2013"); 
-            tillDate = sdf.parse("21/06/2013");
+            fromDate = sdf.parse("01/07/2013"); 
+            tillDate = sdf.parse("31/07/2013");
         } catch (ParseException e) { 
             System.out.println("Unparsable using " + sdf);
         }
         final List<ReportUnit> reports = reportReader.retrieveReports("QCReports", fromDate, tillDate);
-        assertEquals("There should be 41 report units.", 41, reports.size());
+        assertEquals("There should be 16 report units.", 16, reports.size());
         // Examine one report unit in detail.
         final ReportUnit reportUnit6 = reports.get(5);
         assertEquals(6, reportUnit6.getReportNum());
-        assertEquals("1001.3", reportUnit6.getFileSizeString());
-        assertEquals("5789", reportUnit6.getMs1Spectra());
-        assertEquals("30242", reportUnit6.getMs2Spectra());
-        assertEquals("2013/Jun/15 - 00:17", reportUnit6.getMeasured());
-        assertEquals("0:17:40", reportUnit6.getRuntime());
-        assertEquals(Utilities.NOT_AVAILABLE_ICON_NAME, reportUnit6.getHeatmapName());
-        assertEquals(Utilities.NOT_AVAILABLE_ICON_NAME, reportUnit6.getIoncountName());
+        assertEquals("85.0", reportUnit6.getFileSizeString());
+        assertEquals("10249", reportUnit6.getMs1Spectra());
+        assertEquals("11532", reportUnit6.getMs2Spectra());
+        assertEquals("2013/Jul/03 - 16:25", reportUnit6.getMeasured());
+        assertEquals("0:01:02", reportUnit6.getRuntime());
     }
 
     /**
