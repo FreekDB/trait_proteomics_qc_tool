@@ -3,8 +3,8 @@ package nl.ctmm.trait.proteomics.qcviewer.input;
 import java.io.File;
 import java.io.FileReader;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -15,49 +15,46 @@ import org.json.simple.parser.JSONParser;
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
-
 public class JsonMetricsReader {
+    private Map<String, String> allMetricsMap;
 
-    private HashMap<String, String> allMetricsMap = null;
-    public JsonMetricsReader(MetricsParser mParser) {
+    public JsonMetricsReader(final MetricsParser metricsParser) {
         //Keys of allMetricsMap to be used for reading JSON metrics values
-        allMetricsMap = mParser.getMetricsListing();
+        allMetricsMap = metricsParser.getMetricsListing();
     }
     
     /**
      * Read the QC parameters from the json file.
      * @param jsonFile the json file that contains the QC parameters.
-     * @return Hashmap containing names of QC metrics and their values - as read from the jSON file
+     * @return map containing names of QC metrics and their values - as read from the jSON file
      */
-    public HashMap<String, String> readJsonValues(final File jsonFile) {
-        HashMap<String, String> metricsValues = new HashMap<String, String>();
-        Object[] keys = allMetricsMap.keySet().toArray();
-        //Initialize metricsValues to N/A
+    public Map<String, String> readJsonValues(final File jsonFile) {
+        final Map<String, String> metricsValues = new HashMap<>();
         try {
             final JSONObject jsonObject = (JSONObject) new JSONParser().parse(new FileReader(jsonFile));
-            for (int i = 0; i < keys.length; ++i) {
+            for (final String key : allMetricsMap.keySet()) {
+                //Initialize metricsValues to N/A
                 String paramValue = "N/A";
                 //Split the key into jsonObject and parameters
-                StringTokenizer stkz = new StringTokenizer((String) keys[i], ":");
-                String objectName = stkz.nextToken();
-                String paramName = stkz.nextToken();
-                //Check whether json file contains objectname
+                final StringTokenizer keyTokenizer = new StringTokenizer(key, ":");
+                final String objectName = keyTokenizer.nextToken();
+                final String paramName = keyTokenizer.nextToken();
+                //Check whether json file contains object name
                 if (jsonObject.containsKey(objectName)) {
-                    JSONObject jObject = (JSONObject) jsonObject.get(objectName);
+                    final JSONObject jObject = (JSONObject) jsonObject.get(objectName);
                     if (jObject.containsKey(paramName)) {
-                        if (paramName.equals("date") || paramName.equals("runtime")) { 
+                        if (paramName.equals("date") || paramName.equals("runtime")) {
                             paramValue = (String) jObject.get(paramName);
                         } else {
                             paramValue = (String) ((JSONArray) jObject.get(paramName)).get(1);
                         }
                     }
                 }
-                metricsValues.put((String) keys[i], paramValue);
+                metricsValues.put(key, paramValue);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return metricsValues;
     }
-    
 }

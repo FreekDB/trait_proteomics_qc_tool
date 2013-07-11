@@ -44,6 +44,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 
+import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DropMode;
@@ -68,28 +69,29 @@ import nl.ctmm.trait.proteomics.qcviewer.input.MetricsParser;
  */
 
 public class ChooseMetricsForm extends JFrame implements ActionListener {
-    
     private static final long serialVersionUID = -4740722105234150323L;
+
     SortedListModel from = new SortedListModel();
     SortedListModel move = new SortedListModel();
     JList<String> dragFrom, moveTo;
-    HashMap<String,String> metricsMap;
-    HashMap<String,String> selectedMetrics;
-    MetricsParser mParser = null;
-    ViewerFrame parent = null;
+    Map<String,String> metricsMap;
+    Map<String,String> selectedMetrics;
+    MetricsParser metricsParser;
+    ViewerFrame parent;
 
     /**
      * Constructor of metrics selection form
      * @param parent ViewerFrame is the parent 
-     * @param mParser Instance of MetricsParser
+     * @param metricsParser Instance of MetricsParser
      * @param selectedMetrics HashMap of previously selected metrics
      */
-    public ChooseMetricsForm(ViewerFrame parent, final MetricsParser mParser, HashMap<String, String> selectedMetrics) {
+    public ChooseMetricsForm(final ViewerFrame parent, final MetricsParser metricsParser,
+                             final Map<String, String> selectedMetrics) {
         super("Select QC-Full Metrics for MSQC Report Viewer");
-        this.mParser = mParser;
+        this.metricsParser = metricsParser;
         this.parent = parent;
         this.selectedMetrics = selectedMetrics;
-        metricsMap = this.mParser.getMetricsListing(); 
+        metricsMap = this.metricsParser.getMetricsListing();
         for (String key : metricsMap.keySet()) {
             String value = metricsMap.get(key);
             //if selectedMetrics already contains key, then store it in move list
@@ -156,8 +158,9 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
      public void actionPerformed(ActionEvent ae) {
         System.out.println("DataEntryFrame Action command = " + ae.getActionCommand());
         if (ae.getActionCommand().equals("OK")) {
-            //Send list of selected metrics to mParser for updating appProperties
-            mParser.updateMetricsToDisplay(move);
+            //Send list of selected metrics to metricsParser for updating appProperties
+            metricsParser.updateMetricsToDisplay(move);
+            // TODO: internal - do we need to take such drastic measures as below? [Freek]
             dispose();
             if (parent != null) {
                 System.out.println("Invoke ViewerFrame methods");

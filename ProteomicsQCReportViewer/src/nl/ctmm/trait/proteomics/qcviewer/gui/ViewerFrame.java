@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
@@ -73,33 +74,33 @@ import org.jfree.ui.RefineryUtilities;
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
-
 public class ViewerFrame extends JFrame implements ActionListener, ItemListener, ChangeListener, MouseListener {
     private static final long serialVersionUID = 1L;
-    private JDesktopPane desktopPane = new ScrollDesktop();
-    private JDesktopPane ticGraphPane = new ScrollDesktop();
-    List<ChartPanel> chartPanelList = new ArrayList<ChartPanel>(); //necessary for zooming
-    private List<Boolean> chartCheckBoxFlags = new ArrayList<Boolean>();
-    private static int CHART_HEIGHT = 150; 
-    private static int DESKTOP_PANE_WIDTH = 1270; 
-    private JTextField minText, maxText;
-    private List<ReportUnit> reportUnits = new ArrayList<ReportUnit>(); //preserve original report units 
-    private List<ReportUnit> orderedReportUnits = new ArrayList<ReportUnit>(); //use this list for display and other operations
-    private List<String> qcParamNames; 
-    private List<String> qcParamKeys;
-    private List<String> qcParamValues;
-    private HashMap<String, String> selectedMetrics; //metrics and Params are interchangeable
-    private List<JRadioButton> sortButtons;
     private static final List<Color> LABEL_COLORS = Arrays.asList(
             Color.BLUE, Color.DARK_GRAY, Color.GRAY, Color.MAGENTA, Color.ORANGE, Color.RED, Color.BLACK);
     private static final int CHECK_PANEL_SIZE = 90;
     private static final int LABEL_PANEL_SIZE = 350;
     private static final int CHART_PANEL_SIZE = 800;
+
+    private JDesktopPane desktopPane = new ScrollDesktop();
+    private JDesktopPane ticGraphPane = new ScrollDesktop();
+    private List<ChartPanel> chartPanelList = new ArrayList<>(); //necessary for zooming
+    private List<Boolean> chartCheckBoxFlags = new ArrayList<>();
+    private static int CHART_HEIGHT = 150; 
+    private static int DESKTOP_PANE_WIDTH = 1270; 
+    private JTextField minText, maxText;
+    private List<ReportUnit> reportUnits = new ArrayList<>(); //preserve original report units
+    private List<ReportUnit> orderedReportUnits = new ArrayList<>(); //use this list for display and other operations
+    private List<String> qcParamNames; 
+    private List<String> qcParamKeys;
+    private List<String> qcParamValues;
+    private Map<String, String> selectedMetrics; //metrics and Params are interchangeable
+    private List<JRadioButton> sortButtons;
     private String currentSortCriteria = "";
     private String newSortCriteria = "";
-    private Properties appProperties = null;
-    private MetricsParser mParser = null;
-    private String pipelineStatus = "";
+    private Properties appProperties;
+    private MetricsParser metricsParser;
+    private String pipelineStatus;
     private JSplitPane splitPane1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT); 
     private JSplitPane splitPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT); 
     private JLabel statusLabel;
@@ -108,21 +109,27 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 
     /**
      * Creates a new instance of the demo.
-     * 
-     * @param title  the title.
-     * @param pipelineStatus 
+     *
+     * @param metricsParser the metrics parser to use.
+     * @param appProperties the application properties to use.
+     * @param title the frame title.
+     * @param reportUnits the initial report units to show.
+     * @param pipelineStatus the initial pipeline status to show.
      */
-    public ViewerFrame(final MetricsParser mParser, final Properties appProperties, final String title, final List<ReportUnit> reportUnits, final List<String> qcParamNames, String pipelineStatus) {
+    public ViewerFrame(final MetricsParser metricsParser, final Properties appProperties, final String title,
+                       final List<ReportUnit> reportUnits, final List<String> qcParamNames,
+                       final String pipelineStatus) {
         super(title);
         System.out.println("ViewerFrame constructor");
         setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 25, CHART_HEIGHT * 10));
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        this.mParser = mParser; 
-        this.pipelineStatus = pipelineStatus; 
+        this.metricsParser = metricsParser;
+        this.appProperties = appProperties;
         this.qcParamNames = qcParamNames;
-        qcParamKeys = new ArrayList<String>();
-        qcParamValues = new ArrayList<String>();
-        selectedMetrics = new HashMap<String, String>();
+        this.pipelineStatus = pipelineStatus;
+        qcParamKeys = new ArrayList<>();
+        qcParamValues = new ArrayList<>();
+        selectedMetrics = new HashMap<>();
         //Extract qcParamKeys
         for (int i = 0; i < qcParamNames.size(); ++i) {
             StringTokenizer stkz = new StringTokenizer(qcParamNames.get(i), ":");
@@ -132,7 +139,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             qcParamValues.add(value); 
             selectedMetrics.put(key, value);
         }
-        this.appProperties = appProperties;
         setReportUnits(reportUnits);
         setOrderedReportUnits(reportUnits);
         assembleComponents();
@@ -589,8 +595,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             stkz.nextToken();
             int reportNum = Integer.parseInt(stkz.nextToken());
             System.out.println("Details requested for reportNum " + reportNum);
-            ReportUnit rUnit = reportUnits.get(reportNum - 1); //-1 to adjust index
-            DetailsFrame detailsFrame = new DetailsFrame(mParser.getMetricsListing(), rUnit);
+            ReportUnit reportUnit = reportUnits.get(reportNum - 1); //-1 to adjust index
+            DetailsFrame detailsFrame = new DetailsFrame(metricsParser.getMetricsListing(), reportUnit);
             detailsFrame.setVisible(true);
             detailsFrame.revalidate();
         }
@@ -641,7 +647,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             deForm.displayDateFilterEntryForm();
         } else if (evt.getActionCommand().equals("SelectMetrics")) {
             //Display ChooseMetricsForm to select metrics to display
-            ChooseMetricsForm cmForm = new ChooseMetricsForm(this, mParser, selectedMetrics);
+            ChooseMetricsForm cmForm = new ChooseMetricsForm(this, metricsParser, selectedMetrics);
             cmForm.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             cmForm.pack();
             RefineryUtilities.centerFrameOnScreen(cmForm);
@@ -655,36 +661,30 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     }
     
     /**
-     * Remove and nullify all the report units GUI components
+     * Remove all the report units and the GUI components.
+     * // TODO: do we need to take such drastic measures as below? [Freek]
      */
     public void clean() {
         if (desktopPane != null) {
             desktopPane.removeAll();
-            desktopPane = null;
         }
         if (ticGraphPane != null) {
             ticGraphPane.removeAll();
-            ticGraphPane = null;
         }
         if (chartPanelList != null) {
             chartPanelList.clear();
-            chartPanelList = null;
         }
         if (chartCheckBoxFlags != null) {
             chartCheckBoxFlags.clear();
-            chartCheckBoxFlags = null;
         }
         if (reportUnits != null) {
             reportUnits.clear();
-            reportUnits = null;
         }
         if (orderedReportUnits != null) {
             orderedReportUnits.clear();
-            orderedReportUnits = null;
         }
         if (sortButtons != null) {
             sortButtons.clear();
-            sortButtons = null;
         }
     }
     
@@ -828,16 +828,17 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         JPanel labelPanel = new JPanel();
         labelPanel.setFont(font);
         labelPanel.setBackground(Color.WHITE);
-        GridLayout layout = new GridLayout(qcParamNames.size(),1);
+        GridLayout layout = new GridLayout(qcParamValues.size(), 1);
         labelPanel.setLayout(layout);
         labelPanel.setPreferredSize(new Dimension(LABEL_PANEL_SIZE, CHART_HEIGHT));
         // add qcparam labels, one in each cell
-        for (int i = 0; i < qcParamNames.size(); ++i) { 
-            Color fgColor = LABEL_COLORS.get(i%LABEL_COLORS.size());
-            JLabel thisLabel = new JLabel(qcParamValues.get(i) + ": " + (reportUnit.getMetricsValueFromKey(qcParamKeys.get(i))));
-            thisLabel.setFont(font);
-            thisLabel.setForeground(fgColor);
-            labelPanel.add(thisLabel);
+        for (int metricIndex = 0; metricIndex < qcParamValues.size(); metricIndex++) {
+            final Color foregroundColor = LABEL_COLORS.get(metricIndex % LABEL_COLORS.size());
+            final JLabel label = new JLabel(qcParamValues.get(metricIndex) + ": " +
+                                            reportUnit.getMetricsValueFromKey(qcParamKeys.get(metricIndex)));
+            label.setFont(font);
+            label.setForeground(foregroundColor);
+            labelPanel.add(label);
         }
         JPanel displayPanel = new JPanel();
         displayPanel.add(checkPanel, 0);

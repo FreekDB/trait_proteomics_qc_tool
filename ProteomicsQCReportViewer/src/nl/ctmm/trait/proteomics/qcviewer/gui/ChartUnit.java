@@ -3,7 +3,6 @@ package nl.ctmm.trait.proteomics.qcviewer.gui;
 import java.awt.Color;
 import java.awt.Font;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.List;
 import org.jfree.chart.JFreeChart;
@@ -27,18 +26,15 @@ public class ChartUnit {
             Color.BLUE, Color.DARK_GRAY, Color.GRAY, Color.MAGENTA, Color.ORANGE,
             Color.PINK, Color.LIGHT_GRAY, Color.RED, Color.GREEN);
 
-	private XYSeries graphDataSeries;
     private JFreeChart ticChart;
     private NumberAxis domainAxis;
     private double maxIntensity;
 
     public ChartUnit(final String msrunName, final int reportNum, final XYSeries series) {
-        this.graphDataSeries = series;
         String maxIntensityString = "N/A";
         if (series != null) {
             maxIntensity = series.getMaxY();
-            NumberFormat formatter = new DecimalFormat("0.0000E0");
-            maxIntensityString = formatter.format(maxIntensity);
+            maxIntensityString = new DecimalFormat("0.0000E0").format(maxIntensity);
         } 
         domainAxis = new NumberAxis(null);
         final XYBarRenderer renderer = createBarRenderer(reportNum);
@@ -69,10 +65,10 @@ public class ChartUnit {
         renderer.setGradientPaintTransformer(null);
         renderer.setSeriesOutlinePaint(0, currentColor);
 
-        //setBaseFillPaint is equivalent to setFillPaint(deprecated) [Freek] 
-        //setBasePaint is equivalent to setPaint(deprecated) [Freek]
+        // TODO: check whether this is equivalent to calling setFillPaint and setPaint without series index. [Freek]
         renderer.setBaseFillPaint(currentColor);
         renderer.setBasePaint(currentColor);
+
         renderer.setBarPainter(new StandardXYBarPainter());
         renderer.setSeriesStroke(0, null);
         renderer.setBasePaint(Color.WHITE);
@@ -92,15 +88,6 @@ public class ChartUnit {
         return maxIntensity;
     }
 
-    /**
-     * Set the value of parameter graphDataSeries.
-     * @param series the series to use.
-     */
-    public void setGraphDataSeries(final XYSeries series) {
-        this.graphDataSeries = series;
-        maxIntensity = graphDataSeries.getMaxY();
-    }
-    
     /**
      * Get corresponding tiChart
      * @return ticChart
