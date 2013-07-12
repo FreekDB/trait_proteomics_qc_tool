@@ -1,17 +1,14 @@
 package nl.ctmm.trait.proteomics.qcviewer.input;
 
-import java.awt.image.BufferedImage;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import nl.ctmm.trait.proteomics.qcviewer.gui.ChartUnit;
-import nl.ctmm.trait.proteomics.qcviewer.utils.Utilities;
-
 import org.jfree.data.xy.XYSeries;
 
 /**
@@ -43,7 +40,7 @@ public class ReportUnit {
     private BufferedImage ioncount = Utilities.getNotAvailableImage();
     private String heatmapName = Utilities.NOT_AVAILABLE_ICON_NAME;
     private String ioncountName = Utilities.NOT_AVAILABLE_ICON_NAME;*/
-    public HashMap<?, ?> metricsValues = null;
+    public Map<String, String> metricsValues;
     //ChartUnit to hold corresponding chart
     private ChartUnit ticChartUnit = null;
 
@@ -65,14 +62,8 @@ public class ReportUnit {
      * Get value of metrics based on metrics key - e.g. dyn:ds-1a
      * @param key metrics key in String format
      */
-    public String getMetricsValueFromKey(String key) {
-        String value = "N/A";
-        if (metricsValues == null) { //Corresponding metrics.json file not found for this report
-            return value; 
-        } else if (metricsValues.containsKey(key)) {
-            value = (String) metricsValues.get(key);
-        } 
-        return value;
+    public String getMetricsValueFromKey(final String key) {
+        return (metricsValues != null && metricsValues.containsKey(key)) ? metricsValues.get(key) : "N/A";
     }
 
     /**
@@ -140,8 +131,8 @@ public class ReportUnit {
     }
 
     /**
-     * Create ticChart and corresponding chart data for this report unit 
-     * @param series
+     * Create ticChart and corresponding chart data for this report unit
+     * @param series a sequence of (x, y) data items
      */
     public void createChartUnit(final XYSeries series) {
         if (ticChartUnit != null) {
@@ -164,14 +155,9 @@ public class ReportUnit {
      * @param fileSizeString size of the RAW MS data file (in MB)
      */
     public void setFileSizeString(final String fileSizeString) {
-    	if (fileSizeString == null) {
-    		this.fileSizeString = "N/A";
-    		fileSize = null;
-    	} else {
-            fileSize = (!fileSizeString.equals("N/A") && fileSizeString != null && !fileSizeString.trim().isEmpty())
-                    ? Double.parseDouble(fileSizeString)
-                    : null;
-    	}
+        fileSize = (fileSizeString != null && !fileSizeString.equals("N/A") && !fileSizeString.trim().isEmpty())
+                   ? Double.parseDouble(fileSizeString)
+                   : null;
     }
 
     /**
@@ -359,11 +345,11 @@ public class ReportUnit {
     
     /**
      * Set values of QC metrics in this report 
-     * @param metricsValues Hashmap containing QC metrics keys and corresponding values 
+     * @param metricsValues map containing QC metrics keys and corresponding values
      */
-    public void setMetricsValues(HashMap<String, String> metricsValues) {
+    public void setMetricsValues(final Map<String, String> metricsValues) {
         if (metricsValues != null) {
-            this.metricsValues = (HashMap<?, ?>) metricsValues.clone();
+            this.metricsValues = new HashMap<>(metricsValues);
             //Set values of certain parameters to aid in the comparison
             this.fileSizeString = this.getMetricsValueFromKey("generic:f_size");
             setFileSizeString(fileSizeString);
@@ -378,9 +364,7 @@ public class ReportUnit {
      * Set values of QC metrics in this report 
      * @return metricsValues Hashmap containing QC metrics keys and corresponding values 
      */
-    public HashMap<?, ?> getMetricsValues() {
-        if (metricsValues != null) {
-            return metricsValues;
-        } else return null;
+    public Map<String, String> getMetricsValues() {
+        return metricsValues;
     }
 }

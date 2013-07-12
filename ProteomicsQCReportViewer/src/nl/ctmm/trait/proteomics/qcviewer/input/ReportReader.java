@@ -1,11 +1,9 @@
 package nl.ctmm.trait.proteomics.qcviewer.input;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -41,10 +39,10 @@ public class ReportReader extends JFrame {
     );
 
     private int currentReportNum;
-    private JsonMetricsReader jmReader = null; 
+    private JsonMetricsReader jsonMetricsReader;
     
-    public ReportReader(MetricsParser mParser) {
-        jmReader = new JsonMetricsReader(mParser);
+    public ReportReader(final MetricsParser metricsParser) {
+        jsonMetricsReader = new JsonMetricsReader(metricsParser);
     }
 
     /**
@@ -62,8 +60,8 @@ public class ReportReader extends JFrame {
         1) metrics.json: String file containing values of all QC metrics in json object format 
         2) msrun*_ticmatrix.csv
         */
-        String allErrorMessages = ""; 
-        final List<ReportUnit> reportUnits = new ArrayList<ReportUnit>();
+//        String allErrorMessages = "";
+        final List<ReportUnit> reportUnits = new ArrayList<>();
         logger.log(Level.ALL, "Root folder = " + rootDirectoryName);
         for (final File yearDirectory : getYearDirectories(rootDirectoryName)) {
             logger.fine("Year = " + yearDirectory.getName());
@@ -81,15 +79,16 @@ public class ReportReader extends JFrame {
                         e.printStackTrace();
                     }
                     if (d.compareTo(fromDate)>=0 && d.compareTo(tillDate)<=0) {
-                        boolean errorFlag = false; 
                         final File[] dataFiles = msRunDirectory.listFiles();
+                        boolean errorFlag = false;
                         //Check existence of "metrics.json", "_ticmatrix.csv"
                         String errorMessage = checkDataFilesAvailability(msRunDirectory.getName(), dataFiles);
                         if (!errorMessage.equals("")) {
                             errorFlag = true;
-                            allErrorMessages += errorMessage + "\n";
+//                            allErrorMessages += errorMessage + "\n";
                         }
-                        reportUnits.add(createReportUnit(yearDirectory.getName(), monthDirectory.getName(), msRunDirectory.getName(), dataFiles, errorFlag));
+                        reportUnits.add(createReportUnit(yearDirectory.getName(), monthDirectory.getName(),
+                                                         msRunDirectory.getName(), dataFiles, errorFlag));
                     } 
                 }
             }
@@ -122,8 +121,7 @@ public class ReportReader extends JFrame {
                 }
             }
         }
-        if (metrics && ticMatrix) {
-        } else {
+        if (!metrics || !ticMatrix) {
             errorMessage = "<html>In Folder " + msrunName + " following filetypes are missing:";
             if (!metrics) {
                 errorMessage += "metrics.json ";
@@ -136,23 +134,23 @@ public class ReportReader extends JFrame {
         return errorMessage;
     }
     
-    /**
-     * Save errorMessages to errorMEssages.txt file
-     * @param allErrorMessages 
-     */
-    private void saveErrorMessages(String allErrorMessages) {
-        try {
-            //Save errorMessages to errorMEssages.txt file
-            FileWriter fWriter = new FileWriter("QCReports\\errorMessages.txt", true);
-            BufferedWriter bWriter = new BufferedWriter(fWriter);
-            Date date = new Date();
-            bWriter.write(date.toString() + "\n");
-            bWriter.write(allErrorMessages + "\n");
-            bWriter.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    /**
+//     * Save errorMessages to errorMessages.txt file
+//     * @param allErrorMessages
+//     */
+//    private void saveErrorMessages(String allErrorMessages) {
+//        try {
+//            //Save errorMessages to errorMEssages.txt file
+//            FileWriter fWriter = new FileWriter("QCReports\\errorMessages.txt", true);
+//            BufferedWriter bWriter = new BufferedWriter(fWriter);
+//            Date date = new Date();
+//            bWriter.write(date.toString() + "\n");
+//            bWriter.write(allErrorMessages + "\n");
+//            bWriter.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     /**
      * Retrieve the year directories in the root directory.
@@ -161,7 +159,7 @@ public class ReportReader extends JFrame {
      * @return the list of year directories.
      */
     private List<File> getYearDirectories(final String rootDirectoryName) {
-        final List<File> yearDirectories = new ArrayList<File>();
+        final List<File> yearDirectories = new ArrayList<>();
         final File rootDirectory = new File(rootDirectoryName);
         if (rootDirectory.exists()) {
             final File[] yearFiles = rootDirectory.listFiles();
@@ -204,7 +202,7 @@ public class ReportReader extends JFrame {
      * @return the list of month directories.
      */
     private List<File> getMonthDirectories(final File yearDirectory) {
-        final List<File> monthDirectories = new ArrayList<File>();
+        final List<File> monthDirectories = new ArrayList<>();
         final File[] monthFiles = yearDirectory.listFiles();
         if (monthFiles != null) {
             for (final File monthFile : monthFiles) {
@@ -223,7 +221,7 @@ public class ReportReader extends JFrame {
      * @return the list of MS run directories.
      */
     private List<File> getMsRunDirectories(final File monthDirectory) {
-        final ArrayList<File> msRunDirectories = new ArrayList<File>();
+        final ArrayList<File> msRunDirectories = new ArrayList<>();
         final File[] msRunFiles = monthDirectory.listFiles();
         if (msRunFiles != null) {
             for (final File msRunFile : msRunFiles) {
@@ -256,7 +254,7 @@ public class ReportReader extends JFrame {
             if (dataFile.isFile()) {
                 logger.fine("File " + dataFileName);
                 if (dataFileName.equals("metrics.json")) {
-				    reportUnit.setMetricsValues(jmReader.readJsonValues(dataFile));
+				    reportUnit.setMetricsValues(jsonMetricsReader.readJsonValues(dataFile));
 				} else if (dataFileName.endsWith("_ticmatrix.csv")) {
 				    reportUnit.createChartUnit(readXYSeries(msrunName, dataFile));
 				}
