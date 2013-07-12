@@ -51,7 +51,7 @@ public class ReportUnit {
      * @param msrunName the unique msrun name - also represents RAW file uniquely
      * @param reportNum the unique report number.
      */
-    public ReportUnit(String msrunName, int reportNum) {
+    public ReportUnit(final String msrunName, final int reportNum) {
         this.msrunName = msrunName;
         this.reportNum = reportNum;
         //Create default chart unit to handle problems due to missing series data 
@@ -71,7 +71,7 @@ public class ReportUnit {
      *
      * @param reportNum Serial number of current ReportUnit
      */
-    public void setReportNum(int reportNum) {
+    public void setReportNum(final int reportNum) {
         this.reportNum = reportNum;
     }
     
@@ -108,7 +108,7 @@ public class ReportUnit {
      * 
      */
     
-    public void setErrorFlag(boolean flag) {
+    public void setErrorFlag(final boolean flag) {
         errorFlag = flag; 
     }
     
@@ -135,9 +135,6 @@ public class ReportUnit {
      * @param series a sequence of (x, y) data items
      */
     public void createChartUnit(final XYSeries series) {
-        if (ticChartUnit != null) {
-            ticChartUnit = null;
-        }
         ticChartUnit = new ChartUnit(msrunName, reportNum, series);
     }
     
@@ -174,10 +171,9 @@ public class ReportUnit {
      *
      * @param detailsUri Complete link address to report on the server
      */
-    public void setDetailsUri(String detailsUri) {
-        detailsUri = detailsUri.replace(" ", "%20");
+    public void setDetailsUri(final String detailsUri) {
         try {
-            this.detailsUri = new URI(detailsUri);
+            this.detailsUri = new URI(detailsUri.replace(" ", "%20"));
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
@@ -197,7 +193,7 @@ public class ReportUnit {
      *
      * @param ms1Spectra number of ms1spectra
      */
-    public void setMs1Spectra(String ms1Spectra) {
+    public void setMs1Spectra(final String ms1Spectra) {
         this.ms1Spectra = ms1Spectra;
     }
 
@@ -215,7 +211,7 @@ public class ReportUnit {
      *
      * @param ms2Spectra number of ms2spectra
      */
-    public void setMs2Spectra(String ms2Spectra) {
+    public void setMs2Spectra(final String ms2Spectra) {
         this.ms2Spectra = ms2Spectra;
     }
 
@@ -233,7 +229,7 @@ public class ReportUnit {
      *
      * @param measured day and time at which QC processing of the RAW MS data file begun
      */
-    public void setMeasured(String measured) {
+    public void setMeasured(final String measured) {
         this.measured = measured;
     }
 
@@ -251,15 +247,15 @@ public class ReportUnit {
      *
      * @param runtime time (in hh:mm:ss) taken to complete the QC processing of RAW data file
      */
-    public void setRuntime(String runtime) {
+    public void setRuntime(final String runtime) {
         this.runtime = runtime;
     }
 
 
     public void printReportValues() {
         logger.log(Level.ALL, "Num : " + this.reportNum + " fileSize = " + this.fileSizeString + " ms1Spectra = " +
-                              this.ms1Spectra + " ms2Spectra = " + this.ms2Spectra + " measured = " + measured + " runtime = " +
-                              runtime);
+                              this.ms1Spectra + " ms2Spectra = " + this.ms2Spectra + " measured = " + measured +
+                              " runtime = " + runtime);
     }
 
     /**
@@ -269,8 +265,8 @@ public class ReportUnit {
      * @return if this report unit has higher value return 1, equal value return 0, lower value return -1
      */
     public int compareTo(final ReportUnit otherUnit, final String sortKey) {
-        String thisValue = this.getMetricsValueFromKey(sortKey);
-        String otherValue = otherUnit.getMetricsValueFromKey(sortKey);
+        final String thisValue = this.getMetricsValueFromKey(sortKey);
+        final String otherValue = otherUnit.getMetricsValueFromKey(sortKey);
         try {
             if (thisValue.equals(otherValue)) {
                 return 0; 
@@ -278,18 +274,20 @@ public class ReportUnit {
                 return 1;
             } else if (thisValue.equals("N/A")) { //otherValue is valid and present
                 return -1;
-            }else if (sortKey.equals("No.")) {
+            } else if (sortKey.equals("No.")) {
                 if (this.reportNum > otherUnit.reportNum) {
                     return 1;
                 } else if (this.reportNum < otherUnit.reportNum) {
-                return -1;
-                } else return 0; //equal reportNum
+                    return -1;
+                } else
+                    return 0; //equal reportNum
             } else if (sortKey.equals("generic:f_size")) {
                 if (this.fileSize > otherUnit.fileSize) {
                     return 1;
                 } else if (this.fileSize < otherUnit.fileSize) {
                     return -1;
-                } else return 0;
+                } else
+                    return 0;
             } else if (sortKey.equals("generic:ms1_spectra")) {
                 int thisms1Spectra = Integer.parseInt(thisValue);
                 int otherms1Spectra = Integer.parseInt(otherValue);
@@ -337,7 +335,8 @@ public class ReportUnit {
                 } else return 0; 
             }
         } catch (Exception e) {
-            System.out.println("Exception type " + e.getClass().toString() + " thisValue = " + thisValue + " otherValue = " + otherValue);
+            System.out.println("Exception type " + e.getClass().toString() + " thisValue = " + thisValue +
+                               " otherValue = " + otherValue);
             e.printStackTrace();
         }
         return 0; 
@@ -361,8 +360,8 @@ public class ReportUnit {
     }
     
     /**
-     * Set values of QC metrics in this report 
-     * @return metricsValues Hashmap containing QC metrics keys and corresponding values 
+     * Get map with values of QC metrics in this report
+     * @return metricsValues map containing QC metrics keys and corresponding values
      */
     public Map<String, String> getMetricsValues() {
         return metricsValues;
