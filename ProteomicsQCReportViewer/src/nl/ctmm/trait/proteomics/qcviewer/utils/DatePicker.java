@@ -76,7 +76,8 @@ public class DatePicker {
 		java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat(
 				"MMMM yyyy");
 		java.util.Calendar cal = java.util.Calendar.getInstance();
-		cal.set(year, month, 1);
+        //noinspection MagicConstant
+        cal.set(year, month, 1);
 		int dayOfWeek = cal.get(java.util.Calendar.DAY_OF_WEEK);
 		int daysInMonth = cal.getActualMaximum(java.util.Calendar.DAY_OF_MONTH);
 		for (int x = 6 + dayOfWeek, day = 1; day <= daysInMonth; x++, day++)
@@ -91,7 +92,8 @@ public class DatePicker {
 		java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat(
 				Constants.SIMPLE_DATE_FORMAT_STRING);
 		java.util.Calendar cal = java.util.Calendar.getInstance();
-		cal.set(year, month, Integer.parseInt(day));
+        //noinspection MagicConstant
+        cal.set(year, month, Integer.parseInt(day));
 		return sdf.format(cal.getTime());
 	}
 }

@@ -17,8 +17,8 @@ public interface Constants {
     static final String PROPERTY_GUI_VERSION = "GUIVersion"; 
     static final String PROPERTY_SHOW_REPORTS_FROM_DATE = "ShowReportsFromDate";
     static final String PROPERTY_SHOW_REPORTS_TILL_DATE = "ShowReportsTillDate";
-    static final String DEFALUT_REPORTS_DISPLAY_PERIOD = "DefaultReportsDisplayPeriod";
-    static final String DEFALUT_REPORTS_DISPLAY_PERIOD_VALUE = "14"; //show reports from last two weeks by default
+//    static final String DEFAULT_REPORTS_DISPLAY_PERIOD = "DefaultReportsDisplayPeriod";
+//    static final String DEFAULT_REPORTS_DISPLAY_PERIOD_VALUE = "14"; //show reports from last two weeks by default
     static final String SIMPLE_DATE_FORMAT_STRING = "dd/MM/yyyy";
     static final String PROPERTY_METRICS_LISTING_FILE = "MetricsListing.txt";
     static final String PROPERTY_PROJECT_LOGO_FILE = "images\\traitctmm.jpg";
