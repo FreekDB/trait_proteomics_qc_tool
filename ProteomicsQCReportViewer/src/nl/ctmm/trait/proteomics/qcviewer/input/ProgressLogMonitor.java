@@ -11,6 +11,8 @@ package nl.ctmm.trait.proteomics.qcviewer.input;
  *    Pascal Essiembre - initial API and implementation
  ******************************************************************************/
 
+// TODO: check the license to make sure we can use this class. [Freek]
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URL;
@@ -24,7 +26,6 @@ import java.util.TimerTask;
  * @author Pascal Essiembre
  */
 public class ProgressLogMonitor {
-
   private static final ProgressLogMonitor instance = new ProgressLogMonitor();
 
   private Timer timer;
@@ -46,7 +47,7 @@ public class ProgressLogMonitor {
   private ProgressLogMonitor() {
     // Create timer, run timer thread as daemon.
     timer = new Timer(true);
-    timerEntries = new Hashtable<String, FileMonitorTask>();
+    timerEntries = new Hashtable<>();
   }
 
   /**
