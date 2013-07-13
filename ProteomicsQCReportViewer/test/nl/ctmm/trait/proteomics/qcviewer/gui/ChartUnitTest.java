@@ -7,8 +7,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
 import org.jfree.data.xy.XYSeries;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,17 +57,6 @@ public class ChartUnitTest {
         assertEquals(maxIntensity1, chartUnit1.getMaxTicIntensity(), 10);
         assertEquals(maxIntensity2, chartUnit2.getMaxTicIntensity(), 0);
         assertEquals(maxIntensity3, chartUnit3.getMaxTicIntensity(), 0);
-    }
-
-    /**
-     * Test the <code>getTicChart</code> and <code>getDomainAxis</code> methods.
-     */
-    @Test
-    public void testGetTicChartGetDomainAxis() {
-        assertEquals("Expecting JFreeChart class.", JFreeChart.class, chartUnit1.getTicChart().getClass());
-        assertEquals("Expecting JFreeChart class.", JFreeChart.class, chartUnit2.getTicChart().getClass());
-        assertEquals("Expecting NumberAxis class.", NumberAxis.class, chartUnit1.getDomainAxis().getClass());
-        assertEquals("Expecting NumberAxis class.", NumberAxis.class, chartUnit2.getDomainAxis().getClass());
     }
 
     /**
