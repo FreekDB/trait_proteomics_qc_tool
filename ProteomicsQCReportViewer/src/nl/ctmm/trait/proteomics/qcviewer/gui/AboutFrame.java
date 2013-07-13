@@ -39,7 +39,7 @@ public class AboutFrame extends JFrame implements ActionListener {
     private static final Logger logger = Logger.getLogger(AboutFrame.class.getName());
 
     /**
-     * Serialization universal version number (identifier) for this class.
+     * The version number for (de)serialization of this class (UID: universal identifier).
      */
     private static final long serialVersionUID = 1;
 

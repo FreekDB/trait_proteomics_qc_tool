@@ -26,7 +26,10 @@ import org.jfree.ui.RefineryUtilities;
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
 public class DetailsFrame extends JFrame implements ActionListener {
-    private static final long serialVersionUID = 1L;
+    /**
+     * The version number for (de)serialization of this class (UID: universal identifier).
+     */
+    private static final long serialVersionUID = 1;
 
     /**
       * Constructor
@@ -106,7 +109,10 @@ public class DetailsFrame extends JFrame implements ActionListener {
      * Renderer class specifying cell backgrounds for the details table.
      */
     class DetailsTableCellRender extends DefaultTableCellRenderer {
-        private static final long serialVersionUID = 1L;
+        /**
+         * The version number for (de)serialization of this class (UID: universal identifier).
+         */
+        private static final long serialVersionUID = 1;
 
         public DetailsTableCellRender() {
             setOpaque(true);  

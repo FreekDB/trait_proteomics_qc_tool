@@ -29,10 +29,15 @@ import org.jfree.data.xy.XYSeries;
  */
 public class ReportReader extends JFrame {
     /**
-     * 
+     * The logger for this class.
      */
-    private static final long serialVersionUID = 1L;
     private static final Logger logger = Logger.getLogger(ReportReader.class.getName());
+
+    /**
+     * The version number for (de)serialization of this class (UID: universal identifier).
+     */
+    private static final long serialVersionUID = 1;
+
     private static final List<String> MONTH_DIRS = Arrays.asList(
             "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
     );

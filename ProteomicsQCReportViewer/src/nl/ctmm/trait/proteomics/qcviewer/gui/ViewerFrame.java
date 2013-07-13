@@ -75,7 +75,11 @@ import org.jfree.ui.RefineryUtilities;
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
 public class ViewerFrame extends JFrame implements ActionListener, ItemListener, ChangeListener, MouseListener {
-    private static final long serialVersionUID = 1L;
+    /**
+     * The version number for (de)serialization of this class (UID: universal identifier).
+     */
+    private static final long serialVersionUID = 1;
+
     private static final List<Color> LABEL_COLORS = Arrays.asList(
             Color.BLUE, Color.DARK_GRAY, Color.GRAY, Color.MAGENTA, Color.ORANGE, Color.RED, Color.BLACK);
     private static final int CHECK_PANEL_SIZE = 90;

@@ -5,12 +5,15 @@ package nl.ctmm.trait.proteomics.qcviewer.gui;
 import javax.swing.*;
 import java.util.*;
 
-public class SortedListModel extends AbstractListModel {
-
- /**
- * SortedListModel to sort list elements during metrics selection 
+/**
+ * SortedListModel to sort list elements during metrics selection.
  */
-    private static final long serialVersionUID = 1L;
+public class SortedListModel extends AbstractListModel {
+    /**
+     * The version number for (de)serialization of this class (UID: universal identifier).
+     */
+    private static final long serialVersionUID = 1;
+
 // Define a SortedSet
   SortedSet model;
 

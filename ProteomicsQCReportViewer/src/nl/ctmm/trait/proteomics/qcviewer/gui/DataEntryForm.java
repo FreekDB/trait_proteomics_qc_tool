@@ -34,8 +34,11 @@ import org.jfree.ui.RefineryUtilities;
  */
 
 public class DataEntryForm extends JFrame implements ActionListener, Runnable{
+    /**
+     * The version number for (de)serialization of this class (UID: universal identifier).
+     */
+    private static final long serialVersionUID = 1;
 
-    private static final long serialVersionUID = 1L;
     JTextField inputText; 
     Main parentMain = null; 
     ViewerFrame parentViewerFrame = null; 

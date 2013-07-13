@@ -9,11 +9,14 @@ import java.awt.Rectangle;
 import javax.swing.JDesktopPane;
 import javax.swing.Scrollable;
 
+/**
+ * This class represents the scrollable desktop pane.
+ */
 public class ScrollDesktop extends JDesktopPane implements Scrollable {
     /**
-     * This class represents Scrollable JDesktopPane
+     * The version number for (de)serialization of this class (UID: universal identifier).
      */
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1;
 
     public Dimension getPreferredScrollableViewportSize() {
         return getPreferredSize();
