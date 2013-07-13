@@ -15,31 +15,46 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 /**
- * The object of this class represents tic chart and corresponding plot, domainAxis, rangeAxis and 
- * renderer of a single msreading.
+ * The object of this class represents a tic chart (including domain axis and max intensity) of a single msrun.
  *
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
 public class ChartUnit {
+    /**
+     * The list of alternating colors that is used to draw the tic charts.
+     */
     private static final List<Color> GRAPH_COLORS = Arrays.asList(
             Color.BLUE, Color.DARK_GRAY, Color.GRAY, Color.MAGENTA, Color.ORANGE,
             Color.PINK, Color.LIGHT_GRAY, Color.RED, Color.GREEN);
 
+    /**
+     * The JFreeChart object used to draw this tic chart.
+     */
     private JFreeChart ticChart;
-    private NumberAxis domainAxis;
+
+    /**
+     * The maximum intensity, which is equal to the maximum y value in the data series.
+     */
     private double maxIntensity;
 
-    public ChartUnit(final String msrunName, final int reportNum, final XYSeries series) {
+    /**
+     * Create a chart unit with the specified msrun name, report number and data series.
+     *
+     * @param msrunName the name of the msrun.
+     * @param reportNumber the report number of the msrun.
+     * @param series the data series.
+     */
+    public ChartUnit(final String msrunName, final int reportNumber, final XYSeries series) {
         String maxIntensityString = "N/A";
         if (series != null) {
             maxIntensity = series.getMaxY();
             maxIntensityString = new DecimalFormat("0.0000E0").format(maxIntensity);
-        } 
-        domainAxis = new NumberAxis(null);
-        final XYBarRenderer renderer = createBarRenderer(reportNum);
+        }
+        final XYBarRenderer renderer = createBarRenderer(reportNumber);
         final XYSeriesCollection xyDataset = new XYSeriesCollection(series);
         //Prepare chart using plot - this is the best option to control domain and range axes
+        final NumberAxis domainAxis = new NumberAxis(null);
         final NumberAxis rangeAxis = new NumberAxis(null);
         final XYPlot plot = new XYPlot(xyDataset, domainAxis, rangeAxis, renderer);
         rangeAxis.setNumberFormatOverride(new DecimalFormat("0E00"));
@@ -51,24 +66,22 @@ public class ChartUnit {
 
     /**
      * Create a <code>XYBarRenderer</code>.
-     * @param reportNum the report number, which is used for picking a color.
+     *
+     * @param reportNumber the report number, which is used for picking a color.
      * @return the <code>XYBarRenderer</code>.
      */
-    private XYBarRenderer createBarRenderer(final int reportNum) {
+    private XYBarRenderer createBarRenderer(final int reportNumber) {
         final XYBarRenderer renderer = new XYBarRenderer();
         //Sets the percentage amount by which the bars are trimmed
         renderer.setMargin(0.98); //Default renderer margin is 0.0
         renderer.setDrawBarOutline(false);
         renderer.setShadowVisible(false);
-        final Color currentColor = GRAPH_COLORS.get(reportNum % GRAPH_COLORS.size());
+        final Color currentColor = GRAPH_COLORS.get(reportNumber % GRAPH_COLORS.size());
         renderer.setSeriesPaint(0, currentColor);
         renderer.setGradientPaintTransformer(null);
         renderer.setSeriesOutlinePaint(0, currentColor);
-
-        // TODO: check whether this is equivalent to calling setFillPaint and setPaint without series index. [Freek]
         renderer.setBaseFillPaint(currentColor);
         renderer.setBasePaint(currentColor);
-
         renderer.setBarPainter(new StandardXYBarPainter());
         renderer.setSeriesStroke(0, null);
         renderer.setBasePaint(Color.WHITE);
@@ -81,26 +94,20 @@ public class ChartUnit {
     }
 
     /**
-     * Get max intensity of TIC graph
-     * @return Max intensity of TIC graph
-     */
-    public double getMaxTicIntensity() {
-        return maxIntensity;
-    }
-
-    /**
-     * Get corresponding tiChart
-     * @return ticChart
+     * Get the corresponding tic chart.
+     *
+     * @return the tic chart.
      */
     public JFreeChart getTicChart() {
         return ticChart;
     }
-    
+
     /**
-     * Get corresponding domainAxis
-     * @return domainAxis
+     * Get the maximum intensity of the tic graph.
+     *
+     * @return the maximum intensity of the tic graph.
      */
-    public NumberAxis getDomainAxis() {
-        return domainAxis;
+    public double getMaxTicIntensity() {
+        return maxIntensity;
     }
 }
