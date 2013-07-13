@@ -10,7 +10,7 @@ public class SortedListModel extends AbstractListModel {
  /**
  * SortedListModel to sort list elements during metrics selection 
  */
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 // Define a SortedSet
   SortedSet model;
 
@@ -76,7 +76,7 @@ public class SortedListModel extends AbstractListModel {
   }
 
 public void removeElementAt(int index) {
-	Object obj = getElementAt(index);
-	removeElement(obj);
+    Object obj = getElementAt(index);
+    removeElement(obj);
 }
 }

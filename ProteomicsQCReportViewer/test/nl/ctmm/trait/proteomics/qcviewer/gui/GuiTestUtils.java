@@ -15,7 +15,7 @@ public class GuiTestUtils {
      * @return the new report unit.
      */
     public static ReportUnit createReportUnit(final int reportNumber) {
-    	//    public ReportUnit(String msrunName, int reportNum) 
+        //    public ReportUnit(String msrunName, int reportNum)
         return new ReportUnit("msrun", reportNumber);
     }
 }

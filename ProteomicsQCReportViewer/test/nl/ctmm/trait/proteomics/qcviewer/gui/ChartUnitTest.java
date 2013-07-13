@@ -50,11 +50,11 @@ public class ChartUnitTest {
      * Test the <code>getMaxTicIntensity</code> method.
      */
     
-	@Test
+    @Test
     public void testGetMaxTicIntensity() {
-    	double maxIntensity1 = 9.96046420611126E9;
-    	double maxIntensity2 = 0.0;
-    	double maxIntensity3 = 9.9600473163739E9;
+        double maxIntensity1 = 9.96046420611126E9;
+        double maxIntensity2 = 0.0;
+        double maxIntensity3 = 9.9600473163739E9;
         assertEquals(0, chartUnit2.getMaxTicIntensity(), 0);
         assertEquals(maxIntensity1, chartUnit1.getMaxTicIntensity(), 10);
         assertEquals(maxIntensity2, chartUnit2.getMaxTicIntensity(), 0);

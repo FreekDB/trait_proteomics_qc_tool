@@ -634,7 +634,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                 cPanel.repaint();
             }
         } else if (evt.getActionCommand().startsWith("Sort")) {
-        	//Sort chart frame list according to chosen Sort criteria
+            //Sort chart frame list according to chosen Sort criteria
             newSortCriteria = evt.getActionCommand();
             sortChartFrameList();
         } else if (evt.getActionCommand().equals("ChangeRootDirectory")) {

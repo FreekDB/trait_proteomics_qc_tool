@@ -174,8 +174,8 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
 
     class ToFromTransferHandler extends TransferHandler {
 
-		private static final long serialVersionUID = 1L;
-		private int index = 0;
+        private static final long serialVersionUID = 1L;
+        private int index = 0;
         int action; 
         String origin;
         //ToTransferHandler
