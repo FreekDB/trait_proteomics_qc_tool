@@ -15,7 +15,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 /**
- * The object of this class represents a tic chart (including domain axis and max intensity) of a single msrun.
+ * The object of this class represents a tic chart (including maximum intensity) of a single msrun.
  *
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
