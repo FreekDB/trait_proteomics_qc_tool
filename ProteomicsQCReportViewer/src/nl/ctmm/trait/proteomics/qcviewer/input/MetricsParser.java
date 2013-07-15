@@ -29,6 +29,18 @@ public class MetricsParser {
         this.appProperties = appProperties;
     }
     
+    /**
+     * Get all the metrics read from MetricsListing.txt file
+     * @return map containing key and value of metrics
+     * e.g. Key: "dyn:ds-1a" Value: "Ratios of Peptide Ions IDed (Once/Twice)"
+     */
+    public Map<String, String> getMetricsListing() {
+        if (allMetricsMap == null) {
+            readMetricsListing();
+        }
+        return allMetricsMap;
+    }
+
     /*
      * Reads all the metrics from MetricsListing.txt file
      */
@@ -52,18 +64,6 @@ public class MetricsParser {
         }
     }
 
-    /**
-     * Get all the metrics read from MetricsListing.txt file
-     * @return map containing key and value of metrics
-     * e.g. Key: dyn:ds-1a Value: Ratios of Peptide Ions IDed (Once/Twice)
-     */
-    public Map<String, String> getMetricsListing() {
-        if (allMetricsMap == null) {
-            readMetricsListing();
-        }
-        return allMetricsMap;
-    }
-    
     /**
      * Update metrics in the report frame
      * Update TopColumnNamesV2 property from appProperties file 
