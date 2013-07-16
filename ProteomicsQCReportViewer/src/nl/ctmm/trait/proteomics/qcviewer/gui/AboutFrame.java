@@ -3,7 +3,6 @@ package nl.ctmm.trait.proteomics.qcviewer.gui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -42,11 +41,6 @@ public class AboutFrame extends JFrame implements ActionListener {
      * The version number for (de)serialization of this class (UID: universal identifier).
      */
     private static final long serialVersionUID = 1;
-
-    /**
-     * The font used for the text areas in the about frame.
-     */
-    private static final Font FONT = new Font("Garamond", Font.PLAIN, 11);
 
     /**
      * The description for the application.
@@ -143,7 +137,7 @@ public class AboutFrame extends JFrame implements ActionListener {
      */
     private JTextArea createAboutTextArea(final String text) {
         final JTextArea textArea = new JTextArea(text);
-        textArea.setFont(FONT);
+        textArea.setFont(Constants.PLAIN_FONT);
         textArea.setEditable(false);
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);

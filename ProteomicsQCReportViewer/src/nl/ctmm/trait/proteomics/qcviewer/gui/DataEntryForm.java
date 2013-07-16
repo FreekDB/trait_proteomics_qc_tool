@@ -27,8 +27,9 @@ import nl.ctmm.trait.proteomics.qcviewer.utils.DatePicker;
 import org.jfree.ui.RefineryUtilities;
 
 /**
- * Cosists of following forms to accept user input: PreferredRootDirectory - from which to read QC reports,
- * Date selection form to select dates for showing QC reports within those dates  
+ * Consists of following forms to accept user input: PreferredRootDirectory - from which to read QC reports,
+ * Date selection form to select dates for showing QC reports within those dates.
+ *
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */

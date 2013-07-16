@@ -1,10 +1,10 @@
 package nl.ctmm.trait.proteomics.qcviewer.gui;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
+import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
@@ -58,8 +58,8 @@ public class ChartUnit {
         final NumberAxis rangeAxis = new NumberAxis(null);
         final XYPlot plot = new XYPlot(xyDataset, domainAxis, rangeAxis, renderer);
         rangeAxis.setNumberFormatOverride(new DecimalFormat("0E00"));
-        final Font font = new Font("Garamond", Font.BOLD, 13);
-        ticChart = new JFreeChart(msrunName + "     MaxIntensity = " + maxIntensityString, font, plot, false);
+        final String title = msrunName + "     MaxIntensity = " + maxIntensityString;
+        ticChart = new JFreeChart(title, Constants.CHART_TITLE_FONT, plot, false);
         // performance
         ticChart.setAntiAlias(false);
     }

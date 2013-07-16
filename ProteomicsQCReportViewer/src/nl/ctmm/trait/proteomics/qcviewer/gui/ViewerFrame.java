@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -83,9 +82,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * The version number for (de)serialization of this class (UID: universal identifier).
      */
     private static final long serialVersionUID = 1;
-
-    private static final String FONT_NAME = "Garamond";
-    private static final Font FONT = new Font(FONT_NAME, Font.BOLD, 11);
 
     private static final List<Color> LABEL_COLORS = Arrays.asList(
             Color.BLUE, Color.DARK_GRAY, Color.GRAY, Color.MAGENTA, Color.ORANGE, Color.RED, Color.BLACK);
@@ -203,13 +199,11 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     public void updatePipelineStatus(final String newPipelineStatus) {
         //logger.fine("ViewerFrame updatePipelineStatus");
-        this.pipelineStatus = newPipelineStatus; 
+        pipelineStatus = newPipelineStatus;
         statusPanel.removeAll();
-        int style = Font.BOLD;
-        Font font = new Font (FONT_NAME, style , 11);
-        String status = pipelineStatus + " | | | | | Number of report units = " + orderedReportUnits.size();
+        final String status = pipelineStatus + " | | | | | Number of report units = " + orderedReportUnits.size();
         statusLabel = new JLabel (status);
-        statusLabel.setFont(font);
+        statusLabel.setFont(Constants.DEFAULT_FONT);
         statusLabel.setBackground(Color.CYAN);
         statusPanel.setBackground(Color.CYAN);
         statusPanel.add(statusLabel);
@@ -397,11 +391,9 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         sortPanel.setLayout(layout);
         sortPanel.setPreferredSize(new Dimension(700, 130));
         sortPanel.setBackground(Color.WHITE); 
-        int style = Font.BOLD;
-        Font font = new Font (FONT_NAME, style , 11);
         for (int i = 0; i < selectedMetricsNames.size(); ++i) {
             JLabel thisLabel = new JLabel(selectedMetricsNames.get(i) + ": ");
-            thisLabel.setFont(font);
+            thisLabel.setFont(Constants.DEFAULT_FONT);
             thisLabel.setBackground(Color.WHITE);
             JPanel namePanel = new JPanel(new GridLayout(1,1));
             namePanel.add(thisLabel);
@@ -430,7 +422,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         }
         //Add sorting according to Compare 
         JLabel thisLabel = new JLabel("Compare: ");
-        thisLabel.setFont(font);
+        thisLabel.setFont(Constants.DEFAULT_FONT);
         thisLabel.setBackground(Color.WHITE);
         JPanel namePanel = new JPanel(new GridLayout(1,1));
         namePanel.setBackground(Color.WHITE);
@@ -493,7 +485,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         controlFrame.getContentPane().add(controlPanel, BorderLayout.NORTH);
         String status = pipelineStatus + " | | | | | Number of report units = " + orderedReportUnits.size(); 
         statusLabel = new JLabel(status);
-        statusLabel.setFont(font);
+        statusLabel.setFont(Constants.DEFAULT_FONT);
         statusLabel.setBackground(Color.CYAN);
         statusPanel = new JPanel();
         statusPanel.setBackground(Color.CYAN); 
@@ -807,7 +799,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 
         //Create a checkbox for selection
         JCheckBox chartCheckBox = new JCheckBox("Compare");
-        chartCheckBox.setFont(FONT);
+        chartCheckBox.setFont(Constants.DEFAULT_FONT);
         chartCheckBox.setBackground(Color.WHITE);
         //ChartCheckBoxName is same as report number which is unique
         //chartCheckBoxFlags are organized according to original report num - which is same as ChartCheckBoxName
@@ -816,7 +808,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         chartCheckBox.addItemListener(this);
 
         final JButton detailsButton = new JButton("Details");
-        detailsButton.setFont(FONT);
+        detailsButton.setFont(Constants.DEFAULT_FONT);
         detailsButton.setPreferredSize(new Dimension(80, 20));
         //Use Details button to display all QC metrics values 
         detailsButton.setActionCommand("Details-" + Integer.toString(reportUnit.getReportNum()));
@@ -824,21 +816,20 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 
         //The leftmost panel holding reportNum, detailsButton and chartCheckBox
         final JPanel checkPanel = new JPanel();
-        checkPanel.setFont(FONT);
+        checkPanel.setFont(Constants.DEFAULT_FONT);
         checkPanel.setBackground(Color.WHITE);
         checkPanel.setForeground(Color.WHITE); 
         checkPanel.add(detailsButton, 0);
         checkPanel.add(chartCheckBox, 1);
         final JLabel numLabel = new JLabel(Integer.toString(reportUnit.getReportNum()));
-        final Font numFont = new Font(FONT_NAME, Font.BOLD, 22);
-        numLabel.setFont(numFont);
+        numLabel.setFont(Constants.REPORT_NUMBER_FONT);
         checkPanel.add(numLabel);
         checkPanel.setPreferredSize(new Dimension(CHECK_PANEL_SIZE, CHART_HEIGHT));
 
         //The middle panel displaying values of selected metrics
         final JPanel displayPanel = new JPanel();
         displayPanel.add(checkPanel);
-        final JPanel metricsPanel = createOrUpdateMetricsPanel(reportUnit, FONT, null);
+        final JPanel metricsPanel = createOrUpdateMetricsPanel(reportUnit, null);
         reportUnitToMetricsPanel.put(reportUnit, metricsPanel);
         displayPanel.add(metricsPanel);
         displayPanel.add(chartPanel);
@@ -859,7 +850,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         parseSelectedMetricsData(selectedMetricsData);
         for (final ReportUnit reportUnit : reportUnits) {
             if (reportUnitToMetricsPanel.containsKey(reportUnit)) {
-                createOrUpdateMetricsPanel(reportUnit, FONT, reportUnitToMetricsPanel.get(reportUnit));
+                createOrUpdateMetricsPanel(reportUnit, reportUnitToMetricsPanel.get(reportUnit));
             }
         }
     }
@@ -868,12 +859,10 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * Create or update a panel with the metrics for the specified report unit.
      *
      * @param reportUnit the report unit
-     * @param font the font to use for the labels.
      * @param existingMetricsPanel <code>null</code> to create a new panel or an existing panel to replace the labels.
      * @return the panel with the metrics.
      */
-    private JPanel createOrUpdateMetricsPanel(final ReportUnit reportUnit, final Font font,
-                                              final JPanel existingMetricsPanel) {
+    private JPanel createOrUpdateMetricsPanel(final ReportUnit reportUnit, final JPanel existingMetricsPanel) {
         // Create a new metrics panel or remove all labels from the existing panel.
         final JPanel metricsPanel = existingMetricsPanel == null ? new JPanel() : existingMetricsPanel;
         if (existingMetricsPanel == null) {
@@ -890,7 +879,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             final String metricValue = reportUnit.getMetricsValueFromKey(selectedMetricsKeys.get(metricIndex));
             final Color foregroundColor = LABEL_COLORS.get(metricIndex % LABEL_COLORS.size());
             final JLabel label = new JLabel(metricName + ": " + metricValue);
-            label.setFont(font);
+            label.setFont(Constants.DEFAULT_FONT);
             label.setForeground(foregroundColor);
             metricsPanel.add(label);
         }

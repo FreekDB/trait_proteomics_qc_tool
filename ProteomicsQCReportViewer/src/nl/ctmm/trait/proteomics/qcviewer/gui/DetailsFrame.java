@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Map;
@@ -17,6 +16,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnit;
+import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 import org.jfree.ui.RefineryUtilities;
 
 /**
@@ -71,8 +71,8 @@ public class DetailsFrame extends JFrame implements ActionListener {
         detailsTable.setDefaultRenderer(Object.class, new DetailsTableCellRender());
         final JTableHeader header = detailsTable.getTableHeader();
         header.setBackground(Color.yellow);
-        header.setFont(new Font("Garamond", Font.BOLD, 12));
-        detailsTable.setFont(new Font("Garamond", Font.PLAIN, 11));
+        header.setFont(Constants.DETAILS_HEADER_FONT);
+        detailsTable.setFont(Constants.PLAIN_FONT);
         final TableColumn column0 = detailsTable.getColumnModel().getColumn(0);
         column0.setPreferredWidth(130);
         final TableColumn column1 = detailsTable.getColumnModel().getColumn(1);

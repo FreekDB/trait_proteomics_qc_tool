@@ -1,5 +1,7 @@
 package nl.ctmm.trait.proteomics.qcviewer.utils;
 
+import java.awt.Font;
+
 /**
  * This interface contains the most important constants of the project.
  *
@@ -26,4 +28,34 @@ public interface Constants {
     static final String PROPERTY_NBIC_LOGO_FILE = "images\\nbiclogo.png";
     static final String PROPERTY_OPL_LOGO_FILE = "images\\opllogo.jpg";
     static final String PROPERTY_CTMM_LOGO_FILE = "images\\ctmmlogo.jpg";
+
+    /**
+     * The name of the font used in the GUI.
+     */
+    static final String FONT_NAME = "Garamond";
+
+    /**
+     * The default font.
+     */
+    static final Font DEFAULT_FONT = new Font(FONT_NAME, Font.BOLD, 11);
+
+    /**
+     * The font used for the report numbers.
+     */
+    static final Font REPORT_NUMBER_FONT = new Font(Constants.FONT_NAME, Font.BOLD, 22);
+
+    /**
+     * The font used for the titles in the charts.
+     */
+    static final Font CHART_TITLE_FONT = new Font("Garamond", Font.BOLD, 13);
+
+    /**
+     * The font used for all the metrics in the details frame and the text areas in the about frame.
+     */
+    static final Font PLAIN_FONT = new Font("Garamond", Font.PLAIN, 11);
+
+    /**
+     * The font used for the metrics headers in the details frame.
+     */
+    static final Font DETAILS_HEADER_FONT = new Font("Garamond", Font.BOLD, 12);
 }
