@@ -4,6 +4,10 @@ import java.awt.Color;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -21,7 +25,8 @@ import org.jfree.data.xy.XYSeriesCollection;
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
 public class ChartUnit {
-    /**
+	private static final Logger logger = Logger.getLogger(ChartUnit.class.getName());
+	/**
      * The list of alternating colors that is used to draw the tic charts.
      */
     private static final List<Color> GRAPH_COLORS = Arrays.asList(
@@ -46,6 +51,7 @@ public class ChartUnit {
      * @param series the data series.
      */
     public ChartUnit(final String msrunName, final int reportNumber, final XYSeries series) {
+    	prepareLogger();
         String maxIntensityString = "N/A";
         if (series != null) {
             maxIntensity = series.getMaxY();
@@ -64,7 +70,20 @@ public class ChartUnit {
         ticChart.setAntiAlias(false);
     }
 
-    /**
+	/**
+     * Prepare the logger for this class
+     * Set ConsoleHandler as handler
+     * Set logging level to ALL      
+     */
+    private void prepareLogger() {
+    	//Set logger and handler levels to Level.ALL
+    	logger.setLevel(Level.ALL);
+        ConsoleHandler handler = new ConsoleHandler();
+        handler.setLevel(Level.ALL);
+        logger.addHandler(handler);
+	}
+
+	/**
      * Create a <code>XYBarRenderer</code>.
      *
      * @param reportNumber the report number, which is used for picking a color.

@@ -19,6 +19,9 @@ import java.net.URL;
 import java.util.Hashtable;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Class monitoring a {@link File} for changes.
@@ -26,6 +29,10 @@ import java.util.TimerTask;
  * @author Pascal Essiembre
  */
 public class ProgressLogMonitor {
+  /**
+  * The logger for this class.
+  */
+  private static final Logger logger = Logger.getLogger(ProgressLogMonitor.class.getName());
   private static final ProgressLogMonitor instance = new ProgressLogMonitor();
 
   private Timer timer;
@@ -45,12 +52,26 @@ public class ProgressLogMonitor {
    * Constructor.
    */
   private ProgressLogMonitor() {
+	  prepareLogger(); 
     // Create timer, run timer thread as daemon.
     timer = new Timer(true);
     timerEntries = new Hashtable<>();
   }
 
-  /**
+	/**
+   * Prepare the logger for this class
+   * Set ConsoleHandler as handler
+   * Set logging level to ALL 
+   */
+  private void prepareLogger() {
+	  //Set logger and handler levels to Level.ALL
+	  logger.setLevel(Level.ALL);
+	  ConsoleHandler handler = new ConsoleHandler();
+	  handler.setLevel(Level.ALL);
+	  logger.addHandler(handler);
+  }
+
+/**
    * Adds a monitored file with a {@link FileChangeListener}.
    * 
    * @param listener

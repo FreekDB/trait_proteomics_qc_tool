@@ -10,6 +10,9 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -39,7 +42,8 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
      * The version number for (de)serialization of this class (UID: universal identifier).
      */
     private static final long serialVersionUID = 1;
-
+    private static final Logger logger = Logger.getLogger(DataEntryForm.class.getName());
+    
     JTextField inputText; 
     Main parentMain = null; 
     ViewerFrame parentViewerFrame = null; 
@@ -55,11 +59,25 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
      */
     public DataEntryForm(final Main parent, final Properties appProperties) {
         super("DataEntry Frame");
+        prepareLogger();
         this.parentMain = parent; 
         this.appProperties = appProperties; 
     }
 
-    /**
+	/**
+     * Prepare the logger for this class
+     * Set ConsoleHandler as handler
+     * Set logging level to ALL 
+     */
+    private void prepareLogger() {
+    	//Set logger and handler levels to Level.ALL
+    	logger.setLevel(Level.ALL);
+        ConsoleHandler handler = new ConsoleHandler();
+        handler.setLevel(Level.ALL);
+        logger.addHandler(handler);
+	}
+
+	/**
      * Constructor - whereas parent is ViewerFrame class
      * @param parent Instance of ViewerFrame class
      * @param appProperties Application properties
@@ -91,7 +109,7 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
         initialDialog.pack();
         initialDialog.setVisible(true);
         initialDialog.revalidate();
-        System.out.println("Displaying initial dialog with message " + message1.getText());
+        logger.fine("Displaying initial dialog with message " + message1.getText());
     }
     
     /**
@@ -124,11 +142,11 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
         String preferredRootDirectory = null;
         if(returnVal == JFileChooser.APPROVE_OPTION) {
             preferredRootDirectory = chooser.getSelectedFile().getAbsolutePath();
-           System.out.println("You chose to open this folder: " +
+           logger.fine("You chose to open this folder: " +
                 chooser.getSelectedFile().getAbsolutePath());
             updatePreferredRootDirectory(preferredRootDirectory);
             if (parentViewerFrame != null) {
-                System.out.println("Cleaning everything and restarting..");
+                logger.fine("Cleaning everything and restarting..");
                 parentViewerFrame.clean();
                 parentViewerFrame.dispose();
             }
@@ -142,7 +160,7 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
       * @param newRootDirectory Root directory selected by user
       */
     private void updatePreferredRootDirectory(String newRootDirectory) {
-        System.out.println("Changing root directory to " + newRootDirectory);
+        logger.fine("Changing root directory to " + newRootDirectory);
         appProperties.setProperty(Constants.PROPERTY_ROOT_FOLDER, newRootDirectory);
         try {
             FileOutputStream out = new FileOutputStream(Constants.PROPERTIES_FILE_NAME);
@@ -158,17 +176,17 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
      */
     @Override
      public void actionPerformed(ActionEvent ae) {
-        System.out.println("DataEntryFrame Action command = " + ae.getActionCommand());
+        logger.fine("DataEntryFrame Action command = " + ae.getActionCommand());
         if (ae.getActionCommand().equals("SUBMITDIR")) {
             String preferredRootDirectory = inputText.getText();
             if (!preferredRootDirectory.trim().equals("")) { //appProperty not empty
                 dispose();
-                System.out.println("Preferred root directory = " + preferredRootDirectory);
+                logger.fine("Preferred root directory = " + preferredRootDirectory);
                 if (parentMain != null) {
                     updatePreferredRootDirectory(preferredRootDirectory);
                     parentMain.runReportViewer();
                 } else if (parentViewerFrame != null) {
-                    System.out.println("Invoke parentViewerFrame methods");
+                    logger.fine("Invoke parentViewerFrame methods");
                     parentViewerFrame.clean();
                     parentViewerFrame.dispose();
                     updatePreferredRootDirectory(preferredRootDirectory);
@@ -177,7 +195,7 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
             } else displayErrorMessage ("Enter valid root directory.");
         } else if (ae.getActionCommand().startsWith("CANCEL")) {
             if (parentViewerFrame != null) {
-                System.out.println("Invoke parentViewerFrame methods");
+                logger.fine("Invoke parentViewerFrame methods");
                 parentViewerFrame.clean();
             }
             dispose();
@@ -271,14 +289,14 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
                                 e.printStackTrace();
                             }
                             if (parentViewerFrame != null) {
-                                System.out.println("Invoke parentViewerFrame methods");
+                                logger.fine("Invoke parentViewerFrame methods");
                                 parentViewerFrame.clean();
                                 parentViewerFrame.dispose();
                             }
                             Main.getInstance().runReportViewer();
                         }
                     } catch (ParseException e) {
-                        e.printStackTrace();
+                    	logger.log(Level.SEVERE, "Something went wrong while parsing fromDate and tillDate.", e);
                     } 
                 }
             }
