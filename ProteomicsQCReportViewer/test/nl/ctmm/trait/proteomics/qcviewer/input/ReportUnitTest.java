@@ -23,9 +23,9 @@ public class ReportUnitTest {
      */
     @Before
     public void setUp() {
-    	/*
-    	 * public ReportUnit(String msrunName, int reportNum)
-    	 */
+        /*
+         * public ReportUnit(String msrunName, int reportNum)
+         */
         reportUnit = new ReportUnit("msrun" + REPORT_NUMBER, REPORT_NUMBER);
     }
 
@@ -34,7 +34,7 @@ public class ReportUnitTest {
      */
     @Test
     public void testConstructor() {
-    	Double fileSize = -1.0;
+        Double fileSize = -1.0;
         assertEquals(REPORT_NUMBER, reportUnit.getReportNum());
         assertEquals(fileSize, reportUnit.getFileSize());
         assertEquals("N/A", reportUnit.getFileSizeString());

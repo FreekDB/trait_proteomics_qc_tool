@@ -2,7 +2,6 @@ package nl.ctmm.trait.proteomics.qcviewer.input;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
@@ -30,10 +29,15 @@ import org.jfree.data.xy.XYSeries;
  */
 public class ReportReader extends JFrame {
     /**
-     * 
+     * The logger for this class.
      */
-    private static final long serialVersionUID = 1L;
     private static final Logger logger = Logger.getLogger(ReportReader.class.getName());
+
+    /**
+     * The version number for (de)serialization of this class (UID: universal identifier).
+     */
+    private static final long serialVersionUID = 1;
+
     private static final List<String> MONTH_DIRS = Arrays.asList(
             "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
     );
@@ -87,8 +91,7 @@ public class ReportReader extends JFrame {
                             errorFlag = true;
 //                            allErrorMessages += errorMessage + "\n";
                         }
-                        reportUnits.add(createReportUnit(yearDirectory.getName(), monthDirectory.getName(),
-                                                         msRunDirectory.getName(), dataFiles, errorFlag));
+                        reportUnits.add(createReportUnit(msRunDirectory.getName(), dataFiles, errorFlag));
                     } 
                 }
             }
@@ -96,7 +99,8 @@ public class ReportReader extends JFrame {
         /*TODO: Check whether errorMessages functionality is required
          * if (!allErrorMessages.equals("")) {
             //saveErrorMessages(allErrorMessages);
-            //JOptionPane.showMessageDialog(this, allErrorMessages, "MSQC Check Warning Messages",JOptionPane.ERROR_MESSAGE);
+            //JOptionPane.showMessageDialog(this, allErrorMessages, "MSQC Check Warning Messages",
+            //                              JOptionPane.ERROR_MESSAGE);
         }*/
         return reportUnits;
     }
@@ -122,7 +126,7 @@ public class ReportReader extends JFrame {
             }
         }
         if (!metrics || !ticMatrix) {
-            errorMessage = "<html>In Folder " + msrunName + " following filetypes are missing:";
+            errorMessage = "<html>In Folder " + msrunName + " following file types are missing:";
             if (!metrics) {
                 errorMessage += "metrics.json ";
             }
@@ -140,7 +144,7 @@ public class ReportReader extends JFrame {
 //     */
 //    private void saveErrorMessages(String allErrorMessages) {
 //        try {
-//            //Save errorMessages to errorMEssages.txt file
+//            //Save errorMessages to errorMessages.txt file
 //            FileWriter fWriter = new FileWriter("QCReports\\errorMessages.txt", true);
 //            BufferedWriter bWriter = new BufferedWriter(fWriter);
 //            Date date = new Date();
@@ -235,16 +239,20 @@ public class ReportReader extends JFrame {
 
     /**
      * Create a report unit and fill it with data from an array of files.
+     *
      * We use two specific files:
      * 1) metrics.json: String file containing values of all QC metrics in json object format
      * e.g. {"generic": {"date": "2012/Nov/07 - 14:18", "ms2_spectra": ["MS2 Spectra", "22298 (22298)"],
      * "runtime": "0:16:23", "f_size": ["File Size (MB)", "830.9"],
      * "ms1_spectra": ["MS1 Spectra", "7707 (7707)"]}}
      * 2) msrun*_ticmatrix.csv: CSV file containing x and y axis values for drawing ticGraph
+     *
+     * @param msrunName the name of the msrun.
      * @param dataFiles the files used to initialize the report unit.
+     * @param errorFlag whether an error occurred while reading the files.
      * @return the new report unit.
      */
-    private ReportUnit createReportUnit(final String year, final String month, final String msrunName, final File[] dataFiles, boolean errorFlag) {
+    private ReportUnit createReportUnit(final String msrunName, final File[] dataFiles, final boolean errorFlag) {
         currentReportNum++;
         System.out.println("Creating report unit No. " + currentReportNum + " for msrun " + msrunName);
         final ReportUnit reportUnit = new ReportUnit(msrunName, currentReportNum);
@@ -254,10 +262,10 @@ public class ReportReader extends JFrame {
             if (dataFile.isFile()) {
                 logger.fine("File " + dataFileName);
                 if (dataFileName.equals("metrics.json")) {
-				    reportUnit.setMetricsValues(jsonMetricsReader.readJsonValues(dataFile));
-				} else if (dataFileName.endsWith("_ticmatrix.csv")) {
-				    reportUnit.createChartUnit(readXYSeries(msrunName, dataFile));
-				}
+                    reportUnit.setMetricsValues(jsonMetricsReader.readJsonValues(dataFile));
+                } else if (dataFileName.endsWith("_ticmatrix.csv")) {
+                    reportUnit.createChartUnit(readXYSeries(msrunName, dataFile));
+                }
             } else if (dataFile.isDirectory()) {
                 logger.fine("Directory " + dataFileName);
             }
@@ -267,34 +275,27 @@ public class ReportReader extends JFrame {
 
     /**
      * Create XYSeries by reading TIC matrix file that contains X & Y axis values representing TIC graph
-     * @param msrunName
-     * @param ticMatrixFile
+     * @param msrunName the name of the msrun
+     * @param ticMatrixFile the tic matrix file to read from
      * @return XYSeries
      */
     private XYSeries readXYSeries(final String msrunName, final File ticMatrixFile) {
-        BufferedReader br = null;
+        final XYSeries series = new XYSeries(msrunName);
         try {
-            br = new BufferedReader(new FileReader(ticMatrixFile));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        String line;
-        XYSeries series = new XYSeries(msrunName);
-        try {
-            br.readLine(); //skip first line e.g. ms1Spectra,9239
-            br.readLine(); //skip second line e.g. ms2Spectra,34040
-            br.readLine(); //skip third line e.g. maxIntensity,7.8563E9
-            while ((line = br.readLine()) != null) {
-                StringTokenizer st = new StringTokenizer(line, ",");
+            final BufferedReader bufferedReader = new BufferedReader(new FileReader(ticMatrixFile));
+            bufferedReader.readLine(); //skip first line e.g. ms1Spectra,9239
+            bufferedReader.readLine(); //skip second line e.g. ms2Spectra,34040
+            bufferedReader.readLine(); //skip third line e.g. maxIntensity,7.8563E9
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                final StringTokenizer lineTokenizer = new StringTokenizer(line, ",");
                 // The first token is the x value.
-                String xValue = st.nextToken();
+                float x = Float.parseFloat(lineTokenizer.nextToken()) / 60;
                 // The second token is the y value.
-                String yValue = st.nextToken();
-                float x = Float.parseFloat(xValue)/60;
-                float y = Float.parseFloat(yValue);
+                float y = Float.parseFloat(lineTokenizer.nextToken());
                 series.add(x, y);
             }
-            br.close();
+            bufferedReader.close();
         } catch (NumberFormatException | IOException e) {
             e.printStackTrace();
         }

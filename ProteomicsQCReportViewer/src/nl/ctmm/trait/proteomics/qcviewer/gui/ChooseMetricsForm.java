@@ -1,4 +1,6 @@
-/*
+/**
+ * TODO: which parts of this demo were used? Was the code rewritten? [Freek]
+ *
  * Taken from: http://docs.oracle.com/javase/tutorial/uiswing/dnd/dropactiondemo.html
  * 
  * Copyright (c) 1995, 2008, Oracle and/or its affiliates. All rights reserved.
@@ -42,9 +44,11 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
-
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DropMode;
@@ -58,212 +62,272 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.TransferHandler;
 
-import nl.ctmm.trait.proteomics.qcviewer.Main;
 import nl.ctmm.trait.proteomics.qcviewer.input.MetricsParser;
 
 /**
- * The class for displaying Metrics selection form - drag n drop user interface.
+ * The class for displaying the metrics selection form with a drag and drop user interface.
  *
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
-
 public class ChooseMetricsForm extends JFrame implements ActionListener {
-    private static final long serialVersionUID = -4740722105234150323L;
-
-    SortedListModel from = new SortedListModel();
-    SortedListModel move = new SortedListModel();
-    JList<String> dragFrom, moveTo;
-    Map<String,String> metricsMap;
-    Map<String,String> selectedMetrics;
-    MetricsParser metricsParser;
-    ViewerFrame parent;
+    /**
+     * The logger for this class.
+     */
+    private static final Logger logger = Logger.getLogger(ChooseMetricsForm.class.getName());
 
     /**
-     * Constructor of metrics selection form
-     * @param parent ViewerFrame is the parent 
-     * @param metricsParser Instance of MetricsParser
-     * @param selectedMetrics HashMap of previously selected metrics
+     * The version number for (de)serialization of this class (UID: universal identifier).
      */
-    public ChooseMetricsForm(final ViewerFrame parent, final MetricsParser metricsParser,
-                             final Map<String, String> selectedMetrics) {
+    private static final long serialVersionUID = 1;
+
+    /**
+     * The maximum number of metrics that can be selected.
+     */
+    private static final int MAX_SELECTED_METRICS = 6;
+
+    /**
+     * Drag-and-drop target identifier for the list with selected metrics.
+     */
+    private static final String ID_SELECTED_METRICS = "selectedMetricsList";
+
+    /**
+     * Drag-and-drop target identifier for the list with available metrics.
+     */
+    private static final String ID_AVAILABLE_METRICS = "availableMetricsList";
+
+    /**
+     * The GUI list with the selected metrics.
+     */
+    private JList<String> selectedMetricsList;
+
+    /**
+     * The list model with the selected metrics (as strings).
+     */
+    private SortedListModel selectedMetricsListModel;
+
+    /**
+     * The GUI list with the available (not yet selected) metrics.
+     */
+    private JList<String> availableMetricsList;
+
+    /**
+     * The list model with the available (not yet selected) metrics (as strings).
+     */
+    private SortedListModel availableMetricsListModel;
+
+    /**
+     * The parent viewer frame (to pass the changes in the selected metrics to).
+     */
+    private ViewerFrame viewerFrame;
+
+    /**
+     * The metrics parser (to pass the changes in the selected metrics to).
+     */
+    private MetricsParser metricsParser;
+
+    /**
+     * Constructor of the metrics selection form.
+     *
+     * @param viewerFrame the parent viewer frame to pass the changes to.
+     * @param metricsParser the metrics parser to get the selected metrics from and pass the changes to.
+     * @param selectedMetricsKeys the list of the keys of the currently selected metrics.
+     */
+    public ChooseMetricsForm(final ViewerFrame viewerFrame, final MetricsParser metricsParser,
+                             final List<String> selectedMetricsKeys) {
         super("Select QC-Full Metrics for MSQC Report Viewer");
+        this.viewerFrame = viewerFrame;
         this.metricsParser = metricsParser;
-        this.parent = parent;
-        this.selectedMetrics = selectedMetrics;
-        metricsMap = this.metricsParser.getMetricsListing();
-        for (String key : metricsMap.keySet()) {
-            String value = metricsMap.get(key);
-            //if selectedMetrics already contains key, then store it in move list
-            if (selectedMetrics.containsKey(key)) {
-                move.add(key + ":" + value);
-            } else {
-                from.add(key + ":" + value);
-            }
-        }
-        JPanel p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        dragFrom = new JList<String>(from);
-        dragFrom.setTransferHandler(new ToFromTransferHandler("dragFrom", TransferHandler.MOVE));
-        dragFrom.setDragEnabled(true);
-        dragFrom.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        dragFrom.setDropMode(DropMode.INSERT);
-        JLabel label = new JLabel("Drag n Drop: Metrics to Hide:");
-        label.setAlignmentX(0f);
-        p.add(label);
-        JScrollPane sp = new JScrollPane(dragFrom);
-        sp.setAlignmentX(0f);
-        p.add(sp);
-        add(p, BorderLayout.WEST);
-        moveTo = new JList<String>(move);
-        moveTo.setTransferHandler(new ToFromTransferHandler("moveTo", TransferHandler.MOVE));
-        moveTo.setDropMode(DropMode.INSERT);
-        moveTo.setDragEnabled(true);
-        
-        p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        label = new JLabel("Drag n Drop: Metrics to Show (max 6):");
-        label.setAlignmentX(0f);
-        p.add(label);
-        sp = new JScrollPane(moveTo);
-        sp.setAlignmentX(0f);
-        p.add(sp);
-        p.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 0));
-        add(p, BorderLayout.CENTER);
-        
-        p = new JPanel();
-        JButton SUBMIT = new JButton("OK");
-        SUBMIT.setSize(new Dimension(50, 30));
-        JButton CANCEL = new JButton("CANCEL"); 
-        CANCEL.setSize(new Dimension(50, 30));
-            SUBMIT.addActionListener(this);
-            SUBMIT.setActionCommand("OK");
-            CANCEL.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-                dispose();
-            }
-        });
-            p.add(SUBMIT, 0);
-            p.add(CANCEL, 1);
-            add(p, BorderLayout.PAGE_END);
-        
-        ((JPanel)getContentPane()).setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        // Create the list models for both selected metrics and available (not yet selected) metrics.
+        createListModels(metricsParser, selectedMetricsKeys);
+        // Create the list with selected metrics on the right side.
+        this.selectedMetricsList = new JList<>(this.selectedMetricsListModel);
+        final String titleSelected = "Drag n Drop: Metrics to Show (max " + MAX_SELECTED_METRICS + "):";
+        add(createMetricsPanel(this.selectedMetricsList, ID_SELECTED_METRICS, titleSelected), BorderLayout.CENTER);
+        // Create the list with available (not yet selected) metrics on the left side.
+        this.availableMetricsList = new JList<>(this.availableMetricsListModel);
+        final String titleAvailable = "Drag n Drop: Metrics to Hide:";
+        add(createMetricsPanel(this.availableMetricsList, ID_AVAILABLE_METRICS, titleAvailable), BorderLayout.WEST);
+        // Add the panel with OK and Cancel buttons.
+        addButtonPanel();
+        // Set content pane properties.
+        ((JPanel) getContentPane()).setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
         getContentPane().setPreferredSize(new Dimension(830, 340));
     }
 
     /**
-     * The user has performed actions such as pressing the OK button
+     * Create the list models for the lists with selected and available metrics.
+     *
+     * @param metricsParser the metrics parser providing access to all possible metrics.
+     * @param selectedMetricsKeys the list of currently selected metric keys.
      */
-    @Override
-     public void actionPerformed(ActionEvent ae) {
-        System.out.println("DataEntryFrame Action command = " + ae.getActionCommand());
-        if (ae.getActionCommand().equals("OK")) {
-            //Send list of selected metrics to metricsParser for updating appProperties
-            metricsParser.updateMetricsToDisplay(move);
-            // TODO: internal - do we need to take such drastic measures as below? [Freek]
-            dispose();
-            if (parent != null) {
-                System.out.println("Invoke ViewerFrame methods");
-                parent.clean();
-                parent.dispose();
-                //new Main().runReportViewer();
-                Main.getInstance().runReportViewer();
+    private void createListModels(final MetricsParser metricsParser, final List<String> selectedMetricsKeys) {
+        selectedMetricsListModel = new SortedListModel();
+        availableMetricsListModel = new SortedListModel();
+        final Map<String, String> metricsMap = metricsParser.getMetricsListing();
+        for (final String metricKey : metricsMap.keySet()) {
+            final String metricName = metricsMap.get(metricKey);
+            if (selectedMetricsKeys.contains(metricKey)) {
+                selectedMetricsListModel.add(metricKey + ":" + metricName);
+            } else {
+                availableMetricsListModel.add(metricKey + ":" + metricName);
             }
         }
     }
 
-    class ToFromTransferHandler extends TransferHandler {
+    /**
+     * Create a panel for selected or available metrics.
+     *
+     * @param metricsList the GUI list with selected or available metrics.
+     * @param metricsTransferId the drag-and-drop transfer identifier to use for this GUI list.
+     * @param title the title to show in a label above the list.
+     * @return the panel with the label and the GUI list inside of a scroll pane.
+     */
+    private JPanel createMetricsPanel(final JList<String> metricsList, final String metricsTransferId,
+                                      final String title) {
+        final JPanel metricsPanel = new JPanel();
+        metricsPanel.setLayout(new BoxLayout(metricsPanel, BoxLayout.Y_AXIS));
+        metricsList.setTransferHandler(new MetricTransferHandler(metricsTransferId));
+        metricsList.setDragEnabled(true);
+        metricsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        metricsList.setDropMode(DropMode.INSERT);
+        final JLabel metricsTitleLabel = new JLabel(title);
+        metricsTitleLabel.setAlignmentX(0f);
+        metricsPanel.add(metricsTitleLabel);
+        final JScrollPane scrollPane = new JScrollPane(metricsList);
+        scrollPane.setAlignmentX(0f);
+        metricsPanel.add(scrollPane);
+        metricsPanel.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 0));
+        return metricsPanel;
+    }
 
-		private static final long serialVersionUID = 1L;
-		private int index = 0;
-        int action; 
-        String origin;
-        //ToTransferHandler
-        public ToFromTransferHandler(String origin, int action) { 
-            this.action = action;
+    /**
+     * Add the panel with OK and Cancel buttons.
+     */
+    private void addButtonPanel() {
+        final JPanel buttonPanel = new JPanel();
+        final JButton okButton = new JButton("OK");
+        okButton.setSize(new Dimension(50, 30));
+        okButton.addActionListener(this);
+        okButton.setActionCommand("OK");
+        final JButton cancelButton = new JButton("Cancel");
+        cancelButton.setSize(new Dimension(50, 30));
+        cancelButton.addActionListener(new ActionListener() {
+            public void actionPerformed(final ActionEvent actionEvent) {
+                dispose();
+            }
+        });
+        buttonPanel.add(okButton);
+        buttonPanel.add(cancelButton);
+        add(buttonPanel, BorderLayout.SOUTH);
+    }
+
+    /**
+     * The user pressed the OK button: save the selected metrics to the application properties file, update the selected
+     * metrics in the viewer frame and close this metrics form.
+     *
+     * @param actionEvent the data related to this event.
+     */
+     @Override
+     public void actionPerformed(final ActionEvent actionEvent) {
+        logger.fine("DataEntryFrame Action command = " + actionEvent.getActionCommand());
+        if (actionEvent.getActionCommand().equals("OK")) {
+            metricsParser.updateMetricsToDisplay(selectedMetricsListModel);
+            viewerFrame.updateSelectedMetrics(new ArrayList<>(selectedMetricsListModel.getModel()));
+            dispose();
+        }
+    }
+
+
+    /**
+     * This class represents a metric being transferred from one GUI list to another in a drag-and-drop action.
+     */
+    private class MetricTransferHandler extends TransferHandler {
+        /**
+         * The version number for (de)serialization of this class (UID: universal identifier).
+         */
+        private static final long serialVersionUID = 1;
+
+        /**
+         * The index of the selected metric in a GUI list.
+         */
+        private int selectedIndex;
+
+        private String origin;
+
+        public MetricTransferHandler(final String origin) {
             this.origin = origin;
         }
         
-        public int getSourceActions(JComponent comp) {
-            return COPY_OR_MOVE;
-        }
-        
-        public Transferable createTransferable(JComponent comp) {
-            String selection = "";
-            if (origin.equalsIgnoreCase("dragFrom")) {
-                index = dragFrom.getSelectedIndex();
-                if (index < 0 || index >= from.getSize()) {
-                    return null;
-                }
-                selection = (String)dragFrom.getSelectedValue();
-            } else if (origin.equalsIgnoreCase("moveTo")) {
-                index = moveTo.getSelectedIndex();
-                if (index < 0 || index >= move.getSize()) {
-                    return null;
-                }
-                selection = (String)moveTo.getSelectedValue();
-            }
-            return new StringSelection(selection);
+        public int getSourceActions(final JComponent comp) {
+            return MOVE;
         }
 
-        public void exportDone(JComponent comp, Transferable trans, int action) {
-            if (action != MOVE) {
-                return;
+        public boolean canImport(final TransferHandler.TransferSupport support) {
+            boolean importPossible = false;
+            if (support.isDrop()) {
+                if (selectedMetricsListModel.getSize() >= MAX_SELECTED_METRICS &&
+                    origin.equalsIgnoreCase(ID_SELECTED_METRICS)) {
+                    logger.fine("Limit of selected list exceeded. Max " + MAX_SELECTED_METRICS + ". Origin = " +
+                                origin);
+                } else if (support.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+                    importPossible = (support.getSourceDropActions() & TransferHandler.MOVE) == TransferHandler.MOVE;
+                    if (importPossible) {
+                        support.setDropAction(TransferHandler.MOVE);
+                    }
+                }
             }
-            if (origin.equalsIgnoreCase("dragFrom")) {
-                from.removeElementAt(index);
-            } else if (origin.equalsIgnoreCase("moveTo")) {
-                move.removeElementAt(index);
-            }
-        }
-        
-        public boolean canImport(TransferHandler.TransferSupport support) {
-            if (!support.isDrop()) {
-                return false;
-            }
-            //check for size of move
-            if (move.getSize() > 5 && origin.equalsIgnoreCase("moveTo")) {
-                System.out.println("Limit of move list exceeded. Max 6. Origin = " + origin);
-                return false;
-            }
-            // we only import Strings
-            if (!support.isDataFlavorSupported(DataFlavor.stringFlavor)) {
-                return false;
-            }
-            boolean actionSupported = (action & support.getSourceDropActions()) == action;
-            if (actionSupported) {
-                support.setDropAction(action);
-                return true;
-            }
-            return false;
+            return importPossible;
         }
 
-        public boolean importData(TransferHandler.TransferSupport support) {
+        public Transferable createTransferable(final JComponent comp) {
+            String selection = null;
+            if (origin.equalsIgnoreCase(ID_AVAILABLE_METRICS)) {
+                selectedIndex = availableMetricsList.getSelectedIndex();
+                if (selectedIndex >= 0 && selectedIndex < availableMetricsListModel.getSize()) {
+                    selection = availableMetricsList.getSelectedValue();
+                }
+            } else if (origin.equalsIgnoreCase(ID_SELECTED_METRICS)) {
+                selectedIndex = selectedMetricsList.getSelectedIndex();
+                if (selectedIndex >= 0 && selectedIndex < selectedMetricsListModel.getSize()) {
+                    selection = selectedMetricsList.getSelectedValue();
+                }
+            }
+            return selection != null ? new StringSelection(selection) : null;
+        }
+
+        public void exportDone(final JComponent comp, final Transferable trans, final int action) {
+            if (action == MOVE) {
+                if (origin.equalsIgnoreCase(ID_AVAILABLE_METRICS)) {
+                    availableMetricsListModel.removeElementAt(selectedIndex);
+                } else if (origin.equalsIgnoreCase(ID_SELECTED_METRICS)) {
+                    selectedMetricsListModel.removeElementAt(selectedIndex);
+                }
+            }
+        }
+
+        public boolean importData(final TransferHandler.TransferSupport support) {
             // if we can't handle the import, say so
             if (!canImport(support)) {
                 return false;
             }
             // fetch the drop location
-            JList.DropLocation dl = (JList.DropLocation)support.getDropLocation();
-            int index = dl.getIndex();
+            final JList.DropLocation dl = (JList.DropLocation) support.getDropLocation();
+            final int index = dl.getIndex();
             // fetch the data and bail if this fails
-            String data;
             try {
-                data = (String)support.getTransferable().getTransferData(DataFlavor.stringFlavor);
-            } catch (UnsupportedFlavorException e) {
-                return false;
-            } catch (java.io.IOException e) {
+                final String data = (String) support.getTransferable().getTransferData(DataFlavor.stringFlavor);
+                final JList list = (JList) support.getComponent();
+                final SortedListModel model = (SortedListModel) list.getModel();
+                model.add(data);
+                final Rectangle rect = list.getCellBounds(index, index);
+                list.scrollRectToVisible(rect);
+                list.setSelectedIndex(index);
+                list.requestFocusInWindow();
+            } catch (final UnsupportedFlavorException | IOException e) {
                 return false;
             }
-            JList<String> list = (JList)support.getComponent();
-            SortedListModel model = (SortedListModel)list.getModel();
-            model.add(data);
-            Rectangle rect = list.getCellBounds(index, index);
-            list.scrollRectToVisible(rect);
-            list.setSelectedIndex(index);
-            list.requestFocusInWindow();
             return true;
         }  
     } 
 }
-

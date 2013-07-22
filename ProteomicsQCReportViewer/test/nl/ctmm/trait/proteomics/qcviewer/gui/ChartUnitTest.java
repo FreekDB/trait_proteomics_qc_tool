@@ -7,8 +7,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
 import org.jfree.data.xy.XYSeries;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +21,7 @@ public class ChartUnitTest {
     /**
      * Base directory for the TIC files.
      */
-    private static final String TIC_DIRECTORY = "QCReports\\2013\\Jun\\";
+    private static final String TIC_DIRECTORY = "QCReports\\2013\\Jul\\";
 
     private ChartUnit chartUnit1, chartUnit2, chartUnit3;
 
@@ -35,11 +33,11 @@ public class ChartUnitTest {
         final String msrunName1 = "msrun1";
         final String msrunName2 = "msrun2";
         final String msrunName3 = "msrun3";
-        final String directory1 = TIC_DIRECTORY + "QE2_130603_OPL0000_mq_04_Arnold_04\\";
-        final String fileName1 = "QE2_130603_OPL0000_mq_04_Arnold_04_ticmatrix.csv";
+        final String directory1 = TIC_DIRECTORY + "simulated_tic_130707_a\\";
+        final String fileName1 = "simulated_tic_130707_a_ticmatrix.csv";
         final XYSeries xySeries = readXYSeries(msrunName1, new File(directory1 + fileName1));
-        final String directory2 = TIC_DIRECTORY + "QE2_130603_OPL0000_mq_05_Arnold_05\\";
-        final File ticFileChartUnit3 = new File(directory2 + "QE2_130603_OPL0000_mq_05_Arnold_05_ticmatrix.csv");
+        final String directory2 = TIC_DIRECTORY + "simulated_tic_130707_b\\";
+        final File ticFileChartUnit3 = new File(directory2 + "simulated_tic_130707_b_ticmatrix.csv");
         // public ChartUnit(final String msrunName, final int reportNum, final XYSeries series)
         chartUnit1 = new ChartUnit(msrunName1, 1, xySeries);
         chartUnit2 = new ChartUnit(msrunName2, 2, null); //initialize with empty series
@@ -50,26 +48,15 @@ public class ChartUnitTest {
      * Test the <code>getMaxTicIntensity</code> method.
      */
     
-	@Test
-    public void testgetMaxTicIntensity() {
-    	double maxIntensity1 = 5.99102E9;
-    	double maxIntensity2 = 0.0;
-    	double maxIntensity3 = 2.77233E10;
+    @Test
+    public void testGetMaxTicIntensity() {
+        double maxIntensity1 = 9.96046420611126E9;
+        double maxIntensity2 = 0.0;
+        double maxIntensity3 = 9.9600473163739E9;
         assertEquals(0, chartUnit2.getMaxTicIntensity(), 0);
         assertEquals(maxIntensity1, chartUnit1.getMaxTicIntensity(), 10);
         assertEquals(maxIntensity2, chartUnit2.getMaxTicIntensity(), 0);
         assertEquals(maxIntensity3, chartUnit3.getMaxTicIntensity(), 0);
-    }
-
-    /**
-     * Test the <code>getTicChart</code> and <code>getDomainAxis</code> methods.
-     */
-    @Test
-    public void testGetTicChartGetDomainAxis() {
-        assertEquals("Expecting JFreeChart class.", JFreeChart.class, chartUnit1.getTicChart().getClass());
-        assertEquals("Expecting JFreeChart class.", JFreeChart.class, chartUnit2.getTicChart().getClass());
-        assertEquals("Expecting NumberAxis class.", NumberAxis.class, chartUnit1.getDomainAxis().getClass());
-        assertEquals("Expecting NumberAxis class.", NumberAxis.class, chartUnit2.getDomainAxis().getClass());
     }
 
     /**

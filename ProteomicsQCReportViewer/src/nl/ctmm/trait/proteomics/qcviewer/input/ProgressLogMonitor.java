@@ -174,6 +174,6 @@ interface FileChangeListener {
    * @param file
    *          name of changed file.
    */
-	
+
   public void fileChanged(File file);
 }
