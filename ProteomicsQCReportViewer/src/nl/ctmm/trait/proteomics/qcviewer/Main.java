@@ -34,6 +34,16 @@ import org.jfree.ui.RefineryUtilities;
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
 public class Main {
+    /**
+     * The logger for this class.
+     */
+    private static final Logger logger = Logger.getLogger(Main.class.getName());
+
+    /**
+     * This is the singleton instance of this class.
+     */
+    private static final Main instance = new Main();
+
     private Properties applicationProperties;
     private MetricsParser metricsParser;
     private String pipelineStatus = "";
@@ -51,45 +61,43 @@ public class Main {
     private ProgressLogMonitor progressLogMonitor;
     //The directory to which QC pipeline writes the QC reports
     private String preferredRootDirectory;
-    private static Main instance = new Main();
 
     /**
-     * The logger for this class.
-     */
-    private static final Logger logger = Logger.getLogger(Main.class.getName());
-
-    /**
-     * The starting point for the QC Report Viewer.
+     * The starting method for the QC Report Viewer.
      *
      * @param arguments the command-line arguments, which are currently not used.
      */
     public static void main(final String[] arguments) {
-        final Main instance = Main.getInstance();
-        instance.runReportViewer();
+        getInstance().runReportViewer();
     }
 
     /**
-     * Gets the Main instance.
+     * Get the main instance.
      * 
-     * @return Main instance
+     * @return the main instance.
      */
     public static Main getInstance() {
-        if (instance == null) {
-            instance = new Main();
-        }
         return instance;
     }
-    
+
+    /**
+     * The constructor is private so only the singleton instance can be used.
+     */
+    private Main() {
+    }
+
     /**
      * Start the QC Report Viewer.
+     *
+     * TODO: see whether we can update the application instead of restarting it. [Freek]
      */
     public void runReportViewer() {
         applicationProperties = loadProperties();
         metricsParser = new MetricsParser(applicationProperties);
-           preferredRootDirectory = applicationProperties.getProperty(Constants.PROPERTY_ROOT_FOLDER);
-        System.out.println("in Main preferredRootDirectory = " + preferredRootDirectory);
-           String progressLogFilePath = preferredRootDirectory + "\\" + Constants.PROPERTY_PROGRESS_LOG;
-        System.out.println("progressLogFilePath = " + progressLogFilePath);
+        preferredRootDirectory = applicationProperties.getProperty(Constants.PROPERTY_ROOT_FOLDER);
+        logger.fine("in Main preferredRootDirectory = " + preferredRootDirectory);
+        final String progressLogFilePath = preferredRootDirectory + "\\" + Constants.PROPERTY_PROGRESS_LOG;
+        logger.fine("progressLogFilePath = " + progressLogFilePath);
         progressLogReader = new ProgressLogReader(progressLogFilePath);
         pipelineStatus = progressLogReader.getCurrentStatus();
         
@@ -98,19 +106,19 @@ public class Main {
         dataEntryForm.displayInitialDialog();
 
         //Determine date interval for which to display reports for
-        SimpleDateFormat sdf = new SimpleDateFormat(Constants.SIMPLE_DATE_FORMAT_STRING);
+        final SimpleDateFormat sdf = new SimpleDateFormat(Constants.SIMPLE_DATE_FORMAT_STRING);
         sdf.setLenient(false);
-        String reportsFromDate = applicationProperties.getProperty(Constants.PROPERTY_SHOW_REPORTS_FROM_DATE);
-        String reportsTillDate = applicationProperties.getProperty(Constants.PROPERTY_SHOW_REPORTS_TILL_DATE);
+        final String reportsFromDate = applicationProperties.getProperty(Constants.PROPERTY_SHOW_REPORTS_FROM_DATE);
+        final String reportsTillDate = applicationProperties.getProperty(Constants.PROPERTY_SHOW_REPORTS_TILL_DATE);
         if (!reportsFromDate.trim().equals("") && !reportsFromDate.trim().equals("")) { //Dates are specified
             //Check date format validity
             try {
                 //if not valid, it will throw ParseException
                 fromDate = sdf.parse(reportsFromDate);
                 tillDate = sdf.parse(reportsTillDate);
-                System.out.println("fromDate = " + fromDate.toString() + " tillDate = " + tillDate.toString());
-                System.out.println("fromDate = " + sdf.format(fromDate) + " tillDate = " + sdf.format(tillDate));
-            } catch (ParseException e) {
+                logger.fine("fromDate = " + fromDate.toString() + " tillDate = " + tillDate.toString());
+                logger.fine("fromDate = " + sdf.format(fromDate) + " tillDate = " + sdf.format(tillDate));
+            } catch (final ParseException e) {
                 fromDate = null;
                 tillDate = null;
                 e.printStackTrace();
@@ -118,32 +126,54 @@ public class Main {
         }
         if (tillDate == null) { //The date interval is not specified. 
             tillDate = new Date(); //Till Date is current date
-            Calendar now = Calendar.getInstance();
+            final Calendar now = Calendar.getInstance();
             now.add(Calendar.DATE, -14);
             fromDate = now.getTime();
-            System.out.println("fromDate = " + fromDate.toString() + " tillDate = " + tillDate.toString());
-            System.out.println("fromDate = " + sdf.format(fromDate) + " tillDate = " + sdf.format(tillDate));
+            logger.fine("fromDate = " + fromDate.toString() + " tillDate = " + tillDate.toString());
+            logger.fine("fromDate = " + sdf.format(fromDate) + " tillDate = " + sdf.format(tillDate));
         }
-        System.out.println("fromDate = " + sdf.format(fromDate) + " tillDate = " + sdf.format(tillDate));
-        //Obtain initial set of reports according to date filter 
+        logger.fine("fromDate = " + sdf.format(fromDate) + " tillDate = " + sdf.format(tillDate));
+
+        //Obtain initial set of reports according to date filter
         processInitialReports();
+
         //Start the progress log monitor to monitor qc_status.log file
         // TODO: keep a reference to this progressLogMonitor (declare as a field)? [Freek]
         progressLogMonitor = ProgressLogMonitor.getInstance();
         try {
             progressLogMonitor.addFileChangeListener(progressLogReader, progressLogFilePath, 5000);
-        } catch (FileNotFoundException e1) {
+        } catch (final FileNotFoundException e1) {
             e1.printStackTrace();
-            System.out.println("progress log file not found. Configured path: " + progressLogFilePath);
+            logger.fine("progress log file not found. Configured path: " + progressLogFilePath);
         } //Refresh period is 5 seconds
     }
-    
+
+    /**
+     * Load the application properties from the properties file.
+     *
+     * @return the application properties.
+     */
+    private Properties loadProperties() {
+        final Properties appProperties = new Properties();
+        // Set a default for root folder property.
+        appProperties.setProperty(Constants.PROPERTY_ROOT_FOLDER, Constants.DEFAULT_ROOT_FOLDER);
+        // Load the actual properties from the property file.
+        try {
+            final FileInputStream fileInputStream = new FileInputStream(Constants.PROPERTIES_FILE_NAME);
+            appProperties.load(fileInputStream);
+            fileInputStream.close();
+        } catch (final IOException e) {
+            logger.log(Level.SEVERE, "Loading of application properties failed.", e);
+        }
+        return appProperties;
+    }
+
     /**
      * Read initial set of QC Reports from the preferredRootDirectory. The reports are filtered according to date
      * criteria.
      */
-    public void processInitialReports() { 
-        System.out.println("Reading initial set of reports..");
+    private void processInitialReports() {
+        logger.fine("Reading initial set of reports..");
         final String runningMsrunName = progressLogReader.getRunningMsrunName();
         final List<ReportUnit> reportUnits = getReportUnits(preferredRootDirectory, fromDate, tillDate);
         //Reinitialize reportUnitsTable
@@ -152,7 +182,7 @@ public class Main {
         final List<ReportUnit> displayableReportUnits = new ArrayList<>();
         //populate reportUnitsTable
         final int reportUnitsSize = reportUnits.size();
-        System.out.println("All reportUnitsSize = " + reportUnitsSize + " runningMsrunName = " + runningMsrunName);
+        logger.fine("All reportUnitsSize = " + reportUnitsSize + " runningMsrunName = " + runningMsrunName);
         for (final ReportUnit thisUnit : reportUnits) {
             final String thisMsrun = thisUnit.getMsrunName();
             if (!thisMsrun.equals(runningMsrunName)) { //Currently processing this msrun. Do not include in the report
@@ -160,18 +190,17 @@ public class Main {
                 thisUnit.setReportNum(reportNum);
                 //for identifying duplicate reports
                 if (reportUnitsTable.containsKey(thisMsrun)) {
-                    System.out.println("Alert!! Already exists in ReportUnitsTable " + thisMsrun);
+                    logger.warning("Alert!! Already exists in ReportUnitsTable " + thisMsrun);
                 }
                 //Update reportUnit in reportUnitsTable
                 reportUnitsTable.put(thisUnit.getMsrunName(), thisUnit);
                 displayableReportUnits.add(thisUnit);
             } else {
-                System.out.println("Skipped report unit " + thisMsrun +
-                                   " Logfile says it is running " + runningMsrunName);
+                logger.fine("Skipped report unit " + thisMsrun + " Logfile says it is running " + runningMsrunName);
             }
         }
         dataEntryForm.disposeInitialDialog();
-        System.out.println("ReportUnitsTable size is " + reportUnitsTable.size());
+        logger.fine("ReportUnitsTable size is " + reportUnitsTable.size());
         if (reportUnits.size() == 0) { //There exist no reports in current root directory
             //Get new location to read reports from
             dataEntryForm.displayErrorMessage("No Reports found in " + preferredRootDirectory);
@@ -221,61 +250,27 @@ public class Main {
                         thisUnit.setReportNum(existingNum);
                         reportUnitsTable.remove(thisMsrun);
                         reportUnitsTable.put(thisMsrun, thisUnit);
-                        ++numUpdates;
+                        numUpdates++;
                     } else {
-                        ++reportNum;
-                        System.out.println("Does not exist in reportUnitsTable. " + thisUnit.getMsrunName() +
-                                           " Adding to new report units with reportNum " + reportNum);
+                        reportNum++;
+                        logger.fine("Does not exist in reportUnitsTable. " + thisUnit.getMsrunName() +
+                                    " Adding to new report units with reportNum " + reportNum);
                         thisUnit.setReportNum(reportNum);
                         newReportUnits.add(thisUnit);
                         //Add to hashTable
                         reportUnitsTable.put(thisUnit.getMsrunName(), thisUnit);
                     }
                 } else {
-                    System.out.println("Skipped report unit " + thisMsrun +
-                                       " Logfile says it is running " + runningMsrunName);
+                    logger.fine("Skipped report unit " + thisMsrun +
+                                " Logfile says it is running " + runningMsrunName);
                 }
             }
-            System.out.println("ReportUnitsTable size is " + reportUnitsTable.size() + " Updated " + numUpdates +
-                               " entries. newReportUnits size is " + newReportUnits.size());
+            logger.fine("ReportUnitsTable size is " + reportUnitsTable.size() + " Updated " + numUpdates +
+                        " entries. newReportUnits size is " + newReportUnits.size());
             reportUnits.clear();
             //Refresh ViewerFrame with new Report Units
             frame.updateReportUnits(newReportUnits, newPipelineStatus);
         }
-    }
-    
-    /**Received notification about change in pipeline status.
-     * Push new pipeline status to the report viewer
-     * @param newPipelineStatus Updated pipeline status as read from the qc_status.log file
-     */
-    public void notifyUpdatePipelineStatus(String newPipelineStatus) {
-        /* Refresh ReportViewer automatically on this notification
-         */
-        pipelineStatus = newPipelineStatus;
-        //Refresh ViewerFrame pipelineStatus
-        if (frame != null) {
-            frame.updatePipelineStatus(pipelineStatus);
-        }
-    }
-
-    /**
-     * Load the application properties from the properties file.
-     *
-     * @return the application properties.
-     */
-    private Properties loadProperties() {
-        final Properties appProperties = new Properties();
-        // Set default properties.
-        appProperties.setProperty(Constants.PROPERTY_ROOT_FOLDER, Constants.DEFAULT_ROOT_FOLDER);
-        // Load actual properties from file.
-        try {
-            final FileInputStream fileInputStream = new FileInputStream(Constants.PROPERTIES_FILE_NAME);
-            appProperties.load(fileInputStream);
-            fileInputStream.close();
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Loading of application properties failed.", e);
-        }
-        return appProperties;
     }
 
     /**
@@ -286,8 +281,22 @@ public class Main {
      * @param tillDate the end of the date range to search.
      * @return the list with report units.
      */
-    private List<ReportUnit> getReportUnits(final String rootDirectoryName, Date fromDate, Date tillDate) {
+    private List<ReportUnit> getReportUnits(final String rootDirectoryName, final Date fromDate, final Date tillDate) {
         return new ReportReader(metricsParser).retrieveReports(rootDirectoryName, fromDate, tillDate);
+    }
+
+    /**Received notification about change in pipeline status.
+     * Push new pipeline status to the report viewer
+     * @param newPipelineStatus Updated pipeline status as read from the qc_status.log file
+     */
+    public void notifyUpdatePipelineStatus(final String newPipelineStatus) {
+        /* Refresh ReportViewer automatically on this notification
+         */
+        pipelineStatus = newPipelineStatus;
+        //Refresh ViewerFrame pipelineStatus
+        if (frame != null) {
+            frame.updatePipelineStatus(pipelineStatus);
+        }
     }
 
     /**
@@ -298,7 +307,7 @@ public class Main {
      */
     private void startQCReportViewerGui(final Properties appProperties, final List<ReportUnit> reportUnits,
                                         final String pipelineStatus) {
-        System.out.println("Main startQCReportViewerGui");
+        logger.fine("Main startQCReportViewerGui");
         final List<String> qcParamNames = getColumnNames(appProperties, Constants.PROPERTY_TOP_COLUMN_NAMESV2);
         //Create ViewerFrame and set it visible
         frame = new ViewerFrame(metricsParser, appProperties, Constants.APPLICATION_NAME + " " +
