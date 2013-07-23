@@ -139,12 +139,11 @@ public class Main {
         try {
             progressLogMonitor.addFileChangeListener(progressLogReader, progressLogFilePath, 5000);
         } catch (FileNotFoundException e1) {
-            logger.log(Level.SEVERE, "progress log file not found. Configured path: " + progressLogFilePath, e1);
+            logger.log(Level.SEVERE, "progress log file not found. Configured path: " + progressLogFilePath);
         } //Refresh period is 5 seconds
     }
-
-    /**
-     * Load the application properties from the properties file.
+  
+    /** Load the application properties from the properties file.
      *
      * @return the application properties.
      */
@@ -338,3 +337,4 @@ public class Main {
         return Arrays.asList(applicationProperties.getProperty(propertyName).split(","));
     }
 }
+

@@ -3,6 +3,8 @@ package nl.ctmm.trait.proteomics.qcviewer.input;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -123,6 +125,8 @@ public class ProgressLogReader implements FileChangeListener {
             } catch (final ParseException e) {
                 e.printStackTrace();
             }
+        } else if (lastLine == null) {
+        	currentStatus = "Logfile doesn't exist. | | | | | Configured file path = " + logFile.getAbsolutePath();
         } else
             currentStatus = "QC pipeline logfile " + Constants.PROPERTY_PROGRESS_LOG + " is empty.";
     }
@@ -145,10 +149,8 @@ public class ProgressLogReader implements FileChangeListener {
                 }
             }
             bufferedReader.close();
-        } catch (Exception e) {
-        	
-        	logger.log(Level.SEVERE, "Something went wrong while reading logfile " + logFile.getAbsolutePath(), e);
-            currentStatus = "Logfile doesn't exist. | | | | | Configured file path = " + logFile.getAbsolutePath();
+        } catch (IOException e) {
+           	logger.log(Level.SEVERE, "Something went wrong while reading logfile " + logFile.getAbsolutePath());        	
             lastLine = null;
         }
         return lastLine != null ? lastLine.trim() : lastLine;
