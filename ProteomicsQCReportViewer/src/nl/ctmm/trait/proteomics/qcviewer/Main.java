@@ -26,6 +26,7 @@ import nl.ctmm.trait.proteomics.qcviewer.input.ReportReader;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnit;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 
+import org.apache.commons.io.FilenameUtils;
 import org.jfree.ui.RefineryUtilities;
 
 /**
@@ -95,7 +96,7 @@ public class Main {
         metricsParser = new MetricsParser(applicationProperties);
         preferredRootDirectory = applicationProperties.getProperty(Constants.PROPERTY_ROOT_FOLDER);
         logger.fine("in Main preferredRootDirectory = " + preferredRootDirectory);
-        final String progressLogFilePath = preferredRootDirectory + "\\" + Constants.PROPERTY_PROGRESS_LOG;
+        final String progressLogFilePath = FilenameUtils.normalize(preferredRootDirectory + "\\" + Constants.PROPERTY_PROGRESS_LOG);
         logger.fine("progressLogFilePath = " + progressLogFilePath);
         progressLogReader = new ProgressLogReader(progressLogFilePath);
         pipelineStatus = progressLogReader.getCurrentStatus();
@@ -153,7 +154,7 @@ public class Main {
         appProperties.setProperty(Constants.PROPERTY_ROOT_FOLDER, Constants.DEFAULT_ROOT_FOLDER);
         // Load the actual properties from the property file.
         try {
-            final FileInputStream fileInputStream = new FileInputStream(Constants.PROPERTIES_FILE_NAME);
+            final FileInputStream fileInputStream = new FileInputStream(FilenameUtils.normalize(Constants.PROPERTIES_FILE_NAME));
             appProperties.load(fileInputStream);
             fileInputStream.close();
         } catch (final IOException e) {
@@ -232,7 +233,7 @@ public class Main {
         final String runningMsrunName = progressLogReader.getRunningMsrunName();
         final Calendar now = Calendar.getInstance();
         tillDate = now.getTime();
-        final String preferredRootDirectory = applicationProperties.getProperty(Constants.PROPERTY_ROOT_FOLDER);
+        final String preferredRootDirectory = applicationProperties.getProperty(FilenameUtils.normalize(Constants.PROPERTY_ROOT_FOLDER));
         final List<ReportUnit> reportUnits = getReportUnits(preferredRootDirectory, fromDate, tillDate);
         if (reportUnits.size() == 0) { //There exist no reports in current root directory
               //Get new location to read reports from

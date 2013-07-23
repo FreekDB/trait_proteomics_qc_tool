@@ -23,6 +23,7 @@ import javax.swing.JTextArea;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Utilities;
 
+import org.apache.commons.io.FilenameUtils;
 import org.jfree.ui.RefineryUtilities;
 
 /**
@@ -173,9 +174,9 @@ public class AboutFrame extends JFrame implements ActionListener {
     private JLabel createAcknowledgementLabel(final String link, final String logoPath) {
         final JLabel label = new JLabel(link, JLabel.LEFT);
         try {
-            label.setIcon(new ImageIcon(Utilities.scaleImage(ImageIO.read(new File(logoPath)), 0, 100, 100)));
+            label.setIcon(new ImageIcon(Utilities.scaleImage(ImageIO.read(new File(FilenameUtils.normalize(logoPath))), 0, 100, 100)));
         } catch (final IOException e) {
-            logger.log(Level.SEVERE, "Logo in file " + logoPath + " not found.", e);
+            logger.log(Level.SEVERE, "Logo in file " + FilenameUtils.normalize(logoPath) + " not found.", e);
         }
         return label;
     }

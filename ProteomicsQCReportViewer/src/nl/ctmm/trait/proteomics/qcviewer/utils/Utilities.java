@@ -10,6 +10,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
+import org.apache.commons.io.FilenameUtils;
+
 /**
  * This class contains some utility declarations and methods.
  *
@@ -21,7 +23,7 @@ public class Utilities {
     public static final int SCALE_FIT = 0;
     public static final int SCALE_FILL = 1;
     public static final String NOT_AVAILABLE_ICON_NAME = "naIcon";
-    public static final String NOT_AVAILABLE_ICON_FILE = "images\\na.jpg";
+    public static final String NOT_AVAILABLE_ICON_FILE = FilenameUtils.normalize("images\\na.jpg");
 
     private static BufferedImage notAvailableImage;
 

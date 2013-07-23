@@ -27,6 +27,7 @@ import nl.ctmm.trait.proteomics.qcviewer.Main;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 import nl.ctmm.trait.proteomics.qcviewer.utils.DatePicker;
 
+import org.apache.commons.io.FilenameUtils;
 import org.jfree.ui.RefineryUtilities;
 
 /**
@@ -141,9 +142,9 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
         int returnVal = chooser.showOpenDialog(null);
         String preferredRootDirectory = null;
         if(returnVal == JFileChooser.APPROVE_OPTION) {
-            preferredRootDirectory = chooser.getSelectedFile().getAbsolutePath();
+            preferredRootDirectory = FilenameUtils.normalize(chooser.getSelectedFile().getAbsolutePath());
            logger.fine("You chose to open this folder: " +
-                chooser.getSelectedFile().getAbsolutePath());
+        		   FilenameUtils.normalize(chooser.getSelectedFile().getAbsolutePath()));
             updatePreferredRootDirectory(preferredRootDirectory);
             if (parentViewerFrame != null) {
                 logger.fine("Cleaning everything and restarting..");
@@ -178,7 +179,7 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
      public void actionPerformed(ActionEvent ae) {
         logger.fine("DataEntryFrame Action command = " + ae.getActionCommand());
         if (ae.getActionCommand().equals("SUBMITDIR")) {
-            String preferredRootDirectory = inputText.getText();
+            String preferredRootDirectory = FilenameUtils.normalize(inputText.getText());
             if (!preferredRootDirectory.trim().equals("")) { //appProperty not empty
                 dispose();
                 logger.fine("Preferred root directory = " + preferredRootDirectory);

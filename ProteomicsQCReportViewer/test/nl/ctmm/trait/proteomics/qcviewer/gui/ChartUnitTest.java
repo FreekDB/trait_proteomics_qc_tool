@@ -7,6 +7,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+
+import org.apache.commons.io.FilenameUtils;
 import org.jfree.data.xy.XYSeries;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,9 +37,9 @@ public class ChartUnitTest {
         final String msrunName3 = "msrun3";
         final String directory1 = TIC_DIRECTORY + "simulated_tic_130707_a\\";
         final String fileName1 = "simulated_tic_130707_a_ticmatrix.csv";
-        final XYSeries xySeries = readXYSeries(msrunName1, new File(directory1 + fileName1));
+        final XYSeries xySeries = readXYSeries(msrunName1, new File(FilenameUtils.normalize(directory1 + fileName1)));
         final String directory2 = TIC_DIRECTORY + "simulated_tic_130707_b\\";
-        final File ticFileChartUnit3 = new File(directory2 + "simulated_tic_130707_b_ticmatrix.csv");
+        final File ticFileChartUnit3 = new File(FilenameUtils.normalize(directory2 + "simulated_tic_130707_b_ticmatrix.csv"));
         // public ChartUnit(final String msrunName, final int reportNum, final XYSeries series)
         chartUnit1 = new ChartUnit(msrunName1, 1, xySeries);
         chartUnit2 = new ChartUnit(msrunName2, 2, null); //initialize with empty series

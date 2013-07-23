@@ -20,6 +20,7 @@ import javax.swing.JFrame;
 
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 
+import org.apache.commons.io.FilenameUtils;
 import org.jfree.data.xy.XYSeries;
 
 /**
@@ -82,7 +83,7 @@ public class ReportReader extends JFrame {
 //        String allErrorMessages = "";
         final List<ReportUnit> reportUnits = new ArrayList<>();
         logger.log(Level.ALL, "Root folder = " + rootDirectoryName);
-        for (final File yearDirectory : getYearDirectories(rootDirectoryName)) {
+        for (final File yearDirectory : getYearDirectories(FilenameUtils.normalize(rootDirectoryName))) {
             logger.fine("Year = " + yearDirectory.getName());
             for (final File monthDirectory : getMonthDirectories(yearDirectory)) {
                 logger.fine("Month = " + monthDirectory.getName());
@@ -160,7 +161,7 @@ public class ReportReader extends JFrame {
 //    private void saveErrorMessages(String allErrorMessages) {
 //        try {
 //            //Save errorMessages to errorMessages.txt file
-//            FileWriter fWriter = new FileWriter("QCReports\\errorMessages.txt", true);
+//            FileWriter fWriter = new FileWriter(FilenameUtils.normalize("QCReports\\errorMessages.txt"), true);
 //            BufferedWriter bWriter = new BufferedWriter(fWriter);
 //            Date date = new Date();
 //            bWriter.write(date.toString() + "\n");
@@ -179,7 +180,7 @@ public class ReportReader extends JFrame {
      */
     private List<File> getYearDirectories(final String rootDirectoryName) {
         final List<File> yearDirectories = new ArrayList<>();
-        final File rootDirectory = new File(rootDirectoryName);
+        final File rootDirectory = new File(FilenameUtils.normalize(rootDirectoryName));
         if (rootDirectory.exists()) {
             final File[] yearFiles = rootDirectory.listFiles();
             if (yearFiles != null) {
@@ -305,7 +306,7 @@ public class ReportReader extends JFrame {
             while ((line = bufferedReader.readLine()) != null) {
                 final StringTokenizer lineTokenizer = new StringTokenizer(line, ",");
                 // The first token is the x value.
-                float x = Float.parseFloat(lineTokenizer.nextToken()) / 60;
+                float x = Float.parseFloat(lineTokenizer.nextToken())/60;
                 // The second token is the y value.
                 float y = Float.parseFloat(lineTokenizer.nextToken());
                 series.add(x, y);

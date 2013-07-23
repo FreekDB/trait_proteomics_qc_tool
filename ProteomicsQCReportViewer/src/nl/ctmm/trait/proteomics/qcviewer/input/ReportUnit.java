@@ -1,7 +1,5 @@
 package nl.ctmm.trait.proteomics.qcviewer.input;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -9,7 +7,9 @@ import java.util.Map;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import nl.ctmm.trait.proteomics.qcviewer.gui.ChartUnit;
+
 import org.jfree.data.xy.XYSeries;
 
 /**

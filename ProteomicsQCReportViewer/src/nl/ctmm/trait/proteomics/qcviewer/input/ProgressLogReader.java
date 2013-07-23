@@ -17,6 +17,8 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.io.FilenameUtils;
+
 import nl.ctmm.trait.proteomics.qcviewer.Main;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 
@@ -49,7 +51,7 @@ public class ProgressLogReader implements FileChangeListener {
     public ProgressLogReader(final String progressLogFilePath) {
     	prepareLogger();
         this.owner = Main.getInstance();
-        this.logFile = new File(progressLogFilePath);
+        this.logFile = new File(FilenameUtils.normalize(progressLogFilePath));
         parseCurrentStatus(logFile);
         logger.fine("Current QC Pipeline Status: " + currentStatus);
         // Create timer, run timer thread as daemon.
@@ -150,7 +152,7 @@ public class ProgressLogReader implements FileChangeListener {
             }
             bufferedReader.close();
         } catch (IOException e) {
-           	logger.log(Level.SEVERE, "Something went wrong while reading logfile " + logFile.getAbsolutePath());        	
+           	logger.log(Level.SEVERE, "Something went wrong while reading logfile " + FilenameUtils.normalize(logFile.getAbsolutePath()));        	
             lastLine = null;
         }
         return lastLine != null ? lastLine.trim() : lastLine;
