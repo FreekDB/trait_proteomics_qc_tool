@@ -49,7 +49,6 @@ public class ProgressLogReader implements FileChangeListener {
      * @param progressLogFilePath Absolute path to the progressLogFile
      */
     public ProgressLogReader(final String progressLogFilePath) {
-    	prepareLogger();
         this.owner = Main.getInstance();
         this.logFile = new File(FilenameUtils.normalize(progressLogFilePath));
         parseCurrentStatus(logFile);
@@ -59,19 +58,6 @@ public class ProgressLogReader implements FileChangeListener {
         final StatusMonitorTask task = new StatusMonitorTask(this);
         timer.schedule(task, 5000, 5000);
     }
-
-	/**
-     * Prepare the logger for this class
-     * Set ConsoleHandler as handler
-     * Set logging level to ALL 
-     */
-    private void prepareLogger() {
-    	//Set logger and handler levels to Level.ALL
-    	logger.setLevel(Level.ALL);
-        ConsoleHandler handler = new ConsoleHandler();
-        handler.setLevel(Level.ALL);
-        logger.addHandler(handler);
-	}
 
 	/**
      * Get current status from the progressLogFile

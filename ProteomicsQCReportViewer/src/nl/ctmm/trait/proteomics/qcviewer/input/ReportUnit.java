@@ -53,25 +53,11 @@ public class ReportUnit {
      * @param reportNum the unique report number.
      */
     public ReportUnit(final String msrunName, final int reportNum) {
-    	prepareLogger();
         this.msrunName = msrunName;
         this.reportNum = reportNum;
         //Create default chart unit to handle problems due to missing series data 
         ticChartUnit = new ChartUnit(msrunName, reportNum, null);
     }
-
-	/**
-     * Prepare the logger for this class
-     * Set ConsoleHandler as handler
-     * Set logging level to ALL 
-     */
-    private void prepareLogger() {
-    	//Set logger and handler levels to Level.ALL
-    	logger.setLevel(Level.ALL);
-        ConsoleHandler handler = new ConsoleHandler();
-        handler.setLevel(Level.ALL);
-        logger.addHandler(handler);
-	}
 
 	/**
      * Get value of metrics based on metrics key - e.g. dyn:ds-1a

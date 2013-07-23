@@ -51,7 +51,6 @@ public class ChartUnit {
      * @param series the data series.
      */
     public ChartUnit(final String msrunName, final int reportNumber, final XYSeries series) {
-    	prepareLogger();
         String maxIntensityString = "N/A";
         if (series != null) {
             maxIntensity = series.getMaxY();
@@ -69,19 +68,6 @@ public class ChartUnit {
         // performance
         ticChart.setAntiAlias(false);
     }
-
-	/**
-     * Prepare the logger for this class
-     * Set ConsoleHandler as handler
-     * Set logging level to ALL      
-     */
-    private void prepareLogger() {
-    	//Set logger and handler levels to Level.ALL
-    	logger.setLevel(Level.ALL);
-        ConsoleHandler handler = new ConsoleHandler();
-        handler.setLevel(Level.ALL);
-        logger.addHandler(handler);
-	}
 
 	/**
      * Create a <code>XYBarRenderer</code>.

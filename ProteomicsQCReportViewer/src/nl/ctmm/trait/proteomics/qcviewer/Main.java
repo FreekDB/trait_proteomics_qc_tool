@@ -91,7 +91,7 @@ public class Main {
      * TODO: see whether we can update the application instead of restarting it. [Freek]
      */
     public void runReportViewer() {
-    	prepareLogger();
+      	prepareAllLoggers();
         applicationProperties = loadProperties();
         metricsParser = new MetricsParser(applicationProperties);
         preferredRootDirectory = applicationProperties.getProperty(Constants.PROPERTY_ROOT_FOLDER);
@@ -163,20 +163,18 @@ public class Main {
         return appProperties;
     }
 
-    
-	/**
-     * Prepare the logger for this class
-     * Set ConsoleHandler as handler
-     * Set logging level to ALL
-     * 
+    /**
+     * Prepare the loggers for this application:
+     * - set ConsoleHandler as handler.
+     * - set logging level to ALL.
      */
-    private void prepareLogger() {
-    	//Set logger and handler levels to Level.ALL
-    	logger.setLevel(Level.ALL);
-        ConsoleHandler handler = new ConsoleHandler();
+    private void prepareAllLoggers() {
+        final ConsoleHandler handler = new ConsoleHandler();
         handler.setLevel(Level.ALL);
-        logger.addHandler(handler);
-	}
+        final Logger rootLogger = Logger.getLogger("nl.ctmm.trait.proteomics.qcviewer");
+        rootLogger.setLevel(Level.ALL);
+        rootLogger.addHandler(handler);
+    }
     
     /**
      * Read initial set of QC Reports from the preferredRootDirectory. The reports are filtered according to date

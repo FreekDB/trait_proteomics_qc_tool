@@ -60,23 +60,9 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
      */
     public DataEntryForm(final Main parent, final Properties appProperties) {
         super("DataEntry Frame");
-        prepareLogger();
         this.parentMain = parent; 
         this.appProperties = appProperties; 
     }
-
-	/**
-     * Prepare the logger for this class
-     * Set ConsoleHandler as handler
-     * Set logging level to ALL 
-     */
-    private void prepareLogger() {
-    	//Set logger and handler levels to Level.ALL
-    	logger.setLevel(Level.ALL);
-        ConsoleHandler handler = new ConsoleHandler();
-        handler.setLevel(Level.ALL);
-        logger.addHandler(handler);
-	}
 
 	/**
      * Constructor - whereas parent is ViewerFrame class

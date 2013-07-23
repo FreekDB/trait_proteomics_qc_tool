@@ -54,26 +54,12 @@ public class ProgressLogMonitor {
    * Constructor.
    */
   private ProgressLogMonitor() {
-	  prepareLogger(); 
     // Create timer, run timer thread as daemon.
     timer = new Timer(true);
     timerEntries = new Hashtable<>();
   }
 
-	/**
-   * Prepare the logger for this class
-   * Set ConsoleHandler as handler
-   * Set logging level to ALL 
-   */
-  private void prepareLogger() {
-	  //Set logger and handler levels to Level.ALL
-	  logger.setLevel(Level.ALL);
-	  ConsoleHandler handler = new ConsoleHandler();
-	  handler.setLevel(Level.ALL);
-	  logger.addHandler(handler);
-  }
-
-/**
+  /**
    * Adds a monitored file with a {@link FileChangeListener}.
    * 
    * @param listener

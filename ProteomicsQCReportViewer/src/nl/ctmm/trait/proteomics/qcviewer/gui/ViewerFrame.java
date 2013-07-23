@@ -132,7 +132,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                        final String pipelineStatus) {
         super(title);
         logger.fine("ViewerFrame constructor");
-        prepareLogger();
         setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 25, CHART_HEIGHT * 10));
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.metricsParser = metricsParser;
@@ -146,19 +145,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         // Finally refresh the frame.
         revalidate();
     }
-
-	/**
-     * Prepare the logger for this class
-     * Set ConsoleHandler as handler
-     * Set logging level to ALL 
-     */
-    private void prepareLogger() {
-    	//Set logger and handler levels to Level.ALL
-    	logger.setLevel(Level.ALL);
-        ConsoleHandler handler = new ConsoleHandler();
-        handler.setLevel(Level.ALL);
-        logger.addHandler(handler);
-	}
 
 	/**
      * Parse the data of the selected metrics: create lists of metrics keys and metrics names.

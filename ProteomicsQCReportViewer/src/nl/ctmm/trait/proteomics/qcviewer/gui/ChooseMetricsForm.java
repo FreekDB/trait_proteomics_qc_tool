@@ -138,7 +138,6 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
     public ChooseMetricsForm(final ViewerFrame viewerFrame, final MetricsParser metricsParser,
                              final List<String> selectedMetricsKeys) {
         super("Select QC-Full Metrics for MSQC Report Viewer");
-        prepareLogger();
         this.viewerFrame = viewerFrame;
         this.metricsParser = metricsParser;
         // Create the list models for both selected metrics and available (not yet selected) metrics.
@@ -157,20 +156,6 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         ((JPanel) getContentPane()).setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
         getContentPane().setPreferredSize(new Dimension(830, 340));
     }
-
-	/**
-     * Prepare the logger for this class
-     * Set ConsoleHandler as handler
-     * Set logging level to ALL
-     * 
-     */
-    private void prepareLogger() {
-    	//Set logger and handler levels to Level.ALL
-    	logger.setLevel(Level.ALL);
-        ConsoleHandler handler = new ConsoleHandler();
-        handler.setLevel(Level.ALL);
-        logger.addHandler(handler);
-	}
 
 	/**
      * Create the list models for the lists with selected and available metrics.
