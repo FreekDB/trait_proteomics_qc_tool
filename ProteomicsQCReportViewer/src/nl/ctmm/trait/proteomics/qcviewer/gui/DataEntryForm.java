@@ -25,10 +25,11 @@ import javax.swing.JTextField;
 
 import nl.ctmm.trait.proteomics.qcviewer.Main;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
-import nl.ctmm.trait.proteomics.qcviewer.utils.DatePicker;
 
 import org.apache.commons.io.FilenameUtils;
 import org.jfree.ui.RefineryUtilities;
+
+import com.toedter.calendar.JDateChooser;
 
 /**
  * Consists of following forms to accept user input: PreferredRootDirectory - from which to read QC reports,
@@ -198,66 +199,58 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
      * Display date filter form to select From Date and Till Date for displaying QC reports
      */
     public void displayDateFilterEntryForm() {
-        JLabel label1 = new JLabel("From Date:");
-        final JTextField text1 = new JTextField(10);
-        text1.setEnabled(false);
         java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat(
                 Constants.SIMPLE_DATE_FORMAT_STRING);
+        JLabel label1 = new JLabel("From Date:");
+        JPanel p1 = new JPanel();
+        p1.setMinimumSize(new Dimension(250, 20));
+        p1.add(label1);
+        final JDateChooser fromDateChooser = new JDateChooser();
+        fromDateChooser.setDateFormatString(Constants.SIMPLE_DATE_FORMAT_STRING);
         //Set current date - 2 weeks in fromDate
         Calendar now = Calendar.getInstance();
         now.add(Calendar.DATE, -14); 
         Date fromDate = now.getTime();
-        text1.setText(sdf.format(fromDate));
-        JButton b1 = new JButton("select");
-        JPanel p1 = new JPanel();
-        p1.add(label1);
-        p1.add(text1);
-        p1.add(b1);
-        
-        JLabel label2 = new JLabel("Till Date:");
-        final JTextField text2 = new JTextField(10);
-        text2.setEnabled(false);
-        //Set current date in text2 field
-        
-        Date tillDate = new Date(); 
-        text2.setText(sdf.format(tillDate));
-        JButton b2 = new JButton("select");
+        fromDateChooser.setDate(fromDate);
+        fromDateChooser.getDateEditor().setEnabled(false);
+        fromDateChooser.setPreferredSize(new Dimension(100, 20));
+        p1.add(fromDateChooser);
+        fromDateChooser.requestFocusInWindow(); 
+        JLabel label2 = new JLabel("    Till Date:");
         JPanel p2 = new JPanel();
         p2.add(label2);
-        p2.add(text2);
-        p2.add(b2);
-        
-        JButton b3 = new JButton("Submit");
-        JButton b4 = new JButton("Cancel");
+        final JDateChooser tillDateChooser = new JDateChooser();
+        tillDateChooser.setDateFormatString(Constants.SIMPLE_DATE_FORMAT_STRING);
+        //Set current date
+        tillDateChooser.setDate(new Date());
+        tillDateChooser.getDateEditor().setEnabled(false);
+        tillDateChooser.setPreferredSize(new Dimension(100, 20));
+        p2.add(tillDateChooser);
+        tillDateChooser.requestFocusInWindow(); 
+
+        JButton b1 = new JButton("Submit");
+        JButton b2 = new JButton("Cancel");
 
         JPanel p3 = new JPanel(new GridLayout(1,2));
-        p3.add(b3);
-        p3.add(b4);
+        p3.add(b1);
+        p3.add(b2);
         
         JPanel p4 = new JPanel(new GridLayout(3,1));
         p4.add(p1, 0);
         p4.add(p2, 1);
         p4.add(p3, 2);
+        
         getContentPane().add(p4);
         pack();
         RefineryUtilities.centerFrameOnScreen(this);
         setVisible(true);
         b1.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
-                text1.setText(new DatePicker().setPickedDate());
-            }
-        });
-        b2.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-                text2.setText(new DatePicker().setPickedDate());
-            }
-        });
-        b3.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-                String date1 = text1.getText();
-                String date2 = text2.getText();
                 java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat(
                         Constants.SIMPLE_DATE_FORMAT_STRING);
+            	String date1 = sdf.format(fromDateChooser.getDate());
+                String date2 = sdf.format(tillDateChooser.getDate());
+
                 if (date1.equals("") || date2.equals("")) {
                     JOptionPane.showMessageDialog(null, "Press Select to choose proper date", "Error",JOptionPane.ERROR_MESSAGE);
                 } else {
@@ -288,10 +281,11 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
                 }
             }
         });
-        b4.addActionListener(new ActionListener() {
+        b2.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
                 dispose();
             }
         });
+        setResizable(false);
     }
 }
