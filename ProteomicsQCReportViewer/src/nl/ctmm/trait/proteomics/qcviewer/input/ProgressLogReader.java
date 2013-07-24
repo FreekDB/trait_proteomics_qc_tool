@@ -11,6 +11,9 @@ import java.util.Date;
 import java.util.StringTokenizer;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import nl.ctmm.trait.proteomics.qcviewer.Main;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
@@ -25,7 +28,11 @@ import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
 public class ProgressLogReader implements FileChangeListener {
-    private static final DateFormat LOG_FILE_DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    /**
+    * The logger for this class.
+    */
+    private static final Logger logger = Logger.getLogger(ProgressLogReader.class.getName());
+	private static final DateFormat LOG_FILE_DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private String currentStatus = "";
     private String runningMsrunName = "";
@@ -38,19 +45,31 @@ public class ProgressLogReader implements FileChangeListener {
      * @param progressLogFilePath Absolute path to the progressLogFile
      */
     public ProgressLogReader(final String progressLogFilePath) {
+    	prepareLogger();
         this.owner = Main.getInstance();
         this.logFile = new File(progressLogFilePath);
         parseCurrentStatus(logFile);
-        System.out.println("Current QC Pipeline Status: " + currentStatus);
+        logger.fine("Current QC Pipeline Status: " + currentStatus);
         // Create timer, run timer thread as daemon.
         final Timer timer = new Timer(true);
-//        Hashtable<String, StatusMonitorTask> timerEntries = new Hashtable<>();
         final StatusMonitorTask task = new StatusMonitorTask(this);
-//        timerEntries.put("StatusMonitor", task);
         timer.schedule(task, 5000, 5000);
     }
 
-    /**
+	/**
+     * Prepare the logger for this class
+     * Set ConsoleHandler as handler
+     * Set logging level to ALL 
+     */
+    private void prepareLogger() {
+    	//Set logger and handler levels to Level.ALL
+    	logger.setLevel(Level.ALL);
+        ConsoleHandler handler = new ConsoleHandler();
+        handler.setLevel(Level.ALL);
+        logger.addHandler(handler);
+	}
+
+	/**
      * Get current status from the progressLogFile
      * @return currentStatus
      */
@@ -127,7 +146,8 @@ public class ProgressLogReader implements FileChangeListener {
             }
             bufferedReader.close();
         } catch (Exception e) {
-            System.out.println(e.toString());
+        	
+        	logger.log(Level.SEVERE, "Something went wrong while reading logfile " + logFile.getAbsolutePath(), e);
             currentStatus = "Logfile doesn't exist. | | | | | Configured file path = " + logFile.getAbsolutePath();
             lastLine = null;
         }
@@ -154,9 +174,9 @@ public class ProgressLogReader implements FileChangeListener {
 
     @Override
     public void fileChanged(final File logFile) {
-        System.out.println("ProgressLogReader: logFile changed. Refreshing current status..");
+        logger.fine("ProgressLogReader: logFile changed. Refreshing current status..");
         parseCurrentStatus(logFile);
-        System.out.println("Now current status is " + getCurrentStatus());
+        logger.fine("Now current status is " + getCurrentStatus());
         owner.notifyProgressLogFileChanged(getCurrentStatus());
     }
     

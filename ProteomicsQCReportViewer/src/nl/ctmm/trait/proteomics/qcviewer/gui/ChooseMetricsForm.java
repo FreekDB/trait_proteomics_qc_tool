@@ -48,6 +48,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -136,6 +138,7 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
     public ChooseMetricsForm(final ViewerFrame viewerFrame, final MetricsParser metricsParser,
                              final List<String> selectedMetricsKeys) {
         super("Select QC-Full Metrics for MSQC Report Viewer");
+        prepareLogger();
         this.viewerFrame = viewerFrame;
         this.metricsParser = metricsParser;
         // Create the list models for both selected metrics and available (not yet selected) metrics.
@@ -155,7 +158,21 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         getContentPane().setPreferredSize(new Dimension(830, 340));
     }
 
-    /**
+	/**
+     * Prepare the logger for this class
+     * Set ConsoleHandler as handler
+     * Set logging level to ALL
+     * 
+     */
+    private void prepareLogger() {
+    	//Set logger and handler levels to Level.ALL
+    	logger.setLevel(Level.ALL);
+        ConsoleHandler handler = new ConsoleHandler();
+        handler.setLevel(Level.ALL);
+        logger.addHandler(handler);
+	}
+
+	/**
      * Create the list models for the lists with selected and available metrics.
      *
      * @param metricsParser the metrics parser providing access to all possible metrics.
@@ -325,6 +342,7 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
                 list.setSelectedIndex(index);
                 list.requestFocusInWindow();
             } catch (final UnsupportedFlavorException | IOException e) {
+            	logger.log(Level.SEVERE, "Something went wrong while importing data", e);
                 return false;
             }
             return true;

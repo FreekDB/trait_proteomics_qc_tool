@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -92,6 +93,7 @@ public class Main {
      * TODO: see whether we can update the application instead of restarting it. [Freek]
      */
     public void runReportViewer() {
+    	prepareAllLoggers();
         applicationProperties = loadProperties();
         metricsParser = new MetricsParser(applicationProperties);
         preferredRootDirectory = applicationProperties.getProperty(Constants.PROPERTY_ROOT_FOLDER);
@@ -116,12 +118,10 @@ public class Main {
                 //if not valid, it will throw ParseException
                 fromDate = sdf.parse(reportsFromDate);
                 tillDate = sdf.parse(reportsTillDate);
-                logger.fine("fromDate = " + fromDate.toString() + " tillDate = " + tillDate.toString());
-                logger.fine("fromDate = " + sdf.format(fromDate) + " tillDate = " + sdf.format(tillDate));
             } catch (final ParseException e) {
                 fromDate = null;
                 tillDate = null;
-                e.printStackTrace();
+                logger.log(Level.SEVERE, "Something went wrong while processing fromDate and tillDate", e);
             }
         }
         if (tillDate == null) { //The date interval is not specified. 
@@ -129,8 +129,6 @@ public class Main {
             final Calendar now = Calendar.getInstance();
             now.add(Calendar.DATE, -14);
             fromDate = now.getTime();
-            logger.fine("fromDate = " + fromDate.toString() + " tillDate = " + tillDate.toString());
-            logger.fine("fromDate = " + sdf.format(fromDate) + " tillDate = " + sdf.format(tillDate));
         }
         logger.fine("fromDate = " + sdf.format(fromDate) + " tillDate = " + sdf.format(tillDate));
 
@@ -146,6 +144,19 @@ public class Main {
             e1.printStackTrace();
             logger.fine("progress log file not found. Configured path: " + progressLogFilePath);
         } //Refresh period is 5 seconds
+    }
+
+    /**
+     * Prepare the loggers for this application:
+     * - set ConsoleHandler as handler.
+     * - set logging level to ALL.
+     */
+    private void prepareAllLoggers() {
+        final ConsoleHandler handler = new ConsoleHandler();
+        handler.setLevel(Level.ALL);
+        final Logger rootLogger = Logger.getLogger("nl.ctmm.trait.proteomics.qcviewer");
+        rootLogger.setLevel(Level.ALL);
+        rootLogger.addHandler(handler);
     }
 
     /**

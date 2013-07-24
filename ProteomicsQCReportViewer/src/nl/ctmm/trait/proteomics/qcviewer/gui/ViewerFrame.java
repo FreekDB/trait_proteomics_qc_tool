@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -91,6 +93,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private static final int CHART_PANEL_SIZE = 800;
     private static final int CHART_HEIGHT = 150;
     private static final int DESKTOP_PANE_WIDTH = 1270;
+    public static final int SPLITPANE_DIVIDER_LOCATION = 185; 
 
     private JDesktopPane desktopPane = new ScrollDesktop();
     private JDesktopPane ticGraphPane = new ScrollDesktop();
@@ -129,6 +132,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                        final String pipelineStatus) {
         super(title);
         logger.fine("ViewerFrame constructor");
+        prepareLogger();
         setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 25, CHART_HEIGHT * 10));
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.metricsParser = metricsParser;
@@ -138,13 +142,25 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         setReportUnits(reportUnits);
         setOrderedReportUnits(reportUnits);
         assembleComponents();
-        setResizable(false);
         setVisible(true);
         // Finally refresh the frame.
         revalidate();
     }
 
-    /**
+	/**
+     * Prepare the logger for this class
+     * Set ConsoleHandler as handler
+     * Set logging level to ALL 
+     */
+    private void prepareLogger() {
+    	//Set logger and handler levels to Level.ALL
+    	logger.setLevel(Level.ALL);
+        ConsoleHandler handler = new ConsoleHandler();
+        handler.setLevel(Level.ALL);
+        logger.addHandler(handler);
+	}
+
+	/**
      * Parse the data of the selected metrics: create lists of metrics keys and metrics names.
      *
      * @param selectedMetricsData the data of the selected metrics (keys and names).
@@ -232,10 +248,10 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             setTicGraphPaneChart(orderedReportUnits.get(0).getReportNum() - 1);
             splitPane2.setOneTouchExpandable(true); //hide-show feature
             splitPane2.setDividerLocation(500); //DesktopPane holding graphs will appear 500 pixels large
-            splitPane1.add(controlFrame);
+            splitPane1.add(new JScrollPane(controlFrame));
             splitPane1.add(splitPane2);
             splitPane1.setOneTouchExpandable(true); //hide-show feature
-            splitPane1.setDividerLocation(170); //control panel will appear 170 pixels large
+            splitPane1.setDividerLocation(SPLITPANE_DIVIDER_LOCATION); 
             splitPane1.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 15, (int)(6.5 * CHART_HEIGHT)));
             getContentPane().add(splitPane1, "Center");
             setJMenuBar(createMenuBar());
@@ -460,7 +476,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         try {
             oplLogo = ImageIO.read(new File(Constants.PROPERTY_OPL_LOGO_FILE));
         } catch (IOException e) {
-            e.printStackTrace();
+        	logger.log(Level.SEVERE, "Something went wrong while reading OPL logo file", e);
         }
         JLabel oplLabel = new JLabel(new ImageIcon(oplLogo));
         JPanel oplPanel = new JPanel();
@@ -471,7 +487,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         try {
             traitCtmmLogo = ImageIO.read(new File(Constants.PROPERTY_PROJECT_LOGO_FILE));
         } catch (IOException e) {
-            e.printStackTrace();
+        	logger.log(Level.SEVERE, "Something went wrong while reading project logo file", e);
         }
         JLabel traitCtmmLabel = new JLabel(new ImageIcon(traitCtmmLogo));
         JPanel traitCtmmPanel = new JPanel();
@@ -495,25 +511,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         controlFrame.pack();
         controlFrame.setLocation(0, 0);
         controlFrame.setResizable(false); 
-        //TODO avoid resizing and repositioning of components in the controlFrame [Pravin]
-        controlPanel.addComponentListener(new ComponentListener() {  
-            public void componentResized(ComponentEvent e) {  
-                //JPanel controlPanel = (JPanel)e.getSource();  
-                //controlPanel.setSize(new Dimension(DESKTOP_PANE_WIDTH + 30, 170));
-            }
-
-            @Override
-            public void componentHidden(ComponentEvent arg0) {
-            }
-
-            @Override
-            public void componentMoved(ComponentEvent arg0) {
-            }
-
-            @Override
-            public void componentShown(ComponentEvent arg0) {
-            }  
-        });  
         controlFrame.setVisible(true);
         return controlFrame;
     }
@@ -553,6 +550,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * Zoom all the ticCharts according to min and max zoom values as obtained from controlFrame  
      */
     private void zoomMinMax() {
+    	//TODO: Make a new user interface for Min Max zoom box
         String minValue = minText.getText();
         String maxValue = maxText.getText();
         int min, max;
@@ -560,6 +558,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             min = Integer.parseInt(minValue); 
             max = Integer.parseInt(maxValue); 
         } catch (NumberFormatException e) {
+        	logger.log(Level.SEVERE, "Something went wrong while reading min and max zoom values", e);
             JOptionPane.showMessageDialog(this, "Incorrect min or max. Resetting to 10 and 80", "Error",
                                           JOptionPane.ERROR_MESSAGE);
             minText.setText("10");

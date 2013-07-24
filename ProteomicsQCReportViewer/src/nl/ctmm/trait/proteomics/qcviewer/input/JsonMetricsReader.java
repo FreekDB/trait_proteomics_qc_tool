@@ -5,6 +5,10 @@ import java.io.FileReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -16,14 +20,32 @@ import org.json.simple.parser.JSONParser;
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
 public class JsonMetricsReader {
+	/**
+     * The logger for this class.
+     */
+    private static final Logger logger = Logger.getLogger(JsonMetricsReader.class.getName());
     private Map<String, String> allMetricsMap;
 
     public JsonMetricsReader(final MetricsParser metricsParser) {
+    	prepareLogger();
         //Keys of allMetricsMap to be used for reading JSON metrics values
         allMetricsMap = metricsParser.getMetricsListing();
     }
     
-    /**
+	/**
+     * Prepare the logger for this class
+     * Set ConsoleHandler as handler
+     * Set logging level to ALL 
+     */
+    private void prepareLogger() {
+    	//Set logger and handler levels to Level.ALL
+    	logger.setLevel(Level.ALL);
+        ConsoleHandler handler = new ConsoleHandler();
+        handler.setLevel(Level.ALL);
+        logger.addHandler(handler);
+	}
+
+	/**
      * Read the QC parameters from the json file.
      * @param jsonFile the json file that contains the QC parameters.
      * @return map containing names of QC metrics and their values - as read from the jSON file
@@ -53,7 +75,7 @@ public class JsonMetricsReader {
                 metricsValues.put(key, paramValue);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+        	logger.log(Level.SEVERE, "Something went wrong while reading JSON file", e);
         }
         return metricsValues;
     }

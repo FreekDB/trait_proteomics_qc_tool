@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import nl.ctmm.trait.proteomics.qcviewer.gui.ChartUnit;
@@ -31,7 +32,7 @@ public class ReportUnit {
     private String ms2Spectra = "N/A";
     private String measured = "N/A";
     private String runtime = "N/A";
-    private URI detailsUri; 
+
     private boolean errorFlag = false; //to signify that one or more files belonging to this report are missing
     
     // todo: only public setters for heatmapName and ioncountName; handle images internally.
@@ -52,13 +53,27 @@ public class ReportUnit {
      * @param reportNum the unique report number.
      */
     public ReportUnit(final String msrunName, final int reportNum) {
+    	prepareLogger();
         this.msrunName = msrunName;
         this.reportNum = reportNum;
         //Create default chart unit to handle problems due to missing series data 
         ticChartUnit = new ChartUnit(msrunName, reportNum, null);
     }
 
-    /**
+	/**
+     * Prepare the logger for this class
+     * Set ConsoleHandler as handler
+     * Set logging level to ALL 
+     */
+    private void prepareLogger() {
+    	//Set logger and handler levels to Level.ALL
+    	logger.setLevel(Level.ALL);
+        ConsoleHandler handler = new ConsoleHandler();
+        handler.setLevel(Level.ALL);
+        logger.addHandler(handler);
+	}
+
+	/**
      * Get value of metrics based on metrics key - e.g. dyn:ds-1a
      * @param key metrics key in String format
      */
@@ -164,28 +179,6 @@ public class ReportUnit {
      */
     public String getMs1Spectra() {
         return this.ms1Spectra;
-    }
-
-    /**
-     * Set the value of parameter detailsUri that points to detailed report on the server
-     *
-     * @param detailsUri Complete link address to report on the server
-     */
-    public void setDetailsUri(final String detailsUri) {
-        try {
-            this.detailsUri = new URI(detailsUri.replace(" ", "%20"));
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-    }
-    
-    /**
-     * Get the value of parameter detailsUri that points to detailed report on the server
-     *
-     * @return detailsUri Complete link address to report on the server
-     */
-    public URI getDetailsUri() {
-        return detailsUri;
     }
     
     /**

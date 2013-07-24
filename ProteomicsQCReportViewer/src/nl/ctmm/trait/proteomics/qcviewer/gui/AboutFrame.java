@@ -32,9 +32,6 @@ import org.jfree.ui.RefineryUtilities;
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
 public class AboutFrame extends JFrame implements ActionListener {
-    /**
-     * The logger for this class.
-     */
     private static final Logger logger = Logger.getLogger(AboutFrame.class.getName());
 
     /**
@@ -178,7 +175,7 @@ public class AboutFrame extends JFrame implements ActionListener {
         try {
             label.setIcon(new ImageIcon(Utilities.scaleImage(ImageIO.read(new File(logoPath)), 0, 100, 100)));
         } catch (final IOException e) {
-            logger.log(Level.WARNING, "Logo in file " + logoPath + " not found.", e);
+            logger.log(Level.SEVERE, "Logo in file " + logoPath + " not found.", e);
         }
         return label;
     }
