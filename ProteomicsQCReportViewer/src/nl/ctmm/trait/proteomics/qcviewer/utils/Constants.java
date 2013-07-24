@@ -23,12 +23,12 @@ public interface Constants {
     static final String PROPERTY_SHOW_REPORTS_TILL_DATE = "ShowReportsTillDate";
     static final String SIMPLE_DATE_FORMAT_STRING = "dd/MM/yyyy";
     static final String PROPERTY_METRICS_LISTING_FILE = FilenameUtils.normalize("MetricsListing.txt");
-    static final String PROPERTY_PROJECT_LOGO_FILE = FilenameUtils.normalize("images\\traitctmm.jpg");
+    static final String PROPERTY_PROJECT_LOGO_FILE = FilenameUtils.normalize("images\\traitctmmlogo.png");
     static final String PROPERTY_NIST_LOGO_FILE = FilenameUtils.normalize("images\\nistlogo.jpg");
     static final String PROPERTY_NBIC_LOGO_FILE = FilenameUtils.normalize("images\\nbiclogo.png");
     static final String PROPERTY_OPL_LOGO_FILE = FilenameUtils.normalize("images\\opllogo.jpg");
     static final String PROPERTY_CTMM_LOGO_FILE = FilenameUtils.normalize("images\\ctmmlogo.jpg");
-
+    
     /**
      * The name of the font used in the GUI.
      */
