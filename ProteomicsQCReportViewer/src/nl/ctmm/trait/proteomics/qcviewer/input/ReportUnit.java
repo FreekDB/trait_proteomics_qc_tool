@@ -1,7 +1,5 @@
 package nl.ctmm.trait.proteomics.qcviewer.input;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -9,7 +7,9 @@ import java.util.Map;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import nl.ctmm.trait.proteomics.qcviewer.gui.ChartUnit;
+
 import org.jfree.data.xy.XYSeries;
 
 /**
@@ -53,25 +53,11 @@ public class ReportUnit {
      * @param reportNum the unique report number.
      */
     public ReportUnit(final String msrunName, final int reportNum) {
-    	prepareLogger();
         this.msrunName = msrunName;
         this.reportNum = reportNum;
         //Create default chart unit to handle problems due to missing series data 
         ticChartUnit = new ChartUnit(msrunName, reportNum, null);
     }
-
-	/**
-     * Prepare the logger for this class
-     * Set ConsoleHandler as handler
-     * Set logging level to ALL 
-     */
-    private void prepareLogger() {
-    	//Set logger and handler levels to Level.ALL
-    	logger.setLevel(Level.ALL);
-        ConsoleHandler handler = new ConsoleHandler();
-        handler.setLevel(Level.ALL);
-        logger.addHandler(handler);
-	}
 
 	/**
      * Get value of metrics based on metrics key - e.g. dyn:ds-1a

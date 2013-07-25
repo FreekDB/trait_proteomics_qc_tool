@@ -55,6 +55,7 @@ import javax.swing.event.ChangeListener;
 import nl.ctmm.trait.proteomics.qcviewer.input.MetricsParser;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnit;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
+import nl.ctmm.trait.proteomics.qcviewer.utils.Utilities;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -94,7 +95,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private static final int CHART_PANEL_SIZE = 800;
     private static final int CHART_HEIGHT = 150;
     private static final int DESKTOP_PANE_WIDTH = 1270;
-    public static final int SPLITPANE_DIVIDER_LOCATION = 185; 
+    public static final int SPLITPANE_DIVIDER_LOCATION = 180; 
 
     private JDesktopPane desktopPane = new ScrollDesktop();
     private JDesktopPane ticGraphPane = new ScrollDesktop();
@@ -133,7 +134,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                        final String pipelineStatus) {
         super(title);
         logger.fine("ViewerFrame constructor");
-        prepareLogger();
         setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 25, CHART_HEIGHT * 10));
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.metricsParser = metricsParser;
@@ -147,19 +147,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         // Finally refresh the frame.
         revalidate();
     }
-
-	/**
-     * Prepare the logger for this class
-     * Set ConsoleHandler as handler
-     * Set logging level to ALL 
-     */
-    private void prepareLogger() {
-    	//Set logger and handler levels to Level.ALL
-    	logger.setLevel(Level.ALL);
-        ConsoleHandler handler = new ConsoleHandler();
-        handler.setLevel(Level.ALL);
-        logger.addHandler(handler);
-	}
 
 	/**
      * Parse the data of the selected metrics: create lists of metrics keys and metrics names.
@@ -490,7 +477,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         } catch (IOException e) {
         	logger.log(Level.SEVERE, "Something went wrong while reading project logo file", e);
         }
-        JLabel traitCtmmLabel = new JLabel(new ImageIcon(traitCtmmLogo));
+        JLabel traitCtmmLabel = new JLabel(new ImageIcon(Utilities.scaleImage(traitCtmmLogo, Utilities.SCALE_FIT, 125, 125)));
         JPanel traitCtmmPanel = new JPanel();
         traitCtmmPanel.add(traitCtmmLabel);
         JPanel controlPanel = new JPanel(new FlowLayout());

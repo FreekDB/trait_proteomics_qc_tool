@@ -23,6 +23,8 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.io.FilenameUtils;
+
 /**
  * Class monitoring a {@link File} for changes.
  * 
@@ -52,26 +54,12 @@ public class ProgressLogMonitor {
    * Constructor.
    */
   private ProgressLogMonitor() {
-	  prepareLogger(); 
     // Create timer, run timer thread as daemon.
     timer = new Timer(true);
     timerEntries = new Hashtable<>();
   }
 
-	/**
-   * Prepare the logger for this class
-   * Set ConsoleHandler as handler
-   * Set logging level to ALL 
-   */
-  private void prepareLogger() {
-	  //Set logger and handler levels to Level.ALL
-	  logger.setLevel(Level.ALL);
-	  ConsoleHandler handler = new ConsoleHandler();
-	  handler.setLevel(Level.ALL);
-	  logger.addHandler(handler);
-  }
-
-/**
+  /**
    * Adds a monitored file with a {@link FileChangeListener}.
    * 
    * @param listener
@@ -83,7 +71,7 @@ public class ProgressLogMonitor {
    */
   public void addFileChangeListener(FileChangeListener listener, String fileName, long period)
       throws FileNotFoundException {
-    addFileChangeListener(listener, new File(fileName), period);
+    addFileChangeListener(listener, new File(FilenameUtils.normalize(fileName)), period);
   }
 
   /**
@@ -111,7 +99,7 @@ public class ProgressLogMonitor {
    *          the listener to be removed.
    */
   public void removeFileChangeListener(FileChangeListener listener, String fileName) {
-    removeFileChangeListener(listener, new File(fileName));
+    removeFileChangeListener(listener, new File(FilenameUtils.normalize(fileName)));
   }
 
   /**

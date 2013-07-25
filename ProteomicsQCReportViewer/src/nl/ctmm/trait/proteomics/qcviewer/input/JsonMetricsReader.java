@@ -27,24 +27,10 @@ public class JsonMetricsReader {
     private Map<String, String> allMetricsMap;
 
     public JsonMetricsReader(final MetricsParser metricsParser) {
-    	prepareLogger();
         //Keys of allMetricsMap to be used for reading JSON metrics values
         allMetricsMap = metricsParser.getMetricsListing();
     }
     
-	/**
-     * Prepare the logger for this class
-     * Set ConsoleHandler as handler
-     * Set logging level to ALL 
-     */
-    private void prepareLogger() {
-    	//Set logger and handler levels to Level.ALL
-    	logger.setLevel(Level.ALL);
-        ConsoleHandler handler = new ConsoleHandler();
-        handler.setLevel(Level.ALL);
-        logger.addHandler(handler);
-	}
-
 	/**
      * Read the QC parameters from the json file.
      * @param jsonFile the json file that contains the QC parameters.

@@ -26,6 +26,7 @@ import nl.ctmm.trait.proteomics.qcviewer.input.ReportReader;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnit;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 
+import org.apache.commons.io.FilenameUtils;
 import org.jfree.ui.RefineryUtilities;
 
 /**
@@ -39,12 +40,10 @@ public class Main {
      * The logger for this class.
      */
     private static final Logger logger = Logger.getLogger(Main.class.getName());
-
     /**
      * This is the singleton instance of this class.
      */
     private static final Main instance = new Main();
-
     private Properties applicationProperties;
     private MetricsParser metricsParser;
     private String pipelineStatus = "";
@@ -58,7 +57,6 @@ public class Main {
     //Reads the pipeline log file - qc_status.log from the preferredRootDirectory
     private ProgressLogReader progressLogReader;
     //Monitors the pipeline log file - qc_status.log from the preferredRootDirectory
-    @SuppressWarnings("FieldCanBeLocal")
     private ProgressLogMonitor progressLogMonitor;
     //The directory to which QC pipeline writes the QC reports
     private String preferredRootDirectory;
@@ -98,7 +96,8 @@ public class Main {
         metricsParser = new MetricsParser(applicationProperties);
         preferredRootDirectory = applicationProperties.getProperty(Constants.PROPERTY_ROOT_FOLDER);
         logger.fine("in Main preferredRootDirectory = " + preferredRootDirectory);
-        final String progressLogFilePath = preferredRootDirectory + "\\" + Constants.PROPERTY_PROGRESS_LOG;
+        final String progressLogFilePath = FilenameUtils.normalize(preferredRootDirectory + "\\" +
+                                                                   Constants.PROPERTY_PROGRESS_LOG);
         logger.fine("progressLogFilePath = " + progressLogFilePath);
         progressLogReader = new ProgressLogReader(progressLogFilePath);
         pipelineStatus = progressLogReader.getCurrentStatus();
@@ -118,6 +117,8 @@ public class Main {
                 //if not valid, it will throw ParseException
                 fromDate = sdf.parse(reportsFromDate);
                 tillDate = sdf.parse(reportsTillDate);
+                logger.fine("fromDate = " + fromDate.toString() + " tillDate = " + tillDate.toString());
+                logger.fine("fromDate = " + sdf.format(fromDate) + " tillDate = " + sdf.format(tillDate));
             } catch (final ParseException e) {
                 fromDate = null;
                 tillDate = null;
@@ -129,12 +130,11 @@ public class Main {
             final Calendar now = Calendar.getInstance();
             now.add(Calendar.DATE, -14);
             fromDate = now.getTime();
+            logger.fine("fromDate = " + sdf.format(fromDate) + " tillDate = " + sdf.format(tillDate));
         }
         logger.fine("fromDate = " + sdf.format(fromDate) + " tillDate = " + sdf.format(tillDate));
-
         //Obtain initial set of reports according to date filter
         processInitialReports();
-
         //Start the progress log monitor to monitor qc_status.log file
         // TODO: keep a reference to this progressLogMonitor (declare as a field)? [Freek]
         progressLogMonitor = ProgressLogMonitor.getInstance();
@@ -170,7 +170,7 @@ public class Main {
         appProperties.setProperty(Constants.PROPERTY_ROOT_FOLDER, Constants.DEFAULT_ROOT_FOLDER);
         // Load the actual properties from the property file.
         try {
-            final FileInputStream fileInputStream = new FileInputStream(Constants.PROPERTIES_FILE_NAME);
+            final FileInputStream fileInputStream = new FileInputStream(FilenameUtils.normalize(Constants.PROPERTIES_FILE_NAME));
             appProperties.load(fileInputStream);
             fileInputStream.close();
         } catch (final IOException e) {
@@ -234,7 +234,7 @@ public class Main {
         final String runningMsrunName = progressLogReader.getRunningMsrunName();
         final Calendar now = Calendar.getInstance();
         tillDate = now.getTime();
-        final String preferredRootDirectory = applicationProperties.getProperty(Constants.PROPERTY_ROOT_FOLDER);
+        final String preferredRootDirectory = applicationProperties.getProperty(FilenameUtils.normalize(Constants.PROPERTY_ROOT_FOLDER));
         final List<ReportUnit> reportUnits = getReportUnits(preferredRootDirectory, fromDate, tillDate);
         if (reportUnits.size() == 0) { //There exist no reports in current root directory
               //Get new location to read reports from
@@ -339,3 +339,4 @@ public class Main {
         return Arrays.asList(applicationProperties.getProperty(propertyName).split(","));
     }
 }
+
