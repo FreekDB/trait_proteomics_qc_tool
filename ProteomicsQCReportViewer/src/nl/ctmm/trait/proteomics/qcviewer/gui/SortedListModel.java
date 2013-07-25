@@ -1,11 +1,8 @@
 package nl.ctmm.trait.proteomics.qcviewer.gui;
 
-// TODO: check license. [Freek]
-
-/*taken from http://www.jguru.com/faq/view.jsp?EID=15245 */
-
-import javax.swing.*;
-import java.util.*;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import javax.swing.AbstractListModel;
 
 /**
  * SortedListModel to sort the list of available or selected metrics during metrics selection.
