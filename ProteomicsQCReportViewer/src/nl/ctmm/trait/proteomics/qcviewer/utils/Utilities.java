@@ -40,6 +40,7 @@ public class Utilities {
 
     public static BufferedImage scaleImage(final BufferedImage image, final int scaleType, final int width,
                                            final int height) {
+    	logger.fine("scaleImage: width: " + width + " height: " + height);
         final BufferedImage scaledImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         final Graphics2D graphics2D = scaledImage.createGraphics();
         graphics2D.setColor(Color.white);
