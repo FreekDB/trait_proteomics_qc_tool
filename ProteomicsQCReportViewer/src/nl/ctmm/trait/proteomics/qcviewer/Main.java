@@ -91,12 +91,13 @@ public class Main {
      * TODO: see whether we can update the application instead of restarting it. [Freek]
      */
     public void runReportViewer() {
-      	prepareAllLoggers();
+    	prepareAllLoggers();
         applicationProperties = loadProperties();
         metricsParser = new MetricsParser(applicationProperties);
         preferredRootDirectory = applicationProperties.getProperty(Constants.PROPERTY_ROOT_FOLDER);
         logger.fine("in Main preferredRootDirectory = " + preferredRootDirectory);
-        final String progressLogFilePath = FilenameUtils.normalize(preferredRootDirectory + "\\" + Constants.PROPERTY_PROGRESS_LOG);
+        final String progressLogFilePath = FilenameUtils.normalize(preferredRootDirectory + "\\" +
+                                                                   Constants.PROPERTY_PROGRESS_LOG);
         logger.fine("progressLogFilePath = " + progressLogFilePath);
         progressLogReader = new ProgressLogReader(progressLogFilePath);
         pipelineStatus = progressLogReader.getCurrentStatus();
@@ -139,12 +140,27 @@ public class Main {
         progressLogMonitor = ProgressLogMonitor.getInstance();
         try {
             progressLogMonitor.addFileChangeListener(progressLogReader, progressLogFilePath, 5000);
-        } catch (FileNotFoundException e1) {
-            logger.log(Level.SEVERE, "progress log file not found. Configured path: " + progressLogFilePath);
+        } catch (final FileNotFoundException e1) {
+            e1.printStackTrace();
+            logger.fine("progress log file not found. Configured path: " + progressLogFilePath);
         } //Refresh period is 5 seconds
     }
-  
-    /** Load the application properties from the properties file.
+
+    /**
+     * Prepare the loggers for this application:
+     * - set ConsoleHandler as handler.
+     * - set logging level to ALL.
+     */
+    private void prepareAllLoggers() {
+        final ConsoleHandler handler = new ConsoleHandler();
+        handler.setLevel(Level.ALL);
+        final Logger rootLogger = Logger.getLogger("nl.ctmm.trait.proteomics.qcviewer");
+        rootLogger.setLevel(Level.ALL);
+        rootLogger.addHandler(handler);
+    }
+
+    /**
+     * Load the application properties from the properties file.
      *
      * @return the application properties.
      */
@@ -163,19 +179,6 @@ public class Main {
         return appProperties;
     }
 
-    /**
-     * Prepare the loggers for this application:
-     * - set ConsoleHandler as handler.
-     * - set logging level to ALL.
-     */
-    private void prepareAllLoggers() {
-        final ConsoleHandler handler = new ConsoleHandler();
-        handler.setLevel(Level.ALL);
-        final Logger rootLogger = Logger.getLogger("nl.ctmm.trait.proteomics.qcviewer");
-        rootLogger.setLevel(Level.ALL);
-        rootLogger.addHandler(handler);
-    }
-    
     /**
      * Read initial set of QC Reports from the preferredRootDirectory. The reports are filtered according to date
      * criteria.
