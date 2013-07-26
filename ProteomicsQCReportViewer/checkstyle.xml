@@ -217,7 +217,7 @@
         </module>
 
         <module name="MagicNumber">
-            <property name="ignoreNumbers" value="-1, 0, 0.5, 1, 2"/>
+            <property name="ignoreNumbers" value="-2, -1, -0.5, 0, 0.5, 1, 2"/>
             <property name="ignoreAnnotation" value="true"/>
         </module>
 
