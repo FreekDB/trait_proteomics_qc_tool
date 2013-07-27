@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.imageio.ImageIO;
 
 import org.apache.commons.io.FilenameUtils;
@@ -19,28 +20,77 @@ import org.apache.commons.io.FilenameUtils;
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
 public class Utilities {
-    private static final Logger logger = Logger.getLogger(Utilities.class.getName());
+    /**
+     * Scale an image by making it fit within a width by height rectangle (and possibly not fill it in one dimension).
+     */
     public static final int SCALE_FIT = 0;
+
+    /**
+     * Scale an image by making it a width by height rectangle (and possibly go outside it in one dimension).
+     */
     public static final int SCALE_FILL = 1;
+
+    /**
+     * TODO: can be removed? [Freek]
+     */
     public static final String NOT_AVAILABLE_ICON_NAME = "naIcon";
+
+    /**
+     * The file name of the image to be shown when an actual image is not available.
+     */
     public static final String NOT_AVAILABLE_ICON_FILE = FilenameUtils.normalize("images\\na.jpg");
 
+    /**
+     * The logger for this class.
+     */
+    private static final Logger logger = Logger.getLogger(Utilities.class.getName());
+
+    /**
+     * Cached reference to the image to be shown when an actual image is not available.
+     */
     private static BufferedImage notAvailableImage;
 
+    /**
+     * Hidden constructor.
+     */
+    private Utilities() {
+    }
+
+    /**
+     * Get the placeholder image to be shown when the actual image is not available.
+     *
+     * @return the placeholder image.
+     */
     public static BufferedImage getNotAvailableImage() {
         if (notAvailableImage == null) {
             try {
                 notAvailableImage = ImageIO.read(new File(NOT_AVAILABLE_ICON_FILE));
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 logger.log(Level.SEVERE, e.getMessage(), e);
             }
         }
         return notAvailableImage;
     }
 
+    /**
+     * Scale the supplied image to the specified width and height. The scale type is either {@link Utilities#SCALE_FIT}
+     * to make the scaled image fit within the width by height rectangle or {@link Utilities#SCALE_FILL} to make the
+     * scaled image fill the entire rectangle (and possibly go outside it in one dimension).
+     *
+     * @param image the image to be scaled.
+     * @param scaleType {@link Utilities#SCALE_FIT} or {@link Utilities#SCALE_FILL}.
+     * @param width the preferred width.
+     * @param height the preferred height.
+     * @return the scaled image.
+     */
     public static BufferedImage scaleImage(final BufferedImage image, final int scaleType, final int width,
                                            final int height) {
-    	logger.fine("scaleImage: width: " + width + " height: " + height);
+        logger.fine("scaleImage: width: " + width + " height: " + height);
+
+        // TODO: can we do the scaling once and save the images of the right size? [Freek]
+        // TODO: are there classes in the standard Java libraries or third party libraries that do this scaling? [Freek]
+        //return image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+
         final BufferedImage scaledImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         final Graphics2D graphics2D = scaledImage.createGraphics();
         graphics2D.setColor(Color.white);
@@ -56,6 +106,10 @@ public class Utilities {
                 break;
             case SCALE_FILL:
                 scale = Math.max(xScale, yScale);
+                break;
+            default:
+                logger.warning(String.format("Unexpected scale type: %d.", scaleType));
+                break;
         }
         final double x = (width - imageWidth * scale) / 2;
         final double y = (height - imageHeight * scale) / 2;
