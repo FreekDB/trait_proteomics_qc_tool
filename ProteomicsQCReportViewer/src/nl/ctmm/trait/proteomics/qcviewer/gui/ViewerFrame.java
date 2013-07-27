@@ -95,7 +95,9 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private static final int CHART_PANEL_SIZE = 800;
     private static final int CHART_HEIGHT = 150;
     private static final int DESKTOP_PANE_WIDTH = 1270;
-    public static final int SPLITPANE_DIVIDER_LOCATION = 180; 
+    private static final int SPLITPANE_DIVIDER_LOCATION = 180; 
+    private static final int CTMM_LOGO_WIDTH = 100; //600; //223;
+    private static final int CTMM_LOGO_HEIGHT = 100; //400; //125; 
 
     private JDesktopPane desktopPane = new ScrollDesktop();
     private JDesktopPane ticGraphPane = new ScrollDesktop();
@@ -320,7 +322,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * @return JInternalFrame controlFrame
      */
     private JInternalFrame getControlFrame() {
-        logger.fine("ViewerFrame getControlFrame");
+    	logger.fine("ViewerFrame getControlFrame");
+    	logger.fine("Project logo file is " + Constants.PROPERTY_PROJECT_LOGO_FILE);
         JInternalFrame controlFrame = new JInternalFrame("Control Panel", true);
         javax.swing.plaf.InternalFrameUI ifu= controlFrame.getUI();
         ((javax.swing.plaf.basic.BasicInternalFrameUI)ifu).setNorthPane(null);
@@ -477,7 +480,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         } catch (IOException e) {
         	logger.log(Level.SEVERE, "Something went wrong while reading project logo file", e);
         }
-        JLabel traitCtmmLabel = new JLabel(new ImageIcon(Utilities.scaleImage(traitCtmmLogo, Utilities.SCALE_FIT, 125, 125)));
+        JLabel traitCtmmLabel = new JLabel(new ImageIcon(Utilities.scaleImage(traitCtmmLogo, Utilities.SCALE_FIT, CTMM_LOGO_WIDTH, CTMM_LOGO_HEIGHT)));
         JPanel traitCtmmPanel = new JPanel();
         traitCtmmPanel.add(traitCtmmLabel);
         JPanel controlPanel = new JPanel(new FlowLayout());
