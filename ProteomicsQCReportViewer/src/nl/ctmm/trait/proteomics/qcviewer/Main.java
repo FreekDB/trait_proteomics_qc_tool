@@ -31,6 +31,10 @@ import org.jfree.ui.RefineryUtilities;
 /**
  * The class that starts the QC Report Viewer.
  *
+ * TODO: move nl directory in source directory to source\main\java directory. [Freek]
+ * TODO: move test directory to source\test\java directory. [Freek]
+ * TODO: move images directory (with logo image files) to source\main\resources directory. [Freek]
+ *
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
@@ -49,6 +53,26 @@ public class Main {
      * The poll interval in milliseconds for checking the QC pipeline log file.
      */
     private static final int POLL_INTERVAL_PIPELINE_LOG = 5000;
+
+    /**
+     * Message written to the logger when a report is skipped.
+     */
+    private static final String SKIPPED_REPORT_MESSAGE = "Skipped report unit %s. Logfile says it is running %s.";
+
+    /**
+     * Message written to the logger to show the number of reports.
+     */
+    private static final String NUMBER_OF_REPORTS_MESSAGE = "Number of reports is %s.";
+
+    /**
+     * Message written to the logger to show the updated number of reports.
+     */
+    private static final String NEW_NUMBER_OF_REPORTS_MESSAGE = "Updated %s entries. New number of reports is %s.";
+
+    /**
+     * Message written to the logger when no reports are found.
+     */
+    private static final String NO_REPORTS_MESSAGE = "No reports found in %s.";
 
     /**
      * The application properties such as root folder and default metrics to show.
@@ -276,15 +300,15 @@ public class Main {
                 reportUnitsTable.put(thisMsrun, thisUnit);
                 displayableReportUnits.add(thisUnit);
             } else {
-                // Currently processing this msrun. Do not include in the report.
-                logger.fine("Skipped report unit " + thisMsrun + " Logfile says it is running " + runningMsrunName);
+                // Currently processing this msrun. Do not include in the list of reports.
+                logger.fine(String.format(SKIPPED_REPORT_MESSAGE, thisMsrun, runningMsrunName));
             }
         }
         dataEntryForm.disposeInitialDialog();
-        logger.fine("ReportUnitsTable size is " + reportUnitsTable.size());
+        logger.fine(String.format(NUMBER_OF_REPORTS_MESSAGE, reportUnitsTable.size()));
         if (reportUnits.size() == 0) {
             // There are no reports in the current root directory. Ask for a new directory to read reports from.
-            dataEntryForm.displayErrorMessage("No Reports found in " + preferredRootDirectory);
+            dataEntryForm.displayErrorMessage(String.format(NO_REPORTS_MESSAGE, preferredRootDirectory));
             dataEntryForm.displayRootDirectoryChooser();
         } else {
             //Always start with GUI version
@@ -311,7 +335,7 @@ public class Main {
         if (reportUnits.size() == 0) {
             // There exist no reports in current root directory.
             // Get new location to read reports from.
-            dataEntryForm.displayErrorMessage("No Reports found in " + root);
+            dataEntryForm.displayErrorMessage(String.format(NO_REPORTS_MESSAGE, root));
             dataEntryForm.displayRootDirectoryChooser();
         } else {
             //Compare newReportUnits with reportUnits
@@ -343,11 +367,12 @@ public class Main {
                         reportUnitsTable.put(thisUnit.getMsrunName(), thisUnit);
                     }
                 } else {
-                    logger.fine("Skipped report unit " + thisMsrun + " Logfile says it is running " + runningMsrunName);
+                    // Currently processing this msrun. Do not include in the list of reports.
+                    logger.fine(String.format(SKIPPED_REPORT_MESSAGE, thisMsrun, runningMsrunName));
                 }
             }
-            logger.fine("ReportUnitsTable size is " + reportUnitsTable.size() + " Updated " + numUpdates
-                        + " entries. newReportUnits size is " + newReportUnits.size());
+            logger.fine(String.format(NUMBER_OF_REPORTS_MESSAGE + " " + NEW_NUMBER_OF_REPORTS_MESSAGE,
+                                      reportUnitsTable.size(), numUpdates, newReportUnits.size()));
             reportUnits.clear();
             //Refresh ViewerFrame with new Report Units
             frame.updateReportUnits(newReportUnits, newPipelineStatus);
@@ -367,16 +392,12 @@ public class Main {
     }
 
     /**
-     * Received notification about change in pipeline status.
-     * Push new pipeline status to the report viewer
+     * Received notification about change in pipeline status. Push the new pipeline status to the report viewer
      *
-     * @param newPipelineStatus Updated pipeline status as read from the qc_status.log file
+     * @param newPipelineStatus updated pipeline status as read from the qc_status.log file.
      */
     public void notifyUpdatePipelineStatus(final String newPipelineStatus) {
-        /* Refresh ReportViewer automatically on this notification
-         */
         pipelineStatus = newPipelineStatus;
-        //Refresh ViewerFrame pipelineStatus
         if (frame != null) {
             frame.updatePipelineStatus(pipelineStatus);
         }
