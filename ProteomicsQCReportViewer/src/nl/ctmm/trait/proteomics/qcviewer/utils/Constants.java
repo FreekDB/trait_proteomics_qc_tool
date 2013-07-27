@@ -90,9 +90,9 @@ public interface Constants {
     /**
      * Name of the CTMM TraIT logo file.
      *
-     * TODO: rename to CTMM_TRAIT_LOGO_FILE_NAME, since PROJECT is not very specific it's not a property. [Freek]
+     * TODO: rename to CTMM_TRAIT_LOGO_FILE_NAME, since PROJECT is not very specific and it's not a property. [Freek]
      */
-    String PROPERTY_PROJECT_LOGO_FILE = "images\\traitctmm.jpg";
+    String PROPERTY_PROJECT_LOGO_FILE = "images\\traitctmmlogo.png";
 
     /**
      * Name of the NIST logo file.
