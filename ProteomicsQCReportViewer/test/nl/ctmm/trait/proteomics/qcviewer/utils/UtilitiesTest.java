@@ -38,7 +38,7 @@ public class UtilitiesTest {
      * Tests in error: testGetNotAvailableImageException(nl.ctmm.trait.proteomics.qcviewer.utils.UtilitiesTest): 
      * Inconsistent stackmap frames at branch target 2627 in method nl.ctmm.trait.proteomics.qcviewer.utils.Utilities.scaleImage
      * (Ljava/awt/image/BufferedImage;III)Ljava/awt/image/BufferedImage; at offset 2617
-     * Can this test be removed? 
+     * Can this test be removed? [Pravin]
      * The function Utilities.getNotAvailableImage() is not used in v2. It was in use for v1 of the GUI. 
      */
     
