@@ -34,6 +34,7 @@ import org.jfree.ui.RefineryUtilities;
  * TODO: move nl directory in source directory to source\main\java directory. [Freek]
  * TODO: move test directory to source\test\java directory. [Freek]
  * TODO: move images directory (with logo image files) to source\main\resources directory. [Freek]
+ * TODO: change QE*.raw file names into less descriptive names (see ProgressLogReader.parseCurrentStatus). [Freek]
  *
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
@@ -48,11 +49,6 @@ public class Main {
      * This is the singleton instance of this class.
      */
     private static final Main INSTANCE = new Main();
-
-    /**
-     * The poll interval in milliseconds for checking the QC pipeline log file.
-     */
-    private static final int POLL_INTERVAL_PIPELINE_LOG = 5000;
 
     /**
      * Message written to the logger when a report is skipped.
@@ -199,7 +195,7 @@ public class Main {
         progressLogMonitor = ProgressLogMonitor.getInstance();
         try {
             progressLogMonitor.addFileChangeListener(progressLogReader, progressLogFilePath,
-                                                     POLL_INTERVAL_PIPELINE_LOG);
+                                                     Constants.POLL_INTERVAL_PIPELINE_LOG);
         } catch (final FileNotFoundException e1) {
             e1.printStackTrace();
             logger.fine("progress log file not found. Configured path: " + progressLogFilePath);
@@ -392,19 +388,22 @@ public class Main {
     }
 
     /**
-     * Received notification about change in pipeline status. Push the new pipeline status to the report viewer
+     * Received a notification about a possible change in the QC pipeline status. If the status has indeed changed, push
+     * the new pipeline status to the report viewer.
      *
      * @param newPipelineStatus updated pipeline status as read from the qc_status.log file.
      */
     public void notifyUpdatePipelineStatus(final String newPipelineStatus) {
-        pipelineStatus = newPipelineStatus;
-        if (frame != null) {
-            frame.updatePipelineStatus(pipelineStatus);
+        if (!pipelineStatus.equals(newPipelineStatus)) {
+            pipelineStatus = newPipelineStatus;
+            if (frame != null) {
+                frame.updatePipelineStatus(pipelineStatus);
+            }
         }
     }
 
     /**
-     * Create and start the GUI - of QC Report Viewer.
+     * Create and start the GUI - of the report viewer.
      *
      * @param appProperties  the application properties.
      * @param reportUnits    the report units to be displayed.
