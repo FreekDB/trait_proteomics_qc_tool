@@ -6,6 +6,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Random;
 
+import org.apache.commons.io.FilenameUtils;
+
 /**
  * Very simple tool to generate a TIC (total ion chromatogram) file for testing purposes.
  *
@@ -91,7 +93,7 @@ public class GenerateSimulatedTic {
      */
     private void generateTicFile(final String filePath) {
         try {
-            final File parentDirectory = new File(filePath).getParentFile();
+            final File parentDirectory = new File(FilenameUtils.normalize(filePath)).getParentFile();
             if (parentDirectory.exists() || parentDirectory.mkdirs()) {
                 final Random randomGenerator = new Random(RANDOM_GENERATOR_SEED);
                 final BufferedWriter ticWriter = new BufferedWriter(new FileWriter(filePath));

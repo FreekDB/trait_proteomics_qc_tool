@@ -31,11 +31,6 @@ public class Utilities {
     public static final int SCALE_FILL = 1;
 
     /**
-     * TODO: can be removed? [Freek]
-     */
-    public static final String NOT_AVAILABLE_ICON_NAME = "naIcon";
-
-    /**
      * The file name of the image to be shown when an actual image is not available.
      */
     public static final String NOT_AVAILABLE_ICON_FILE = FilenameUtils.normalize("images\\na.jpg");
@@ -57,6 +52,10 @@ public class Utilities {
     }
 
     /**
+     * TODO: Remove Utilities.getNotAvailableImage()??  [Pravin]
+     * The function Utilities.getNotAvailableImage() is not used in v2. It was in use for v1 of the GUI.
+     */
+    /**
      * Get the placeholder image to be shown when the actual image is not available.
      *
      * @return the placeholder image.
@@ -64,7 +63,7 @@ public class Utilities {
     public static BufferedImage getNotAvailableImage() {
         if (notAvailableImage == null) {
             try {
-                notAvailableImage = ImageIO.read(new File(NOT_AVAILABLE_ICON_FILE));
+                notAvailableImage = ImageIO.read(new File(FilenameUtils.normalize(NOT_AVAILABLE_ICON_FILE)));
             } catch (final IOException e) {
                 logger.log(Level.SEVERE, e.getMessage(), e);
             }

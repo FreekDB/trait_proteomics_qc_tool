@@ -124,18 +124,18 @@ public class ProgressLogReader implements FileChangeListener {
                     currentStatus = String.format("Idle.. | | | | | Inactive for %s", duration);
                 } else {
                     currentStatus = String.format("Unexpected line (%s) encountered while parsing pipeline logfile (%s)",
-                                                  lastLine, Constants.PROPERTY_PROGRESS_LOG);
+                                                  lastLine, Constants.PROGRESS_LOG_FILE_NAME);
                 }
             } catch (final ParseException e) {
                 final String message = String.format("Exception occurred while parsing QC pipeline logfile (%s)",
-                                                     Constants.PROPERTY_PROGRESS_LOG);
+                                                     Constants.PROGRESS_LOG_FILE_NAME);
                 logger.log(Level.WARNING, message, e);
                 currentStatus = message + ": " + e.getMessage();
             }
         } else if (lastLine == null) {
             currentStatus = "Logfile doesn't exist. | | | | | Configured file path: " + logFile.getAbsolutePath();
         } else {
-            currentStatus = "QC pipeline logfile " + Constants.PROPERTY_PROGRESS_LOG + " appears to be empty.";
+            currentStatus = "QC pipeline logfile " + Constants.PROGRESS_LOG_FILE_NAME + " appears to be empty.";
         }
     }
 

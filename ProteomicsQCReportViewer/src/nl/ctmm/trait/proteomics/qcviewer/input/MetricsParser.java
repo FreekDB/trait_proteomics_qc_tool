@@ -11,6 +11,8 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.io.FilenameUtils;
+
 import nl.ctmm.trait.proteomics.qcviewer.gui.SortedListModel;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 
@@ -68,7 +70,7 @@ public class MetricsParser {
     private void readMetricsListing() {
         allMetricsMap = new HashMap<>();
         try {
-            final BufferedReader reader = new BufferedReader(new FileReader(Constants.PROPERTY_METRICS_LISTING_FILE));
+            final BufferedReader reader = new BufferedReader(new FileReader(FilenameUtils.normalize(Constants.METRICS_LISTING_FILE_NAME)));
             String line;
             while ((line = reader.readLine()) != null) {
                 final String separator = ":";
@@ -82,7 +84,7 @@ public class MetricsParser {
             reader.close();
         } catch (final NumberFormatException | IOException e) {
             final String message = "Something went wrong while reading the metrics definition file: %s.";
-            logger.log(Level.SEVERE, String.format(message, Constants.PROPERTY_METRICS_LISTING_FILE), e);
+            logger.log(Level.SEVERE, String.format(message, Constants.METRICS_LISTING_FILE_NAME), e);
         }
     }
 
@@ -100,7 +102,7 @@ public class MetricsParser {
         }
         appProperties.setProperty(Constants.PROPERTY_TOP_COLUMN_NAMESV2, selectedMetricsString);
         try {
-            final FileOutputStream outputStream = new FileOutputStream(Constants.PROPERTIES_FILE_NAME);
+            final FileOutputStream outputStream = new FileOutputStream(FilenameUtils.normalize(Constants.PROPERTIES_FILE_NAME));
             appProperties.store(outputStream, null);
             outputStream.close();
         } catch (final IOException e) {

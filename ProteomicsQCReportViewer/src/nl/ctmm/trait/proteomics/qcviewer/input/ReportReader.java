@@ -60,14 +60,14 @@ public class ReportReader extends JFrame {
      * @param tillDate the end of the date range to search.
      * @return a list with report units.
      */
-    public List<ReportUnit> retrieveReports(final String rootDirectoryName, final Date fromDate, final Date tillDate) {
+    public ArrayList<ReportUnit> retrieveReports(final String rootDirectoryName, final Date fromDate, final Date tillDate) {
         /*The directory has three levels - year, month and msrun.
         The msrun directory may contain following three files of importance:
         1) metrics.json: String file containing values of all QC metrics in json object format 
         2) msrun*_ticmatrix.csv
         */
 //        String allErrorMessages = "";
-        final List<ReportUnit> reportUnits = new ArrayList<>();
+        final ArrayList<ReportUnit> reportUnits = new ArrayList<>();
         logger.log(Level.ALL, "Root folder = " + rootDirectoryName);
         for (final File yearDirectory : getYearDirectories(FilenameUtils.normalize(rootDirectoryName))) {
             logger.fine("Year = " + yearDirectory.getName());
@@ -91,7 +91,7 @@ public class ReportReader extends JFrame {
                         String errorMessage = checkDataFilesAvailability(msRunDirectory.getName(), dataFiles);
                         if (!errorMessage.equals("")) {
                             errorFlag = true;
-//                            allErrorMessages += errorMessage + "\n";
+                            //allErrorMessages += errorMessage + "\n";
                         }
                         reportUnits.add(createReportUnit(msRunDirectory.getName(), dataFiles, errorFlag));
                     } 

@@ -57,6 +57,7 @@ import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnit;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Utilities;
 
+import org.apache.commons.io.FilenameUtils;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.XYPlot;
@@ -95,15 +96,15 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private static final int CHART_PANEL_SIZE = 800;
     private static final int CHART_HEIGHT = 150;
     private static final int DESKTOP_PANE_WIDTH = 1270;
-    private static final int SPLITPANE_DIVIDER_LOCATION = 180; 
-    private static final int CTMM_LOGO_WIDTH = 100; //600; //223;
-    private static final int CTMM_LOGO_HEIGHT = 100; //400; //125; 
+    private static final int SPLITPANE_DIVIDER_LOCATION = 185; 
+    private static final int CTMM_LOGO_WIDTH = 179; 
+    private static final int CTMM_LOGO_HEIGHT = 100; 
 
     private JDesktopPane desktopPane = new ScrollDesktop();
     private JDesktopPane ticGraphPane = new ScrollDesktop();
     private List<ChartPanel> chartPanelList = new ArrayList<>(); //necessary for zooming
     private List<Boolean> chartCheckBoxFlags = new ArrayList<>();
-    private JTextField minText, maxText;
+    private JFormattedTextField minText, maxText;
     private List<ReportUnit> reportUnits = new ArrayList<>(); //preserve original report units
     private List<ReportUnit> orderedReportUnits = new ArrayList<>(); //use this list for display and other operations
     private final Map<ReportUnit, JPanel> reportUnitToMetricsPanel = new HashMap<>();
@@ -146,6 +147,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         setOrderedReportUnits(reportUnits);
         assembleComponents();
         setVisible(true);
+        zoomMinMax();
         // Finally refresh the frame.
         revalidate();
     }
@@ -168,13 +170,23 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         }
     }
 
-    /**
+ /**
  * New report units are available. Update report units in the viewer frame
  * @param newReportUnits New QC reports 
  * @param newPipelineStatus Updated pipeline status
  */
-    public void updateReportUnits(List<ReportUnit> newReportUnits, final String newPipelineStatus) {
+    public void updateReportUnits(final ArrayList<ReportUnit> newReportUnits, final String newPipelineStatus, final Boolean replaceFlag) {
         logger.fine("In updateReportUnits yCoordinate = " + yCoordinate);
+        if (replaceFlag) { //Replace all existing reports by newReportUnits
+        	reportUnits.clear();
+        	orderedReportUnits.clear();
+        	chartCheckBoxFlags.clear();
+        	desktopPane.removeAll();
+        	ticGraphPane.removeAll();
+        	pack();
+        	revalidate();
+        	yCoordinate = 0; 
+        }
         int numReportUnits = reportUnits.size();
         if (newReportUnits.size() > 0) {
             for (int i = 0; i < newReportUnits.size(); ++i) {
@@ -192,8 +204,9 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                 logger.fine("yCoordinate = " + yCoordinate);
                 yCoordinate +=  CHART_HEIGHT + 15;
             }
-            int totalReports = reportUnits.size();
-            desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, totalReports * (CHART_HEIGHT + 15)));
+            desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, reportUnits.size() * (CHART_HEIGHT + 15)));
+          //Set first report graph in the Tic Pane. -1 adjusts to the index. 
+            setTicGraphPaneChart(orderedReportUnits.get(0).getReportNum() - 1); 
         }
         updatePipelineStatus(newPipelineStatus);
         revalidate();
@@ -323,7 +336,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private JInternalFrame getControlFrame() {
     	logger.fine("ViewerFrame getControlFrame");
-    	logger.fine("Project logo file is " + Constants.PROPERTY_PROJECT_LOGO_FILE);
+    	logger.fine("Project logo file is " + Constants.CTMM_TRAIT_LOGO_FILE_NAME);
         JInternalFrame controlFrame = new JInternalFrame("Control Panel", true);
         javax.swing.plaf.InternalFrameUI ifu= controlFrame.getUI();
         ((javax.swing.plaf.basic.BasicInternalFrameUI)ifu).setNorthPane(null);
@@ -331,39 +344,32 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         controlFrame.setLayout(new BorderLayout(0, 0));
         controlFrame.setBackground(Color.WHITE);
         GridLayout layout = new GridLayout(2,1);
-        JPanel zoomPanel = new JPanel();
-        zoomPanel.setLayout(layout);
-        zoomPanel.setPreferredSize(new Dimension(230, 130));
-        zoomPanel.setBackground(Color.WHITE);
         // Zoom all - in, original, out
-        JRadioButton inButton = new JRadioButton("In", false);
+        JButton inButton = new JButton("In [+]");
         inButton.setActionCommand("Zoom In");
-        inButton.setBackground(Color.WHITE);
         inButton.addActionListener(this);
-        JRadioButton originalButton = new JRadioButton("Original", true);
+        JButton originalButton = new JButton("Original");
         originalButton.setActionCommand("Zoom Original");
-        originalButton.setBackground(Color.WHITE);
         originalButton.addActionListener(this);
-        JRadioButton outButton = new JRadioButton("Out", false);
+        JButton outButton = new JButton("Out [-]");
         outButton.setActionCommand("Zoom Out");
-        outButton.setBackground(Color.WHITE);
         outButton.addActionListener(this);
         ButtonGroup zoomGroup = new ButtonGroup();
         zoomGroup.add(inButton);
         zoomGroup.add(originalButton);
         zoomGroup.add(outButton);
-        layout = new GridLayout(1,3);
-        JPanel zoomPanelRadio = new JPanel();
-        zoomPanelRadio.setPreferredSize(new Dimension(230, 40));
-        zoomPanelRadio.setBackground(Color.WHITE); 
-        zoomPanelRadio.setLayout(layout);
-        zoomPanelRadio.add(inButton);
-        zoomPanelRadio.add(originalButton);
-        zoomPanelRadio.add(outButton);
+        JPanel zoomPanelButtons = new JPanel();
+        zoomPanelButtons.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Zoom All TIC Charts"));
+        zoomPanelButtons.setPreferredSize(new Dimension(250, 20));
+        zoomPanelButtons.setBackground(Color.WHITE); 
+        //zoomPanelButtons.setLayout(layout);
+        zoomPanelButtons.add(inButton);
+        zoomPanelButtons.add(originalButton);
+        zoomPanelButtons.add(outButton);
         // Zoom all - Min, Max and Submit
-        JPanel zoomPanelForm = new JPanel();
         JLabel minLabel = new JLabel("Min: ");
         minText = new JFormattedTextField(NumberFormat.getInstance());
+        minText.setValue(10);
         minText.setPreferredSize(new Dimension(20, 20));
         minText.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
@@ -372,24 +378,32 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         });
         JLabel maxLabel = new JLabel("Max: ");
         maxText = new JFormattedTextField(NumberFormat.getInstance());
+        maxText.setValue(80);
         maxText.setPreferredSize(new Dimension(20, 20));
         maxText.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
                 zoomMinMax();
             }
         });
-        JButton zoomButton = new JButton("Zoom");
-        zoomButton.setActionCommand("zoomMinMax");
+        JButton zoomButton = new JButton("Zoom X Axis");
+        zoomButton.setActionCommand(
+        		"zoomMinMax");
         zoomButton.addActionListener(this);
+        JPanel zoomPanelForm = new JPanel();
+        zoomPanelForm.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Zoom Along X Axis"));
         zoomPanelForm.add(minLabel);
         zoomPanelForm.add(minText);
         zoomPanelForm.add(maxLabel);
         zoomPanelForm.add(maxText); 
         zoomPanelForm.add(zoomButton); 
-        zoomPanelForm.setPreferredSize(new Dimension(230, 80));
+        zoomPanelForm.setPreferredSize(new Dimension(250, 80));
         zoomPanelForm.setBackground(Color.WHITE); 
-        zoomPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Zoom All"));
-        zoomPanel.add(zoomPanelRadio, 0);
+        JPanel zoomPanel = new JPanel();
+        layout = new GridLayout(2,1);
+        zoomPanel.setLayout(layout);
+        zoomPanel.setPreferredSize(new Dimension(250, 130));
+        zoomPanel.setBackground(Color.WHITE);
+        zoomPanel.add(zoomPanelButtons, 0);
         zoomPanel.add(zoomPanelForm, 1);
         ButtonGroup sortGroup = new ButtonGroup();
         layout = new GridLayout(selectedMetricsNames.size() / 2 + 1,2);
@@ -465,7 +479,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         //Add opl logo to control frame
         BufferedImage oplLogo = null;
         try {
-            oplLogo = ImageIO.read(new File(Constants.PROPERTY_OPL_LOGO_FILE));
+            oplLogo = ImageIO.read(new File(FilenameUtils.normalize(Constants.OPL_LOGO_FILE_NAME)));
         } catch (IOException e) {
         	logger.log(Level.SEVERE, "Something went wrong while reading OPL logo file", e);
         }
@@ -476,7 +490,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         //Add trait logo to control frame
         BufferedImage traitCtmmLogo = null;
         try {
-            traitCtmmLogo = ImageIO.read(new File(Constants.PROPERTY_PROJECT_LOGO_FILE));
+            traitCtmmLogo = ImageIO.read(new File(FilenameUtils.normalize(Constants.CTMM_TRAIT_LOGO_FILE_NAME)));
         } catch (IOException e) {
         	logger.log(Level.SEVERE, "Something went wrong while reading project logo file", e);
         }
@@ -649,34 +663,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             final AboutFrame aboutFrame = new AboutFrame();
             aboutFrame.setVisible(true);
             aboutFrame.revalidate();
-        }
-    }
-    
-    /**
-     * Remove all the report units and the GUI components.
-     * // TODO: do we need to take such drastic measures as below? [Freek]
-     */
-    public void clean() {
-        if (desktopPane != null) {
-            desktopPane.removeAll();
-        }
-        if (ticGraphPane != null) {
-            ticGraphPane.removeAll();
-        }
-        if (chartPanelList != null) {
-            chartPanelList.clear();
-        }
-        if (chartCheckBoxFlags != null) {
-            chartCheckBoxFlags.clear();
-        }
-        if (reportUnits != null) {
-            reportUnits.clear();
-        }
-        if (orderedReportUnits != null) {
-            orderedReportUnits.clear();
-        }
-        if (sortButtons != null) {
-            sortButtons.clear();
         }
     }
     

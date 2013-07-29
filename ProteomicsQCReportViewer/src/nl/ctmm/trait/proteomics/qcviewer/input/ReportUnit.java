@@ -35,12 +35,6 @@ public class ReportUnit {
 
     private boolean errorFlag = false; //to signify that one or more files belonging to this report are missing
     
-    // todo: only public setters for heatmapName and ioncountName; handle images internally.
-/*    private BufferedImage heatmap = Utilities.getNotAvailableImage();
-    private BufferedImage scaledHeatmap;
-    private BufferedImage ioncount = Utilities.getNotAvailableImage();
-    private String heatmapName = Utilities.NOT_AVAILABLE_ICON_NAME;
-    private String ioncountName = Utilities.NOT_AVAILABLE_ICON_NAME;*/
     public Map<String, String> metricsValues;
     //ChartUnit to hold corresponding chart
     private ChartUnit ticChartUnit = null;
