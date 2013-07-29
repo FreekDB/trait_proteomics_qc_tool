@@ -153,4 +153,9 @@ public interface Constants {
      * The font used for the metrics headers in the details frame.
      */
     Font DETAILS_HEADER_FONT = new Font(FONT_NAME, Font.BOLD, 12);
+
+    /**
+     * The poll interval in milliseconds for checking the QC pipeline log file.
+     */
+    int POLL_INTERVAL_PIPELINE_LOG = 5000;
 }
