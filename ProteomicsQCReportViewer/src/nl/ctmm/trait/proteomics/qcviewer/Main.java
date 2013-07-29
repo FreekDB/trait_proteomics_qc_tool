@@ -439,8 +439,15 @@ public class Main {
         preferredRootDirectory = applicationProperties.getProperty(Constants.PROPERTY_ROOT_FOLDER);
 		determineReportDateRange();
 		final ArrayList<ReportUnit> displayableReportUnits = populateReportUnitsTable();
-		final String pipelineStatus = progressLogReader.getCurrentStatus();
-        //Refresh ViewerFrame with new Report Units
-        frame.updateReportUnits(displayableReportUnits, pipelineStatus, true);
+		if (displayableReportUnits.size() == 0) {
+	        // There exist no reports in selected root directory conforming date range
+	        // Get new location to read reports from.
+	        dataEntryForm.displayErrorMessage(String.format(NO_REPORTS_MESSAGE, preferredRootDirectory));
+	        dataEntryForm.displayRootDirectoryChooser();
+	    } else {
+			final String pipelineStatus = progressLogReader.getCurrentStatus();
+	        //Refresh ViewerFrame with new Report Units
+	        frame.updateReportUnits(displayableReportUnits, pipelineStatus, true);
+	    }
 	}
 }

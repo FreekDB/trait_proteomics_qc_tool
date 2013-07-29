@@ -183,6 +183,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         	chartCheckBoxFlags.clear();
         	desktopPane.removeAll();
         	ticGraphPane.removeAll();
+        	pack();
+        	revalidate();
         	yCoordinate = 0; 
         }
         int numReportUnits = reportUnits.size();
