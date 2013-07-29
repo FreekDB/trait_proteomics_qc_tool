@@ -44,16 +44,15 @@ public interface Constants {
     /**
      * Name of the progress log file to monitor for new QC reports.
      *
-     * TODO: rename to PROGRESS_LOG_FILE_NAME, since it's not a property. [Freek]
+     * TODO: rename to PROGRESS_LOG_FILE_NAME, since it's not a property. [Freek] Done [Pravin]
      */
-    String PROPERTY_PROGRESS_LOG = "qc_status.log";
+    String PROGRESS_LOG_FILE_NAME = "qc_status.log";
 
     /**
      * Property name for the initial metrics to show.
      */
     String PROPERTY_TOP_COLUMN_NAMESV2 = "TopColumnNamesV2";
 
-//    String PROPERTY_GUI_VERSION = "GUIVersion";
 
     /**
      * Property name for the start date of the QC reports to show.
@@ -72,6 +71,9 @@ public interface Constants {
      * Date format string used for parsing dates.
      *
      * TODO: use DATE_FORMAT below instead of this string? [Freek]
+     * 
+     * [Pravin] The SIMPLE_DATE_FORMAT_STRING is used as it is. 
+     * e.g. fromDateChooser.setDateFormatString(Constants.SIMPLE_DATE_FORMAT_STRING);
      */
     String SIMPLE_DATE_FORMAT_STRING = "dd/MM/yyyy";
 
@@ -83,44 +85,44 @@ public interface Constants {
     /**
      * Name of the file with all QC metrics.
      *
-     * TODO: rename to METRICS_LISTING_FILE_NAME, since it's not a property. [Freek]
+     * TODO: rename to METRICS_LISTING_FILE_NAME, since it's not a property. [Freek] Done. [Pravin]
      */
-    String PROPERTY_METRICS_LISTING_FILE = "MetricsListing.txt";
+    String METRICS_LISTING_FILE_NAME = "MetricsListing.txt";
 
     /**
      * Name of the CTMM TraIT logo file.
      *
-     * TODO: rename to CTMM_TRAIT_LOGO_FILE_NAME, since PROJECT is not very specific and it's not a property. [Freek]
+     * TODO: rename to CTMM_TRAIT_LOGO_FILE_NAME, since PROJECT is not very specific and it's not a property. [Freek] Done. [Pravin]
      */
-    String PROPERTY_PROJECT_LOGO_FILE = "images\\traitctmmlogo.png";
+    String CTMM_TRAIT_LOGO_FILE_NAME = "images\\traitctmmlogo.png";
 
     /**
      * Name of the NIST logo file.
      *
-     * TODO: rename to _LOGO_FILE_NAME, since it's not a property. [Freek]
+     * TODO: rename to _LOGO_FILE_NAME, since it's not a property. [Freek] Done. [Pravin]
      */
-    String PROPERTY_NIST_LOGO_FILE = "images\\nistlogo.jpg";
+    String NIST_LOGO_FILE_NAME = "images\\nistlogo.jpg";
 
     /**
      * Name of the NBIC logo file.
      *
-     * TODO: rename to NBIC_LOGO_FILE_NAME, since it's not a property. [Freek]
+     * TODO: rename to NBIC_LOGO_FILE_NAME, since it's not a property. [Freek] Done. [Pravin]
      */
-    String PROPERTY_NBIC_LOGO_FILE = "images\\nbiclogo.png";
+    String NBIC_LOGO_FILE_NAME = "images\\nbiclogo.png";
 
     /**
      * Name of the OPL logo file.
      *
-     * TODO: rename to OPL_LOGO_FILE_NAME, since it's not a property. [Freek]
+     * TODO: rename to OPL_LOGO_FILE_NAME, since it's not a property. [Freek] Done. [Pravin]
      */
-    String PROPERTY_OPL_LOGO_FILE = "images\\opllogo.jpg";
+    String OPL_LOGO_FILE_NAME = "images\\opllogo.jpg";
 
     /**
      * Name of the CTMM logo file.
      *
-     * TODO: rename to CTMM_LOGO_FILE_NAME, since it's not a property. [Freek]
+     * TODO: rename to CTMM_LOGO_FILE_NAME, since it's not a property. [Freek] Done. [Pravin]
      */
-    String PROPERTY_CTMM_LOGO_FILE = "images\\ctmmlogo.jpg";
+    String CTMM_LOGO_FILE_NAME = "images\\ctmmlogo.jpg";
 
     /**
      * The name of the font used in the GUI.

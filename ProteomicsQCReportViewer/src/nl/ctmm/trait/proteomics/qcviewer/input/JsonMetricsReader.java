@@ -52,6 +52,7 @@ public class JsonMetricsReader {
         try {
             final JSONObject jsonObject = (JSONObject) new JSONParser().parse(new FileReader(jsonFile));
             // TODO: can we read the available metrics from the json file instead of using allMetricsMap? [Freek]
+            //[Pravin] The json file does not always contain all the metrics and their values. 
             for (final String key : allMetricsMap.keySet()) {
                 //Initialize metricsValues to N/A
                 String paramValue = "N/A";

@@ -146,7 +146,7 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
         logger.fine("Changing root directory to " + newRootDirectory);
         appProperties.setProperty(Constants.PROPERTY_ROOT_FOLDER, newRootDirectory);
         try {
-            FileOutputStream out = new FileOutputStream(Constants.PROPERTIES_FILE_NAME);
+            FileOutputStream out = new FileOutputStream(FilenameUtils.normalize(Constants.PROPERTIES_FILE_NAME));
             appProperties.store(out, null);
             out.close();
         } catch (IOException e) {
@@ -160,29 +160,6 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
     @Override
      public void actionPerformed(ActionEvent ae) {
         logger.fine("DataEntryFrame Action command = " + ae.getActionCommand());
-        if (ae.getActionCommand().equals("SUBMITDIR")) {
-            String preferredRootDirectory = FilenameUtils.normalize(inputText.getText());
-            if (!preferredRootDirectory.trim().equals("")) { //appProperty not empty
-                dispose();
-                logger.fine("Preferred root directory = " + preferredRootDirectory);
-                if (parentMain != null) {
-                    updatePreferredRootDirectory(preferredRootDirectory);
-                    parentMain.runReportViewer();
-                } else if (parentViewerFrame != null) {
-                    logger.fine("Invoke parentViewerFrame methods");
-                    parentViewerFrame.clean();
-                    parentViewerFrame.dispose();
-                    updatePreferredRootDirectory(preferredRootDirectory);
-                    Main.getInstance().runReportViewer();
-                }
-            } else displayErrorMessage ("Enter valid root directory.");
-        } else if (ae.getActionCommand().startsWith("CANCEL")) {
-            if (parentViewerFrame != null) {
-                logger.fine("Invoke parentViewerFrame methods");
-                parentViewerFrame.clean();
-            }
-            dispose();
-        }
     }
 
     @Override
@@ -194,8 +171,6 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
      * Display date filter form to select From Date and Till Date for displaying QC reports
      */
     public void displayDateFilterEntryForm() {
-        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat(
-                Constants.SIMPLE_DATE_FORMAT_STRING);
         JLabel label1 = new JLabel("From Date:");
         JPanel p1 = new JPanel();
         p1.setMinimumSize(new Dimension(250, 20));
@@ -257,7 +232,7 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
                             appProperties.setProperty(Constants.PROPERTY_SHOW_REPORTS_FROM_DATE, date1);
                             appProperties.setProperty(Constants.PROPERTY_SHOW_REPORTS_TILL_DATE, date2);
                             try {
-                                FileOutputStream out = new FileOutputStream(Constants.PROPERTIES_FILE_NAME);
+                                FileOutputStream out = new FileOutputStream(FilenameUtils.normalize(Constants.PROPERTIES_FILE_NAME));
                                 appProperties.store(out, null);
                                 out.close();
                             } catch (IOException e) {

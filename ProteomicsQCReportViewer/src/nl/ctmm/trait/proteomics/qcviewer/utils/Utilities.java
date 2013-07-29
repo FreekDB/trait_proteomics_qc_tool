@@ -64,7 +64,7 @@ public class Utilities {
     public static BufferedImage getNotAvailableImage() {
         if (notAvailableImage == null) {
             try {
-                notAvailableImage = ImageIO.read(new File(NOT_AVAILABLE_ICON_FILE));
+                notAvailableImage = ImageIO.read(new File(FilenameUtils.normalize(NOT_AVAILABLE_ICON_FILE)));
             } catch (final IOException e) {
                 logger.log(Level.SEVERE, e.getMessage(), e);
             }

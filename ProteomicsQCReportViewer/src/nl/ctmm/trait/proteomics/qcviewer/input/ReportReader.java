@@ -91,7 +91,7 @@ public class ReportReader extends JFrame {
                         String errorMessage = checkDataFilesAvailability(msRunDirectory.getName(), dataFiles);
                         if (!errorMessage.equals("")) {
                             errorFlag = true;
-//                            allErrorMessages += errorMessage + "\n";
+                            //allErrorMessages += errorMessage + "\n";
                         }
                         reportUnits.add(createReportUnit(msRunDirectory.getName(), dataFiles, errorFlag));
                     } 

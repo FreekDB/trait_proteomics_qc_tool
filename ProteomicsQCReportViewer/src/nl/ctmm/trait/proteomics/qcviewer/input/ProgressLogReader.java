@@ -116,7 +116,7 @@ public class ProgressLogReader implements FileChangeListener {
         } else if (lastLine == null) {
         	currentStatus = "Logfile doesn't exist. | | | | | Configured file path = " + logFile.getAbsolutePath();
         } else
-            currentStatus = "QC pipeline logfile " + Constants.PROPERTY_PROGRESS_LOG + " is empty.";
+            currentStatus = "QC pipeline logfile " + Constants.PROGRESS_LOG_FILE_NAME + " is empty.";
     }
 
     /**

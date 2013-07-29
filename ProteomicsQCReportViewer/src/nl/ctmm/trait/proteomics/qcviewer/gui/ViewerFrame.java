@@ -57,6 +57,7 @@ import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnit;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Utilities;
 
+import org.apache.commons.io.FilenameUtils;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.XYPlot;
@@ -333,7 +334,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private JInternalFrame getControlFrame() {
     	logger.fine("ViewerFrame getControlFrame");
-    	logger.fine("Project logo file is " + Constants.PROPERTY_PROJECT_LOGO_FILE);
+    	logger.fine("Project logo file is " + Constants.CTMM_TRAIT_LOGO_FILE_NAME);
         JInternalFrame controlFrame = new JInternalFrame("Control Panel", true);
         javax.swing.plaf.InternalFrameUI ifu= controlFrame.getUI();
         ((javax.swing.plaf.basic.BasicInternalFrameUI)ifu).setNorthPane(null);
@@ -476,7 +477,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         //Add opl logo to control frame
         BufferedImage oplLogo = null;
         try {
-            oplLogo = ImageIO.read(new File(Constants.PROPERTY_OPL_LOGO_FILE));
+            oplLogo = ImageIO.read(new File(FilenameUtils.normalize(Constants.OPL_LOGO_FILE_NAME)));
         } catch (IOException e) {
         	logger.log(Level.SEVERE, "Something went wrong while reading OPL logo file", e);
         }
@@ -487,7 +488,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         //Add trait logo to control frame
         BufferedImage traitCtmmLogo = null;
         try {
-            traitCtmmLogo = ImageIO.read(new File(Constants.PROPERTY_PROJECT_LOGO_FILE));
+            traitCtmmLogo = ImageIO.read(new File(FilenameUtils.normalize(Constants.CTMM_TRAIT_LOGO_FILE_NAME)));
         } catch (IOException e) {
         	logger.log(Level.SEVERE, "Something went wrong while reading project logo file", e);
         }
@@ -660,34 +661,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             final AboutFrame aboutFrame = new AboutFrame();
             aboutFrame.setVisible(true);
             aboutFrame.revalidate();
-        }
-    }
-    
-    /**
-     * Remove all the report units and the GUI components.
-     * // TODO: do we need to take such drastic measures as below? [Freek]
-     */
-    public void clean() {
-        if (desktopPane != null) {
-            desktopPane.removeAll();
-        }
-        if (ticGraphPane != null) {
-            ticGraphPane.removeAll();
-        }
-        if (chartPanelList != null) {
-            chartPanelList.clear();
-        }
-        if (chartCheckBoxFlags != null) {
-            chartCheckBoxFlags.clear();
-        }
-        if (reportUnits != null) {
-            reportUnits.clear();
-        }
-        if (orderedReportUnits != null) {
-            orderedReportUnits.clear();
-        }
-        if (sortButtons != null) {
-            sortButtons.clear();
         }
     }
     

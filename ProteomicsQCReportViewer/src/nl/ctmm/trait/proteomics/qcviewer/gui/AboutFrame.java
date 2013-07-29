@@ -149,11 +149,11 @@ public class AboutFrame extends JFrame implements ActionListener {
      */
     private JPanel createAcknowledgementsPanel() {
         final String[][] acknowledgementsData = {
-                {"http://www.oncoproteomics.nl", Constants.PROPERTY_OPL_LOGO_FILE},
-                {"http://www.nist.gov", Constants.PROPERTY_NIST_LOGO_FILE},
-                {"http://www.ctmm.nl", Constants.PROPERTY_CTMM_LOGO_FILE},
-                {"http://www.ctmm-trait.nl", Constants.PROPERTY_PROJECT_LOGO_FILE},
-                {"http://www.nbic.nl", Constants.PROPERTY_NBIC_LOGO_FILE}
+                {"http://www.oncoproteomics.nl", Constants.OPL_LOGO_FILE_NAME},
+                {"http://www.nist.gov", Constants.NIST_LOGO_FILE_NAME},
+                {"http://www.ctmm.nl", Constants.CTMM_LOGO_FILE_NAME},
+                {"http://www.ctmm-trait.nl", Constants.CTMM_TRAIT_LOGO_FILE_NAME},
+                {"http://www.nbic.nl", Constants.NBIC_LOGO_FILE_NAME}
         };
         final JPanel acknowledgementsPanel = new JPanel();
         acknowledgementsPanel.setLayout(new GridLayout(5, 1));
