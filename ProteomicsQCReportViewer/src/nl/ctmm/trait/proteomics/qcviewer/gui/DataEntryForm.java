@@ -133,13 +133,8 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
            logger.fine("You chose to open this folder: " +
         		   FilenameUtils.normalize(chooser.getSelectedFile().getAbsolutePath()));
             updatePreferredRootDirectory(preferredRootDirectory);
-            if (parentViewerFrame != null) {
-                logger.fine("Cleaning everything and restarting..");
-                parentViewerFrame.clean();
-                parentViewerFrame.dispose();
-            }
             dispose();
-            Main.getInstance().runReportViewer();
+            Main.getInstance().updateReportViewer();
         } 
      }
     
@@ -268,12 +263,7 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
-                            if (parentViewerFrame != null) {
-                                logger.fine("Invoke parentViewerFrame methods");
-                                parentViewerFrame.clean();
-                                parentViewerFrame.dispose();
-                            }
-                            Main.getInstance().runReportViewer();
+                            Main.getInstance().updateReportViewer();
                         }
                     } catch (ParseException e) {
                     	logger.log(Level.SEVERE, "Something went wrong while parsing fromDate and tillDate.", e);

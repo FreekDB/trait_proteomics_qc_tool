@@ -1,7 +1,7 @@
-#Thu Jul 25 15:59:56 CEST 2013
+#Mon Jul 29 14:04:42 CEST 2013
 GUIVersion=2
-ShowReportsTillDate=31/07/2013
-ShowReportsFromDate=03/07/2013
+ShowReportsTillDate=29/07/2013
+ShowReportsFromDate=15/07/2013
 TopColumnNamesV2=chrom\:c-4a\:Peak Widths at Half Max over (First Decile),chrom\:c-4c\:Peak Widths at Half Max over (Median Value),dyn\:ds-1a\:Ratios of Peptide Ions IDed (Once/Twice),dyn\:ds-3a\:MS1max/MS1sampled Abundance (Median All IDs),generic\:f_size\:File Size (MB),
 DefaultReportsDisplayPeriod=14
-RootFolder=QCReports
+RootFolder=C\:\\Eclipse\\eclipse\\workspace\\GitHub-TPQTEclipse\\trait_proteomics_qc_tool\\ProteomicsQCReportViewer\\QCReports

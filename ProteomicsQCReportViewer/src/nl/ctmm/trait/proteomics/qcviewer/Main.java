@@ -274,51 +274,57 @@ public class Main {
     /**
      * Read initial set of QC Reports from the preferredRootDirectory. The reports are filtered according to date
      * criteria.
-     * <p/>
      * TODO: look at similarities between processInitialReports and notifyProgressLogFileChanged.
      */
     private void processInitialReports() {
-        logger.fine("Reading initial set of reports..");
-        final String runningMsrunName = progressLogReader.getRunningMsrunName();
-        final List<ReportUnit> reportUnits = getReportUnits(preferredRootDirectory, fromDate, tillDate);
-        //Reinitialize reportUnitsTable
-        reportUnitsTable = new HashMap<>();
-        reportNum = 0;
-        final List<ReportUnit> displayableReportUnits = new ArrayList<>();
-        //populate reportUnitsTable
-        logger.fine("All reportUnitsSize = " + reportUnits.size() + " runningMsrunName = " + runningMsrunName);
-        for (final ReportUnit thisUnit : reportUnits) {
-            final String thisMsrun = thisUnit.getMsrunName();
-            if (!thisMsrun.equals(runningMsrunName)) {
-                reportNum++;
-                thisUnit.setReportNum(reportNum);
-                //for identifying duplicate reports
-                if (reportUnitsTable.containsKey(thisMsrun)) {
-                    logger.warning("Alert!! Already exists in ReportUnitsTable " + thisMsrun);
-                }
-                //Update reportUnit in reportUnitsTable
-                reportUnitsTable.put(thisMsrun, thisUnit);
-                displayableReportUnits.add(thisUnit);
-            } else {
-                // Currently processing this msrun. Do not include in the list of reports.
-                logger.fine(String.format(SKIPPED_REPORT_MESSAGE, thisMsrun, runningMsrunName));
-            }
-        }
-        dataEntryForm.disposeInitialDialog();
+        logger.fine("Main processInitialReports()");
+        ArrayList<ReportUnit> displayableReportUnits = populateReportUnitsTable();
         logger.fine(String.format(NUMBER_OF_REPORTS_MESSAGE, reportUnitsTable.size()));
-        if (reportUnits.size() == 0) {
+        dataEntryForm.disposeInitialDialog();
+        if (displayableReportUnits.size() == 0) {
             // There are no reports in the current root directory. Ask for a new directory to read reports from.
             dataEntryForm.displayErrorMessage(String.format(NO_REPORTS_MESSAGE, preferredRootDirectory));
             dataEntryForm.displayRootDirectoryChooser();
         } else {
-            //Always start with GUI version
-            reportUnits.removeAll(reportUnits);
             //Start main user interface
             startQCReportViewerGui(applicationProperties, displayableReportUnits, pipelineStatus);
         }
     }
 
     /**
+     * Read initial set of QC Reports from the preferredRootDirectory. The reports are filtered according to date
+     * criteria
+     * @return displayableReportUnits: QC reports to be displayed in the report viewer
+     */
+    private ArrayList<ReportUnit> populateReportUnitsTable() {
+    	logger.fine("Main populateReportUnitsTable()");
+        final ArrayList<ReportUnit> reportUnits = getReportUnits(preferredRootDirectory, fromDate, tillDate);
+        final String runningMsrunName = progressLogReader.getRunningMsrunName();
+        final ArrayList<ReportUnit> displayableReportUnits = new ArrayList<>();
+        //Reinitialize reportUnitsTable
+        reportUnitsTable = new HashMap<>();
+        //populate reportUnitsTable
+        logger.fine("All reportUnitsSize = " + reportUnits.size() + " runningMsrunName = " + runningMsrunName);
+        for (final ReportUnit thisUnit : reportUnits) {
+            final String thisMsrun = thisUnit.getMsrunName();
+            if (!thisMsrun.equals(runningMsrunName)) {
+            	thisUnit.setReportNum(reportUnitsTable.size() + 1);
+            	displayableReportUnits.add(thisUnit);
+                //for identifying duplicate reports
+                if (reportUnitsTable.containsKey(thisMsrun)) {
+                    logger.warning("Alert!! Already exists in ReportUnitsTable " + thisMsrun);
+                }
+                //Update reportUnit in reportUnitsTable
+                reportUnitsTable.put(thisMsrun, thisUnit);
+            } else {
+                // Currently processing this msrun. Do not include in the list of reports.
+                logger.fine(String.format(SKIPPED_REPORT_MESSAGE, thisMsrun, runningMsrunName));
+            }
+        }
+        return displayableReportUnits;
+	}
+
+	/**
      * Progress log file has changed. Refresh the application automatically on this notification.
      *
      * @param newPipelineStatus the new status of the QC pipeline.
@@ -339,7 +345,7 @@ public class Main {
             dataEntryForm.displayRootDirectoryChooser();
         } else {
             //Compare newReportUnits with reportUnits
-            final List<ReportUnit> newReportUnits = new ArrayList<>();
+            final ArrayList<ReportUnit> newReportUnits = new ArrayList<>();
             int numUpdates = 0;
             for (final ReportUnit thisUnit : reportUnits) {
                 //if not in reportUnits, then add to newReportUnits
@@ -375,7 +381,7 @@ public class Main {
                                       reportUnitsTable.size(), numUpdates, newReportUnits.size()));
             reportUnits.clear();
             //Refresh ViewerFrame with new Report Units
-            frame.updateReportUnits(newReportUnits, newPipelineStatus);
+            frame.updateReportUnits(newReportUnits, newPipelineStatus, false);
         }
     }
 
@@ -387,7 +393,7 @@ public class Main {
      * @param tillDate          the end of the date range to search.
      * @return the list with report units.
      */
-    private List<ReportUnit> getReportUnits(final String rootDirectoryName, final Date fromDate, final Date tillDate) {
+    private ArrayList<ReportUnit> getReportUnits(final String rootDirectoryName, final Date fromDate, final Date tillDate) {
         return new ReportReader(metricsParser).retrieveReports(rootDirectoryName, fromDate, tillDate);
     }
 
@@ -432,4 +438,20 @@ public class Main {
     private List<String> getColumnNames(final Properties applicationProperties, final String propertyName) {
         return Arrays.asList(applicationProperties.getProperty(propertyName).split(","));
     }
+    
+    /**
+     * Update all the reports in the QC Report Viewer in the following two cases: 
+     * 1) New root directory is chosen
+     * 2) Change in the date range  
+     */
+	public void updateReportViewer() {
+		logger.fine("Main updateReportViewer"); 
+        applicationProperties = loadProperties();
+        preferredRootDirectory = applicationProperties.getProperty(Constants.PROPERTY_ROOT_FOLDER);
+		determineReportDateRange();
+		final ArrayList<ReportUnit> displayableReportUnits = populateReportUnitsTable();
+		final String pipelineStatus = progressLogReader.getCurrentStatus();
+        //Refresh ViewerFrame with new Report Units
+        frame.updateReportUnits(displayableReportUnits, pipelineStatus, true);
+	}
 }

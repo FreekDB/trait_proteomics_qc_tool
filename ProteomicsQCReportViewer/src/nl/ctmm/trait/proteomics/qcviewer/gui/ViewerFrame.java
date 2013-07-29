@@ -95,9 +95,9 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private static final int CHART_PANEL_SIZE = 800;
     private static final int CHART_HEIGHT = 150;
     private static final int DESKTOP_PANE_WIDTH = 1270;
-    private static final int SPLITPANE_DIVIDER_LOCATION = 180; 
-    private static final int CTMM_LOGO_WIDTH = 100; //600; //223;
-    private static final int CTMM_LOGO_HEIGHT = 100; //400; //125; 
+    private static final int SPLITPANE_DIVIDER_LOCATION = 185; 
+    private static final int CTMM_LOGO_WIDTH = 179; 
+    private static final int CTMM_LOGO_HEIGHT = 100; 
 
     private JDesktopPane desktopPane = new ScrollDesktop();
     private JDesktopPane ticGraphPane = new ScrollDesktop();
@@ -169,13 +169,21 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         }
     }
 
-    /**
+ /**
  * New report units are available. Update report units in the viewer frame
  * @param newReportUnits New QC reports 
  * @param newPipelineStatus Updated pipeline status
  */
-    public void updateReportUnits(List<ReportUnit> newReportUnits, final String newPipelineStatus) {
+    public void updateReportUnits(final ArrayList<ReportUnit> newReportUnits, final String newPipelineStatus, final Boolean replaceFlag) {
         logger.fine("In updateReportUnits yCoordinate = " + yCoordinate);
+        if (replaceFlag) { //Replace all existing reports by newReportUnits
+        	reportUnits.clear();
+        	orderedReportUnits.clear();
+        	chartCheckBoxFlags.clear();
+        	desktopPane.removeAll();
+        	ticGraphPane.removeAll();
+        	yCoordinate = 0; 
+        }
         int numReportUnits = reportUnits.size();
         if (newReportUnits.size() > 0) {
             for (int i = 0; i < newReportUnits.size(); ++i) {
@@ -193,8 +201,9 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                 logger.fine("yCoordinate = " + yCoordinate);
                 yCoordinate +=  CHART_HEIGHT + 15;
             }
-            int totalReports = reportUnits.size();
-            desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, totalReports * (CHART_HEIGHT + 15)));
+            desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, reportUnits.size() * (CHART_HEIGHT + 15)));
+          //Set first report graph in the Tic Pane. -1 adjusts to the index. 
+            setTicGraphPaneChart(orderedReportUnits.get(0).getReportNum() - 1); 
         }
         updatePipelineStatus(newPipelineStatus);
         revalidate();
@@ -333,13 +342,13 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         controlFrame.setBackground(Color.WHITE);
         GridLayout layout = new GridLayout(2,1);
         // Zoom all - in, original, out
-        JButton inButton = new JButton("In[+]");
+        JButton inButton = new JButton("In [+]");
         inButton.setActionCommand("Zoom In");
         inButton.addActionListener(this);
         JButton originalButton = new JButton("Original");
         originalButton.setActionCommand("Zoom Original");
         originalButton.addActionListener(this);
-        JButton outButton = new JButton("Out[-]");
+        JButton outButton = new JButton("Out [-]");
         outButton.setActionCommand("Zoom Out");
         outButton.addActionListener(this);
         ButtonGroup zoomGroup = new ButtonGroup();
