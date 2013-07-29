@@ -103,7 +103,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private JDesktopPane ticGraphPane = new ScrollDesktop();
     private List<ChartPanel> chartPanelList = new ArrayList<>(); //necessary for zooming
     private List<Boolean> chartCheckBoxFlags = new ArrayList<>();
-    private JTextField minText, maxText;
+    private JFormattedTextField minText, maxText;
     private List<ReportUnit> reportUnits = new ArrayList<>(); //preserve original report units
     private List<ReportUnit> orderedReportUnits = new ArrayList<>(); //use this list for display and other operations
     private final Map<ReportUnit, JPanel> reportUnitToMetricsPanel = new HashMap<>();
@@ -146,6 +146,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         setOrderedReportUnits(reportUnits);
         assembleComponents();
         setVisible(true);
+        zoomMinMax();
         // Finally refresh the frame.
         revalidate();
     }
@@ -331,39 +332,32 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         controlFrame.setLayout(new BorderLayout(0, 0));
         controlFrame.setBackground(Color.WHITE);
         GridLayout layout = new GridLayout(2,1);
-        JPanel zoomPanel = new JPanel();
-        zoomPanel.setLayout(layout);
-        zoomPanel.setPreferredSize(new Dimension(230, 130));
-        zoomPanel.setBackground(Color.WHITE);
         // Zoom all - in, original, out
-        JRadioButton inButton = new JRadioButton("In", false);
+        JButton inButton = new JButton("In[+]");
         inButton.setActionCommand("Zoom In");
-        inButton.setBackground(Color.WHITE);
         inButton.addActionListener(this);
-        JRadioButton originalButton = new JRadioButton("Original", true);
+        JButton originalButton = new JButton("Original");
         originalButton.setActionCommand("Zoom Original");
-        originalButton.setBackground(Color.WHITE);
         originalButton.addActionListener(this);
-        JRadioButton outButton = new JRadioButton("Out", false);
+        JButton outButton = new JButton("Out[-]");
         outButton.setActionCommand("Zoom Out");
-        outButton.setBackground(Color.WHITE);
         outButton.addActionListener(this);
         ButtonGroup zoomGroup = new ButtonGroup();
         zoomGroup.add(inButton);
         zoomGroup.add(originalButton);
         zoomGroup.add(outButton);
-        layout = new GridLayout(1,3);
-        JPanel zoomPanelRadio = new JPanel();
-        zoomPanelRadio.setPreferredSize(new Dimension(230, 40));
-        zoomPanelRadio.setBackground(Color.WHITE); 
-        zoomPanelRadio.setLayout(layout);
-        zoomPanelRadio.add(inButton);
-        zoomPanelRadio.add(originalButton);
-        zoomPanelRadio.add(outButton);
+        JPanel zoomPanelButtons = new JPanel();
+        zoomPanelButtons.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Zoom All TIC Charts"));
+        zoomPanelButtons.setPreferredSize(new Dimension(250, 20));
+        zoomPanelButtons.setBackground(Color.WHITE); 
+        //zoomPanelButtons.setLayout(layout);
+        zoomPanelButtons.add(inButton);
+        zoomPanelButtons.add(originalButton);
+        zoomPanelButtons.add(outButton);
         // Zoom all - Min, Max and Submit
-        JPanel zoomPanelForm = new JPanel();
         JLabel minLabel = new JLabel("Min: ");
         minText = new JFormattedTextField(NumberFormat.getInstance());
+        minText.setValue(10);
         minText.setPreferredSize(new Dimension(20, 20));
         minText.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
@@ -372,24 +366,32 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         });
         JLabel maxLabel = new JLabel("Max: ");
         maxText = new JFormattedTextField(NumberFormat.getInstance());
+        maxText.setValue(80);
         maxText.setPreferredSize(new Dimension(20, 20));
         maxText.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
                 zoomMinMax();
             }
         });
-        JButton zoomButton = new JButton("Zoom");
-        zoomButton.setActionCommand("zoomMinMax");
+        JButton zoomButton = new JButton("Zoom X Axis");
+        zoomButton.setActionCommand(
+        		"zoomMinMax");
         zoomButton.addActionListener(this);
+        JPanel zoomPanelForm = new JPanel();
+        zoomPanelForm.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Zoom Along X Axis"));
         zoomPanelForm.add(minLabel);
         zoomPanelForm.add(minText);
         zoomPanelForm.add(maxLabel);
         zoomPanelForm.add(maxText); 
         zoomPanelForm.add(zoomButton); 
-        zoomPanelForm.setPreferredSize(new Dimension(230, 80));
+        zoomPanelForm.setPreferredSize(new Dimension(250, 80));
         zoomPanelForm.setBackground(Color.WHITE); 
-        zoomPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Zoom All"));
-        zoomPanel.add(zoomPanelRadio, 0);
+        JPanel zoomPanel = new JPanel();
+        layout = new GridLayout(2,1);
+        zoomPanel.setLayout(layout);
+        zoomPanel.setPreferredSize(new Dimension(250, 130));
+        zoomPanel.setBackground(Color.WHITE);
+        zoomPanel.add(zoomPanelButtons, 0);
         zoomPanel.add(zoomPanelForm, 1);
         ButtonGroup sortGroup = new ButtonGroup();
         layout = new GridLayout(selectedMetricsNames.size() / 2 + 1,2);
