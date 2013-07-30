@@ -44,7 +44,6 @@ public class Main {
      * The logger for this class.
      */
     private static final Logger logger = Logger.getLogger(Main.class.getName());
-
     /**
      * This is the singleton instance of this class.
      */
@@ -168,30 +167,16 @@ public class Main {
         metricsParser = new MetricsParser(applicationProperties);
         preferredRootDirectory = applicationProperties.getProperty(Constants.PROPERTY_ROOT_FOLDER);
         logger.fine("in Main preferredRootDirectory = " + preferredRootDirectory);
-        final String progressLogFilePath = FilenameUtils.normalize(preferredRootDirectory + "\\"
-                                                                   + Constants.PROGRESS_LOG_FILE_NAME);
-        logger.fine("progressLogFilePath = " + progressLogFilePath);
-        progressLogReader = new ProgressLogReader(progressLogFilePath);
-        pipelineStatus = progressLogReader.getCurrentStatus();
         dataEntryForm = new DataEntryForm(this, applicationProperties);
         dataEntryForm.setRootDirectoryName(preferredRootDirectory);
         dataEntryForm.displayInitialDialog();
         //Determine fromDate and TillDate range to select the reports
         determineReportDateRange();
+        progressLogOperations();
         //Obtain initial set of reports according to date filter
         ArrayList<ReportUnit> displayableReportUnits = processInitialReports();
         logger.fine(String.format(NUMBER_OF_REPORTS_MESSAGE, reportUnitsTable.size()));
         dataEntryForm.disposeInitialDialog();
-        //Start the progress log monitor to monitor qc_status.log file
-        // TODO: keep a reference to this progressLogMonitor (declare as a field)? [Freek]
-        progressLogMonitor = ProgressLogMonitor.getInstance();
-        try {
-            progressLogMonitor.addFileChangeListener(progressLogReader, progressLogFilePath,
-                                                     Constants.POLL_INTERVAL_PIPELINE_LOG);
-        } catch (final FileNotFoundException e1) {
-            e1.printStackTrace();
-            logger.fine("progress log file not found. Configured path: " + progressLogFilePath);
-        } //Refresh period is 5 seconds
         //Start main user interface
         startQCReportViewerGui(applicationProperties, displayableReportUnits, pipelineStatus);
         if (displayableReportUnits.size() == 0) {
@@ -200,8 +185,8 @@ public class Main {
             dataEntryForm.displayRootDirectoryChooser();
         } 
     }
-
-    /**
+    
+   	/**
      * Determine the date range for displaying reports.
      */
     private void determineReportDateRange() {
@@ -229,6 +214,32 @@ public class Main {
         logger.fine("fromDate = " + Constants.DATE_FORMAT.format(fromDate) + " tillDate = "
                     + Constants.DATE_FORMAT.format(tillDate));
     }
+
+	/**
+     * Determine progress log file path
+     * Setup progressLogReader to read current pipeline status
+     * Setup progressLogMonitor to monitor changes to progress log file 
+     */
+    private void progressLogOperations() {
+        final String progressLogFilePath = FilenameUtils.normalize(preferredRootDirectory + "\\"
+                + Constants.PROGRESS_LOG_FILE_NAME);
+        logger.fine("progressLogFilePath = " + progressLogFilePath);
+        progressLogReader = ProgressLogReader.getInstance(); 
+        progressLogReader.setProgressLogFile(progressLogFilePath);
+        pipelineStatus = progressLogReader.getCurrentStatus();
+        //Start the progress log monitor to monitor qc_status.log file
+        // TODO: keep a reference to this progressLogMonitor (declare as a field)? [Freek]
+        /*progressLogMonitor = ProgressLogMonitor.getInstance();
+        try {
+            progressLogMonitor.addFileChangeListener(progressLogReader, progressLogFilePath,
+                                                     Constants.POLL_INTERVAL_PIPELINE_LOG);
+        } catch (final FileNotFoundException e1) {
+            e1.printStackTrace();
+            logger.fine("progress log file not found. Configured path: " + progressLogFilePath);
+        } //Refresh period is 5 seconds*/
+	}
+
+
 
     /**
      * Prepare the loggers for this application:
@@ -268,6 +279,7 @@ public class Main {
      * Read initial set of QC Reports from the preferredRootDirectory. The reports are filtered according to date
      * criteria
      * @return displayableReportUnits: QC reports to be displayed in the report viewer
+     * TODO: look at similarities between processInitialReports and notifyProgressLogFileChanged.
      */
     private ArrayList<ReportUnit> processInitialReports() {
     	logger.fine("Main processInitialReports()");
@@ -430,6 +442,7 @@ public class Main {
 	        dataEntryForm.displayErrorMessage(String.format(NO_REPORTS_MESSAGE, preferredRootDirectory));
 	        dataEntryForm.displayRootDirectoryChooser();
 	    } else {
+			progressLogOperations();
 			final String pipelineStatus = progressLogReader.getCurrentStatus();
 	        //Refresh ViewerFrame with new Report Units
 	        frame.updateReportUnits(displayableReportUnits, pipelineStatus, true);

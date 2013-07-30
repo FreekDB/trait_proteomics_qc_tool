@@ -86,15 +86,20 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private static final long serialVersionUID = 1;
 
+    /*private static final List<Color> LABEL_COLORS = Arrays.asList(
+            Color.BLUE, Color.DARK_GRAY, Color.GRAY, Color.MAGENTA, Color.ORANGE, Color.RED, Color.BLACK);*/
+    
     private static final List<Color> LABEL_COLORS = Arrays.asList(
-            Color.BLUE, Color.DARK_GRAY, Color.GRAY, Color.MAGENTA, Color.ORANGE, Color.RED, Color.BLACK);
+            Color.BLUE, Color.DARK_GRAY, Color.GREEN, Color.BLACK);
 
+    
     private static final int CHECK_PANEL_SIZE = 90;
     private static final int LABEL_PANEL_SIZE = 350;
     private static final int CHART_PANEL_SIZE = 800;
     private static final int CHART_HEIGHT = 150;
     private static final int DESKTOP_PANE_WIDTH = 1270;
-    private static final int SPLITPANE_DIVIDER_LOCATION = 185;
+    private static final int SPLITPANE1_DIVIDER_LOCATION = 185;
+    private static final int SPLITPANE2_DIVIDER_LOCATION = 500;
     private static final int SORT_PANEL_WIDTH = 700;
     private static final int SORT_PANEL_HEIGHT = 130;
     private static final int OPL_LOGO_WIDTH = 179; 
@@ -245,39 +250,25 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         JInternalFrame controlFrame = getControlFrame();
         //Add desktopPane for displaying graphs and other QC Control
         int totalReports = orderedReportUnits.size();
-        
         if (totalReports != 0) {
             desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, totalReports * (CHART_HEIGHT + 15)));
             prepareChartsInAscendingOrder(true);
-            splitPane2.add(new JScrollPane(desktopPane), 0);
-            ticGraphPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, 2 * CHART_HEIGHT));
-            splitPane2.add(new JScrollPane(ticGraphPane), 1);
-            //Set initial tic Graph - specify complete chart in terms of orderedReportUnits
+          //Set initial tic Graph - specify complete chart in terms of orderedReportUnits
             setTicGraphPaneChart(orderedReportUnits.get(0).getReportNum() - 1);
-            splitPane2.setOneTouchExpandable(true); //hide-show feature
-            splitPane2.setDividerLocation(500); //DesktopPane holding graphs will appear 500 pixels large
-            splitPane1.add(new JScrollPane(controlFrame));
-            splitPane1.add(splitPane2);
-            splitPane1.setOneTouchExpandable(true); //hide-show feature
-            splitPane1.setDividerLocation(SPLITPANE_DIVIDER_LOCATION); 
-            splitPane1.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 15, (int)(6.5 * CHART_HEIGHT)));
-            getContentPane().add(splitPane1, "Center");
-            setJMenuBar(createMenuBar());
-        } else {
-            //Display empty desktopPane and ticGraphPane
-            splitPane2.add(new JScrollPane(desktopPane), 0);
-            ticGraphPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, 2 * CHART_HEIGHT));
-            splitPane2.add(new JScrollPane(ticGraphPane), 1);
-            splitPane2.setOneTouchExpandable(true); //hide-show feature
-            splitPane2.setDividerLocation(500); //DesktopPane holding graphs will appear 500 pixels large
-            splitPane1.add(controlFrame);
-            splitPane1.add(splitPane2);
-            splitPane1.setOneTouchExpandable(true); //hide-show feature
-            splitPane1.setDividerLocation(170); //control panel will appear 170 pixels large
-            splitPane1.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 15, (int)(6.5 * CHART_HEIGHT)));
-            getContentPane().add(splitPane1, "Center");
-            setJMenuBar(createMenuBar());
         }
+        //Display empty desktopPane and ticGraphPane
+        splitPane2.add(new JScrollPane(desktopPane), 0);
+        ticGraphPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, 2 * CHART_HEIGHT));
+        splitPane2.add(new JScrollPane(ticGraphPane), 1);
+        splitPane2.setOneTouchExpandable(true); //hide-show feature
+        splitPane2.setDividerLocation(500); //DesktopPane holding graphs will appear 500 pixels large
+        splitPane1.add(new JScrollPane(controlFrame));
+        splitPane1.add(splitPane2);
+        splitPane1.setOneTouchExpandable(true); //hide-show feature
+        splitPane1.setDividerLocation(170); //control panel will appear 170 pixels large
+        splitPane1.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 15, (int)(6.5 * CHART_HEIGHT)));
+        getContentPane().add(splitPane1, "Center");
+        setJMenuBar(createMenuBar());
     }
     
     /**

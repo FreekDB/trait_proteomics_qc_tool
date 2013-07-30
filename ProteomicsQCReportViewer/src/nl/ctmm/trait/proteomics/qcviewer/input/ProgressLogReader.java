@@ -41,6 +41,8 @@ public class ProgressLogReader implements FileChangeListener {
      */
     private static final DateFormat LOG_FILE_DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+    private static final ProgressLogReader instance = new ProgressLogReader();
+    
     /**
      * The current status of the NIST QC pipeline.
      */
@@ -56,21 +58,43 @@ public class ProgressLogReader implements FileChangeListener {
      */
     private File logFile;
 
+    
+    private Timer timer; 
+
+    /**
+     * Constructor.
+     */
+    private ProgressLogReader() {
+    	
+    }
+    
     /**
      * Parses the current status from the log file and initiate a timer to monitor changes in the log file.
      *
      * @param progressLogFilePath path to the progress log file.
      */
-    public ProgressLogReader(final String progressLogFilePath) {
-        this.logFile = new File(FilenameUtils.normalize(progressLogFilePath));
-        parseCurrentStatus(this.logFile);
+    public void setProgressLogFile(final String progressLogFilePath) {
+        logFile = new File(FilenameUtils.normalize(progressLogFilePath));
+        parseCurrentStatus(logFile);
         logger.fine("Current QC Pipeline Status: " + currentStatus);
+        if (timer != null) {
+        	timer.cancel();
+        }
         // Create a timer and run the timer thread as daemon.
-        final Timer timer = new Timer(true);
+        timer = new Timer(true);
         final StatusMonitorTask task = new StatusMonitorTask();
         timer.schedule(task, Constants.POLL_INTERVAL_PIPELINE_LOG, Constants.POLL_INTERVAL_PIPELINE_LOG);
     }
 
+    /**
+     * Gets the file monitor instance.
+     * 
+     * @return file monitor instance
+     */
+    public static ProgressLogReader getInstance() {
+      return instance;
+    }
+    
     /**
      * Get the current/latest QC pipeline status.
      *
