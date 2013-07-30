@@ -173,16 +173,15 @@ public class Main {
         logger.fine("progressLogFilePath = " + progressLogFilePath);
         progressLogReader = new ProgressLogReader(progressLogFilePath);
         pipelineStatus = progressLogReader.getCurrentStatus();
-
         dataEntryForm = new DataEntryForm(this, applicationProperties);
         dataEntryForm.setRootDirectoryName(preferredRootDirectory);
         dataEntryForm.displayInitialDialog();
-
+        //Determine fromDate and TillDate range to select the reports
         determineReportDateRange();
-
         //Obtain initial set of reports according to date filter
-        processInitialReports();
-
+        ArrayList<ReportUnit> displayableReportUnits = processInitialReports();
+        logger.fine(String.format(NUMBER_OF_REPORTS_MESSAGE, reportUnitsTable.size()));
+        dataEntryForm.disposeInitialDialog();
         //Start the progress log monitor to monitor qc_status.log file
         // TODO: keep a reference to this progressLogMonitor (declare as a field)? [Freek]
         progressLogMonitor = ProgressLogMonitor.getInstance();
@@ -193,6 +192,13 @@ public class Main {
             e1.printStackTrace();
             logger.fine("progress log file not found. Configured path: " + progressLogFilePath);
         } //Refresh period is 5 seconds
+        //Start main user interface
+        startQCReportViewerGui(applicationProperties, displayableReportUnits, pipelineStatus);
+        if (displayableReportUnits.size() == 0) {
+            // There are no reports in the current root directory. Obtain new directory location from the user. 
+            dataEntryForm.displayErrorMessage(String.format(NO_REPORTS_MESSAGE, preferredRootDirectory));
+            dataEntryForm.displayRootDirectoryChooser();
+        } 
     }
 
     /**
@@ -260,31 +266,11 @@ public class Main {
 
     /**
      * Read initial set of QC Reports from the preferredRootDirectory. The reports are filtered according to date
-     * criteria.
-     * TODO: look at similarities between processInitialReports and notifyProgressLogFileChanged.
-     */
-    private void processInitialReports() {
-        logger.fine("Main processInitialReports()");
-        ArrayList<ReportUnit> displayableReportUnits = populateReportUnitsTable();
-        logger.fine(String.format(NUMBER_OF_REPORTS_MESSAGE, reportUnitsTable.size()));
-        dataEntryForm.disposeInitialDialog();
-        if (displayableReportUnits.size() == 0) {
-            // There are no reports in the current root directory. Ask for a new directory to read reports from.
-            dataEntryForm.displayErrorMessage(String.format(NO_REPORTS_MESSAGE, preferredRootDirectory));
-            dataEntryForm.displayRootDirectoryChooser();
-        } else {
-            //Start main user interface
-            startQCReportViewerGui(applicationProperties, displayableReportUnits, pipelineStatus);
-        }
-    }
-
-    /**
-     * Read initial set of QC Reports from the preferredRootDirectory. The reports are filtered according to date
      * criteria
      * @return displayableReportUnits: QC reports to be displayed in the report viewer
      */
-    private ArrayList<ReportUnit> populateReportUnitsTable() {
-    	logger.fine("Main populateReportUnitsTable()");
+    private ArrayList<ReportUnit> processInitialReports() {
+    	logger.fine("Main processInitialReports()");
         final ArrayList<ReportUnit> reportUnits = getReportUnits(preferredRootDirectory, fromDate, tillDate);
         final String runningMsrunName = progressLogReader.getRunningMsrunName();
         final ArrayList<ReportUnit> displayableReportUnits = new ArrayList<>();
@@ -437,7 +423,7 @@ public class Main {
         applicationProperties = loadProperties();
         preferredRootDirectory = applicationProperties.getProperty(Constants.PROPERTY_ROOT_FOLDER);
 		determineReportDateRange();
-		final ArrayList<ReportUnit> displayableReportUnits = populateReportUnitsTable();
+		final ArrayList<ReportUnit> displayableReportUnits = processInitialReports();
 		if (displayableReportUnits.size() == 0) {
 	        // There exist no reports in selected root directory conforming date range
 	        // Get new location to read reports from.

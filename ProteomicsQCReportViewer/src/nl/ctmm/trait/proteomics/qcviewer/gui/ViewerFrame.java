@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
-import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -47,7 +46,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -96,7 +94,11 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private static final int CHART_PANEL_SIZE = 800;
     private static final int CHART_HEIGHT = 150;
     private static final int DESKTOP_PANE_WIDTH = 1270;
-    private static final int SPLITPANE_DIVIDER_LOCATION = 185; 
+    private static final int SPLITPANE_DIVIDER_LOCATION = 185;
+    private static final int SORT_PANEL_WIDTH = 700;
+    private static final int SORT_PANEL_HEIGHT = 130;
+    private static final int OPL_LOGO_WIDTH = 179; 
+    private static final int OPL_LOGO_HEIGHT = 100; 
     private static final int CTMM_LOGO_WIDTH = 179; 
     private static final int CTMM_LOGO_HEIGHT = 100; 
 
@@ -171,9 +173,12 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     }
 
  /**
- * New report units are available. Update report units in the viewer frame
+ * New report units are available. Update report units in the viewer frame.
+ * 
  * @param newReportUnits New QC reports 
  * @param newPipelineStatus Updated pipeline status
+ * @param replaceFlag If true, existing report units will be replaced by new report units. 
+ * 			Else if false, new reports are added to existing reports. GUI will be updated accordingly.  
  */
     public void updateReportUnits(final ArrayList<ReportUnit> newReportUnits, final String newPipelineStatus, final Boolean replaceFlag) {
         logger.fine("In updateReportUnits yCoordinate = " + yCoordinate);
@@ -336,7 +341,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private JInternalFrame getControlFrame() {
     	logger.fine("ViewerFrame getControlFrame");
-    	logger.fine("Project logo file is " + Constants.CTMM_TRAIT_LOGO_FILE_NAME);
+    	logger.fine("CTMM TraIT logo file is " + Constants.CTMM_TRAIT_LOGO_FILE_NAME);
         JInternalFrame controlFrame = new JInternalFrame("Control Panel", true);
         javax.swing.plaf.InternalFrameUI ifu= controlFrame.getUI();
         ((javax.swing.plaf.basic.BasicInternalFrameUI)ifu).setNorthPane(null);
@@ -362,7 +367,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         zoomPanelButtons.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Zoom All TIC Charts"));
         zoomPanelButtons.setPreferredSize(new Dimension(250, 20));
         zoomPanelButtons.setBackground(Color.WHITE); 
-        //zoomPanelButtons.setLayout(layout);
         zoomPanelButtons.add(inButton);
         zoomPanelButtons.add(originalButton);
         zoomPanelButtons.add(outButton);
@@ -410,7 +414,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         sortButtons = new ArrayList<>();
         JPanel sortPanel = new JPanel();
         sortPanel.setLayout(layout);
-        sortPanel.setPreferredSize(new Dimension(700, 130));
+        sortPanel.setPreferredSize(new Dimension(SORT_PANEL_WIDTH, SORT_PANEL_HEIGHT));
         sortPanel.setBackground(Color.WHITE); 
         for (int i = 0; i < selectedMetricsNames.size(); ++i) {
             JLabel thisLabel = new JLabel(selectedMetricsNames.get(i) + ": ");
@@ -475,7 +479,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         this.currentSortCriteria = sortButtons.get(0).getActionCommand(); 
         sortPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createEtchedBorder(), "Sort Options"));
-
         //Add opl logo to control frame
         BufferedImage oplLogo = null;
         try {
@@ -483,7 +486,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         } catch (IOException e) {
         	logger.log(Level.SEVERE, "Something went wrong while reading OPL logo file", e);
         }
-        JLabel oplLabel = new JLabel(new ImageIcon(oplLogo));
+        JLabel oplLabel = new JLabel(new ImageIcon(Utilities.scaleImage(oplLogo, Utilities.SCALE_FIT, OPL_LOGO_WIDTH, OPL_LOGO_HEIGHT)));
         JPanel oplPanel = new JPanel();
         oplPanel.add(oplLabel);
         
