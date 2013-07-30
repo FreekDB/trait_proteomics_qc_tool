@@ -116,7 +116,11 @@ public class Main {
      * Reader for the pipeline log file - qc_status.log from the preferredRootDirectory.
      */
     private ProgressLogReader progressLogReader;
-
+    
+    /**
+     * Record progressLogFilePath to remove listener in progressLogMonitor
+     */
+    private String currentProgressLogFilePath; 
     /**
      * Another way to monitor the pipeline log file - qc_status.log from the preferredRootDirectory.
      * <p/>
@@ -229,14 +233,18 @@ public class Main {
         pipelineStatus = progressLogReader.getCurrentStatus();
         //Start the progress log monitor to monitor qc_status.log file
         // TODO: keep a reference to this progressLogMonitor (declare as a field)? [Freek]
-        /*progressLogMonitor = ProgressLogMonitor.getInstance();
+        progressLogMonitor = ProgressLogMonitor.getInstance();
         try {
+        	if (currentProgressLogFilePath != null) {
+        		progressLogMonitor.removeFileChangeListener(progressLogReader, currentProgressLogFilePath);
+        	}
             progressLogMonitor.addFileChangeListener(progressLogReader, progressLogFilePath,
                                                      Constants.POLL_INTERVAL_PIPELINE_LOG);
+            currentProgressLogFilePath = progressLogFilePath; 
         } catch (final FileNotFoundException e1) {
             e1.printStackTrace();
             logger.fine("progress log file not found. Configured path: " + progressLogFilePath);
-        } //Refresh period is 5 seconds*/
+        } //Refresh period is 5 seconds
 	}
 
 
