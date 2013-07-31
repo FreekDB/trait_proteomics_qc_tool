@@ -15,6 +15,7 @@ import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYBarPainter;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
+import org.jfree.chart.title.TextTitle;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
@@ -50,7 +51,7 @@ public class ChartUnit {
      * @param reportNumber the report number of the msrun.
      * @param series the data series.
      */
-    public ChartUnit(final String msrunName, final int reportNumber, final XYSeries series) {
+    public ChartUnit(final String msrunName, int reportNumber, final XYSeries series) {
         String maxIntensityString = "N/A";
         if (series != null) {
             maxIntensity = series.getMaxY();
@@ -63,7 +64,8 @@ public class ChartUnit {
         final NumberAxis rangeAxis = new NumberAxis(null);
         final XYPlot plot = new XYPlot(xyDataset, domainAxis, rangeAxis, renderer);
         rangeAxis.setNumberFormatOverride(new DecimalFormat("0E00"));
-        final String title = msrunName + "     MaxIntensity = " + maxIntensityString;
+        --reportNumber; //signifies index
+        final String title = "Index = " + reportNumber + "     msrun = " + msrunName + "     MaxIntensity = " + maxIntensityString;
         ticChart = new JFreeChart(title, Constants.CHART_TITLE_FONT, plot, false);
         // performance
         ticChart.setAntiAlias(false);

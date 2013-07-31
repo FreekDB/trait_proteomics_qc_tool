@@ -56,9 +56,12 @@ import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Utilities;
 
 import org.apache.commons.io.FilenameUtils;
+import org.jfree.chart.ChartMouseEvent;
+import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.title.TextTitle;
 import org.jfree.ui.RefineryUtilities;
 
 /**
@@ -75,7 +78,7 @@ import org.jfree.ui.RefineryUtilities;
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
-public class ViewerFrame extends JFrame implements ActionListener, ItemListener, ChangeListener, MouseListener {
+public class ViewerFrame extends JFrame implements ActionListener, ItemListener, ChangeListener, MouseListener, ChartMouseListener {
     /**
      * The logger for this class.
      */
@@ -760,6 +763,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         //Create the visible chart frame consisting of three panels: 1) checkPanel 2) labelPanel 3) chartPanel
         //ChartPanel is rightmost panel holding TIC chart
         ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.addChartMouseListener(this);
         chartPanel.setPreferredSize(new Dimension(CHART_PANEL_SIZE, CHART_HEIGHT - 10));
         chartPanelList.add(chartPanel);
         final JInternalFrame frame = new JInternalFrame("Chart " + chartNum, true);
@@ -903,4 +907,25 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     @Override
     public void mouseReleased(MouseEvent arg0) {
     }
+
+	@Override
+	public void chartMouseClicked(ChartMouseEvent arg0) {
+		//Display corresponding TIC chart in the ChartPanel
+        JFreeChart clickedChart = arg0.getChart();  
+        //Get the chart title
+        TextTitle title = (TextTitle) clickedChart.getTitle(); 
+        //Parse chart index from title 
+        StringTokenizer stkz = new StringTokenizer(title.getText(), "= "); 
+        //Skip first token. Second token is chart index
+        stkz.nextToken();
+        String indexString = stkz.nextToken();
+        logger.fine("Graph Index from SubTitle = " + indexString);
+        setTicGraphPaneChart(Integer.parseInt(indexString));
+	}
+
+	@Override
+	public void chartMouseMoved(ChartMouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
 }
