@@ -93,7 +93,7 @@ public class AboutFrame extends JFrame implements ActionListener {
     public AboutFrame() {
         super("About " + Constants.APPLICATION_NAME);
         // Create the main panel with the contents of this frame.
-        final JPanel mainPanel = new JPanel();
+        final JPanel mainPanel = new JPanel(); //TODO: Layout
         mainPanel.setPreferredSize(new Dimension(500, 700));
         mainPanel.add(createAboutScrollPane(createAboutTextArea(DESCRIPTION), "Proteomics Quality Control", 200));
         mainPanel.add(createAboutScrollPane(createAboutTextArea(REFERENCES), "References", 150));
@@ -155,7 +155,7 @@ public class AboutFrame extends JFrame implements ActionListener {
                 {"http://www.ctmm-trait.nl", Constants.CTMM_TRAIT_LOGO_FILE_NAME},
                 {"http://www.nbic.nl", Constants.NBIC_LOGO_FILE_NAME}
         };
-        final JPanel acknowledgementsPanel = new JPanel();
+        final JPanel acknowledgementsPanel = new JPanel(); //TODO: Layout
         acknowledgementsPanel.setLayout(new GridLayout(5, 1));
         acknowledgementsPanel.setBackground(Color.WHITE);
         for (final String[] acknowledgementData : acknowledgementsData) {

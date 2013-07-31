@@ -42,7 +42,7 @@ public class DetailsFrame extends JFrame implements ActionListener {
         setBackground(Color.gray);
 
         // Create a panel to hold all other components.
-        final JPanel topPanel = new JPanel();
+        final JPanel topPanel = new JPanel(); //TODO: Layout
         topPanel.setLayout(new BorderLayout());
 
         // Create columns names
@@ -86,7 +86,7 @@ public class DetailsFrame extends JFrame implements ActionListener {
         submitButton.setPreferredSize(new Dimension(80, 30));
         submitButton.addActionListener(this);
         submitButton.setActionCommand("OK");
-        final JPanel buttonPanel = new JPanel();
+        final JPanel buttonPanel = new JPanel(); //TODO: Layout
         buttonPanel.add(submitButton);
         topPanel.add(buttonPanel, BorderLayout.SOUTH);
         getContentPane().add(topPanel);

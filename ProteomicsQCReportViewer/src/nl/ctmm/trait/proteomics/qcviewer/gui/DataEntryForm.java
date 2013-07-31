@@ -172,7 +172,7 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
      */
     public void displayDateFilterEntryForm() {
         JLabel label1 = new JLabel("From Date:");
-        JPanel p1 = new JPanel();
+        JPanel p1 = new JPanel(); //TODO: Layout
         p1.setMinimumSize(new Dimension(250, 20));
         p1.add(label1);
         final JDateChooser fromDateChooser = new JDateChooser();
@@ -187,7 +187,7 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
         p1.add(fromDateChooser);
         fromDateChooser.requestFocusInWindow(); 
         JLabel label2 = new JLabel("    Till Date:");
-        JPanel p2 = new JPanel();
+        JPanel p2 = new JPanel(); //TODO: Layout
         p2.add(label2);
         final JDateChooser tillDateChooser = new JDateChooser();
         tillDateChooser.setDateFormatString(Constants.SIMPLE_DATE_FORMAT_STRING);
@@ -201,11 +201,11 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
         JButton b1 = new JButton("Submit");
         JButton b2 = new JButton("Cancel");
 
-        JPanel p3 = new JPanel(new GridLayout(1,2));
+        JPanel p3 = new JPanel(new GridLayout(1,2)); //TODO: Layout
         p3.add(b1);
         p3.add(b2);
         
-        JPanel p4 = new JPanel(new GridLayout(3,1));
+        JPanel p4 = new JPanel(new GridLayout(3,1)); //TODO: Layout
         p4.add(p1, 0);
         p4.add(p2, 1);
         p4.add(p3, 2);

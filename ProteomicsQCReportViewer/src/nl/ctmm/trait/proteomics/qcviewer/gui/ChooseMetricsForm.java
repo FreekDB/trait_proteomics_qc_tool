@@ -152,7 +152,7 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
      */
     private JPanel createMetricsPanel(final JList<String> metricsList, final String metricsTransferId,
                                       final String title) {
-        final JPanel metricsPanel = new JPanel();
+        final JPanel metricsPanel = new JPanel(); //TODO: Layout
         metricsPanel.setLayout(new BoxLayout(metricsPanel, BoxLayout.Y_AXIS));
         metricsList.setTransferHandler(new MetricTransferHandler(metricsTransferId));
         metricsList.setDragEnabled(true);
@@ -172,7 +172,7 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
      * Add the panel with OK and Cancel buttons.
      */
     private void addButtonPanel() {
-        final JPanel buttonPanel = new JPanel();
+        final JPanel buttonPanel = new JPanel(); //TODO: Layout
         final JButton okButton = new JButton("OK");
         okButton.setSize(new Dimension(50, 30));
         okButton.addActionListener(this);
