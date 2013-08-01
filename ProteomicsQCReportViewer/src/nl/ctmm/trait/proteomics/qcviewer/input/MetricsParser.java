@@ -11,10 +11,10 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.commons.io.FilenameUtils;
-
 import nl.ctmm.trait.proteomics.qcviewer.gui.SortedListModel;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
+
+import org.apache.commons.io.FilenameUtils;
 
 /**
  * The class for parsing metrics IDs and descriptions from the MetricsListing.txt file.
