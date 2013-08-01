@@ -30,6 +30,7 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -108,13 +109,18 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private static final int SPLITPANE2_DIVIDER_LOCATION = 500;
     private static final int SORT_PANEL_WIDTH = 700;
     private static final int SORT_PANEL_HEIGHT = 130;
+    private static final int ZOOM_PANEL_WIDTH = 250;
+    private static final int ZOOM_PANEL_HEIGHT = 130;
     private static final int OPL_LOGO_WIDTH = 179; 
     private static final int OPL_LOGO_HEIGHT = 100; 
     private static final int CTMM_LOGO_WIDTH = 179; 
     private static final int CTMM_LOGO_HEIGHT = 100; 
-    private static final int STATUS_PANEL_WIDTH = 1270;
+    private static final int STATUS_PANEL_WIDTH = 1333;
     private static final int STATUS_PANEL_HEIGHT = 20;
-
+	private static final int CONTROL_PANEL_WIDTH = 1333;
+	private static final int CONTROL_PANEL_HEIGHT = 130;
+	private static final int CONTROL_FRAME_WIDTH = 1333;
+	private static final int CONTROL_FRAME_HEIGHT = 155;
     private JDesktopPane desktopPane = new ScrollDesktop();
     private JDesktopPane ticGraphPane = new ScrollDesktop();
     private List<ChartPanel> chartPanelList = new ArrayList<>(); //necessary for zooming
@@ -272,11 +278,12 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         splitPane2.add(new JScrollPane(ticGraphPane), 1);
         splitPane2.setOneTouchExpandable(true); //hide-show feature
         splitPane2.setDividerLocation(SPLITPANE2_DIVIDER_LOCATION); //DesktopPane holding graphs will appear 500 pixels large
-        splitPane1.add(new JScrollPane(controlFrame));
+        JScrollPane controlFrameScrollPane = new JScrollPane(controlFrame);
+        controlFrameScrollPane.setPreferredSize(new Dimension(CONTROL_FRAME_WIDTH, CONTROL_FRAME_HEIGHT)); 
+        splitPane1.add(controlFrameScrollPane);
         splitPane1.add(splitPane2);
         splitPane1.setOneTouchExpandable(true); //hide-show feature
         splitPane1.setDividerLocation(SPLITPANE1_DIVIDER_LOCATION); //control panel will appear 170 pixels large
-        splitPane1.setEnabled(false);
         splitPane1.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 15, (int)(6.5 * CHART_HEIGHT)));
         getContentPane().add(splitPane1, "Center");
         setJMenuBar(createMenuBar());
@@ -407,7 +414,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         JPanel zoomPanel = new JPanel(); //TODO: Layout
         layout = new GridLayout(2,1);
         zoomPanel.setLayout(layout);
-        zoomPanel.setPreferredSize(new Dimension(250, 130));
         zoomPanel.setBackground(Color.WHITE);
         zoomPanel.add(zoomPanelButtons, 0);
         zoomPanel.add(zoomPanelForm, 1);
@@ -416,7 +422,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         sortButtons = new ArrayList<>();
         JPanel sortPanel = new JPanel(); //TODO: Layout
         sortPanel.setLayout(layout);
-        sortPanel.setPreferredSize(new Dimension(SORT_PANEL_WIDTH, SORT_PANEL_HEIGHT));
         sortPanel.setBackground(Color.WHITE); 
         for (int i = 0; i < selectedMetricsNames.size(); ++i) {
             JLabel thisLabel = new JLabel(selectedMetricsNames.get(i) + ": ");
@@ -489,8 +494,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         	logger.log(Level.SEVERE, "Something went wrong while reading OPL logo file", e);
         }
         JLabel oplLabel = new JLabel(new ImageIcon(Utilities.scaleImage(oplLogo, Utilities.SCALE_FIT, OPL_LOGO_WIDTH, OPL_LOGO_HEIGHT)));
-        JPanel oplPanel = new JPanel(); //TODO: Layout
-        oplPanel.add(oplLabel);
         
         //Add trait logo to control frame
         BufferedImage traitCtmmLogo = null;
@@ -500,16 +503,21 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         	logger.log(Level.SEVERE, "Something went wrong while reading project logo file", e);
         }
         JLabel traitCtmmLabel = new JLabel(new ImageIcon(Utilities.scaleImage(traitCtmmLogo, Utilities.SCALE_FIT, CTMM_LOGO_WIDTH, CTMM_LOGO_HEIGHT)));
-        JPanel traitCtmmPanel = new JPanel(); //TODO: Layout
-        traitCtmmPanel.add(traitCtmmLabel);
-        Box horizontalBox = Box.createHorizontalBox(); 
-        horizontalBox.add(oplPanel, 0);
-        horizontalBox.add(zoomPanel, 1);
-        horizontalBox.add(sortPanel, 2);
-        horizontalBox.add(traitCtmmPanel, 3);
-        JPanel controlPanel = new JPanel(new GridLayout(1,1)); 
-        controlPanel.add(horizontalBox);
-        
+       
+        JPanel controlPanel = new JPanel(); 
+        controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.X_AXIS));
+        controlPanel.add(Box.createRigidArea(new Dimension(5,0)));
+        controlPanel.add(oplLabel, Box.CENTER_ALIGNMENT);
+        controlPanel.add(Box.createRigidArea(new Dimension(5,0)));
+        zoomPanel.setPreferredSize(new Dimension(ZOOM_PANEL_WIDTH, ZOOM_PANEL_HEIGHT));
+        controlPanel.add(zoomPanel, Box.CENTER_ALIGNMENT);
+        controlPanel.add(Box.createRigidArea(new Dimension(5,0)));
+        sortPanel.setPreferredSize(new Dimension(SORT_PANEL_WIDTH, SORT_PANEL_HEIGHT));
+        controlPanel.add(sortPanel, Box.CENTER_ALIGNMENT);
+        controlPanel.add(Box.createRigidArea(new Dimension(5,0)));
+        controlPanel.add(traitCtmmLabel, Box.CENTER_ALIGNMENT);
+        controlPanel.add(Box.createRigidArea(new Dimension(5,0)));
+
         String status = pipelineStatus + " | | | | | Number of report units = " + orderedReportUnits.size(); 
         statusPanel = new JPanel(new GridLayout(1,1)); 
         statusField = new JTextField(status);
@@ -518,12 +526,15 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         statusField.setHorizontalAlignment(JTextField.CENTER); 
         statusField.setEditable(false);
         statusPanel.add(statusField);
-        statusPanel.setSize(new Dimension(STATUS_PANEL_WIDTH, STATUS_PANEL_HEIGHT)); 
-        Box verticalBox = Box.createVerticalBox();
-        verticalBox.add(controlPanel);
-        verticalBox.add(statusPanel);
-        controlFrame.getContentPane().add(verticalBox, BorderLayout.CENTER);
-        controlFrame.setSize(new Dimension(DESKTOP_PANE_WIDTH + 30, 170));
+        
+        controlFrame.getContentPane().setLayout(new BoxLayout(controlFrame.getContentPane(), BoxLayout.Y_AXIS));
+        controlFrame.getContentPane().add(Box.createRigidArea(new Dimension(5,0)));
+        controlPanel.setPreferredSize(new Dimension(CONTROL_PANEL_WIDTH, CONTROL_PANEL_HEIGHT));
+        controlFrame.getContentPane().add(controlPanel, BorderLayout.CENTER);
+        controlFrame.getContentPane().add(Box.createRigidArea(new Dimension(5,0)));
+        statusPanel.setPreferredSize(new Dimension(STATUS_PANEL_WIDTH, STATUS_PANEL_HEIGHT)); 
+        controlFrame.getContentPane().add(statusPanel, BorderLayout.CENTER);
+        controlFrame.getContentPane().add(Box.createRigidArea(new Dimension(5,0)));
         controlFrame.pack();
         controlFrame.setLocation(0, 0);
         controlFrame.setResizable(false); 
