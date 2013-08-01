@@ -41,7 +41,10 @@ public class ProgressLogReader implements FileChangeListener {
      */
     private static final DateFormat LOG_FILE_DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    private static final ProgressLogReader instance = new ProgressLogReader();
+    /**
+     * The singleton instance of this class.
+     */
+    private static final ProgressLogReader INSTANCE = new ProgressLogReader();
     
     /**
      * The current status of the NIST QC pipeline.
@@ -58,14 +61,15 @@ public class ProgressLogReader implements FileChangeListener {
      */
     private File logFile;
 
-    
+    /**
+     * The timer used for checking the log file at regular intervals.
+     */
     private Timer timer; 
 
     /**
      * Constructor.
      */
     private ProgressLogReader() {
-    	
     }
     
     /**
@@ -78,7 +82,7 @@ public class ProgressLogReader implements FileChangeListener {
         parseCurrentStatus(logFile);
         logger.fine("Current QC Pipeline Status: " + currentStatus);
         if (timer != null) {
-        	timer.cancel();
+            timer.cancel();
         }
         // Create a timer and run the timer thread as daemon.
         timer = new Timer(true);
@@ -92,7 +96,7 @@ public class ProgressLogReader implements FileChangeListener {
      * @return file monitor instance
      */
     public static ProgressLogReader getInstance() {
-      return instance;
+        return INSTANCE;
     }
     
     /**
