@@ -125,6 +125,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 	private static final int CONTROL_PANEL_HEIGHT = 130;
 	private static final int CONTROL_FRAME_WIDTH = 1333;
 	private static final int CONTROL_FRAME_HEIGHT = 155;
+	private static final int METRIC_LABEL_WIDTH = 200;
+	private static final int METRIC_LABEL_HEIGHT = 30;
 
     private JDesktopPane desktopPane = new ScrollDesktop();
     private JDesktopPane ticGraphPane = new ScrollDesktop();
@@ -362,8 +364,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         //controlFrame now uses Box 
         controlFrame.setBorder(null);
         controlFrame.setBackground(Color.WHITE);
-        GridLayout layout = new GridLayout(2,1);
-
+         
         // Zoom all - in, original, out
         JButton inButton = new JButton("In [+]");
         inButton.setActionCommand("Zoom In");
@@ -442,18 +443,15 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         zoomPanel.add(Box.createRigidArea(new Dimension(5,0)));
         
         ButtonGroup sortGroup = new ButtonGroup();
-        layout = new GridLayout(selectedMetricsNames.size() / 2 + 1,2);
+        GridLayout layout = new GridLayout(selectedMetricsNames.size() / 2 + 1,2);
         sortButtons = new ArrayList<>();
-        JPanel sortPanel = new JPanel(); //TODO: Layout
+        JPanel sortPanel = new JPanel(); 
         sortPanel.setLayout(layout);
         sortPanel.setBackground(Color.WHITE); 
         for (int i = 0; i < selectedMetricsNames.size(); ++i) {
-            JLabel thisLabel = new JLabel(selectedMetricsNames.get(i) + ": ");
-            thisLabel.setFont(Constants.DEFAULT_FONT);
-            thisLabel.setBackground(Color.WHITE);
-            JPanel namePanel = new JPanel(new GridLayout(1,1)); //TODO: Layout
-            namePanel.add(thisLabel);
-            namePanel.setBackground(Color.WHITE);
+            JLabel metricLabel = new JLabel(selectedMetricsNames.get(i) + ": ");
+            metricLabel.setFont(Constants.DEFAULT_FONT);
+            metricLabel.setBackground(Color.WHITE);
             //Sort ascending button
             JRadioButton ascButton = new JRadioButton("Asc", false);
             ascButton.setBackground(Color.WHITE);
@@ -468,21 +466,23 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             desButton.addActionListener(this);
             sortGroup.add(desButton); 
             sortButtons.add(desButton);
-            JPanel buttonPanel = new JPanel(new GridLayout(1,2)); //TODO: Layout
-            buttonPanel.add(ascButton);
-            buttonPanel.add(desButton);
-            JPanel metricPanel = new JPanel(new GridLayout(1,2)); //TODO: Layout
-            metricPanel.add(namePanel, 0);
-            metricPanel.add(buttonPanel, 1);
-            sortPanel.add(metricPanel);
+            JPanel sortItemPanel = new JPanel();
+            sortItemPanel.setLayout(new BoxLayout(sortItemPanel, BoxLayout.X_AXIS));
+            sortItemPanel.add(Box.createRigidArea(new Dimension(5,0)));
+            metricLabel.setMinimumSize(new Dimension(METRIC_LABEL_WIDTH, METRIC_LABEL_HEIGHT));
+            metricLabel.setMaximumSize(new Dimension(METRIC_LABEL_WIDTH, METRIC_LABEL_HEIGHT));
+            sortItemPanel.add(metricLabel, Box.CENTER_ALIGNMENT);
+            sortItemPanel.add(Box.createRigidArea(new Dimension(5,0)));
+            sortItemPanel.add(ascButton, Box.CENTER_ALIGNMENT);
+            sortItemPanel.add(Box.createRigidArea(new Dimension(5,0)));
+            sortItemPanel.add(desButton, Box.CENTER_ALIGNMENT);
+            sortItemPanel.add(Box.createRigidArea(new Dimension(5,0)));
+            sortPanel.add(sortItemPanel);
         }
         //Add sorting according to Compare 
-        JLabel thisLabel = new JLabel("Compare: ");
-        thisLabel.setFont(Constants.DEFAULT_FONT);
-        thisLabel.setBackground(Color.WHITE);
-        JPanel namePanel = new JPanel(new GridLayout(1,1)); //TODO: Layout
-        namePanel.setBackground(Color.WHITE);
-        namePanel.add(thisLabel);
+        JLabel compareLabel = new JLabel("Compare: ");
+        compareLabel.setFont(Constants.DEFAULT_FONT);
+        compareLabel.setBackground(Color.WHITE);
         //Sort ascending button
         JRadioButton ascButton = new JRadioButton("Asc", false);
         ascButton.setBackground(Color.WHITE);
@@ -497,13 +497,18 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         desButton.addActionListener(this);
         sortGroup.add(desButton); 
         sortButtons.add(desButton); 
-        JPanel buttonPanel = new JPanel(new GridLayout(1,2)); //TODO: Layout
-        buttonPanel.add(ascButton);
-        buttonPanel.add(desButton);
-        JPanel metricPanel = new JPanel(new GridLayout(1,2)); //TODO: Layout
-        metricPanel.add(namePanel, 0);
-        metricPanel.add(buttonPanel, 1);
-        sortPanel.add(metricPanel);
+        JPanel sortItemPanel = new JPanel();
+        sortItemPanel.setLayout(new BoxLayout(sortItemPanel, BoxLayout.X_AXIS));
+        sortItemPanel.add(Box.createRigidArea(new Dimension(5,0)));
+        compareLabel.setMinimumSize(new Dimension(METRIC_LABEL_WIDTH, METRIC_LABEL_HEIGHT));
+        compareLabel.setMaximumSize(new Dimension(METRIC_LABEL_WIDTH, METRIC_LABEL_HEIGHT));
+        sortItemPanel.add(compareLabel, Box.CENTER_ALIGNMENT);
+        sortItemPanel.add(Box.createRigidArea(new Dimension(5,0)));
+        sortItemPanel.add(ascButton, Box.CENTER_ALIGNMENT);
+        sortItemPanel.add(Box.createRigidArea(new Dimension(5,0)));
+        sortItemPanel.add(desButton, Box.CENTER_ALIGNMENT);
+        sortItemPanel.add(Box.createRigidArea(new Dimension(5,0)));
+        sortPanel.add(sortItemPanel);
         
         //Set first button selected
         sortButtons.get(0).setSelected(true);
@@ -536,7 +541,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         zoomPanel.setMinimumSize(new Dimension(ZOOM_PANEL_WIDTH, ZOOM_PANEL_HEIGHT));
         controlPanel.add(zoomPanel, Box.CENTER_ALIGNMENT);
         controlPanel.add(Box.createRigidArea(new Dimension(5,0)));
-        sortPanel.setPreferredSize(new Dimension(SORT_PANEL_WIDTH, SORT_PANEL_HEIGHT));
+        sortPanel.setMaximumSize(new Dimension(SORT_PANEL_WIDTH, SORT_PANEL_HEIGHT));
         controlPanel.add(sortPanel, Box.CENTER_ALIGNMENT);
         controlPanel.add(Box.createRigidArea(new Dimension(5,0)));
         controlPanel.add(traitCtmmLabel, Box.CENTER_ALIGNMENT);
