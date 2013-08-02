@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -48,7 +47,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
@@ -82,7 +80,8 @@ import org.jfree.ui.RefineryUtilities;
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
-public class ViewerFrame extends JFrame implements ActionListener, ItemListener, ChangeListener, MouseListener, ChartMouseListener {
+public class ViewerFrame extends JFrame implements ActionListener, ItemListener, ChangeListener, MouseListener,
+        ChartMouseListener {
     /**
      * The logger for this class.
      */
@@ -95,7 +94,10 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 
     /*private static final List<Color> LABEL_COLORS = Arrays.asList(
             Color.BLUE, Color.DARK_GRAY, Color.GRAY, Color.MAGENTA, Color.ORANGE, Color.RED, Color.BLACK);*/
-    
+
+    /**
+     * Colors used for the metrics.
+     */
     private static final List<Color> LABEL_COLORS = Arrays.asList(
             Color.BLUE, Color.DARK_GRAY, Color.GREEN, Color.BLACK);
 
@@ -206,9 +208,11 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
  * @param replaceFlag If true, existing report units will be replaced by new report units. 
  *             Else if false, new reports are added to existing reports. GUI will be updated accordingly.  
  */
-    public void updateReportUnits(final ArrayList<ReportUnit> newReportUnits, final String newPipelineStatus, final Boolean replaceFlag) {
+    public void updateReportUnits(final List<ReportUnit> newReportUnits, final String newPipelineStatus,
+                                  final Boolean replaceFlag) {
         logger.fine("In updateReportUnits yCoordinate = " + yCoordinate);
-        if (replaceFlag) { //Replace all existing reports by newReportUnits
+        if (replaceFlag) {
+            //Replace all existing reports by newReportUnits.
             reportUnits.clear();
             orderedReportUnits.clear();
             chartCheckBoxFlags.clear();
@@ -218,15 +222,16 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             revalidate();
             yCoordinate = 0; 
         }
-        int numReportUnits = reportUnits.size();
+        final int numReportUnits = reportUnits.size();
         if (newReportUnits.size() > 0) {
             for (int i = 0; i < newReportUnits.size(); ++i) {
-                ReportUnit thisUnit = newReportUnits.get(i);
+                final ReportUnit thisUnit = newReportUnits.get(i);
                 reportUnits.add(thisUnit);
                 orderedReportUnits.add(thisUnit);
                 chartCheckBoxFlags.add(false);
                 //update desktopFrame
-                JInternalFrame chartFrame = createChartFrame(i + numReportUnits, thisUnit.getChartUnit().getTicChart(), thisUnit);
+                final JInternalFrame chartFrame = createChartFrame(i + numReportUnits,
+                                                                   thisUnit.getChartUnit().getTicChart(), thisUnit);
                 chartFrame.setBorder(BorderFactory.createRaisedBevelBorder());
                 chartFrame.pack();
                 chartFrame.setLocation(0, yCoordinate);
@@ -244,7 +249,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     }
     
     /**
-     * Update pipelineStatus in the report viewer
+     * Update pipelineStatus in the report viewer.
+     *
      * @param newPipelineStatus as inferred from qc_status.log file
      */
     public void updatePipelineStatus(final String newPipelineStatus) {
@@ -382,7 +388,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         zoomGroup.add(outButton);
         
         JPanel zoomPanelButtons = new JPanel(); 
-        zoomPanelButtons.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Zoom All TIC Charts"));
+        zoomPanelButtons.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),
+                                                                    "Zoom All TIC Charts"));
         zoomPanelButtons.setPreferredSize(new Dimension(ZOOM_PANEL_BUTTONS_WIDTH, ZOOM_PANEL_BUTTONS_HEIGHT));
         zoomPanelButtons.setLayout(new BoxLayout(zoomPanelButtons, BoxLayout.X_AXIS));
         zoomPanelButtons.add(Box.createRigidArea(new Dimension(5,0)));

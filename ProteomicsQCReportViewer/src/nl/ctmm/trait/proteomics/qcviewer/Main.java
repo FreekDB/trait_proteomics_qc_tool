@@ -31,6 +31,12 @@ import org.jfree.ui.RefineryUtilities;
 /**
  * The class that starts the QC Report Viewer.
  *
+ * TODO: fix JCalendar dependency:
+ * http://search.maven.org/#artifactdetails%7Ccom.toedter%7Cjcalendar%7C1.3.2%7Cjar
+ * http://mvnrepository.com/artifact/com.toedter/jcalendar
+ * https://ci.nbiceng.net/nexus/index.html#view-repositories;thirdparty~uploadPanel
+ * http://stackoverflow.com/questions/4029532/upload-artifacts-to-nexus-without-maven
+ *
  * TODO: move nl directory in source directory to source\main\java directory. [Freek]
  * TODO: move test directory to source\test\java directory. [Freek]
  * TODO: move images directory (with logo image files) to source\main\resources directory. [Freek]
@@ -116,11 +122,12 @@ public class Main {
      * Reader for the pipeline log file - qc_status.log from the preferredRootDirectory.
      */
     private ProgressLogReader progressLogReader;
-    
+
     /**
-     * Record progressLogFilePath to remove listener in progressLogMonitor
+     * Record progressLogFilePath to remove listener in progressLogMonitor.
      */
-    private String currentProgressLogFilePath; 
+    private String currentProgressLogFilePath;
+
     /**
      * Another way to monitor the pipeline log file - qc_status.log from the preferredRootDirectory.
      * <p/>
@@ -178,7 +185,7 @@ public class Main {
         determineReportDateRange();
         progressLogOperations();
         //Obtain initial set of reports according to date filter
-        ArrayList<ReportUnit> displayableReportUnits = processInitialReports();
+        final List<ReportUnit> displayableReportUnits = processInitialReports();
         logger.fine(String.format(NUMBER_OF_REPORTS_MESSAGE, reportUnitsTable.size()));
         dataEntryForm.disposeInitialDialog();
         //Start main user interface
@@ -190,7 +197,7 @@ public class Main {
         } 
     }
     
-   	/**
+       /**
      * Determine the date range for displaying reports.
      */
     private void determineReportDateRange() {
@@ -219,10 +226,10 @@ public class Main {
                     + Constants.DATE_FORMAT.format(tillDate));
     }
 
-	/**
-     * Determine progress log file path
-     * Setup progressLogReader to read current pipeline status
-     * Setup progressLogMonitor to monitor changes to progress log file 
+    /**
+     * Determine progress log file path.
+     * Setup progressLogReader to read current pipeline status.
+     * Setup progressLogMonitor to monitor changes to progress log file.
      */
     private void progressLogOperations() {
         final String progressLogFilePath = FilenameUtils.normalize(preferredRootDirectory + "\\"
@@ -235,9 +242,9 @@ public class Main {
         // TODO: keep a reference to this progressLogMonitor (declare as a field)? [Freek]
         progressLogMonitor = ProgressLogMonitor.getInstance();
         try {
-        	if (currentProgressLogFilePath != null) {
-        		progressLogMonitor.removeFileChangeListener(progressLogReader, currentProgressLogFilePath);
-        	}
+            if (currentProgressLogFilePath != null) {
+                progressLogMonitor.removeFileChangeListener(progressLogReader, currentProgressLogFilePath);
+            }
             progressLogMonitor.addFileChangeListener(progressLogReader, progressLogFilePath,
                                                      Constants.POLL_INTERVAL_PIPELINE_LOG);
             currentProgressLogFilePath = progressLogFilePath; 
@@ -245,9 +252,7 @@ public class Main {
             e1.printStackTrace();
             logger.fine("progress log file not found. Configured path: " + progressLogFilePath);
         } //Refresh period is 5 seconds
-	}
-
-
+    }
 
     /**
      * Prepare the loggers for this application:
@@ -289,8 +294,8 @@ public class Main {
      * @return displayableReportUnits: QC reports to be displayed in the report viewer
      * TODO: look at similarities between processInitialReports and notifyProgressLogFileChanged.
      */
-    private ArrayList<ReportUnit> processInitialReports() {
-    	logger.fine("Main processInitialReports()");
+    private List<ReportUnit> processInitialReports() {
+        logger.fine("Main processInitialReports()");
         final ArrayList<ReportUnit> reportUnits = getReportUnits(preferredRootDirectory, fromDate, tillDate);
         final String runningMsrunName = progressLogReader.getRunningMsrunName();
         final ArrayList<ReportUnit> displayableReportUnits = new ArrayList<>();
@@ -301,8 +306,8 @@ public class Main {
         for (final ReportUnit thisUnit : reportUnits) {
             final String thisMsrun = thisUnit.getMsrunName();
             if (!thisMsrun.equals(runningMsrunName)) {
-            	thisUnit.setReportNum(reportUnitsTable.size() + 1);
-            	displayableReportUnits.add(thisUnit);
+                thisUnit.setReportNum(reportUnitsTable.size() + 1);
+                displayableReportUnits.add(thisUnit);
                 //for identifying duplicate reports
                 if (reportUnitsTable.containsKey(thisMsrun)) {
                     logger.warning("Alert!! Already exists in ReportUnitsTable " + thisMsrun);
@@ -315,9 +320,9 @@ public class Main {
             }
         }
         return displayableReportUnits;
-	}
+    }
 
-	/**
+    /**
      * Progress log file has changed. Refresh the application automatically on this notification.
      *
      * @param newPipelineStatus the new status of the QC pipeline.
@@ -434,26 +439,25 @@ public class Main {
     }
     
     /**
-     * Update all the reports in the QC Report Viewer in the following two cases: 
-     * 1) New root directory is chosen
-     * 2) Change in the date range  
+     * Update all the reports in the QC Report Viewer. It is called in the following two cases:
+     * 1) New root directory is chosen.
+     * 2) Change in the date range.
      */
-	public void updateReportViewer() {
-		logger.fine("Main updateReportViewer"); 
-        applicationProperties = loadProperties();
-        preferredRootDirectory = applicationProperties.getProperty(Constants.PROPERTY_ROOT_FOLDER);
-		determineReportDateRange();
-		final ArrayList<ReportUnit> displayableReportUnits = processInitialReports();
-		if (displayableReportUnits.size() == 0) {
-	        // There exist no reports in selected root directory conforming date range
-	        // Get new location to read reports from.
-	        dataEntryForm.displayErrorMessage(String.format(NO_REPORTS_MESSAGE, preferredRootDirectory));
-	        dataEntryForm.displayRootDirectoryChooser();
-	    } else {
-			progressLogOperations();
-			final String pipelineStatus = progressLogReader.getCurrentStatus();
-	        //Refresh ViewerFrame with new Report Units
-	        frame.updateReportUnits(displayableReportUnits, pipelineStatus, true);
-	    }
-	}
+    public void updateReportViewer() {
+        logger.fine("Main updateReportViewer");
+        preferredRootDirectory = loadProperties().getProperty(Constants.PROPERTY_ROOT_FOLDER);
+        determineReportDateRange();
+        final List<ReportUnit> displayableReportUnits = processInitialReports();
+        if (displayableReportUnits.size() == 0) {
+            // There exist no reports in selected root directory conforming date range.
+            // Get new location to read reports from.
+            dataEntryForm.displayErrorMessage(String.format(NO_REPORTS_MESSAGE, preferredRootDirectory));
+            dataEntryForm.displayRootDirectoryChooser();
+        } else {
+            // TODO: why is the call to progressLogOperations needed? [Freek]
+            progressLogOperations();
+            // Refresh ViewerFrame with new Report Units.
+            frame.updateReportUnits(displayableReportUnits, progressLogReader.getCurrentStatus(), true);
+        }
+    }
 }

@@ -1,7 +1,7 @@
 #Wed Jul 31 16:39:26 CEST 2013
 GUIVersion=2
 ShowReportsTillDate=30/07/2013
-ShowReportsFromDate=16/07/2013
+ShowReportsFromDate=01/07/2013
 TopColumnNamesV2=chrom\:c-4a\:Peak Widths at Half Max over (First Decile),chrom\:c-4c\:Peak Widths at Half Max over (Median Value),dyn\:ds-1a\:Ratios of Peptide Ions IDed (Once/Twice),dyn\:ds-3a\:MS1max/MS1sampled Abundance (Median All IDs),generic\:f_size\:File Size (MB),
 DefaultReportsDisplayPeriod=14
-RootFolder=E\:\\pravintmp1\\QCReports
+RootFolder=QCReports
