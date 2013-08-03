@@ -96,31 +96,63 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             Color.BLUE, Color.DARK_GRAY, Color.GRAY, Color.MAGENTA, Color.ORANGE, Color.RED, Color.BLACK);*/
 
     /**
-     * Colors used for the metrics.
+     * Alternating colors used for the metrics.
      */
     private static final List<Color> LABEL_COLORS = Arrays.asList(
             Color.BLUE, Color.DARK_GRAY, Color.GREEN, Color.BLACK);
 
-    
-    private static final int CHECK_PANEL_SIZE = 90;
-    private static final int LABEL_PANEL_SIZE = 350;
-    private static final int CHART_PANEL_SIZE = 800;
+    /**
+     * Height of a row with information from one report in the list.
+     */
     private static final int CHART_HEIGHT = 150;
+
+    /**
+     * Width of the left panel for each report in the list, with the report number, the metrics details button and the
+     * selection check box.
+     */
+    private static final int CHECK_PANEL_WIDTH = 90;
+
+    /**
+     * Width of the panel showing the selected metrics for each report in the list.
+     */
+    private static final int METRICS_PANEL_WIDTH = 350;
+
+    /**
+     * Width of the panel with a TIC chart for each report in the list.
+     */
+    private static final int CHART_PANEL_WIDTH = 800;
+
+    /**
+     * Initial width of the viewer frame.
+     */
     private static final int DESKTOP_PANE_WIDTH = 1270;
-    private static final int SPLITPANE1_DIVIDER_LOCATION = 185;
-    private static final int SPLITPANE2_DIVIDER_LOCATION = 500;
+
+    /**
+     * Default divider location of the top split pane, which separates the top control panel from the rest of the GUI.
+     */
+    private static final int SPLIT_PANE_1_DIVIDER_LOCATION = 185;
+
+    /**
+     * Default divider location of the bottom split pane, which separates the central list with the QC results from the
+     * bottom panel with the larger version of the TIC graph that is selected in the central list.
+     */
+    private static final int SPLIT_PANE_2_DIVIDER_LOCATION = 500;
+
     private static final int SORT_PANEL_WIDTH = 700;
     private static final int SORT_PANEL_HEIGHT = 130;
+
     private static final int ZOOM_PANEL_WIDTH = 300;
     private static final int ZOOM_PANEL_HEIGHT = 180;
     private static final int ZOOM_PANEL_FORM_WIDTH = 250;
     private static final int ZOOM_PANEL_FORM_HEIGHT = 90;
     private static final int ZOOM_PANEL_BUTTONS_WIDTH = 250;
     private static final int ZOOM_PANEL_BUTTONS_HEIGHT = 90;
+
     private static final int OPL_LOGO_WIDTH = 179; 
     private static final int OPL_LOGO_HEIGHT = 100; 
     private static final int CTMM_LOGO_WIDTH = 179; 
-    private static final int CTMM_LOGO_HEIGHT = 100; 
+    private static final int CTMM_LOGO_HEIGHT = 100;
+
     private static final int STATUS_PANEL_WIDTH = 1333;
     private static final int STATUS_PANEL_HEIGHT = 20;
     private static final int CONTROL_PANEL_WIDTH = 1333;
@@ -130,10 +162,15 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private static final int METRIC_LABEL_WIDTH = 200;
     private static final int METRIC_LABEL_HEIGHT = 30;
 
+    /**
+     * Separator used in the metrics definition file.
+     */
+    private static final String METRICS_SEPARATOR = ":";
+
     private JDesktopPane desktopPane = new ScrollDesktop();
     private JDesktopPane ticGraphPane = new ScrollDesktop();
     private List<ChartPanel> chartPanelList = new ArrayList<>(); //necessary for zooming
-    private List<Boolean> chartCheckBoxFlags = new ArrayList<>();
+    private List<Boolean> reportIsSelected = new ArrayList<>();
     private JFormattedTextField minText, maxText;
     private List<ReportUnit> reportUnits = new ArrayList<>(); //preserve original report units
     private List<ReportUnit> orderedReportUnits = new ArrayList<>(); //use this list for display and other operations
@@ -150,10 +187,10 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private JSplitPane splitPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT); 
     private JTextField statusField;
     private JPanel statusPanel; 
-    private int yCoordinate = 0;
+    private int yCoordinate;
 
     /**
-     * Creates a new instance of the demo.
+     * Creates a new instance of the main frame of the proteomics QC viewer.
      *
      * @param metricsParser the metrics parser to use.
      * @param appProperties the application properties to use.
@@ -192,8 +229,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         this.selectedMetricsNames = new ArrayList<>();
         // Extract keys and names of the selected metrics.
         for (final String selectedMetricData : selectedMetricsData) {
-            final StringTokenizer dataTokenizer = new StringTokenizer(selectedMetricData, ":");
-            final String key = dataTokenizer.nextToken() + ":" + dataTokenizer.nextToken();
+            final StringTokenizer dataTokenizer = new StringTokenizer(selectedMetricData, METRICS_SEPARATOR);
+            final String key = dataTokenizer.nextToken() + METRICS_SEPARATOR + dataTokenizer.nextToken();
             this.selectedMetricsKeys.add(key);
             final String value = dataTokenizer.nextToken();
             this.selectedMetricsNames.add(value);
@@ -215,7 +252,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             //Replace all existing reports by newReportUnits.
             reportUnits.clear();
             orderedReportUnits.clear();
-            chartCheckBoxFlags.clear();
+            reportIsSelected.clear();
             desktopPane.removeAll();
             ticGraphPane.removeAll();
             pack();
@@ -224,24 +261,23 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         }
         final int numReportUnits = reportUnits.size();
         if (newReportUnits.size() > 0) {
-            for (int i = 0; i < newReportUnits.size(); ++i) {
-                final ReportUnit thisUnit = newReportUnits.get(i);
+            for (int reportIndex = 0; reportIndex < newReportUnits.size(); reportIndex++) {
+                final ReportUnit thisUnit = newReportUnits.get(reportIndex);
                 reportUnits.add(thisUnit);
                 orderedReportUnits.add(thisUnit);
-                chartCheckBoxFlags.add(false);
+                reportIsSelected.add(false);
                 //update desktopFrame
-                final JInternalFrame chartFrame = createChartFrame(i + numReportUnits,
-                                                                   thisUnit.getChartUnit().getTicChart(), thisUnit);
+                final JInternalFrame chartFrame = createChartFrame(thisUnit, reportIndex + numReportUnits);
                 chartFrame.setBorder(BorderFactory.createRaisedBevelBorder());
                 chartFrame.pack();
                 chartFrame.setLocation(0, yCoordinate);
                 desktopPane.add(chartFrame);
                 chartFrame.setVisible(true);
                 logger.fine("yCoordinate = " + yCoordinate);
-                yCoordinate +=  CHART_HEIGHT + 15;
+                yCoordinate += CHART_HEIGHT + 15;
             }
             desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, reportUnits.size() * (CHART_HEIGHT + 15)));
-          //Set first report graph in the Tic Pane. -1 adjusts to the index. 
+            //Set first report graph in the Tic Pane. -1 adjusts to the index.
             setTicGraphPaneChart(orderedReportUnits.get(0).getReportNum() - 1); 
         }
         updatePipelineStatus(newPipelineStatus);
@@ -260,10 +296,10 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         final String status = pipelineStatus + " | | | | | Number of report units = " + orderedReportUnits.size();
         statusField = new JTextField(status); 
         statusField.setFont(Constants.DEFAULT_FONT);
-        statusField.setBackground(Color.CYAN);
+//        statusField.setBackground(Color.CYAN);
         statusField.setHorizontalAlignment(JTextField.CENTER); 
         statusField.setEditable(false);
-        statusPanel.setBackground(Color.CYAN);
+//        statusPanel.setBackground(Color.CYAN);
         statusPanel.add(statusField);
         revalidate();
     }
@@ -281,7 +317,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         int totalReports = orderedReportUnits.size();
         if (totalReports != 0) {
             desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, totalReports * (CHART_HEIGHT + 15)));
-            prepareChartsInAscendingOrder(true);
+            prepareChartsInOrder(true);
           //Set initial tic Graph - specify complete chart in terms of orderedReportUnits
             setTicGraphPaneChart(orderedReportUnits.get(0).getReportNum() - 1);
         }
@@ -289,39 +325,43 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         splitPane2.add(new JScrollPane(desktopPane), 0);
         ticGraphPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, 2 * CHART_HEIGHT));
         splitPane2.add(new JScrollPane(ticGraphPane), 1);
-        splitPane2.setOneTouchExpandable(true); //hide-show feature
-        splitPane2.setDividerLocation(SPLITPANE2_DIVIDER_LOCATION); //DesktopPane holding graphs will appear 500 pixels large
-        JScrollPane controlFrameScrollPane = new JScrollPane(controlFrame);
+        //hide-show feature
+        splitPane2.setOneTouchExpandable(true);
+        splitPane2.setDividerLocation(SPLIT_PANE_2_DIVIDER_LOCATION);
+
+        final JScrollPane controlFrameScrollPane = new JScrollPane(controlFrame);
         controlFrameScrollPane.setPreferredSize(new Dimension(CONTROL_FRAME_WIDTH, CONTROL_FRAME_HEIGHT)); 
         splitPane1.add(controlFrameScrollPane);
         splitPane1.add(splitPane2);
-        splitPane1.setOneTouchExpandable(true); //hide-show feature
-        splitPane1.setDividerLocation(SPLITPANE1_DIVIDER_LOCATION); //control panel will appear 170 pixels large
+        //hide-show feature
+        splitPane1.setOneTouchExpandable(true);
+        splitPane1.setDividerLocation(SPLIT_PANE_1_DIVIDER_LOCATION);
         splitPane1.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 15, (int)(6.5 * CHART_HEIGHT)));
         getContentPane().add(splitPane1, "Center");
+
         setJMenuBar(createMenuBar());
     }
     
     /**
-     * Create Menu Bar for settings and about tab
+     * Create Menu Bar for settings and about tab.
      */
     private JMenuBar createMenuBar() {
-        JMenuBar menuBar = new JMenuBar();
-        JMenu settingsMenu = new JMenu("Settings");
+        final JMenuBar menuBar = new JMenuBar();
+        final JMenu settingsMenu = new JMenu("Settings");
         menuBar.add(settingsMenu);
-        JMenuItem newDirAction = new JMenuItem("Set Root Directory...");
+        final JMenuItem newDirAction = new JMenuItem("Set Root Directory...");
         settingsMenu.add(newDirAction);
         newDirAction.setActionCommand("ChangeRootDirectory");
         newDirAction.addActionListener(this);
-        JMenuItem filterAction = new JMenuItem("Set Filter...");
+        final JMenuItem filterAction = new JMenuItem("Set Filter...");
         settingsMenu.add(filterAction);
         filterAction.setActionCommand("SetFilter");
         filterAction.addActionListener(this);
-        JMenuItem metricsAction = new JMenuItem("Select Metrics...");
+        final JMenuItem metricsAction = new JMenuItem("Select Metrics...");
         settingsMenu.add(metricsAction);
         metricsAction.setActionCommand("SelectMetrics");
         metricsAction.addActionListener(this);
-        JMenuItem aboutAction = new JMenuItem("About...");
+        final JMenuItem aboutAction = new JMenuItem("About...");
         settingsMenu.add(aboutAction);
         aboutAction.setActionCommand("About");
         aboutAction.addActionListener(this);        
@@ -338,9 +378,9 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             this.reportUnits.clear();
         }
         this.reportUnits = reportUnits;
-        //Initialize chartCheckBoxFlags to false
+        //Initialize reportIsSelected to false
         for (final ReportUnit ignored : reportUnits) {
-            chartCheckBoxFlags.add(false);
+            reportIsSelected.add(false);
         }
     }
     
@@ -553,15 +593,15 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         controlPanel.add(Box.createRigidArea(new Dimension(10,0)));
         sortPanel.setMaximumSize(new Dimension(SORT_PANEL_WIDTH, SORT_PANEL_HEIGHT));
         controlPanel.add(sortPanel, Box.CENTER_ALIGNMENT);
-        controlPanel.add(Box.createRigidArea(new Dimension(10,0)));
+        controlPanel.add(Box.createRigidArea(new Dimension(10, 0)));
         controlPanel.add(traitCtmmLabel, Box.CENTER_ALIGNMENT);
-        controlPanel.add(Box.createRigidArea(new Dimension(10,0)));
+        controlPanel.add(Box.createRigidArea(new Dimension(10, 0)));
 
-        String status = pipelineStatus + " | | | | | Number of report units = " + orderedReportUnits.size(); 
-        statusPanel = new JPanel(new GridLayout(1,1)); 
+        final String status = pipelineStatus + " | | | | | Number of report units = " + orderedReportUnits.size();
+        statusPanel = new JPanel(new GridLayout(1, 1));
         statusField = new JTextField(status);
         statusField.setFont(Constants.DEFAULT_FONT);
-        statusField.setBackground(Color.CYAN);
+//        statusField.setBackground(Color.CYAN);
         statusField.setHorizontalAlignment(JTextField.CENTER); 
         statusField.setEditable(false);
         statusPanel.add(statusField);
@@ -617,9 +657,10 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private void zoomMinMax() {
         //TODO: Make a new user interface for Min Max zoom box
-        String minValue = minText.getText();
-        String maxValue = maxText.getText();
-        int min, max;
+        final String minValue = minText.getText();
+        final String maxValue = maxText.getText();
+        int min;
+        int max;
         try {
             min = Integer.parseInt(minValue); 
             max = Integer.parseInt(maxValue); 
@@ -633,8 +674,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             max = 80; 
         }
         if (min < 0 || max > 99 || min > 99 || max < 1 || min > max) {
-            JOptionPane.showMessageDialog(this,"Incorrect min or max. Resetting to 10 and 80",
-                      "Error",JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Incorrect min or max. Resetting to 10 and 80", "Error",
+                                          JOptionPane.ERROR_MESSAGE);
             minText.setText("10");
             maxText.setText("80");
             min = 10; 
@@ -759,15 +800,15 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         } else if (sortKey.equals("Compare")) { 
             //Check checkbox flag status and group those reports together at the beginning of orderedReportUnits
             //Add all selected reports first i refers to original report number
-            for (int i = 0; i < chartCheckBoxFlags.size(); ++i) {
-                if (chartCheckBoxFlags.get(i)) {
+            for (int i = 0; i < reportIsSelected.size(); ++i) {
+                if (reportIsSelected.get(i)) {
                     logger.fine("Selected report index = " + i);
                     orderedReportUnits.add(reportUnits.get(i));
                 }
             }
             //Later add all deselected reports 
-            for (int i = 0; i < chartCheckBoxFlags.size(); ++i) {
-                if (!chartCheckBoxFlags.get(i)) {
+            for (int i = 0; i < reportIsSelected.size(); ++i) {
+                if (!reportIsSelected.get(i)) {
                     orderedReportUnits.add(reportUnits.get(i));
                 }
             }
@@ -776,11 +817,11 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             desktopPane.removeAll(); //A new chart frame will be given to every report
         }
         if (sortOrder.equals("Asc")) {
-            prepareChartsInAscendingOrder(true);
+            prepareChartsInOrder(true);
             //Set first report graph in the Tic Pane. -1 adjusts to the index. 
             setTicGraphPaneChart(orderedReportUnits.get(0).getReportNum() - 1); 
         } else if (sortOrder.equals("Des")) {
-            prepareChartsInAscendingOrder(false);
+            prepareChartsInOrder(false);
             setTicGraphPaneChart(orderedReportUnits.get(orderedReportUnits.size()-1).getReportNum() - 1); ////Set last report graph in the Tic Pane
         }
         currentSortCriteria = newSortCriteria; 
@@ -788,25 +829,21 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     }
     
     /**
-     * 
-     * @param flag if true, charts will be prepared in ascending order. if false, the charts will be prepared in descending order
+     * Create chart frames and add them to the desktop pane.
+     *
+     * @param ascending if <code>true</code>, the charts will be prepared in ascending order; if <code>false</code>, the
+     *                  charts will be prepared in descending order.
      */
-    private void prepareChartsInAscendingOrder(boolean flag) {
-        logger.fine("ViewerFrame prepareChartsInAscendingOrder");
+    private void prepareChartsInOrder(final boolean ascending) {
+        logger.fine("ViewerFrame prepareChartsInOrder");
         if (chartPanelList != null) {
             chartPanelList.clear();
         }
         yCoordinate = 0;
         logger.fine("No. of orderedReportUnits = " + orderedReportUnits.size());
-        for (int i = 0; i < orderedReportUnits.size(); ++i) {
-            JInternalFrame chartFrame;
-            if (flag) {
-                chartFrame = createChartFrame(i, orderedReportUnits.get(i).getChartUnit().getTicChart(),
-                                              orderedReportUnits.get(i));
-            } else {
-                int index = orderedReportUnits.size() - i - 1;
-                chartFrame = createChartFrame(i, orderedReportUnits.get(index).getChartUnit().getTicChart(), orderedReportUnits.get(orderedReportUnits.size() - i - 1));
-            }
+        for (int reportIndex = 0; reportIndex < orderedReportUnits.size(); reportIndex++) {
+            final int sortedIndex = ascending ? reportIndex : orderedReportUnits.size() - reportIndex - 1;
+            final JInternalFrame chartFrame = createChartFrame(orderedReportUnits.get(sortedIndex), reportIndex);
             chartFrame.setBorder(BorderFactory.createRaisedBevelBorder());
             chartFrame.pack();
             chartFrame.setLocation(0, yCoordinate);
@@ -818,65 +855,81 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     }
     
     /**
-     * Creates an internal frame.
-     * setSelected is required to preserve check boxes status in the display
-     * @return An internal frame.
+     * Create an internal frame for a report showing the report number, selection check box, details button, metrics
+     * panel and the TIC chart. The controls are created in three panels: 1) reportIdPanel, 2) metricsPanel, and
+     * 3) chartPanel.
+     *
+     * TODO: clarify when we use reportNumber, reportUnit.getReportNum() - 1 and reportUnit.getReportNum(). [Freek]
+     *
+     * @param reportUnit the report unit.
+     * @param reportNumber the report number.
+     * @return an internal frame with all information from a single report.
      */
-    private JInternalFrame createChartFrame(final int chartNum, final JFreeChart chart, final ReportUnit reportUnit) {
-        logger.fine("ViewerFrame createChartFrame " + chartNum + " ");
-        //Create the visible chart frame consisting of three panels: 1) checkPanel 2) labelPanel 3) chartPanel
-        //ChartPanel is rightmost panel holding TIC chart
-        ChartPanel chartPanel = new ChartPanel(chart);
+    private JInternalFrame createChartFrame(final ReportUnit reportUnit, final int reportNumber) {
+        logger.fine("ViewerFrame createChartFrame " + reportNumber + " ");
+
+        final ChartPanel chartPanel = new ChartPanel(reportUnit.getChartUnit().getTicChart());
         chartPanel.addChartMouseListener(this);
-        chartPanel.setPreferredSize(new Dimension(CHART_PANEL_SIZE, CHART_HEIGHT - 10));
+        chartPanel.setPreferredSize(new Dimension(CHART_PANEL_WIDTH, CHART_HEIGHT - 10));
         chartPanelList.add(chartPanel);
-        final JInternalFrame frame = new JInternalFrame("Chart " + chartNum, true);
-        frame.setName(Integer.toString(reportUnit.getReportNum() - 1)); //Set report index number as frame name
 
+        final JPanel reportIdPanel = createReportIdPanel(reportUnit);
+        // TODO: Layout.
+        final JPanel metricsPanel = createOrUpdateMetricsPanel(reportUnit, null);
+        reportUnitToMetricsPanel.put(reportUnit, metricsPanel);
+
+        // TODO: Layout.
+        final JPanel displayPanel = new JPanel();
+        displayPanel.add(reportIdPanel);
+        displayPanel.add(metricsPanel);
+        displayPanel.add(chartPanel);
+        displayPanel.setBorder(null);
+
+        final JInternalFrame frame = new JInternalFrame("Chart " + reportNumber, true);
+        frame.setName(Integer.toString(reportUnit.getReportNum() - 1));
         ((javax.swing.plaf.basic.BasicInternalFrameUI) frame.getUI()).setNorthPane(null);
+        frame.getContentPane().add(displayPanel);
+        frame.setBorder(null);
+        frame.addMouseListener(this);
+        return frame;
+    }
 
-        //Create a checkbox for selection
-        JCheckBox chartCheckBox = new JCheckBox("Compare");
-        chartCheckBox.setFont(Constants.DEFAULT_FONT);
-        chartCheckBox.setBackground(Color.WHITE);
-        //ChartCheckBoxName is same as report number which is unique
-        //chartCheckBoxFlags are organized according to original report num - which is same as ChartCheckBoxName
-        chartCheckBox.setName(Integer.toString(reportUnit.getReportNum() - 1)); //Since reportNum is > 0
-        chartCheckBox.setSelected(chartCheckBoxFlags.get(reportUnit.getReportNum() - 1));
-        chartCheckBox.addItemListener(this);
+    /**
+     * Create a panel for a report showing the report number, the selection check box and the metrics details button.
+     *
+     * @param reportUnit the report unit to show.
+     * @return the panel with the relevant information.
+     */
+    private JPanel createReportIdPanel(final ReportUnit reportUnit) {
+        final JLabel reportNumberLabel = new JLabel(Integer.toString(reportUnit.getReportNum()));
+        reportNumberLabel.setFont(Constants.REPORT_NUMBER_FONT);
 
         final JButton detailsButton = new JButton("Details");
         detailsButton.setFont(Constants.DEFAULT_FONT);
         detailsButton.setPreferredSize(new Dimension(80, 20));
-        //Use Details button to display all QC metrics values 
         detailsButton.setActionCommand("Details-" + Integer.toString(reportUnit.getReportNum()));
         detailsButton.addActionListener(this);
 
-        //The leftmost panel holding reportNum, detailsButton and chartCheckBox
-        final JPanel checkPanel = new JPanel(); //TODO: Layout
-        checkPanel.setFont(Constants.DEFAULT_FONT);
-        checkPanel.setBackground(Color.WHITE);
-        checkPanel.setForeground(Color.WHITE); 
-        checkPanel.add(detailsButton, 0);
-        checkPanel.add(chartCheckBox, 1);
-        final JLabel numLabel = new JLabel(Integer.toString(reportUnit.getReportNum()));
-        numLabel.setFont(Constants.REPORT_NUMBER_FONT);
-        checkPanel.add(numLabel);
-        checkPanel.setPreferredSize(new Dimension(CHECK_PANEL_SIZE, CHART_HEIGHT));
+        final JCheckBox selectionCheckBox = new JCheckBox("Compare");
+        selectionCheckBox.setFont(Constants.DEFAULT_FONT);
+        selectionCheckBox.setBackground(Color.WHITE);
+        // TODO: perhaps it's easier to use the report number here as well, since any unique id is ok? [Freek]
+        selectionCheckBox.setName(Integer.toString(reportUnit.getReportNum() - 1)); //Since reportNum is > 0
+        // This call to setSelected preserves selection status.
+        // TODO: this call to setSelected is needed after a refresh of the report list? [Freek]
+        selectionCheckBox.setSelected(reportIsSelected.get(reportUnit.getReportNum() - 1));
+        selectionCheckBox.addItemListener(this);
 
-        //The middle panel displaying values of selected metrics
-        final JPanel displayPanel = new JPanel(); //TODO: Layout
-        displayPanel.add(checkPanel);
-        final JPanel metricsPanel = createOrUpdateMetricsPanel(reportUnit, null); //TODO: Layout
-        reportUnitToMetricsPanel.put(reportUnit, metricsPanel);
-        displayPanel.add(metricsPanel);
-        displayPanel.add(chartPanel);
-        displayPanel.setBorder(null);
-        frame.getContentPane().add(displayPanel);
+        final JPanel reportIdPanel = new JPanel(); //TODO: Layout
+        reportIdPanel.setFont(Constants.DEFAULT_FONT);
+        reportIdPanel.setBackground(Color.WHITE);
+        reportIdPanel.setForeground(Color.WHITE);
+        reportIdPanel.add(reportNumberLabel);
+        reportIdPanel.add(selectionCheckBox);
+        reportIdPanel.add(detailsButton);
+        reportIdPanel.setPreferredSize(new Dimension(CHECK_PANEL_WIDTH, CHART_HEIGHT));
 
-        frame.addMouseListener(this);
-        frame.setBorder(null);
-        return frame;
+        return reportIdPanel;
     }
 
     /**
@@ -907,7 +960,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             metricsPanel.setBackground(Color.WHITE);
             final GridLayout layout = new GridLayout(selectedMetricsNames.size(), 1);
             metricsPanel.setLayout(layout);
-            metricsPanel.setPreferredSize(new Dimension(LABEL_PANEL_SIZE, CHART_HEIGHT));
+            metricsPanel.setPreferredSize(new Dimension(METRICS_PANEL_WIDTH, CHART_HEIGHT));
         } else {
             metricsPanel.removeAll();
         }
@@ -935,13 +988,13 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             JCheckBox thisCheckBox = (JCheckBox) evt.getSource();
             logger.fine("Check box name = " + thisCheckBox.getName());
             int checkBoxFlagIndex = Integer.parseInt(thisCheckBox.getName());
-            //chartCheckBoxFlags will be maintained all the time according to reportNum
+            //reportIsSelected will be maintained all the time according to reportNum
             if (evt.getStateChange() == ItemEvent.SELECTED) {
                 logger.fine("Selected");
-                chartCheckBoxFlags.set(checkBoxFlagIndex, true);
+                reportIsSelected.set(checkBoxFlagIndex, true);
             } else if (evt.getStateChange() == ItemEvent.DESELECTED) {
                 logger.fine("DeSelected");
-                chartCheckBoxFlags.set(checkBoxFlagIndex, false); 
+                reportIsSelected.set(checkBoxFlagIndex, false);
             }
         }
     }
