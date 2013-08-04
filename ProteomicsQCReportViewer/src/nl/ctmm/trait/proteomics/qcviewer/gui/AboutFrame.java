@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -33,6 +34,9 @@ import org.jfree.ui.RefineryUtilities;
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
 public class AboutFrame extends JFrame implements ActionListener {
+    /**
+     * The logger for this class.
+     */
     private static final Logger logger = Logger.getLogger(AboutFrame.class.getName());
 
     /**
@@ -149,13 +153,14 @@ public class AboutFrame extends JFrame implements ActionListener {
      */
     private JPanel createAcknowledgementsPanel() {
         final String[][] acknowledgementsData = {
-                {"http://www.oncoproteomics.nl", Constants.OPL_LOGO_FILE_NAME},
-                {"http://www.nist.gov", Constants.NIST_LOGO_FILE_NAME},
-                {"http://www.ctmm.nl", Constants.CTMM_LOGO_FILE_NAME},
-                {"http://www.ctmm-trait.nl", Constants.CTMM_TRAIT_LOGO_FILE_NAME},
-                {"http://www.nbic.nl", Constants.NBIC_LOGO_FILE_NAME}
+            {"http://www.oncoproteomics.nl", Constants.OPL_LOGO_FILE_NAME},
+            {"http://www.nist.gov", Constants.NIST_LOGO_FILE_NAME},
+            {"http://www.ctmm.nl", Constants.CTMM_LOGO_FILE_NAME},
+            {"http://www.ctmm-trait.nl", Constants.CTMM_TRAIT_LOGO_FILE_NAME},
+            {"http://www.nbic.nl", Constants.NBIC_LOGO_FILE_NAME},
         };
-        final JPanel acknowledgementsPanel = new JPanel(); //TODO: Layout
+        // TODO: Layout.
+        final JPanel acknowledgementsPanel = new JPanel();
         acknowledgementsPanel.setLayout(new GridLayout(5, 1));
         acknowledgementsPanel.setBackground(Color.WHITE);
         for (final String[] acknowledgementData : acknowledgementsData) {
