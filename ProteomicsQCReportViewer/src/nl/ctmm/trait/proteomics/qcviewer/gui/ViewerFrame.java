@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -955,12 +956,13 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         chartPanelList.add(chartPanel);
 
         final JPanel reportIdPanel = createReportIdPanel(reportUnit);
-        // TODO: Layout.
+        //metricsPanel uses GridLayout
         final JPanel metricsPanel = createOrUpdateMetricsPanel(reportUnit, null);
         reportUnitToMetricsPanel.put(reportUnit, metricsPanel);
 
-        // TODO: Layout.
+        //displayPanel now uses FlowLayout
         final JPanel displayPanel = new JPanel();
+        displayPanel.setLayout(new FlowLayout());
         displayPanel.add(reportIdPanel);
         displayPanel.add(metricsPanel);
         displayPanel.add(chartPanel);
