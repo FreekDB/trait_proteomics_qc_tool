@@ -141,15 +141,52 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     /**
      * Height of the panel with sorting controls.
      */
-    private static final int SORT_PANEL_HEIGHT = 130;
-
-    private static final int ZOOM_PANEL_WIDTH = 300;
-    private static final int ZOOM_PANEL_HEIGHT = 180;
-    private static final int ZOOM_PANEL_FORM_WIDTH = 250;
-    private static final int ZOOM_PANEL_FORM_HEIGHT = 90;
-    private static final int ZOOM_PANEL_BUTTONS_WIDTH = 250;
-    private static final int ZOOM_PANEL_BUTTONS_HEIGHT = 90;
-
+    private static final int SORT_PANEL_HEIGHT = 140;
+    
+    /**
+     * Width of the zoom panel controls
+     */
+    private static final int ZOOM_PANEL_WIDTH = 280;
+    /**
+     * Height of the zoom panel controls
+     */
+    private static final int ZOOM_PANEL_HEIGHT = 140;
+    /**
+     * Height of individual zoom panel components - Zoom All and Zoom Along X Axis
+     */
+    private static final int ZOOM_PANEL_FORM_HEIGHT = 60;
+    /**
+     * Width of an individual zoom button
+     */
+    private static final int ZOOM_BUTTON_WIDTH = 85;
+    /**
+     * Height of an individual zoom button
+     */
+    private static final int ZOOM_BUTTON_HEIGHT = 25;
+    /**
+     * Width of min - max text box
+     */
+    private static final int TEXT_BOX_WIDTH = 30;
+    /**
+     * Height of min - max text box
+     */
+    private static final int TEXT_BOX_HEIGHT = 20;
+    /**
+     * Text of the Zoom In button
+     */
+    private static final String ZOOM_IN_BUTTON_TEXT = "Zoom In";
+    /**
+     * Text of the Zoom Original button
+     */
+    private static final String ZOOM_ORIGINAL_BUTTON_TEXT = "Original";
+    /**
+     * Text of the Zoom Out button
+     */
+    private static final String ZOOM_OUT_BUTTON_TEXT = "Zoom Out";
+    /**
+     * Text of the Zoom Along X axis button
+     */
+    private static final String ZOOM_X_AXIS_BUTTON_TEXT = "Zoom X Axis";
     /**
      * Width of the OPL and CTMM TraIT logos on the top left and top right of the application.
      */
@@ -163,9 +200,9 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private static final int STATUS_PANEL_WIDTH = 1333;
     private static final int STATUS_PANEL_HEIGHT = 20;
     private static final int CONTROL_PANEL_WIDTH = 1333;
-    private static final int CONTROL_PANEL_HEIGHT = 130;
+    private static final int CONTROL_PANEL_HEIGHT = 140;
     private static final int CONTROL_FRAME_WIDTH = 1333;
-    private static final int CONTROL_FRAME_HEIGHT = 155;
+    private static final int CONTROL_FRAME_HEIGHT = 165;
     private static final int METRIC_LABEL_WIDTH = 200;
     private static final int METRIC_LABEL_HEIGHT = 30;
 
@@ -423,18 +460,18 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         final javax.swing.plaf.InternalFrameUI ifu = controlFrame.getUI();
         ((javax.swing.plaf.basic.BasicInternalFrameUI)ifu).setNorthPane(null);
 
-        //controlFrame now uses Box 
+        //controlFrame now uses Box layout 
         controlFrame.setBorder(null);
         controlFrame.setBackground(Color.WHITE);
 
         // Zoom all - in, original, out
-        final JButton inButton = new JButton("Zoom In");
+        final JButton inButton = new JButton(ZOOM_IN_BUTTON_TEXT);
         inButton.setActionCommand("Zoom In");
         inButton.addActionListener(this);
-        final JButton originalButton = new JButton("Original");
+        final JButton originalButton = new JButton(ZOOM_ORIGINAL_BUTTON_TEXT);
         originalButton.setActionCommand("Zoom Original");
         originalButton.addActionListener(this);
-        final JButton outButton = new JButton("Zoom Out");
+        final JButton outButton = new JButton(ZOOM_OUT_BUTTON_TEXT);
         outButton.setActionCommand("Zoom Out");
         outButton.addActionListener(this);
         final ButtonGroup zoomGroup = new ButtonGroup();
@@ -445,17 +482,19 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         final JPanel zoomPanelButtons = new JPanel();
         zoomPanelButtons.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),
                                                                     "Zoom All TIC Charts"));
-        zoomPanelButtons.setPreferredSize(new Dimension(ZOOM_PANEL_BUTTONS_WIDTH, ZOOM_PANEL_BUTTONS_HEIGHT));
         zoomPanelButtons.setLayout(new BoxLayout(zoomPanelButtons, BoxLayout.X_AXIS));
         zoomPanelButtons.add(Box.createRigidArea(new Dimension(5, 0)));
+        inButton.setMinimumSize(new Dimension(ZOOM_BUTTON_WIDTH, ZOOM_BUTTON_HEIGHT));
         zoomPanelButtons.add(inButton, Box.CENTER_ALIGNMENT);
         zoomPanelButtons.add(Box.createRigidArea(new Dimension(5, 0)));
+        originalButton.setMinimumSize(new Dimension(ZOOM_BUTTON_WIDTH, ZOOM_BUTTON_HEIGHT));
         zoomPanelButtons.add(originalButton, Box.CENTER_ALIGNMENT);
         zoomPanelButtons.add(Box.createRigidArea(new Dimension(5, 0)));
+        outButton.setMinimumSize(new Dimension(ZOOM_BUTTON_WIDTH, ZOOM_BUTTON_HEIGHT));
         zoomPanelButtons.add(outButton, Box.CENTER_ALIGNMENT);
-        zoomPanelButtons.setBackground(Color.WHITE);
         zoomPanelButtons.add(Box.createRigidArea(new Dimension(5, 0)));
-
+        zoomPanelButtons.setBackground(Color.WHITE);
+        
         // Zoom all - Min, Max and Submit
         final JLabel minLabel = new JLabel("Min: ");
         minText = new JFormattedTextField(NumberFormat.getInstance());
@@ -473,37 +512,35 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                 zoomMinMax();
             }
         });
-        final JButton zoomButton = new JButton("Zoom X Axis");
+        final JButton zoomButton = new JButton(ZOOM_X_AXIS_BUTTON_TEXT);
         zoomButton.setActionCommand("zoomMinMax");
         zoomButton.addActionListener(this);
         final JPanel zoomPanelForm = new JPanel();
         zoomPanelForm.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Zoom Along X Axis"));
         zoomPanelForm.setLayout(new BoxLayout(zoomPanelForm, BoxLayout.X_AXIS));
-        zoomPanelForm.add(Box.createRigidArea(new Dimension(5, 0)));
+        zoomPanelForm.add(Box.createRigidArea(new Dimension(10, 0)));
         zoomPanelForm.add(minLabel, Box.CENTER_ALIGNMENT);
         zoomPanelForm.add(Box.createRigidArea(new Dimension(5, 0)));
-        minText.setMaximumSize(new Dimension(20, 20));
+        minText.setMaximumSize(new Dimension(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT));
         zoomPanelForm.add(minText, Box.CENTER_ALIGNMENT);
         zoomPanelForm.add(Box.createRigidArea(new Dimension(5, 0)));
         zoomPanelForm.add(maxLabel, Box.CENTER_ALIGNMENT);
         zoomPanelForm.add(Box.createRigidArea(new Dimension(5, 0)));
-        maxText.setMaximumSize(new Dimension(20, 20));
+        maxText.setMaximumSize(new Dimension(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT));
         zoomPanelForm.add(maxText, Box.CENTER_ALIGNMENT);
-        zoomPanelForm.add(Box.createRigidArea(new Dimension(5, 0)));
+        zoomPanelForm.add(Box.createRigidArea(new Dimension(10, 0)));
+        zoomButton.setMinimumSize(new Dimension(ZOOM_BUTTON_WIDTH, ZOOM_BUTTON_HEIGHT));
         zoomPanelForm.add(zoomButton, Box.CENTER_ALIGNMENT);
         zoomPanelForm.add(Box.createRigidArea(new Dimension(5, 0)));
         zoomPanelForm.setBackground(Color.WHITE);
 
         final JPanel zoomPanel = new JPanel();
-        zoomPanel.setLayout(new BoxLayout(zoomPanel, BoxLayout.Y_AXIS));
+        zoomPanel.setLayout(new GridLayout(2, 1));
         zoomPanel.setBackground(Color.WHITE);
-        zoomPanel.add(Box.createRigidArea(new Dimension(5, 0)));
-        zoomPanelButtons.setPreferredSize(new Dimension(ZOOM_PANEL_BUTTONS_WIDTH, ZOOM_PANEL_BUTTONS_HEIGHT));
+        zoomPanelButtons.setMinimumSize(new Dimension(ZOOM_PANEL_WIDTH, ZOOM_PANEL_FORM_HEIGHT));
         zoomPanel.add(zoomPanelButtons, 0);
-        zoomPanel.add(Box.createRigidArea(new Dimension(15, 0)));
-        zoomPanelForm.setPreferredSize(new Dimension(ZOOM_PANEL_FORM_WIDTH, ZOOM_PANEL_FORM_HEIGHT));
+        zoomPanelForm.setMinimumSize(new Dimension(ZOOM_PANEL_WIDTH, ZOOM_PANEL_FORM_HEIGHT));
         zoomPanel.add(zoomPanelForm, 1);
-        zoomPanel.add(Box.createRigidArea(new Dimension(5, 0)));
 
         final ButtonGroup sortGroup = new ButtonGroup();
         final GridLayout layout = new GridLayout(selectedMetricsNames.size() / 2 + 1, 2);
@@ -585,6 +622,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 
         final JPanel controlPanel = new JPanel();
         controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.X_AXIS));
+        controlPanel.setBackground(Color.WHITE);
         controlPanel.add(Box.createRigidArea(new Dimension(10, 0)));
         controlPanel.add(oplLogoLabel, Box.CENTER_ALIGNMENT);
         controlPanel.add(Box.createRigidArea(new Dimension(10, 0)));
