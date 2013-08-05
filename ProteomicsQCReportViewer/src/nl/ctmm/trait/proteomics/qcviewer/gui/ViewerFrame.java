@@ -236,6 +236,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private JSplitPane splitPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
     private JTextField statusField;
     private JPanel statusPanel;
+    private JPanel sortPanel = new JPanel();
     private int yCoordinate;
 
     /**
@@ -360,8 +361,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private void assembleComponents() {
         logger.fine("ViewerFrame assembleComponents");
         //We need two split panes to create 3 regions in the main frame
-        //Add static (immovable) Control frame
-        final JInternalFrame controlFrame = getControlFrame();
+        
         //Add desktopPane for displaying graphs and other QC Control
         final int totalReports = orderedReportUnits.size();
         if (totalReports != 0) {
@@ -377,17 +377,17 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         //hide-show feature
         splitPane2.setOneTouchExpandable(true);
         splitPane2.setDividerLocation(SPLIT_PANE_2_DIVIDER_LOCATION);
-
+        //Add static (immovable) Control frame
+        final JInternalFrame controlFrame = getControlFrame();
         final JScrollPane controlFrameScrollPane = new JScrollPane(controlFrame);
         controlFrameScrollPane.setPreferredSize(new Dimension(CONTROL_FRAME_WIDTH, CONTROL_FRAME_HEIGHT));
-        splitPane1.add(controlFrameScrollPane);
-        splitPane1.add(splitPane2);
+        splitPane1.setLeftComponent(controlFrameScrollPane);
+        splitPane1.setRightComponent(splitPane2);
         //hide-show feature
         splitPane1.setOneTouchExpandable(true);
         splitPane1.setDividerLocation(SPLIT_PANE_1_DIVIDER_LOCATION);
         splitPane1.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 15, (int)(6.5 * CHART_HEIGHT)));
         getContentPane().add(splitPane1, "Center");
-
         setJMenuBar(createMenuBar());
     }
 
@@ -542,12 +542,62 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         zoomPanelForm.setMinimumSize(new Dimension(ZOOM_PANEL_WIDTH, ZOOM_PANEL_FORM_HEIGHT));
         zoomPanel.add(zoomPanelForm, 1);
 
+        final JLabel oplLogoLabel = createLogoLabel(Constants.OPL_LOGO_FILE_NAME);
+        final JLabel ctmmTraitLogoLabel = createLogoLabel(Constants.CTMM_TRAIT_LOGO_FILE_NAME);
+
+        final JPanel controlPanel = new JPanel();
+        controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.X_AXIS));
+        controlPanel.setBackground(Color.WHITE);
+        controlPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+        controlPanel.add(oplLogoLabel, Box.CENTER_ALIGNMENT);
+        controlPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+        zoomPanel.setMinimumSize(new Dimension(ZOOM_PANEL_WIDTH, ZOOM_PANEL_HEIGHT));
+        controlPanel.add(zoomPanel, Box.CENTER_ALIGNMENT);
+        controlPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+        createOrUpdateSortPanel();
+        controlPanel.add(sortPanel, Box.CENTER_ALIGNMENT);
+        controlPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+        controlPanel.add(ctmmTraitLogoLabel, Box.CENTER_ALIGNMENT);
+        controlPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+
+        final String status = pipelineStatus + " | | | | | Number of report units = " + orderedReportUnits.size();
+        statusPanel = new JPanel(new GridLayout(1, 1));
+        statusField = new JTextField(status);
+        statusField.setFont(Constants.DEFAULT_FONT);
+//        statusField.setBackground(Color.CYAN);
+        statusField.setHorizontalAlignment(JTextField.CENTER);
+        statusField.setEditable(false);
+        statusPanel.add(statusField);
+
+        controlFrame.getContentPane().setLayout(new BoxLayout(controlFrame.getContentPane(), BoxLayout.Y_AXIS));
+        controlFrame.getContentPane().add(Box.createRigidArea(new Dimension(5, 0)));
+        controlPanel.setPreferredSize(new Dimension(CONTROL_PANEL_WIDTH, CONTROL_PANEL_HEIGHT));
+        controlFrame.getContentPane().add(controlPanel, BorderLayout.CENTER);
+        controlFrame.getContentPane().add(Box.createRigidArea(new Dimension(5, 0)));
+        statusPanel.setPreferredSize(new Dimension(STATUS_PANEL_WIDTH, STATUS_PANEL_HEIGHT));
+        controlFrame.getContentPane().add(statusPanel, BorderLayout.CENTER);
+        controlFrame.getContentPane().add(Box.createRigidArea(new Dimension(5, 0)));
+        controlFrame.pack();
+        controlFrame.setLocation(0, 0);
+        controlFrame.setResizable(false);
+        controlFrame.setVisible(true);
+        return controlFrame;
+    }
+    
+    /**
+     * Create sort panel displaying sort metrics and sort order
+     * @return sortPanel 
+     */
+    private void createOrUpdateSortPanel() {
+        if (sortPanel != null) {
+            sortPanel.removeAll();
+        }
         final ButtonGroup sortGroup = new ButtonGroup();
         final GridLayout layout = new GridLayout(selectedMetricsNames.size() / 2 + 1, 2);
         sortButtons = new ArrayList<>();
-        final JPanel sortPanel = new JPanel();
         sortPanel.setLayout(layout);
         sortPanel.setBackground(Color.WHITE);
+        sortPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Sort Options"));
         for (int i = 0; i < selectedMetricsNames.size(); ++i) {
             final JLabel metricLabel = new JLabel(selectedMetricsNames.get(i) + ": ");
             metricLabel.setFont(Constants.DEFAULT_FONT);
@@ -611,52 +661,10 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         sortItemPanel.add(desButton, Box.CENTER_ALIGNMENT);
         sortItemPanel.add(Box.createRigidArea(new Dimension(5, 0)));
         sortPanel.add(sortItemPanel);
-
         //Set first button selected
         sortButtons.get(0).setSelected(true);
         this.currentSortCriteria = sortButtons.get(0).getActionCommand();
-        sortPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Sort Options"));
-
-        final JLabel oplLogoLabel = createLogoLabel(Constants.OPL_LOGO_FILE_NAME);
-        final JLabel ctmmTraitLogoLabel = createLogoLabel(Constants.CTMM_TRAIT_LOGO_FILE_NAME);
-
-        final JPanel controlPanel = new JPanel();
-        controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.X_AXIS));
-        controlPanel.setBackground(Color.WHITE);
-        controlPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-        controlPanel.add(oplLogoLabel, Box.CENTER_ALIGNMENT);
-        controlPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-        zoomPanel.setMinimumSize(new Dimension(ZOOM_PANEL_WIDTH, ZOOM_PANEL_HEIGHT));
-        controlPanel.add(zoomPanel, Box.CENTER_ALIGNMENT);
-        controlPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-        sortPanel.setMaximumSize(new Dimension(SORT_PANEL_WIDTH, SORT_PANEL_HEIGHT));
-        controlPanel.add(sortPanel, Box.CENTER_ALIGNMENT);
-        controlPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-        controlPanel.add(ctmmTraitLogoLabel, Box.CENTER_ALIGNMENT);
-        controlPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-
-        final String status = pipelineStatus + " | | | | | Number of report units = " + orderedReportUnits.size();
-        statusPanel = new JPanel(new GridLayout(1, 1));
-        statusField = new JTextField(status);
-        statusField.setFont(Constants.DEFAULT_FONT);
-//        statusField.setBackground(Color.CYAN);
-        statusField.setHorizontalAlignment(JTextField.CENTER);
-        statusField.setEditable(false);
-        statusPanel.add(statusField);
-
-        controlFrame.getContentPane().setLayout(new BoxLayout(controlFrame.getContentPane(), BoxLayout.Y_AXIS));
-        controlFrame.getContentPane().add(Box.createRigidArea(new Dimension(5, 0)));
-        controlPanel.setPreferredSize(new Dimension(CONTROL_PANEL_WIDTH, CONTROL_PANEL_HEIGHT));
-        controlFrame.getContentPane().add(controlPanel, BorderLayout.CENTER);
-        controlFrame.getContentPane().add(Box.createRigidArea(new Dimension(5, 0)));
-        statusPanel.setPreferredSize(new Dimension(STATUS_PANEL_WIDTH, STATUS_PANEL_HEIGHT));
-        controlFrame.getContentPane().add(statusPanel, BorderLayout.CENTER);
-        controlFrame.getContentPane().add(Box.createRigidArea(new Dimension(5, 0)));
-        controlFrame.pack();
-        controlFrame.setLocation(0, 0);
-        controlFrame.setResizable(false);
-        controlFrame.setVisible(true);
-        return controlFrame;
+        sortPanel.setPreferredSize(new Dimension(SORT_PANEL_WIDTH, SORT_PANEL_HEIGHT));
     }
 
     /**
@@ -1014,12 +1022,16 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * @param selectedMetricsData the data of the selected metrics (keys and names).
      */
     public void updateSelectedMetrics(final List<String> selectedMetricsData) {
+      //Update control frame to display newly selected metrics
+        logger.fine("In updateSelectedMetrics - refreshing metrics values..");
         parseSelectedMetricsData(selectedMetricsData);
         for (final ReportUnit reportUnit : reportUnits) {
             if (reportUnitToMetricsPanel.containsKey(reportUnit)) {
                 createOrUpdateMetricsPanel(reportUnit, reportUnitToMetricsPanel.get(reportUnit));
             }
         }
+        createOrUpdateSortPanel();
+        revalidate();
     }
 
     /**
