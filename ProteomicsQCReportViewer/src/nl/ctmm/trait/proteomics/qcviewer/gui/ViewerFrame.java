@@ -585,8 +585,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     }
     
     /**
-     * Create sort panel displaying sort metrics and sort order
-     * @return sortPanel 
+     * Create sort panel displaying sort metrics and sort order buttons
      */
     private void createOrUpdateSortPanel() {
         if (sortPanel != null) {
@@ -988,7 +987,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 
         final JButton detailsButton = new JButton("Details");
         detailsButton.setFont(Constants.DEFAULT_FONT);
-        detailsButton.setPreferredSize(new Dimension(80, 20));
         detailsButton.setActionCommand(DETAILS_ACTION_PREFIX + reportUnit.getReportNum());
         detailsButton.addActionListener(this);
 
@@ -1003,14 +1001,20 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         selectionCheckBox.setSelected(reportIsSelected.get(reportUnit.getReportNum() - 1));
         selectionCheckBox.addItemListener(this);
 
-        // TODO: Layout.
+        //reportIDPanel now uses BoxLayout //TODO: issues with center alignment
         final JPanel reportIdPanel = new JPanel();
+        reportIdPanel.setLayout(new BoxLayout(reportIdPanel, BoxLayout.PAGE_AXIS));
         reportIdPanel.setFont(Constants.DEFAULT_FONT);
         reportIdPanel.setBackground(Color.WHITE);
         reportIdPanel.setForeground(Color.WHITE);
-        reportIdPanel.add(reportNumberLabel);
-        reportIdPanel.add(selectionCheckBox);
-        reportIdPanel.add(detailsButton);
+        reportIdPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        reportIdPanel.add(reportNumberLabel, Component.CENTER_ALIGNMENT);
+        reportIdPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        reportIdPanel.add(selectionCheckBox, Component.CENTER_ALIGNMENT);
+        reportIdPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        detailsButton.setPreferredSize(new Dimension(ZOOM_BUTTON_WIDTH, ZOOM_BUTTON_HEIGHT));
+        reportIdPanel.add(detailsButton, Component.CENTER_ALIGNMENT);
+        reportIdPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         reportIdPanel.setPreferredSize(new Dimension(CHECK_PANEL_WIDTH, CHART_HEIGHT));
 
         return reportIdPanel;
@@ -1043,7 +1047,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private JPanel createOrUpdateMetricsPanel(final ReportUnit reportUnit, final JPanel existingMetricsPanel) {
         // Create a new metrics panel or remove all labels from the existing panel.
-        // TODO: Layout.
+        // metricsPanel already uses GridLayout 
         final JPanel metricsPanel = existingMetricsPanel == null ? new JPanel() : existingMetricsPanel;
         if (existingMetricsPanel == null) {
             metricsPanel.setBackground(Color.WHITE);
