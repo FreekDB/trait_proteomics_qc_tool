@@ -4,9 +4,15 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Map;
+import java.util.logging.Logger;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -32,24 +38,89 @@ public class DetailsFrame extends JFrame implements ActionListener {
     private static final long serialVersionUID = 1;
 
     /**
+     * The logger for this class.
+     */
+    private static final Logger logger = Logger.getLogger(DetailsFrame.class.getName());
+    
+    /**
+     * Width of the button panel.
+     */
+    private static final int BUTTON_PANEL_WIDTH = 80;
+
+    /**
+     * Height of the button panel.
+     */
+    private static final int BUTTON_PANEL_HEIGHT = 25;
+    
+    /**
+     * Width of the Metrics ID column.
+     */
+    private static final int METRICSID_COLUMN_WIDTH = 120;
+    
+    /**
+     * Width of the Description column.
+     */
+    private static final int DESCRIPTION_COLUMN_WIDTH = 280;
+    
+    /**
+     * Width of the Value column. 
+     */
+    private static final int VALUE_COLUMN_WIDTH = 120;
+    
+    /**
+     * Width of the Details frame. 
+     */
+    private static final int DETAILS_FRAME_WIDTH = 540;
+    
+    /**
+     * Height of the Details frame. 
+     */
+    private static final int DETAILS_FRAME_HEIGHT = 780;
+
+    /**
+     * Width of the Details frame. 
+     */
+    private static final int DETAILS_TABLE_WIDTH = 520;
+    
+    /**
+     * Height of the Details frame. 
+     */
+    private static final int DETAILS_TABLE_HEIGHT = 700;
+    
+    /**
+     * Width of the Details frame. 
+     */
+    private static final int DETAILS_PANEL_WIDTH = 540;
+    
+    /**
+     * Height of the Details frame. 
+     */
+    private static final int DETAILS_PANEL_HEIGHT = 760;
+    
+    /**
+     * Dimension object for filler areas of 0x10 pixels for GUI layout.
+     */
+    private static final Dimension DIMENSION_0X10 = new Dimension(0, 10);
+    
+    /**
       * Constructor
       * @param metricsListing map of all QC metrics
       * @param reportUnit Report unit consisting of all QC metrics values
       */
     public DetailsFrame(final Map<String, String> metricsListing, final ReportUnit reportUnit) {
         super("All QC Metrics Values for " + reportUnit.getMsrunName());
-        setSize(520, 740);
+        setSize(DETAILS_FRAME_WIDTH, DETAILS_FRAME_HEIGHT + 10);
         setBackground(Color.gray);
-
+        setResizable(false);
         // Create a panel to hold all other components.
-        final JPanel topPanel = new JPanel(); //TODO: Layout
-        topPanel.setLayout(new BorderLayout());
-
+        final JPanel detailsPanel = new JPanel(); 
+        detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
+        detailsPanel.setPreferredSize(new Dimension(DETAILS_PANEL_WIDTH, DETAILS_PANEL_HEIGHT));
         // Create columns names
         final String columnNames[] = {"Metrics ID", "Description", "Value"};
 
         //Read metricsListing - key - metricsID Value - MetricName
-        System.out.println("In DetailsFrame - preparing to create dataset for " + reportUnit.getMsrunName());
+        logger.fine("In DetailsFrame - preparing to create dataset for " + reportUnit.getMsrunName());
         // Create data to show inside the table
         final String dataValues[][] = new String[metricsListing.size()][3];
         int index = 0; 
@@ -73,24 +144,28 @@ public class DetailsFrame extends JFrame implements ActionListener {
         header.setBackground(Color.yellow);
         header.setFont(Constants.DETAILS_HEADER_FONT);
         detailsTable.setFont(Constants.PLAIN_FONT);
-        final TableColumn column0 = detailsTable.getColumnModel().getColumn(0);
-        column0.setPreferredWidth(130);
-        final TableColumn column1 = detailsTable.getColumnModel().getColumn(1);
-        column1.setPreferredWidth(320);
-        final TableColumn column2 = detailsTable.getColumnModel().getColumn(2);
-        column2.setPreferredWidth(150);
+        final TableColumn metricsIDColumn = detailsTable.getColumnModel().getColumn(0);
+        metricsIDColumn.setPreferredWidth(METRICSID_COLUMN_WIDTH);
+        final TableColumn DescriptionColumn = detailsTable.getColumnModel().getColumn(1);
+        DescriptionColumn.setPreferredWidth(DESCRIPTION_COLUMN_WIDTH);
+        final TableColumn valueColumn = detailsTable.getColumnModel().getColumn(2);
+        valueColumn.setPreferredWidth(VALUE_COLUMN_WIDTH);
         // Add the table to a scrolling pane
         final JScrollPane scrollPane = new JScrollPane(detailsTable);
-        topPanel.add(scrollPane, BorderLayout.CENTER);
+        scrollPane.setPreferredSize(new Dimension(DETAILS_TABLE_WIDTH, DETAILS_TABLE_HEIGHT));
+        detailsPanel.add(scrollPane);
         final JButton submitButton = new JButton("OK");
-        submitButton.setPreferredSize(new Dimension(80, 30));
         submitButton.addActionListener(this);
         submitButton.setActionCommand("OK");
-        final JPanel buttonPanel = new JPanel(); //TODO: Layout
+        submitButton.setPreferredSize(new Dimension(BUTTON_PANEL_WIDTH, BUTTON_PANEL_HEIGHT));
+        final JPanel buttonPanel = new JPanel(new FlowLayout()); 
         buttonPanel.add(submitButton);
-        topPanel.add(buttonPanel, BorderLayout.SOUTH);
-        getContentPane().add(topPanel);
-        setBounds(0, 0, 540, 780);
+        buttonPanel.setPreferredSize(new Dimension(BUTTON_PANEL_WIDTH, BUTTON_PANEL_HEIGHT));
+        detailsPanel.add(Box.createRigidArea(DIMENSION_0X10));
+        detailsPanel.add(buttonPanel);
+        detailsPanel.add(Box.createRigidArea(DIMENSION_0X10));
+        getContentPane().add(detailsPanel);
+        setBounds(0, 0, DETAILS_FRAME_WIDTH, DETAILS_FRAME_HEIGHT + 10);
         RefineryUtilities.centerFrameOnScreen(this);
     }
 
