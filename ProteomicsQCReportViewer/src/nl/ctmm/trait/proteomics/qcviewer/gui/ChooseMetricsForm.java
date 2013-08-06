@@ -1,6 +1,7 @@
 package nl.ctmm.trait.proteomics.qcviewer.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.datatransfer.DataFlavor;
@@ -17,6 +18,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DropMode;
 import javax.swing.JButton;
@@ -33,6 +35,7 @@ import nl.ctmm.trait.proteomics.qcviewer.input.MetricsParser;
 
 /**
  * The class for displaying the metrics selection form with a drag and drop user interface.
+ * This class uses BorderLayout
  *
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
@@ -63,6 +66,31 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
      */
     private static final String ID_AVAILABLE_METRICS = "availableMetricsList";
 
+    /**
+     * Dimension object for filler areas of 10x0 pixels for GUI layout.
+     */
+    private static final Dimension DIMENSION_10X0 = new Dimension(10, 0);
+    
+    /**
+     * Width of an individual button.
+     */
+    private static final int BUTTON_WIDTH = 80;
+
+    /**
+     * Height of an individual zoom button.
+     */
+    private static final int BUTTON_HEIGHT = 25;
+
+    /**
+     * Width of the choose metrics form.
+     */
+    private static final int METRICS_FORM_WIDTH = 830;
+
+    /**
+     * Height of the choose metrics form.
+     */
+    private static final int METRICS_FORM_HEIGHT = 340;
+    
     /**
      * The GUI list with the selected metrics.
      */
@@ -119,7 +147,7 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         addButtonPanel();
         // Set content pane properties.
         ((JPanel) getContentPane()).setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-        getContentPane().setPreferredSize(new Dimension(830, 340));
+        getContentPane().setPreferredSize(new Dimension(METRICS_FORM_WIDTH, METRICS_FORM_HEIGHT));
     }
 
 	/**
@@ -152,7 +180,7 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
      */
     private JPanel createMetricsPanel(final JList<String> metricsList, final String metricsTransferId,
                                       final String title) {
-        final JPanel metricsPanel = new JPanel(); //TODO: Layout
+        final JPanel metricsPanel = new JPanel(); 
         metricsPanel.setLayout(new BoxLayout(metricsPanel, BoxLayout.Y_AXIS));
         metricsList.setTransferHandler(new MetricTransferHandler(metricsTransferId));
         metricsList.setDragEnabled(true);
@@ -172,20 +200,22 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
      * Add the panel with OK and Cancel buttons.
      */
     private void addButtonPanel() {
-        final JPanel buttonPanel = new JPanel(); //TODO: Layout
+        final JPanel buttonPanel = new JPanel(); 
         final JButton okButton = new JButton("OK");
-        okButton.setSize(new Dimension(50, 30));
         okButton.addActionListener(this);
         okButton.setActionCommand("OK");
         final JButton cancelButton = new JButton("Cancel");
-        cancelButton.setSize(new Dimension(50, 30));
         cancelButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent actionEvent) {
                 dispose();
             }
         });
+        okButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         buttonPanel.add(okButton);
+        buttonPanel.add(Box.createRigidArea(DIMENSION_10X0));
+        cancelButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         buttonPanel.add(cancelButton);
+        buttonPanel.setBackground(Color.WHITE);
         add(buttonPanel, BorderLayout.SOUTH);
     }
 

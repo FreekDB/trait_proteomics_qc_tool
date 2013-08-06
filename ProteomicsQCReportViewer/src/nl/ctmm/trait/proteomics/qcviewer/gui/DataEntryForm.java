@@ -1,6 +1,7 @@
 package nl.ctmm.trait.proteomics.qcviewer.gui;
 
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,6 +15,8 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -45,6 +48,67 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
      */
     private static final long serialVersionUID = 1;
     private static final Logger logger = Logger.getLogger(DataEntryForm.class.getName());
+
+    /**
+     * Width of an individual button.
+     */
+    private static final int BUTTON_WIDTH = 80;
+
+    /**
+     * Height of an individual zoom button.
+     */
+    private static final int BUTTON_HEIGHT = 25;
+    
+    /**
+     * Width of the date chooser component.
+     */
+    private static final int DATE_CHOOSER_WIDTH = 100;
+
+    /**
+     * Height of the date chooser component.
+     */
+    private static final int DATE_CHOOSER_HEIGHT = 20;
+
+    /**
+     * Width of the from and till date panels.
+     */
+    private static final int DATE_PANEL_WIDTH = 180;
+
+    /**
+     * Height of the from and till date panels.
+     */
+    private static final int DATE_PANEL_HEIGHT = 20;
+    
+    /**
+     * Width of the Data Entry Form for selecting dates.
+     */
+    private static final int DATE_FRAME_WIDTH = 200;
+
+    /**
+     * Height of the Data Entry Form for selecting dates.
+     */
+    private static final int DATE_FRAME_HEIGHT = 120;
+    
+    
+    /**
+     * Width of the initial status dialog.
+     */
+    private static final int INITIAL_DIALOG_WIDTH = 300;
+
+    /**
+     * Height of the initial status dialog.
+     */
+    private static final int INITIAL_DIALOG_HEIGHT = 100;    
+    
+    /**
+     * Dimension object for filler areas of 10x0 pixels for GUI layout.
+     */
+    private static final Dimension DIMENSION_10X0 = new Dimension(10, 0);
+    
+    /**
+     * Dimension object for filler areas of 25x0 pixels for GUI layout.
+     */
+    private static final Dimension DIMENSION_25X0 = new Dimension(25, 0);
     
     JTextField inputText; 
     Main parentMain = null; 
@@ -92,7 +156,7 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
         initialDialog = new JDialog();
         initialDialog.setTitle("Operation in progress");
         initialDialog.getContentPane().add(message1);
-        initialDialog.setPreferredSize(new Dimension(300,100));
+        initialDialog.setPreferredSize(new Dimension(INITIAL_DIALOG_WIDTH,INITIAL_DIALOG_HEIGHT));
         RefineryUtilities.centerFrameOnScreen(initialDialog);
         initialDialog.pack();
         initialDialog.setVisible(true);
@@ -172,8 +236,8 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
      */
     public void displayDateFilterEntryForm() {
         JLabel label1 = new JLabel("From Date:");
-        JPanel p1 = new JPanel(); //TODO: Layout
-        p1.setMinimumSize(new Dimension(250, 20));
+        JPanel p1 = new JPanel(new FlowLayout()); 
+        p1.setPreferredSize(new Dimension(DATE_PANEL_WIDTH, DATE_PANEL_HEIGHT));
         p1.add(label1);
         final JDateChooser fromDateChooser = new JDateChooser();
         fromDateChooser.setDateFormatString(Constants.SIMPLE_DATE_FORMAT_STRING);
@@ -183,33 +247,38 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
         Date fromDate = now.getTime();
         fromDateChooser.setDate(fromDate);
         fromDateChooser.getDateEditor().setEnabled(false);
-        fromDateChooser.setPreferredSize(new Dimension(100, 20));
+        fromDateChooser.setPreferredSize(new Dimension(DATE_CHOOSER_WIDTH, DATE_CHOOSER_HEIGHT));
         p1.add(fromDateChooser);
         fromDateChooser.requestFocusInWindow(); 
         JLabel label2 = new JLabel("    Till Date:");
-        JPanel p2 = new JPanel(); //TODO: Layout
+        JPanel p2 = new JPanel(new FlowLayout()); 
         p2.add(label2);
         final JDateChooser tillDateChooser = new JDateChooser();
         tillDateChooser.setDateFormatString(Constants.SIMPLE_DATE_FORMAT_STRING);
         //Set current date
         tillDateChooser.setDate(new Date());
         tillDateChooser.getDateEditor().setEnabled(false);
-        tillDateChooser.setPreferredSize(new Dimension(100, 20));
+        tillDateChooser.setPreferredSize(new Dimension(DATE_CHOOSER_WIDTH, DATE_CHOOSER_HEIGHT));
         p2.add(tillDateChooser);
         tillDateChooser.requestFocusInWindow(); 
 
         JButton b1 = new JButton("Submit");
         JButton b2 = new JButton("Cancel");
 
-        JPanel p3 = new JPanel(new GridLayout(1,2)); //TODO: Layout
-        p3.add(b1);
-        p3.add(b2);
+        JPanel p3 = new JPanel(); 
+        p3.setLayout(new BoxLayout(p3, BoxLayout.X_AXIS));
+        p3.add(Box.createRigidArea(DIMENSION_25X0));
+        b1.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        p3.add(b1, Box.CENTER_ALIGNMENT);
+        p3.add(Box.createRigidArea(DIMENSION_10X0));
+        b2.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        p3.add(b2, Box.CENTER_ALIGNMENT);
         
-        JPanel p4 = new JPanel(new GridLayout(3,1)); //TODO: Layout
+        JPanel p4 = new JPanel(new GridLayout(3,1)); 
         p4.add(p1, 0);
         p4.add(p2, 1);
         p4.add(p3, 2);
-        
+        p4.setPreferredSize(new Dimension(DATE_FRAME_WIDTH, DATE_FRAME_HEIGHT));
         getContentPane().add(p4);
         pack();
         RefineryUtilities.centerFrameOnScreen(this);

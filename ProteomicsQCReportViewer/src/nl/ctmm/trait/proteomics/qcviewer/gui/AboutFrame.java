@@ -3,6 +3,7 @@ package nl.ctmm.trait.proteomics.qcviewer.gui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -44,6 +45,61 @@ public class AboutFrame extends JFrame implements ActionListener {
      */
     private static final long serialVersionUID = 1;
 
+    /**
+     * Width of an individual button.
+     */
+    private static final int BUTTON_WIDTH = 80;
+
+    /**
+     * Height of an individual zoom button.
+     */
+    private static final int BUTTON_HEIGHT = 25;
+
+    /**
+     * Width of the about frame.
+     */
+    private static final int ABOUT_FRAME_WIDTH = 520;
+
+    /**
+     * Height of the about frame.
+     */
+    private static final int ABOUT_FRAME_HEIGHT = 740;
+
+    /**
+     * Width of the main panel.
+     */
+    private static final int MAIN_PANEL_WIDTH = 500;
+
+    /**
+     * Height of the main panel.
+     */
+    private static final int MAIN_PANEL_HEIGHT = 700;
+    
+    /**
+     * Width of the scroll pane.
+     */
+    private static final int SCROLL_PANE_WIDTH = 500;
+
+    /**
+     * Height of the description text area.
+     */
+    private static final int DESCRIPTION_AREA_HEIGHT = 200;
+
+    /**
+     * Height of the references text area.
+     */
+    private static final int REFERENCES_AREA_HEIGHT = 150;
+
+    /**
+     * Height of the acknowledgements text area.
+     */
+    private static final int ACKNOWLEDGEMENTS_AREA_HEIGHT = 200;
+
+    /**
+     * Height of the details text area.
+     */
+    private static final int DETAILS_AREA_HEIGHT = 100;
+    
     /**
      * The description for the application.
      */
@@ -97,20 +153,21 @@ public class AboutFrame extends JFrame implements ActionListener {
     public AboutFrame() {
         super("About " + Constants.APPLICATION_NAME);
         // Create the main panel with the contents of this frame.
-        final JPanel mainPanel = new JPanel(); //TODO: Layout
-        mainPanel.setPreferredSize(new Dimension(500, 700));
-        mainPanel.add(createAboutScrollPane(createAboutTextArea(DESCRIPTION), "Proteomics Quality Control", 200));
-        mainPanel.add(createAboutScrollPane(createAboutTextArea(REFERENCES), "References", 150));
-        mainPanel.add(createAboutScrollPane(createAboutTextArea(DETAILS), "Download & Contact Details", 100));
-        mainPanel.add(createAboutScrollPane(createAcknowledgementsPanel(), "Acknowledgements", 200));
+        final JPanel mainPanel = new JPanel(); 
+        mainPanel.setLayout(new FlowLayout());
+        mainPanel.setPreferredSize(new Dimension(MAIN_PANEL_WIDTH, MAIN_PANEL_HEIGHT));
+        mainPanel.add(createAboutScrollPane(createAboutTextArea(DESCRIPTION), "Proteomics Quality Control", DESCRIPTION_AREA_HEIGHT));
+        mainPanel.add(createAboutScrollPane(createAboutTextArea(REFERENCES), "References", REFERENCES_AREA_HEIGHT));
+        mainPanel.add(createAboutScrollPane(createAboutTextArea(DETAILS), "Download & Contact Details", DETAILS_AREA_HEIGHT));
+        mainPanel.add(createAboutScrollPane(createAcknowledgementsPanel(), "Acknowledgements", ACKNOWLEDGEMENTS_AREA_HEIGHT));
         final JButton okButton = new JButton("OK");
-        okButton.setSize(new Dimension(50, 30));
+        okButton.setSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         okButton.addActionListener(this);
         okButton.setActionCommand("OK");
         mainPanel.add(okButton);
         // Add the main panel to the frame and resize it.
         getContentPane().add(mainPanel);
-        setBounds(0, 0, 520, 740);
+        setBounds(0, 0, ABOUT_FRAME_WIDTH, ABOUT_FRAME_HEIGHT);
         RefineryUtilities.centerFrameOnScreen(this);
     }
 
@@ -127,7 +184,7 @@ public class AboutFrame extends JFrame implements ActionListener {
         descriptionScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), title));
         descriptionScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         descriptionScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        descriptionScrollPane.setPreferredSize(new Dimension(500, height));
+        descriptionScrollPane.setPreferredSize(new Dimension(SCROLL_PANE_WIDTH, height));
         descriptionScrollPane.setBackground(Color.WHITE);
         return descriptionScrollPane;
     }
@@ -159,7 +216,6 @@ public class AboutFrame extends JFrame implements ActionListener {
             {"http://www.ctmm-trait.nl", Constants.CTMM_TRAIT_LOGO_FILE_NAME},
             {"http://www.nbic.nl", Constants.NBIC_LOGO_FILE_NAME},
         };
-        // TODO: Layout.
         final JPanel acknowledgementsPanel = new JPanel();
         acknowledgementsPanel.setLayout(new GridLayout(5, 1));
         acknowledgementsPanel.setBackground(Color.WHITE);
