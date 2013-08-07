@@ -50,6 +50,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
+import javax.swing.border.Border;
 
 import nl.ctmm.trait.proteomics.qcviewer.input.MetricsParser;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnit;
@@ -330,8 +331,12 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     //use this list for display and other operations
     private List<ReportUnit> orderedReportUnits = new ArrayList<>();
     private final Map<ReportUnit, JPanel> reportUnitToMetricsPanel = new HashMap<>();
-    private List<String> selectedMetricsKeys;
-    private List<String> selectedMetricsNames;
+
+    /**
+     * Mapping from the keys of the selected metrics to their names.
+     */
+    private Map<String, String> selectedMetrics;
+
     private String currentSortCriteria = "";
     private String newSortCriteria = "";
     private Properties appProperties;
@@ -380,15 +385,13 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * @param selectedMetricsData the data of the selected metrics (keys and names).
      */
     private void parseSelectedMetricsData(final List<String> selectedMetricsData) {
-        this.selectedMetricsKeys = new ArrayList<>();
-        this.selectedMetricsNames = new ArrayList<>();
+        selectedMetrics = new HashMap<>();
         // Extract keys and names of the selected metrics.
         for (final String selectedMetricData : selectedMetricsData) {
             final StringTokenizer dataTokenizer = new StringTokenizer(selectedMetricData, METRICS_SEPARATOR);
-            final String key = dataTokenizer.nextToken() + METRICS_SEPARATOR + dataTokenizer.nextToken();
-            this.selectedMetricsKeys.add(key);
-            final String value = dataTokenizer.nextToken();
-            this.selectedMetricsNames.add(value);
+            final String metricKey = dataTokenizer.nextToken() + METRICS_SEPARATOR + dataTokenizer.nextToken();
+            final String metricName = dataTokenizer.nextToken();
+            selectedMetrics.put(metricKey, metricName);
         }
     }
 
@@ -614,7 +617,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         zoomButton.setActionCommand(ZOOM_MIN_MAX_COMMAND);
         zoomButton.addActionListener(this);
         final JPanel zoomPanelForm = new JPanel();
-        zoomPanelForm.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Zoom Along X Axis"));
+        final Border border = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Zoom Along X Axis");
+        zoomPanelForm.setBorder(border);
         zoomPanelForm.setLayout(new BoxLayout(zoomPanelForm, BoxLayout.X_AXIS));
         zoomPanelForm.add(Box.createRigidArea(DIMENSION_10X0));
         zoomPanelForm.add(minLabel, Box.CENTER_ALIGNMENT);
@@ -707,41 +711,44 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             sortPanel.removeAll();
         }
         final ButtonGroup sortOptionsButtonGroup = new ButtonGroup();
-        sortPanel.setLayout(new GridLayout(selectedMetricsNames.size() / 2 + 1, 2));
+        sortPanel.setLayout(new GridLayout(selectedMetrics.size() / 2 + 1, 2));
         sortPanel.setBackground(Color.WHITE);
         sortPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Sort Options"));
         sortPanel.setPreferredSize(new Dimension(SORT_PANEL_WIDTH, SORT_PANEL_HEIGHT));
         boolean firstSortOption = true;
-        for (final String metricsName : selectedMetricsNames) {
-            sortPanel.add(createSortOptionPanel(metricsName, sortOptionsButtonGroup, firstSortOption));
+        for (Map.Entry<String, String> metricEntry : selectedMetrics.entrySet()) {
+            sortPanel.add(createSortOptionPanel(metricEntry.getValue(), metricEntry.getKey(), sortOptionsButtonGroup,
+                                                firstSortOption));
             firstSortOption = false;
         }
         // Add sorting option for comparing selected reports.
-        sortPanel.add(createSortOptionPanel(SORT_ORDER_COMPARE, sortOptionsButtonGroup, false));
+        sortPanel.add(createSortOptionPanel(SORT_ORDER_COMPARE_LABEL, SORT_ORDER_COMPARE, sortOptionsButtonGroup,
+                                            false));
     }
 
     /**
      * Create a panel with the controls for a sort option: label, ascending radio button and descending radio button.
      *
-     * @param sortOption the description of the sort option, which is used for the label and the action commands.
+     * @param sortOptionName the name of the sort option, which is used for the label.
+     * @param sortOptionKey the key of the sort option, which is used for the action commands.
      * @param sortOptionsButtonGroup the button group all sort radio buttons should be a part of.
      * @param firstSortOption whether this is the first option: in that case select the ascending radio button and set
      *                        the <code>currentSortCriteria</code>.
      * @return the panel with the controls for a sort option.
      */
-    private JPanel createSortOptionPanel(final String sortOption, final ButtonGroup sortOptionsButtonGroup,
-                                         final boolean firstSortOption) {
+    private JPanel createSortOptionPanel(final String sortOptionName, final String sortOptionKey,
+                                         final ButtonGroup sortOptionsButtonGroup, final boolean firstSortOption) {
         // Create the label that describes this sort option.
-        final JLabel sortOptionLabel = new JLabel(sortOption + ':');
+        final JLabel sortOptionLabel = new JLabel(sortOptionName + ':');
         sortOptionLabel.setFont(Constants.DEFAULT_FONT);
         sortOptionLabel.setBackground(Color.WHITE);
         sortOptionLabel.setMinimumSize(new Dimension(METRIC_LABEL_WIDTH, METRIC_LABEL_HEIGHT));
         sortOptionLabel.setMaximumSize(new Dimension(METRIC_LABEL_WIDTH, METRIC_LABEL_HEIGHT));
-        final String baseCommand = SORT_COMMAND_PREFIX + SORT_COMMAND_SEPARATOR + sortOption + SORT_COMMAND_SEPARATOR;
+        final String baseAction = SORT_COMMAND_PREFIX + SORT_COMMAND_SEPARATOR + sortOptionKey + SORT_COMMAND_SEPARATOR;
         // Create the sort ascending button.
         final JRadioButton sortAscendingButton = new JRadioButton(SORT_ORDER_ASCENDING_LABEL, false);
         sortAscendingButton.setBackground(Color.WHITE);
-        sortAscendingButton.setActionCommand(baseCommand + SORT_ORDER_ASCENDING);
+        sortAscendingButton.setActionCommand(baseAction + SORT_ORDER_ASCENDING);
         sortAscendingButton.addActionListener(this);
         sortOptionsButtonGroup.add(sortAscendingButton);
         if (firstSortOption) {
@@ -751,7 +758,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         // Create the sort descending button.
         final JRadioButton sortDescendingButton = new JRadioButton(SORT_ORDER_DESCENDING_LABEL, false);
         sortDescendingButton.setBackground(Color.WHITE);
-        sortDescendingButton.setActionCommand(baseCommand + SORT_ORDER_DESCENDING);
+        sortDescendingButton.setActionCommand(baseAction + SORT_ORDER_DESCENDING);
         sortDescendingButton.addActionListener(this);
         sortOptionsButtonGroup.add(sortDescendingButton);
         // Create the sort option panel.
@@ -926,7 +933,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                 break;
             case "SelectMetrics":
                 // Display ChooseMetricsForm to select metrics to display.
-                final ChooseMetricsForm metricsForm = new ChooseMetricsForm(this, metricsParser, selectedMetricsKeys);
+                final JFrame metricsForm = new ChooseMetricsForm(this, metricsParser, selectedMetrics.keySet());
                 metricsForm.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 metricsForm.pack();
                 RefineryUtilities.centerFrameOnScreen(metricsForm);
@@ -1164,21 +1171,21 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         final JPanel metricsPanel = existingMetricsPanel == null ? new JPanel() : existingMetricsPanel;
         if (existingMetricsPanel == null) {
             metricsPanel.setBackground(Color.WHITE);
-            final GridLayout layout = new GridLayout(selectedMetricsNames.size(), 1);
-            metricsPanel.setLayout(layout);
+            metricsPanel.setLayout(new GridLayout(selectedMetrics.size(), 1));
             metricsPanel.setPreferredSize(new Dimension(METRICS_PANEL_WIDTH, CHART_HEIGHT));
         } else {
             metricsPanel.removeAll();
         }
         // Add labels for each of the selected metrics.
-        for (int metricIndex = 0; metricIndex < selectedMetricsNames.size(); metricIndex++) {
-            final String metricName = selectedMetricsNames.get(metricIndex);
-            final String metricValue = reportUnit.getMetricsValueFromKey(selectedMetricsKeys.get(metricIndex));
+        int metricIndex = 0;
+        for (Map.Entry<String, String> metricEntry : selectedMetrics.entrySet()) {
+            final String metricValue = reportUnit.getMetricsValueFromKey(metricEntry.getKey());
             final Color foregroundColor = LABEL_COLORS.get(metricIndex % LABEL_COLORS.size());
-            final JLabel label = new JLabel(metricName + ": " + metricValue);
+            final JLabel label = new JLabel(metricEntry.getValue() + ": " + metricValue);
             label.setFont(Constants.DEFAULT_FONT);
             label.setForeground(foregroundColor);
             metricsPanel.add(label);
+            metricIndex++;
         }
         if (existingMetricsPanel != null) {
             metricsPanel.validate();
