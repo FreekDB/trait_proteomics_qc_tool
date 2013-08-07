@@ -101,7 +101,25 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     /**
      * Height of a row with information from one report in the list.
      */
-    private static final int CHART_HEIGHT = 150;
+    private static final int REPORT_ROW_HEIGHT = 165;
+
+    /**
+     * The height of a chart from one report in the list and some extra space.
+     *
+     * TODO: see whether Checkstyle can accept a minus or plus in a constant definition. [Freek]
+     * TODO: rename this constant since it's not equal to the actual chart height. [Freek]
+     */
+    private static final int CHART_HEIGHT = REPORT_ROW_HEIGHT - 15;
+
+    /**
+     * Actual height of a chart from one report in the list.
+     */
+    private static final int ACTUAL_CHART_HEIGHT = (int) (CHART_HEIGHT - 10);
+
+    /**
+     * Default height for the viewer application.
+     */
+    private static final int VIEWER_HEIGHT = CHART_HEIGHT * 10;
 
     /**
      * Width of the left panel for each report in the list, with the report number, the metrics details button and the
@@ -128,6 +146,11 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * Default divider location of the top split pane, which separates the top control panel from the rest of the GUI.
      */
     private static final int SPLIT_PANE_1_DIVIDER_LOCATION = 185;
+
+    /**
+     * Default height for the top split pane, which separates the top control panel from the rest of the GUI.
+     */
+    private static final int SPLIT_PANE_1_HEIGHT = (int) (6.5 * CHART_HEIGHT);
 
     /**
      * Default divider location of the bottom split pane, which separates the central list with the QC results from the
@@ -384,7 +407,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                        final String pipelineStatus) {
         super(title);
         logger.fine("ViewerFrame constructor");
-        setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 25, CHART_HEIGHT * 10));
+        setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 25, VIEWER_HEIGHT));
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.metricsParser = metricsParser;
         this.appProperties = appProperties;
@@ -447,7 +470,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                 reportIsSelected.add(false);
                 addChartFrame(thisUnit, reportIndexOffset + reportIndex);
             }
-            desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, reportUnits.size() * (CHART_HEIGHT + 15)));
+            desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, reportUnits.size() * REPORT_ROW_HEIGHT));
             //Set first report graph in the Tic Pane. 
             setTicGraphPaneChart(orderedReportUnits.get(0).getReportIndex());
         }
@@ -477,7 +500,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         //Add desktopPane for displaying graphs and other QC Control
         final int totalReports = orderedReportUnits.size();
         if (totalReports != 0) {
-            desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, totalReports * (CHART_HEIGHT + 15)));
+            desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, totalReports * REPORT_ROW_HEIGHT));
             prepareChartsInOrder(true);
             // Set initial tic Graph - specify complete chart in terms of orderedReportUnits.
             setTicGraphPaneChart(orderedReportUnits.get(0).getReportIndex());
@@ -498,7 +521,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         //hide-show feature
         splitPane1.setOneTouchExpandable(true);
         splitPane1.setDividerLocation(SPLIT_PANE_1_DIVIDER_LOCATION);
-        splitPane1.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 15, (int)(6.5 * CHART_HEIGHT)));
+        splitPane1.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 15, SPLIT_PANE_1_HEIGHT));
         getContentPane().add(splitPane1, "Center");
         setJMenuBar(createMenuBar());
     }
@@ -1080,7 +1103,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 
         final ChartPanel chartPanel = new ChartPanel(reportUnit.getChartUnit().getTicChart());
         chartPanel.addChartMouseListener(this);
-        chartPanel.setPreferredSize(new Dimension(CHART_PANEL_WIDTH, CHART_HEIGHT - 10));
+        chartPanel.setPreferredSize(new Dimension(CHART_PANEL_WIDTH, ACTUAL_CHART_HEIGHT));
         chartPanelList.add(chartPanel);
 
         final JPanel reportIdPanel = createReportIdPanel(reportUnit);
@@ -1107,7 +1130,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         chartFrame.addMouseListener(this);
         desktopPane.add(chartFrame);
         logger.fine("yCoordinate = " + yCoordinate);
-        yCoordinate += CHART_HEIGHT + 15;
+        yCoordinate += REPORT_ROW_HEIGHT;
     }
 
     /**
