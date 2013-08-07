@@ -12,7 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -129,7 +129,7 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
      * @param selectedMetricsKeys the list of the keys of the currently selected metrics.
      */
     public ChooseMetricsForm(final ViewerFrame viewerFrame, final MetricsParser metricsParser,
-                             final List<String> selectedMetricsKeys) {
+                             final Collection<String> selectedMetricsKeys) {
         super("Select QC-Full Metrics for MSQC Report Viewer");
         this.viewerFrame = viewerFrame;
         this.metricsParser = metricsParser;
@@ -150,13 +150,13 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         getContentPane().setPreferredSize(new Dimension(METRICS_FORM_WIDTH, METRICS_FORM_HEIGHT));
     }
 
-	/**
+    /**
      * Create the list models for the lists with selected and available metrics.
      *
      * @param metricsParser the metrics parser providing access to all possible metrics.
      * @param selectedMetricsKeys the list of currently selected metric keys.
      */
-    private void createListModels(final MetricsParser metricsParser, final List<String> selectedMetricsKeys) {
+    private void createListModels(final MetricsParser metricsParser, final Collection<String> selectedMetricsKeys) {
         selectedMetricsListModel = new SortedListModel();
         availableMetricsListModel = new SortedListModel();
         final Map<String, String> metricsMap = metricsParser.getMetricsListing();
