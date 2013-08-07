@@ -1107,10 +1107,17 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         selectionCheckBox.setFont(Constants.DEFAULT_FONT);
         selectionCheckBox.setBackground(Color.WHITE);
         // TODO: perhaps it's easier to use the report number here as well, since any unique id is ok? [Freek]
-        // Since reportNum is > 0
+        // [Pravin] Using report index instead of report number
         selectionCheckBox.setName(Integer.toString(reportUnit.getReportIndex()));
         // This call to setSelected preserves selection status.
-        // TODO: this call to setSelected is needed after a refresh of the report list? [Freek]
+        /** TODO: this call to setSelected is needed after a refresh of the report list? [Freek]
+         * [Pravin] Call to setSelected preserves selection status set by the user. 
+         * In case of refresh of the report list, we already clear reportIsSelected list using 
+         * reportIsSelected.clear(); [line 411]
+         * For every new report, selection status is set to false reportIsSelected.add(false); [Line 424]
+         * Hence this call setSelected works fine every time (It doesn't need to know difference between 
+         * refresh of the report list and reordering report list) 
+         */
         selectionCheckBox.setSelected(reportIsSelected.get(reportUnit.getReportIndex()));
         selectionCheckBox.addItemListener(this);
 
@@ -1194,7 +1201,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             final JCheckBox thisCheckBox = (JCheckBox) itemEvent.getSource();
             logger.fine("Check box name = " + thisCheckBox.getName());
             final int checkBoxFlagIndex = Integer.parseInt(thisCheckBox.getName());
-            //reportIsSelected will be maintained all the time according to reportNum
+            //reportIsSelected will be maintained all the time according to reportIndex
             if (itemEvent.getStateChange() == ItemEvent.SELECTED) {
                 logger.fine("Selected");
                 reportIsSelected.set(checkBoxFlagIndex, true);
