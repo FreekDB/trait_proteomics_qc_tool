@@ -46,24 +46,24 @@ public class ChartUnit {
      * Create a chart unit with the specified msrun name, report number and data series.
      *
      * @param msrunName the name of the msrun.
-     * @param reportNumber the report number of the msrun.
+     * @param reportIndex the index of msrun report.
      * @param series the data series.
      */
-    public ChartUnit(final String msrunName, int reportNumber, final XYSeries series) {
+    public ChartUnit(final String msrunName, int reportIndex, final XYSeries series) {
+        logger.fine("In ChartUnit: reportIndex = " + reportIndex + " msrunName = " + msrunName);
         String maxIntensityString = "N/A";
         if (series != null) {
             maxIntensity = series.getMaxY();
             maxIntensityString = new DecimalFormat("0.0000E0").format(maxIntensity);
         }
-        final XYBarRenderer renderer = createBarRenderer(reportNumber);
+        final XYBarRenderer renderer = createBarRenderer(reportIndex);
         final XYSeriesCollection xyDataset = new XYSeriesCollection(series);
         //Prepare chart using plot - this is the best option to control domain and range axes
         final NumberAxis domainAxis = new NumberAxis(null);
         final NumberAxis rangeAxis = new NumberAxis(null);
         final XYPlot plot = new XYPlot(xyDataset, domainAxis, rangeAxis, renderer);
         rangeAxis.setNumberFormatOverride(new DecimalFormat("0E00"));
-        --reportNumber; //signifies index
-        final String title = "Index = " + reportNumber + "     msrun = " + msrunName + "     MaxIntensity = " + maxIntensityString;
+        final String title = "Index = " + reportIndex + "     msrun = " + msrunName + "     MaxIntensity = " + maxIntensityString;
         ticChart = new JFreeChart(title, Constants.CHART_TITLE_FONT, plot, false);
         // performance
         ticChart.setAntiAlias(false);
@@ -72,16 +72,16 @@ public class ChartUnit {
 	/**
      * Create a <code>XYBarRenderer</code>.
      *
-     * @param reportNumber the report number, which is used for picking a color.
+     * @param reportIndex the report index, which is used for picking a color.
      * @return the <code>XYBarRenderer</code>.
      */
-    private XYBarRenderer createBarRenderer(final int reportNumber) {
+    private XYBarRenderer createBarRenderer(final int reportIndex) {
         final XYBarRenderer renderer = new XYBarRenderer();
         //Sets the percentage amount by which the bars are trimmed
         renderer.setMargin(0.98); //Default renderer margin is 0.0
         renderer.setDrawBarOutline(false);
         renderer.setShadowVisible(false);
-        final Color currentColor = GRAPH_COLORS.get(reportNumber % GRAPH_COLORS.size());
+        final Color currentColor = GRAPH_COLORS.get(reportIndex % GRAPH_COLORS.size());
         renderer.setSeriesPaint(0, currentColor);
         renderer.setGradientPaintTransformer(null);
         renderer.setSeriesOutlinePaint(0, currentColor);

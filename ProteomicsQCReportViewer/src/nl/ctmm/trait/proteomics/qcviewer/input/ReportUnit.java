@@ -21,10 +21,11 @@ import org.jfree.data.xy.XYSeries;
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
-public class ReportUnit {
+public class ReportUnit{
     private static final Logger logger = Logger.getLogger(ReportUnit.class.getName());
 
     private int reportNum = -1;
+    private int reportIndex = -1; 
     private String fileSizeString = "N/A";
     private String msrunName = ""; 
     private Double fileSize = -1.0;
@@ -49,8 +50,9 @@ public class ReportUnit {
     public ReportUnit(final String msrunName, final int reportNum) {
         this.msrunName = msrunName;
         this.reportNum = reportNum;
+        reportIndex = reportNum - 1; 
         //Create default chart unit to handle problems due to missing series data 
-        ticChartUnit = new ChartUnit(msrunName, reportNum, null);
+        ticChartUnit = new ChartUnit(msrunName, reportIndex, null);
     }
 
 	/**
@@ -77,6 +79,15 @@ public class ReportUnit {
      */
     public int getReportNum() {
         return reportNum;
+    }
+    
+    /**
+     * Get the value of parameter reportIndex
+     *
+     * @return Index of the current ReportUnit
+     */
+    public int getReportIndex() {
+        return reportIndex;
     }
 
     /**
@@ -130,7 +141,7 @@ public class ReportUnit {
      * @param series a sequence of (x, y) data items
      */
     public void createChartUnit(final XYSeries series) {
-        ticChartUnit = new ChartUnit(msrunName, reportNum, series);
+        ticChartUnit = new ChartUnit(msrunName, reportIndex, series);
     }
     
     /**
@@ -237,6 +248,7 @@ public class ReportUnit {
      * @param sortKey Sorting criteria
      * @return if this report unit has higher value return 1, equal value return 0, lower value return -1
      */
+
     public int compareTo(final ReportUnit otherUnit, final String sortKey) {
         final String thisValue = this.getMetricsValueFromKey(sortKey);
         final String otherValue = otherUnit.getMetricsValueFromKey(sortKey);
@@ -308,7 +320,7 @@ public class ReportUnit {
                 } else return 0; 
             }
         } catch (Exception e) {
-            System.out.println("Exception type " + e.getClass().toString() + " thisValue = " + thisValue +
+            logger.warning("Exception type " + e.getClass().toString() + " thisValue = " + thisValue +
                                " otherValue = " + otherValue);
             e.printStackTrace();
         }
@@ -339,4 +351,5 @@ public class ReportUnit {
     public Map<String, String> getMetricsValues() {
         return metricsValues;
     }
+
 }
