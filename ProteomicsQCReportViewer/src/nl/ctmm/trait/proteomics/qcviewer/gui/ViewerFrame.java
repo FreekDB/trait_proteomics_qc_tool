@@ -425,8 +425,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                 addChartFrame(thisUnit, reportIndexOffset + reportIndex);
             }
             desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, reportUnits.size() * (CHART_HEIGHT + 15)));
-            //Set first report graph in the Tic Pane. -1 adjusts to the index.
-            setTicGraphPaneChart(orderedReportUnits.get(0).getReportNum() - 1);
+            //Set first report graph in the Tic Pane. 
+            setTicGraphPaneChart(orderedReportUnits.get(0).getReportIndex());
         }
         updatePipelineStatus(newPipelineStatus);
         revalidate();
@@ -466,7 +466,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, totalReports * (CHART_HEIGHT + 15)));
             prepareChartsInOrder(true);
           //Set initial tic Graph - specify complete chart in terms of orderedReportUnits
-            setTicGraphPaneChart(orderedReportUnits.get(0).getReportNum() - 1);
+            setTicGraphPaneChart(orderedReportUnits.get(0).getReportIndex());
         }
         //Display empty desktopPane and ticGraphPane
         splitPane2.add(new JScrollPane(desktopPane), 0);
@@ -961,6 +961,9 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         orderedReportUnits = new ArrayList<>();
         if (!SORT_ORDER_COMPARE.equals(sortKey)) {
             // TODO: can we use Collections.sort with a custom comparator here? [Freek]
+            /* [Pravin]: I found an
+             * 
+             */
             //add initial element
             orderedReportUnits.add(reportUnits.get(0));
             //Sort in ascending order
@@ -968,7 +971,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                 //new element will be inserted at position j or at the end of list
                 int insertAtIndex = orderedReportUnits.size();
                 for (int j = 0; j < orderedReportUnits.size(); ++j) {
-                    //comparing new and old lists
+                    //Set sortKey in Report Unit in order to compare new and old lists
                     final int result = reportUnits.get(i).compareTo(orderedReportUnits.get(j), sortKey);
                     //reportUnit(i) is < orderedUnit(j)
                     if (result == -1) {
@@ -1001,12 +1004,12 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         }
         if (sortOrder.equals(SORT_ORDER_ASCENDING)) {
             prepareChartsInOrder(true);
-            // Set first report graph in the Tic Pane. -1 adjusts to the index.
-            setTicGraphPaneChart(orderedReportUnits.get(0).getReportNum() - 1);
+            // Set first report graph in the Tic Pane. 
+            setTicGraphPaneChart(orderedReportUnits.get(0).getReportIndex());
         } else if (sortOrder.equals(SORT_ORDER_DESCENDING)) {
             prepareChartsInOrder(false);
             // Set last report graph in the Tic Pane.
-            setTicGraphPaneChart(orderedReportUnits.get(orderedReportUnits.size() - 1).getReportNum() - 1);
+            setTicGraphPaneChart(orderedReportUnits.get(orderedReportUnits.size() - 1).getReportIndex());
         }
         currentSortCriteria = newSortCriteria;
         newSortCriteria = "";
@@ -1037,6 +1040,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * 3) chartPanel. The frame is added to the desktop pane.
      *
      * TODO: clarify when we use reportNumber, reportUnit.getReportNum() - 1 and reportUnit.getReportNum(). [Freek]
+     * [Pravin] reportUnit.getReportNum() - 1 represents report index. Index is used for array operations. 
+     * I have added reportIndex variable and getReportIndex method in ReportUnit to avoid repetitive calls to reportUnit.getReportNum() - 1.
      *
      * @param reportUnit the report unit.
      * @param reportNumber the report number.
@@ -1063,7 +1068,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         displayPanel.setBorder(null);
 
         final JInternalFrame chartFrame = new JInternalFrame(CHART_FRAME_TITLE_PREFIX + reportNumber, true);
-        chartFrame.setName(Integer.toString(reportUnit.getReportNum() - 1));
+        chartFrame.setName(Integer.toString(reportUnit.getReportIndex()));
         ((javax.swing.plaf.basic.BasicInternalFrameUI) chartFrame.getUI()).setNorthPane(null);
         chartFrame.getContentPane().add(displayPanel);
         chartFrame.setBorder(BorderFactory.createRaisedBevelBorder());
@@ -1096,10 +1101,10 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         selectionCheckBox.setBackground(Color.WHITE);
         // TODO: perhaps it's easier to use the report number here as well, since any unique id is ok? [Freek]
         // Since reportNum is > 0
-        selectionCheckBox.setName(Integer.toString(reportUnit.getReportNum() - 1));
+        selectionCheckBox.setName(Integer.toString(reportUnit.getReportIndex()));
         // This call to setSelected preserves selection status.
         // TODO: this call to setSelected is needed after a refresh of the report list? [Freek]
-        selectionCheckBox.setSelected(reportIsSelected.get(reportUnit.getReportNum() - 1));
+        selectionCheckBox.setSelected(reportIsSelected.get(reportUnit.getReportIndex()));
         selectionCheckBox.addItemListener(this);
 
         //reportIDPanel now uses BoxLayout //TODO: issues with center alignment

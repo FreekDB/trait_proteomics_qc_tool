@@ -40,10 +40,10 @@ public class ChartUnitTest {
         final XYSeries xySeries = readXYSeries(msrunName1, new File(FilenameUtils.normalize(directory1 + fileName1)));
         final String directory2 = TIC_DIRECTORY + "simulated_tic_130707_b\\";
         final File ticFileChartUnit3 = new File(FilenameUtils.normalize(directory2 + "simulated_tic_130707_b_ticmatrix.csv"));
-        // public ChartUnit(final String msrunName, final int reportNum, final XYSeries series)
-        chartUnit1 = new ChartUnit(msrunName1, 1, xySeries);
-        chartUnit2 = new ChartUnit(msrunName2, 2, null); //initialize with empty series
-        chartUnit3 = new ChartUnit(msrunName3, 3, readXYSeries(msrunName1, ticFileChartUnit3));
+        // public ChartUnit(final String msrunName, final int reportIndex, final XYSeries series)
+        chartUnit1 = new ChartUnit(msrunName1, 0, xySeries);
+        chartUnit2 = new ChartUnit(msrunName2, 1, null); //initialize with empty series
+        chartUnit3 = new ChartUnit(msrunName3, 2, readXYSeries(msrunName1, ticFileChartUnit3));
     }
 
     /**
