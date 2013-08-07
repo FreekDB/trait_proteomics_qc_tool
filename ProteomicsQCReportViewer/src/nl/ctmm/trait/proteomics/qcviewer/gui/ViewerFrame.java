@@ -215,6 +215,51 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private static final String ZOOM_X_AXIS_BUTTON_TEXT = "Zoom X Axis";
 
     /**
+     * The zoom min max action command.
+     */
+    private static final String ZOOM_MIN_MAX_COMMAND = "zoomMinMax";
+
+    /**
+     * The prefix used for sort action commands.
+     */
+    private static final String SORT_COMMAND_PREFIX = "Sort";
+
+    /**
+     * The separator used for sort action commands.
+     */
+    private static final String SORT_COMMAND_SEPARATOR = "@";
+
+    /**
+     * The label used for ascending sort radio buttons.
+     */
+    private static final String SORT_ORDER_ASCENDING_LABEL = "Asc";
+
+    /**
+     * The suffix used for ascending sort action commands.
+     */
+    private static final String SORT_ORDER_ASCENDING = SORT_ORDER_ASCENDING_LABEL;
+
+    /**
+     * The label used for ascending sort radio buttons.
+     */
+    private static final String SORT_ORDER_DESCENDING_LABEL = "Des";
+
+    /**
+     * The suffix used for descending sort action commands.
+     */
+    private static final String SORT_ORDER_DESCENDING = SORT_ORDER_DESCENDING_LABEL;
+
+    /**
+     * The label used for the compare selected reports sort radio button.
+     */
+    private static final String SORT_ORDER_COMPARE_LABEL = "Compare";
+
+    /**
+     * The suffix used for the compare selected reports command.
+     */
+    private static final String SORT_ORDER_COMPARE = SORT_ORDER_COMPARE_LABEL;
+
+    /**
      * Width of the OPL and CTMM TraIT logos on the top left and top right of the application.
      */
     private static final int LOGO_WIDTH = 179;
@@ -278,7 +323,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     //necessary for zooming
     private List<ChartPanel> chartPanelList = new ArrayList<>();
     private List<Boolean> reportIsSelected = new ArrayList<>();
-    private JFormattedTextField minText, maxText;
+    private JFormattedTextField minText;
+    private JFormattedTextField maxText;
     //preserve original report units
     private List<ReportUnit> reportUnits = new ArrayList<>();
     //use this list for display and other operations
@@ -286,7 +332,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private final Map<ReportUnit, JPanel> reportUnitToMetricsPanel = new HashMap<>();
     private List<String> selectedMetricsKeys;
     private List<String> selectedMetricsNames;
-    private List<JRadioButton> sortButtons;
     private String currentSortCriteria = "";
     private String newSortCriteria = "";
     private Properties appProperties;
@@ -347,14 +392,15 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         }
     }
 
- /**
- * New report units are available. Update report units in the viewer frame.
- *
- * @param newReportUnits New QC reports
- * @param newPipelineStatus Updated pipeline status
- * @param replaceFlag If true, existing report units will be replaced by new report units.
- *             Else if false, new reports are added to existing reports. GUI will be updated accordingly.
- */
+    /**
+     * New report units are available (QC log file changed, or a different root folder and/or date filter was selected).
+     * Update the report units in the viewer frame.
+     *
+     * @param newReportUnits New QC reports
+     * @param newPipelineStatus Updated pipeline status
+     * @param replaceFlag If true, existing report units will be replaced by new report units.
+     *             Else if false, new reports are added to existing reports. GUI will be updated accordingly.
+     */
     public void updateReportUnits(final List<ReportUnit> newReportUnits, final String newPipelineStatus,
                                   final Boolean replaceFlag) {
         logger.fine("In updateReportUnits yCoordinate = " + yCoordinate);
@@ -369,22 +415,14 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             revalidate();
             yCoordinate = 0;
         }
-        final int numReportUnits = reportUnits.size();
+        final int reportIndexOffset = reportUnits.size();
         if (newReportUnits.size() > 0) {
             for (int reportIndex = 0; reportIndex < newReportUnits.size(); reportIndex++) {
                 final ReportUnit thisUnit = newReportUnits.get(reportIndex);
                 reportUnits.add(thisUnit);
                 orderedReportUnits.add(thisUnit);
                 reportIsSelected.add(false);
-                //update desktopFrame
-                final JInternalFrame chartFrame = createChartFrame(thisUnit, reportIndex + numReportUnits);
-                chartFrame.setBorder(BorderFactory.createRaisedBevelBorder());
-                chartFrame.pack();
-                chartFrame.setLocation(0, yCoordinate);
-                desktopPane.add(chartFrame);
-                chartFrame.setVisible(true);
-                logger.fine("yCoordinate = " + yCoordinate);
-                yCoordinate += CHART_HEIGHT + 15;
+                addChartFrame(thisUnit, reportIndexOffset + reportIndex);
             }
             desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, reportUnits.size() * (CHART_HEIGHT + 15)));
             //Set first report graph in the Tic Pane. -1 adjusts to the index.
@@ -573,7 +611,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             }
         });
         final JButton zoomButton = new JButton(ZOOM_X_AXIS_BUTTON_TEXT);
-        zoomButton.setActionCommand("zoomMinMax");
+        zoomButton.setActionCommand(ZOOM_MIN_MAX_COMMAND);
         zoomButton.addActionListener(this);
         final JPanel zoomPanelForm = new JPanel();
         zoomPanelForm.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Zoom Along X Axis"));
@@ -643,88 +681,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         controlFrame.setVisible(true);
         return controlFrame;
     }
-    
-    /**
-     * Create sort panel displaying sort metrics and sort order buttons.
-     */
-    private void createOrUpdateSortPanel() {
-        if (sortPanel != null) {
-            sortPanel.removeAll();
-        }
-        final ButtonGroup sortGroup = new ButtonGroup();
-        final GridLayout layout = new GridLayout(selectedMetricsNames.size() / 2 + 1, 2);
-        sortButtons = new ArrayList<>();
-        sortPanel.setLayout(layout);
-        sortPanel.setBackground(Color.WHITE);
-        sortPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Sort Options"));
-        for (int i = 0; i < selectedMetricsNames.size(); ++i) {
-            final JLabel metricLabel = new JLabel(selectedMetricsNames.get(i) + ": ");
-            metricLabel.setFont(Constants.DEFAULT_FONT);
-            metricLabel.setBackground(Color.WHITE);
-            //Sort ascending button
-            final JRadioButton ascButton = new JRadioButton("Asc", false);
-            ascButton.setBackground(Color.WHITE);
-            ascButton.setActionCommand("Sort@" + selectedMetricsKeys.get(i) + "@Asc");
-            ascButton.addActionListener(this);
-            sortGroup.add(ascButton);
-            sortButtons.add(ascButton);
-            //Sort descending button
-            final JRadioButton desButton = new JRadioButton("Des", false);
-            desButton.setBackground(Color.WHITE);
-            desButton.setActionCommand("Sort@" + selectedMetricsKeys.get(i) + "@Des");
-            desButton.addActionListener(this);
-            sortGroup.add(desButton);
-            sortButtons.add(desButton);
-            final JPanel sortItemPanel = new JPanel();
-            sortItemPanel.setLayout(new BoxLayout(sortItemPanel, BoxLayout.X_AXIS));
-            sortItemPanel.setBackground(Color.WHITE);
-            sortItemPanel.add(Box.createRigidArea(DIMENSION_5X0));
-            metricLabel.setMinimumSize(new Dimension(METRIC_LABEL_WIDTH, METRIC_LABEL_HEIGHT));
-            metricLabel.setMaximumSize(new Dimension(METRIC_LABEL_WIDTH, METRIC_LABEL_HEIGHT));
-            sortItemPanel.add(metricLabel, Box.CENTER_ALIGNMENT);
-            sortItemPanel.add(Box.createRigidArea(DIMENSION_5X0));
-            sortItemPanel.add(ascButton, Box.CENTER_ALIGNMENT);
-            sortItemPanel.add(Box.createRigidArea(DIMENSION_5X0));
-            sortItemPanel.add(desButton, Box.CENTER_ALIGNMENT);
-            sortItemPanel.add(Box.createRigidArea(DIMENSION_5X0));
-            sortPanel.add(sortItemPanel);
-        }
-        //Add sorting according to Compare 
-        final JLabel compareLabel = new JLabel("Compare: ");
-        compareLabel.setFont(Constants.DEFAULT_FONT);
-        compareLabel.setBackground(Color.WHITE);
-        //Sort ascending button
-        final JRadioButton ascButton = new JRadioButton("Asc", false);
-        ascButton.setBackground(Color.WHITE);
-        ascButton.setActionCommand("Sort@" + "Compare" + "@Asc");
-        ascButton.addActionListener(this);
-        sortGroup.add(ascButton);
-        sortButtons.add(ascButton);
-        //Sort descending button
-        final JRadioButton desButton = new JRadioButton("Des", false);
-        desButton.setBackground(Color.WHITE);
-        desButton.setActionCommand("Sort@" + "Compare" + "@Des");
-        desButton.addActionListener(this);
-        sortGroup.add(desButton);
-        sortButtons.add(desButton);
-        final JPanel sortItemPanel = new JPanel();
-        sortItemPanel.setLayout(new BoxLayout(sortItemPanel, BoxLayout.X_AXIS));
-        sortItemPanel.setBackground(Color.WHITE);
-        sortItemPanel.add(Box.createRigidArea(DIMENSION_5X0));
-        compareLabel.setMinimumSize(new Dimension(METRIC_LABEL_WIDTH, METRIC_LABEL_HEIGHT));
-        compareLabel.setMaximumSize(new Dimension(METRIC_LABEL_WIDTH, METRIC_LABEL_HEIGHT));
-        sortItemPanel.add(compareLabel, Box.CENTER_ALIGNMENT);
-        sortItemPanel.add(Box.createRigidArea(DIMENSION_5X0));
-        sortItemPanel.add(ascButton, Box.CENTER_ALIGNMENT);
-        sortItemPanel.add(Box.createRigidArea(DIMENSION_5X0));
-        sortItemPanel.add(desButton, Box.CENTER_ALIGNMENT);
-        sortItemPanel.add(Box.createRigidArea(DIMENSION_5X0));
-        sortPanel.add(sortItemPanel);
-        //Set first button selected
-        sortButtons.get(0).setSelected(true);
-        this.currentSortCriteria = sortButtons.get(0).getActionCommand();
-        sortPanel.setPreferredSize(new Dimension(SORT_PANEL_WIDTH, SORT_PANEL_HEIGHT));
-    }
 
     /**
      * Create a label with the specified logo image.
@@ -741,6 +697,75 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         }
         final Image scaledLogoImage = Utilities.scaleImage(logoImage, Utilities.SCALE_FIT, LOGO_WIDTH, LOGO_HEIGHT);
         return new JLabel(new ImageIcon(scaledLogoImage));
+    }
+
+    /**
+     * Create sort panel displaying sort metrics and sort order buttons.
+     */
+    private void createOrUpdateSortPanel() {
+        if (sortPanel != null) {
+            sortPanel.removeAll();
+        }
+        final ButtonGroup sortOptionsButtonGroup = new ButtonGroup();
+        sortPanel.setLayout(new GridLayout(selectedMetricsNames.size() / 2 + 1, 2));
+        sortPanel.setBackground(Color.WHITE);
+        sortPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Sort Options"));
+        sortPanel.setPreferredSize(new Dimension(SORT_PANEL_WIDTH, SORT_PANEL_HEIGHT));
+        boolean firstSortOption = true;
+        for (final String metricsName : selectedMetricsNames) {
+            sortPanel.add(createSortOptionPanel(metricsName, sortOptionsButtonGroup, firstSortOption));
+            firstSortOption = false;
+        }
+        // Add sorting option for comparing selected reports.
+        sortPanel.add(createSortOptionPanel(SORT_ORDER_COMPARE, sortOptionsButtonGroup, false));
+    }
+
+    /**
+     * Create a panel with the controls for a sort option: label, ascending radio button and descending radio button.
+     *
+     * @param sortOption the description of the sort option, which is used for the label and the action commands.
+     * @param sortOptionsButtonGroup the button group all sort radio buttons should be a part of.
+     * @param firstSortOption whether this is the first option: in that case select the ascending radio button and set
+     *                        the <code>currentSortCriteria</code>.
+     * @return the panel with the controls for a sort option.
+     */
+    private JPanel createSortOptionPanel(final String sortOption, final ButtonGroup sortOptionsButtonGroup,
+                                         final boolean firstSortOption) {
+        // Create the label that describes this sort option.
+        final JLabel sortOptionLabel = new JLabel(sortOption + ':');
+        sortOptionLabel.setFont(Constants.DEFAULT_FONT);
+        sortOptionLabel.setBackground(Color.WHITE);
+        sortOptionLabel.setMinimumSize(new Dimension(METRIC_LABEL_WIDTH, METRIC_LABEL_HEIGHT));
+        sortOptionLabel.setMaximumSize(new Dimension(METRIC_LABEL_WIDTH, METRIC_LABEL_HEIGHT));
+        final String baseCommand = SORT_COMMAND_PREFIX + SORT_COMMAND_SEPARATOR + sortOption + SORT_COMMAND_SEPARATOR;
+        // Create the sort ascending button.
+        final JRadioButton sortAscendingButton = new JRadioButton(SORT_ORDER_ASCENDING_LABEL, false);
+        sortAscendingButton.setBackground(Color.WHITE);
+        sortAscendingButton.setActionCommand(baseCommand + SORT_ORDER_ASCENDING);
+        sortAscendingButton.addActionListener(this);
+        sortOptionsButtonGroup.add(sortAscendingButton);
+        if (firstSortOption) {
+            sortAscendingButton.setSelected(true);
+            currentSortCriteria = sortAscendingButton.getActionCommand();
+        }
+        // Create the sort descending button.
+        final JRadioButton sortDescendingButton = new JRadioButton(SORT_ORDER_DESCENDING_LABEL, false);
+        sortDescendingButton.setBackground(Color.WHITE);
+        sortDescendingButton.setActionCommand(baseCommand + SORT_ORDER_DESCENDING);
+        sortDescendingButton.addActionListener(this);
+        sortOptionsButtonGroup.add(sortDescendingButton);
+        // Create the sort option panel.
+        final JPanel sortOptionPanel = new JPanel();
+        sortOptionPanel.setLayout(new BoxLayout(sortOptionPanel, BoxLayout.X_AXIS));
+        sortOptionPanel.setBackground(Color.WHITE);
+        sortOptionPanel.add(Box.createRigidArea(DIMENSION_5X0));
+        sortOptionPanel.add(sortOptionLabel, Box.CENTER_ALIGNMENT);
+        sortOptionPanel.add(Box.createRigidArea(DIMENSION_5X0));
+        sortOptionPanel.add(sortAscendingButton, Box.CENTER_ALIGNMENT);
+        sortOptionPanel.add(Box.createRigidArea(DIMENSION_5X0));
+        sortOptionPanel.add(sortDescendingButton, Box.CENTER_ALIGNMENT);
+        sortOptionPanel.add(Box.createRigidArea(DIMENSION_5X0));
+        return sortOptionPanel;
     }
 
     /**
@@ -847,7 +872,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             detailsFrame.revalidate();
         } else if (actionCommand.toLowerCase().startsWith("zoom")) {
             handleZoomActions(actionCommand);
-        } else if (actionCommand.startsWith("Sort")) {
+        } else if (actionCommand.startsWith(SORT_COMMAND_PREFIX)) {
             // Sort chart frame list according to chosen Sort criteria.
             newSortCriteria = actionCommand;
             sortChartFrameList();
@@ -862,7 +887,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * @param actionCommand the action command.
      */
     private void handleZoomActions(final String actionCommand) {
-        if ("zoomMinMax".equals(actionCommand)) {
+        if (ZOOM_MIN_MAX_COMMAND.equals(actionCommand)) {
             zoomMinMax();
         } else {
             logger.fine("Number of chart panels: " + chartPanelList.size());
@@ -922,7 +947,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private void sortChartFrameList() {
         logger.fine("sortChartFrameList From " + currentSortCriteria + " To " + newSortCriteria);
-        final StringTokenizer sortCriteriaTokenizer = new StringTokenizer(newSortCriteria, "@");
+        final StringTokenizer sortCriteriaTokenizer = new StringTokenizer(newSortCriteria, SORT_COMMAND_SEPARATOR);
         sortCriteriaTokenizer.nextToken();
         //e.g. generic:date
         final String sortKey = sortCriteriaTokenizer.nextToken();
@@ -934,7 +959,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             orderedReportUnits.clear();
         }
         orderedReportUnits = new ArrayList<>();
-        if (!"Compare".equals(sortKey)) {
+        if (!SORT_ORDER_COMPARE.equals(sortKey)) {
             // TODO: can we use Collections.sort with a custom comparator here? [Freek]
             //add initial element
             orderedReportUnits.add(reportUnits.get(0));
@@ -954,7 +979,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                 //Add to specified index
                 orderedReportUnits.add(insertAtIndex, reportUnits.get(i));
             }
-        } else if ("Compare".equals(sortKey)) {
+        } else if (SORT_ORDER_COMPARE.equals(sortKey)) {
             //Check checkbox flag status and group those reports together at the beginning of orderedReportUnits
             //Add all selected reports first i refers to original report number
             for (int i = 0; i < reportIsSelected.size(); ++i) {
@@ -974,11 +999,11 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             // A new chart frame will be given to every report.
             desktopPane.removeAll();
         }
-        if (sortOrder.equals("Asc")) {
+        if (sortOrder.equals(SORT_ORDER_ASCENDING)) {
             prepareChartsInOrder(true);
             // Set first report graph in the Tic Pane. -1 adjusts to the index.
             setTicGraphPaneChart(orderedReportUnits.get(0).getReportNum() - 1);
-        } else if (sortOrder.equals("Des")) {
+        } else if (sortOrder.equals(SORT_ORDER_DESCENDING)) {
             prepareChartsInOrder(false);
             // Set last report graph in the Tic Pane.
             setTicGraphPaneChart(orderedReportUnits.get(orderedReportUnits.size() - 1).getReportNum() - 1);
@@ -1002,30 +1027,22 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         logger.fine("No. of orderedReportUnits = " + orderedReportUnits.size());
         for (int reportIndex = 0; reportIndex < orderedReportUnits.size(); reportIndex++) {
             final int sortedIndex = ascending ? reportIndex : orderedReportUnits.size() - reportIndex - 1;
-            final JInternalFrame chartFrame = createChartFrame(orderedReportUnits.get(sortedIndex), reportIndex);
-            chartFrame.setBorder(BorderFactory.createRaisedBevelBorder());
-            chartFrame.pack();
-            chartFrame.setLocation(0, yCoordinate);
-            chartFrame.setVisible(true);
-            desktopPane.add(chartFrame);
-            logger.fine("yCoordinate = " + yCoordinate);
-            yCoordinate += CHART_HEIGHT + 15;
+            addChartFrame(orderedReportUnits.get(sortedIndex), reportIndex);
         }
     }
 
     /**
-     * Create an internal frame for a report showing the report number, selection check box, details button, metrics
+     * Add an internal frame for a report showing the report number, selection check box, details button, metrics
      * panel and the TIC chart. The controls are created in three panels: 1) reportIdPanel, 2) metricsPanel, and
-     * 3) chartPanel.
+     * 3) chartPanel. The frame is added to the desktop pane.
      *
      * TODO: clarify when we use reportNumber, reportUnit.getReportNum() - 1 and reportUnit.getReportNum(). [Freek]
      *
      * @param reportUnit the report unit.
      * @param reportNumber the report number.
-     * @return an internal frame with all information from a single report.
      */
-    private JInternalFrame createChartFrame(final ReportUnit reportUnit, final int reportNumber) {
-        logger.fine("ViewerFrame createChartFrame " + reportNumber + " ");
+    private void addChartFrame(final ReportUnit reportUnit, final int reportNumber) {
+        logger.fine("ViewerFrame addChartFrame " + reportNumber + " ");
 
         final ChartPanel chartPanel = new ChartPanel(reportUnit.getChartUnit().getTicChart());
         chartPanel.addChartMouseListener(this);
@@ -1045,13 +1062,18 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         displayPanel.add(chartPanel);
         displayPanel.setBorder(null);
 
-        final JInternalFrame frame = new JInternalFrame(CHART_FRAME_TITLE_PREFIX + reportNumber, true);
-        frame.setName(Integer.toString(reportUnit.getReportNum() - 1));
-        ((javax.swing.plaf.basic.BasicInternalFrameUI) frame.getUI()).setNorthPane(null);
-        frame.getContentPane().add(displayPanel);
-        frame.setBorder(null);
-        frame.addMouseListener(this);
-        return frame;
+        final JInternalFrame chartFrame = new JInternalFrame(CHART_FRAME_TITLE_PREFIX + reportNumber, true);
+        chartFrame.setName(Integer.toString(reportUnit.getReportNum() - 1));
+        ((javax.swing.plaf.basic.BasicInternalFrameUI) chartFrame.getUI()).setNorthPane(null);
+        chartFrame.getContentPane().add(displayPanel);
+        chartFrame.setBorder(BorderFactory.createRaisedBevelBorder());
+        chartFrame.pack();
+        chartFrame.setLocation(0, yCoordinate);
+        chartFrame.setVisible(true);
+        chartFrame.addMouseListener(this);
+        desktopPane.add(chartFrame);
+        logger.fine("yCoordinate = " + yCoordinate);
+        yCoordinate += CHART_HEIGHT + 15;
     }
 
     /**
@@ -1069,7 +1091,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         detailsButton.setActionCommand(DETAILS_ACTION_PREFIX + reportUnit.getReportNum());
         detailsButton.addActionListener(this);
 
-        final JCheckBox selectionCheckBox = new JCheckBox("Compare");
+        final JCheckBox selectionCheckBox = new JCheckBox(SORT_ORDER_COMPARE_LABEL);
         selectionCheckBox.setFont(Constants.DEFAULT_FONT);
         selectionCheckBox.setBackground(Color.WHITE);
         // TODO: perhaps it's easier to use the report number here as well, since any unique id is ok? [Freek]
@@ -1215,5 +1237,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 
     @Override
     public void chartMouseMoved(final ChartMouseEvent chartMouseEvent) {
+        // This event is not used.
     }
 }
