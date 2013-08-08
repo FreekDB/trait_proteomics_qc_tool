@@ -270,7 +270,6 @@ public class ReportUnit implements Comparable<ReportUnit>{
 
     @Override
     public int compareTo(ReportUnit otherUnit) {
-        // TODO Auto-generated method stub
         return 0;
     }
 
@@ -296,62 +295,62 @@ public class ReportUnit implements Comparable<ReportUnit>{
                         return ascending ? -1 : 1; //if ascending = true, return -1 else return 1
                     } else if (sortKey.equals("No.")) {
                         if (reportUnit1.reportNum > reportUnit2.reportNum) {
-                            return ascending ? 1 : -1; //if ascending = true, return 1 else return -1
+                            return ascending ? 1 : -1; 
                         } else if (reportUnit1.reportNum < reportUnit2.reportNum) {
-                            return ascending ? -1 : 1; //if ascending = true, return -1 else return 1
+                            return ascending ? -1 : 1; 
                         } else
                             return 0; //equal reportNum
                     } else if (sortKey.equals("generic:f_size")) {
                         if (reportUnit1.fileSize > reportUnit2.fileSize) {
-                            return ascending ? 1 : -1; //if ascending = true, return 1 else return -1
+                            return ascending ? 1 : -1; 
                         } else if (reportUnit1.fileSize < reportUnit2.fileSize) {
-                            return ascending ? -1 : 1; //if ascending = true, return -1 else return 1
+                            return ascending ? -1 : 1; 
                         } else
                             return 0;
                     } else if (sortKey.equals("generic:ms1_spectra")) {
                         int thisms1Spectra = Integer.parseInt(value1);
                         int otherms1Spectra = Integer.parseInt(value2);
                         if (thisms1Spectra > otherms1Spectra) {
-                            return ascending ? 1 : -1; //if ascending = true, return 1 else return -1
+                            return ascending ? 1 : -1; 
                         } else if (thisms1Spectra < otherms1Spectra) {
-                            return ascending ? -1 : 1; //if ascending = true, return -1 else return 1
+                            return ascending ? -1 : 1; 
                         } else return 0;
                     } else if (sortKey.equals("generic:ms2_spectra")) {
                         int thisms2Spectra = Integer.parseInt(value1);
                         int otherms2Spectra = Integer.parseInt(value2);
                         if (thisms2Spectra > otherms2Spectra) {
-                            return ascending ? 1 : -1; //if ascending = true, return 1 else return -1
+                            return ascending ? 1 : -1; 
                         } else if (thisms2Spectra < otherms2Spectra) {
-                            return ascending ? -1 : 1; //if ascending = true, return -1 else return 1
+                            return ascending ? -1 : 1; 
                         } else return 0;
                     } else if (sortKey.equals("generic:date")) {
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MMM/dd - HH:mm");
                         Date thisDate = sdf.parse(reportUnit1.measured);
                         Date otherDate = sdf.parse(reportUnit2.measured);
                         if (thisDate.compareTo(otherDate) > 0) {
-                            return ascending ? 1 : -1; //if ascending = true, return 1 else return -1
+                            return ascending ? 1 : -1; 
                         } else if (thisDate.compareTo(otherDate) < 0) {
-                            return ascending ? -1 : 1; //if ascending = true, return -1 else return 1
+                            return ascending ? -1 : 1; 
                         } else return 0;
                     } else if (sortKey.equals("generic:runtime")) {
                         if (reportUnit1.runtime.compareToIgnoreCase(reportUnit2.runtime) > 0) {
-                            return ascending ? 1 : -1; //if ascending = true, return 1 else return -1
+                            return ascending ? 1 : -1; 
                         } else if (reportUnit1.runtime.compareToIgnoreCase(reportUnit2.runtime) < 0) {
-                            return ascending ? -1 : 1; //if ascending = true, return -1 else return 1
+                            return ascending ? -1 : 1; 
                         } else return 0; 
                     } else if (sortKey.equals("maxIntensity")) {
                         if (reportUnit1.getChartUnit().getMaxTicIntensity() > reportUnit2.getChartUnit().getMaxTicIntensity()) { 
-                            return ascending ? 1 : -1; //if ascending = true, return 1 else return -1
+                            return ascending ? 1 : -1; 
                         } else if (reportUnit1.getChartUnit().getMaxTicIntensity() < reportUnit2.getChartUnit().getMaxTicIntensity()) { 
-                            return ascending ? -1 : 1; //if ascending = true, return -1 else return 1
+                            return ascending ? -1 : 1; 
                         } else return 0; 
                     } else {
                         double thisDouble = Double.parseDouble(value1);
                         double otherDouble = Double.parseDouble(value2);
                         if (thisDouble > otherDouble) { 
-                            return ascending ? 1 : -1; //if ascending = true, return 1 else return -1
+                            return ascending ? 1 : -1; 
                         } else if (thisDouble < otherDouble) { 
-                            return ascending ? -1 : 1; //if ascending = true, return -1 else return 1
+                            return ascending ? -1 : 1; 
                         } else return 0; 
                     }
                 } catch (Exception e) {
