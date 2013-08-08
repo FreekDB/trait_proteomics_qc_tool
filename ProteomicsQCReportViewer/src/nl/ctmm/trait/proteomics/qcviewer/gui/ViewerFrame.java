@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,7 +97,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * Alternating colors used for the metrics.
      */
     private static final List<Color> LABEL_COLORS = Arrays.asList(
-            Color.BLUE, Color.DARK_GRAY, Color.GREEN, Color.BLACK);
+            Color.BLUE, Color.DARK_GRAY, Color.BLACK);
 
     /**
      * Height of a row with information from one report in the list.
@@ -1009,31 +1010,30 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         if (orderedReportUnits != null) {
             orderedReportUnits.clear();
         }
-        orderedReportUnits = new ArrayList<>();
-        if (!SORT_ORDER_COMPARE.equals(sortKey)) {
-            // TODO: can we use Collections.sort with a custom comparator here? [Freek]
-            /* [Pravin]: I found an
-             * 
-             */
-            //add initial element
-            orderedReportUnits.add(reportUnits.get(0));
-            //Sort in ascending order
-            for (int i = 1; i < reportUnits.size(); ++i) {
-                //new element will be inserted at position j or at the end of list
-                int insertAtIndex = orderedReportUnits.size();
-                for (int j = 0; j < orderedReportUnits.size(); ++j) {
-                    //Set sortKey in Report Unit in order to compare new and old lists
-                    final int result = reportUnits.get(i).compareTo(orderedReportUnits.get(j), sortKey);
-                    //reportUnit(i) is < orderedUnit(j)
-                    if (result == -1) {
-                        insertAtIndex = j;
-                        break;
-                    }
-                }
-                //Add to specified index
-                orderedReportUnits.add(insertAtIndex, reportUnits.get(i));
+        if (desktopPane != null) {
+            // A new chart frame will be given to every report.
+            desktopPane.removeAll();
+        }
+        if (!SORT_ORDER_COMPARE.equals(sortKey)) { //sortKey is other than Compare
+            /* TODO: can we use Collections.sort with a custom comparator here? [Freek]
+               [Pravin] ReportUnit.java now implements Comparable<ReportUnit> interface.
+               Added a comparator in ReportUnit.java to compare report units.
+               Removed compareTo(thisUnit, otherUnit) method from ReportUnit.java. 
+               ViewerFrame.java now uses Collections.sort() method to sort reports. 
+            */
+            boolean ascending = true; 
+            if (sortOrder.equals(SORT_ORDER_DESCENDING)) {
+                ascending = false;
             }
-        } else if (SORT_ORDER_COMPARE.equals(sortKey)) {
+            //Copy reportUnits to orderedReportUnits
+            orderedReportUnits =  new ArrayList<ReportUnit>(reportUnits);
+            //Sort orderedReportUnits according to sortKey and sort order - ascending/descnding
+            Collections.sort(orderedReportUnits, ReportUnit.getReportUnitComparator(sortKey, ascending));
+            //Create chart frames and add them to the desktop pane.
+            prepareChartsInOrder(true);
+            // Set first report graph in the Tic Pane. 
+            setTicGraphPaneChart(orderedReportUnits.get(0).getReportIndex());
+        } else if (SORT_ORDER_COMPARE.equals(sortKey)) { //sortKey is Compare
             //Check checkbox flag status and group those reports together at the beginning of orderedReportUnits
             //Add all selected reports first i refers to original report number
             for (int i = 0; i < reportIsSelected.size(); ++i) {
@@ -1048,19 +1048,15 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                     orderedReportUnits.add(reportUnits.get(i));
                 }
             }
-        }
-        if (desktopPane != null) {
-            // A new chart frame will be given to every report.
-            desktopPane.removeAll();
-        }
-        if (sortOrder.equals(SORT_ORDER_ASCENDING)) {
-            prepareChartsInOrder(true);
-            // Set first report graph in the Tic Pane. 
-            setTicGraphPaneChart(orderedReportUnits.get(0).getReportIndex());
-        } else if (sortOrder.equals(SORT_ORDER_DESCENDING)) {
-            prepareChartsInOrder(false);
-            // Set last report graph in the Tic Pane.
-            setTicGraphPaneChart(orderedReportUnits.get(orderedReportUnits.size() - 1).getReportIndex());
+            if (sortOrder.equals(SORT_ORDER_ASCENDING)) {
+                prepareChartsInOrder(true);
+                // Set first report graph in the Tic Pane. 
+                setTicGraphPaneChart(orderedReportUnits.get(0).getReportIndex());
+            } else if (sortOrder.equals(SORT_ORDER_DESCENDING)) {
+                prepareChartsInOrder(false);
+                // Set last report graph in the Tic Pane.
+                setTicGraphPaneChart(orderedReportUnits.get(orderedReportUnits.size() - 1).getReportIndex());
+            }
         }
         currentSortCriteria = newSortCriteria;
         newSortCriteria = "";

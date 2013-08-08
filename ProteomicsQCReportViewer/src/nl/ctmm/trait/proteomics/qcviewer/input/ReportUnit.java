@@ -1,6 +1,7 @@
 package nl.ctmm.trait.proteomics.qcviewer.input;
 
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +22,7 @@ import org.jfree.data.xy.XYSeries;
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
-public class ReportUnit{
+public class ReportUnit implements Comparable<ReportUnit>{
     private static final Logger logger = Logger.getLogger(ReportUnit.class.getName());
 
     private int reportNum = -1;
@@ -243,91 +244,6 @@ public class ReportUnit{
     }
 
     /**
-     * Compare this report unit with other report unit based on sorting criteria
-     * @param otherUnit Other report unit to be compared
-     * @param sortKey Sorting criteria
-     * @return if this report unit has higher value return 1, equal value return 0, lower value return -1
-     */
-
-    public int compareTo(final ReportUnit otherUnit, final String sortKey) {
-        final String thisValue = this.getMetricsValueFromKey(sortKey);
-        final String otherValue = otherUnit.getMetricsValueFromKey(sortKey);
-        try {
-            if (thisValue.equals(otherValue)) {
-                return 0; 
-            } else if (otherValue.equals("N/A")) { //thisValue is valid and present
-                return 1;
-            } else if (thisValue.equals("N/A")) { //otherValue is valid and present
-                return -1;
-            } else if (sortKey.equals("No.")) {
-                if (this.reportNum > otherUnit.reportNum) {
-                    return 1;
-                } else if (this.reportNum < otherUnit.reportNum) {
-                    return -1;
-                } else
-                    return 0; //equal reportNum
-            } else if (sortKey.equals("generic:f_size")) {
-                if (this.fileSize > otherUnit.fileSize) {
-                    return 1;
-                } else if (this.fileSize < otherUnit.fileSize) {
-                    return -1;
-                } else
-                    return 0;
-            } else if (sortKey.equals("generic:ms1_spectra")) {
-                int thisms1Spectra = Integer.parseInt(thisValue);
-                int otherms1Spectra = Integer.parseInt(otherValue);
-                if (thisms1Spectra > otherms1Spectra) {
-                    return 1;
-                } else if (thisms1Spectra < otherms1Spectra) {
-                    return -1;
-                } else return 0;
-            } else if (sortKey.equals("generic:ms2_spectra")) {
-                int thisms2Spectra = Integer.parseInt(thisValue);
-                int otherms2Spectra = Integer.parseInt(otherValue);
-                if (thisms2Spectra > otherms2Spectra) {
-                    return 1;
-                } else if (thisms2Spectra < otherms2Spectra) {
-                    return -1;
-                } else return 0;
-            } else if (sortKey.equals("generic:date")) {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MMM/dd - HH:mm");
-                Date thisDate = sdf.parse(this.measured);
-                Date otherDate = sdf.parse(otherUnit.measured);
-                if (thisDate.compareTo(otherDate) > 0) {
-                    return 1; 
-                } else if (thisDate.compareTo(otherDate) < 0) {
-                    return -1; 
-                } else return 0;
-            } else if (sortKey.equals("generic:runtime")) {
-                if (this.runtime.compareToIgnoreCase(otherUnit.runtime) > 0) {
-                    return 1;
-                } else if (this.runtime.compareToIgnoreCase(otherUnit.runtime) < 0) {
-                    return -1;
-                } else return 0; 
-            } else if (sortKey.equals("maxIntensity")) {
-                if (this.getChartUnit().getMaxTicIntensity() > otherUnit.getChartUnit().getMaxTicIntensity()) { 
-                    return 1;
-                } else if (this.getChartUnit().getMaxTicIntensity() < otherUnit.getChartUnit().getMaxTicIntensity()) { 
-                    return -1;
-                } else return 0; 
-            } else {
-                double thisDouble = Double.parseDouble(thisValue);
-                double otherDouble = Double.parseDouble(otherValue);
-                if (thisDouble > otherDouble) { 
-                    return 1;
-                } else if (thisDouble < otherDouble) { 
-                    return -1;
-                } else return 0; 
-            }
-        } catch (Exception e) {
-            logger.warning("Exception type " + e.getClass().toString() + " thisValue = " + thisValue +
-                               " otherValue = " + otherValue);
-            e.printStackTrace();
-        }
-        return 0; 
-    }
-    
-    /**
      * Set values of QC metrics in this report 
      * @param metricsValues map containing QC metrics keys and corresponding values
      */
@@ -352,4 +268,99 @@ public class ReportUnit{
         return metricsValues;
     }
 
+    @Override
+    public int compareTo(ReportUnit otherUnit) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    /**
+     * Get a comparator to compare report units.
+     * 
+     * @param sortKey the key to sort on.
+     * @param ascending whether to sort in ascending or descending order.               
+     * @return the comparator to compare report units.
+     */
+    public static Comparator<ReportUnit> getReportUnitComparator(final String sortKey, final boolean ascending) {
+        return new Comparator<ReportUnit>() {
+            @Override
+            public int compare(final ReportUnit reportUnit1, final ReportUnit reportUnit2) {
+                final String value1 = reportUnit1.getMetricsValueFromKey(sortKey);
+                final String value2 = reportUnit2.getMetricsValueFromKey(sortKey);
+                try {
+                    if (value1.equals(value2)) {
+                        return 0; 
+                    } else if (value2.equals("N/A")) { //thisValue is valid and present
+                        return ascending ? 1 : -1; //if ascending = true, return 1 else return -1
+                    } else if (value1.equals("N/A")) { //otherValue is valid and present
+                        return ascending ? -1 : 1; //if ascending = true, return -1 else return 1
+                    } else if (sortKey.equals("No.")) {
+                        if (reportUnit1.reportNum > reportUnit2.reportNum) {
+                            return ascending ? 1 : -1; //if ascending = true, return 1 else return -1
+                        } else if (reportUnit1.reportNum < reportUnit2.reportNum) {
+                            return ascending ? -1 : 1; //if ascending = true, return -1 else return 1
+                        } else
+                            return 0; //equal reportNum
+                    } else if (sortKey.equals("generic:f_size")) {
+                        if (reportUnit1.fileSize > reportUnit2.fileSize) {
+                            return ascending ? 1 : -1; //if ascending = true, return 1 else return -1
+                        } else if (reportUnit1.fileSize < reportUnit2.fileSize) {
+                            return ascending ? -1 : 1; //if ascending = true, return -1 else return 1
+                        } else
+                            return 0;
+                    } else if (sortKey.equals("generic:ms1_spectra")) {
+                        int thisms1Spectra = Integer.parseInt(value1);
+                        int otherms1Spectra = Integer.parseInt(value2);
+                        if (thisms1Spectra > otherms1Spectra) {
+                            return ascending ? 1 : -1; //if ascending = true, return 1 else return -1
+                        } else if (thisms1Spectra < otherms1Spectra) {
+                            return ascending ? -1 : 1; //if ascending = true, return -1 else return 1
+                        } else return 0;
+                    } else if (sortKey.equals("generic:ms2_spectra")) {
+                        int thisms2Spectra = Integer.parseInt(value1);
+                        int otherms2Spectra = Integer.parseInt(value2);
+                        if (thisms2Spectra > otherms2Spectra) {
+                            return ascending ? 1 : -1; //if ascending = true, return 1 else return -1
+                        } else if (thisms2Spectra < otherms2Spectra) {
+                            return ascending ? -1 : 1; //if ascending = true, return -1 else return 1
+                        } else return 0;
+                    } else if (sortKey.equals("generic:date")) {
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MMM/dd - HH:mm");
+                        Date thisDate = sdf.parse(reportUnit1.measured);
+                        Date otherDate = sdf.parse(reportUnit2.measured);
+                        if (thisDate.compareTo(otherDate) > 0) {
+                            return ascending ? 1 : -1; //if ascending = true, return 1 else return -1
+                        } else if (thisDate.compareTo(otherDate) < 0) {
+                            return ascending ? -1 : 1; //if ascending = true, return -1 else return 1
+                        } else return 0;
+                    } else if (sortKey.equals("generic:runtime")) {
+                        if (reportUnit1.runtime.compareToIgnoreCase(reportUnit2.runtime) > 0) {
+                            return ascending ? 1 : -1; //if ascending = true, return 1 else return -1
+                        } else if (reportUnit1.runtime.compareToIgnoreCase(reportUnit2.runtime) < 0) {
+                            return ascending ? -1 : 1; //if ascending = true, return -1 else return 1
+                        } else return 0; 
+                    } else if (sortKey.equals("maxIntensity")) {
+                        if (reportUnit1.getChartUnit().getMaxTicIntensity() > reportUnit2.getChartUnit().getMaxTicIntensity()) { 
+                            return ascending ? 1 : -1; //if ascending = true, return 1 else return -1
+                        } else if (reportUnit1.getChartUnit().getMaxTicIntensity() < reportUnit2.getChartUnit().getMaxTicIntensity()) { 
+                            return ascending ? -1 : 1; //if ascending = true, return -1 else return 1
+                        } else return 0; 
+                    } else {
+                        double thisDouble = Double.parseDouble(value1);
+                        double otherDouble = Double.parseDouble(value2);
+                        if (thisDouble > otherDouble) { 
+                            return ascending ? 1 : -1; //if ascending = true, return 1 else return -1
+                        } else if (thisDouble < otherDouble) { 
+                            return ascending ? -1 : 1; //if ascending = true, return -1 else return 1
+                        } else return 0; 
+                    }
+                } catch (Exception e) {
+                    logger.warning("Exception type " + e.getClass().toString() + " thisValue = " + value1 +
+                                       " otherValue = " + value2);
+                    e.printStackTrace();
+                }
+                return 0; 
+            }
+        };
+    } 
 }
