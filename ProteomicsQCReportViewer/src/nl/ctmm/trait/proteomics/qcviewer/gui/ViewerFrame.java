@@ -101,7 +101,25 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     /**
      * Height of a row with information from one report in the list.
      */
-    private static final int CHART_HEIGHT = 150;
+    private static final int REPORT_ROW_HEIGHT = 165;
+
+    /**
+     * The height of a chart from one report in the list and some extra space.
+     *
+     * TODO: see whether Checkstyle can accept a minus or plus in a constant definition. [Freek]
+     * TODO: rename this constant since it's not equal to the actual chart height. [Freek]
+     */
+    private static final int CHART_HEIGHT = REPORT_ROW_HEIGHT - 15;
+
+    /**
+     * Actual height of a chart from one report in the list.
+     */
+    private static final int ACTUAL_CHART_HEIGHT = (int) (CHART_HEIGHT - 10);
+
+    /**
+     * Default height for the viewer application.
+     */
+    private static final int VIEWER_HEIGHT = CHART_HEIGHT * 10;
 
     /**
      * Width of the left panel for each report in the list, with the report number, the metrics details button and the
@@ -128,6 +146,11 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * Default divider location of the top split pane, which separates the top control panel from the rest of the GUI.
      */
     private static final int SPLIT_PANE_1_DIVIDER_LOCATION = 185;
+
+    /**
+     * Default height for the top split pane, which separates the top control panel from the rest of the GUI.
+     */
+    private static final int SPLIT_PANE_1_HEIGHT = (int) (6.5 * CHART_HEIGHT);
 
     /**
      * Default divider location of the bottom split pane, which separates the central list with the QC results from the
@@ -179,6 +202,26 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * Height of min - max text box.
      */
     private static final int TEXT_BOX_HEIGHT = 20;
+
+    /**
+     * Text of the change root directory menu command.
+     */
+    private static final String CHANGE_ROOT_DIRECTORY_COMMAND = "ChangeRootDirectory";
+
+    /**
+     * Text of the set filter menu command.
+     */
+    private static final String SET_FILTER_COMMAND = "SetFilter";
+
+    /**
+     * Text of the select metrics menu command.
+     */
+    private static final String SELECT_METRICS_COMMAND = "SelectMetrics";
+
+    /**
+     * Text of the about menu command.
+     */
+    private static final String ABOUT_COMMAND = "About";
 
     /**
      * Text of the Zoom In button.
@@ -364,7 +407,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                        final String pipelineStatus) {
         super(title);
         logger.fine("ViewerFrame constructor");
-        setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 25, CHART_HEIGHT * 10));
+        setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 25, VIEWER_HEIGHT));
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.metricsParser = metricsParser;
         this.appProperties = appProperties;
@@ -427,7 +470,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                 reportIsSelected.add(false);
                 addChartFrame(thisUnit, reportIndexOffset + reportIndex);
             }
-            desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, reportUnits.size() * (CHART_HEIGHT + 15)));
+            desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, reportUnits.size() * REPORT_ROW_HEIGHT));
             //Set first report graph in the Tic Pane. 
             setTicGraphPaneChart(orderedReportUnits.get(0).getReportIndex());
         }
@@ -436,23 +479,14 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     }
 
     /**
-     * Update pipelineStatus in the report viewer.
+     * Update the pipeline status in the report viewer.
      *
-     * @param newPipelineStatus as inferred from qc_status.log file
+     * @param newPipelineStatus as inferred from the qc_status.log file.
      */
     public void updatePipelineStatus(final String newPipelineStatus) {
         //logger.fine("ViewerFrame updatePipelineStatus");
         pipelineStatus = newPipelineStatus;
-        statusPanel.removeAll();
-        final String status = pipelineStatus + " | | | | | Number of report units = " + orderedReportUnits.size();
-        statusField = new JTextField(status);
-        statusField.setFont(Constants.DEFAULT_FONT);
-//        statusField.setBackground(Color.CYAN);
-        statusField.setHorizontalAlignment(JTextField.CENTER);
-        statusField.setEditable(false);
-//        statusPanel.setBackground(Color.CYAN);
-        statusPanel.add(statusField);
-        revalidate();
+        statusField.setText(getExtendedPipelineStatus());
     }
 
     /**
@@ -466,9 +500,9 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         //Add desktopPane for displaying graphs and other QC Control
         final int totalReports = orderedReportUnits.size();
         if (totalReports != 0) {
-            desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, totalReports * (CHART_HEIGHT + 15)));
+            desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, totalReports * REPORT_ROW_HEIGHT));
             prepareChartsInOrder(true);
-          //Set initial tic Graph - specify complete chart in terms of orderedReportUnits
+            // Set initial tic Graph - specify complete chart in terms of orderedReportUnits.
             setTicGraphPaneChart(orderedReportUnits.get(0).getReportIndex());
         }
         //Display empty desktopPane and ticGraphPane
@@ -487,7 +521,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         //hide-show feature
         splitPane1.setOneTouchExpandable(true);
         splitPane1.setDividerLocation(SPLIT_PANE_1_DIVIDER_LOCATION);
-        splitPane1.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 15, (int)(6.5 * CHART_HEIGHT)));
+        splitPane1.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 15, SPLIT_PANE_1_HEIGHT));
         getContentPane().add(splitPane1, "Center");
         setJMenuBar(createMenuBar());
     }
@@ -503,25 +537,26 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         menuBar.add(settingsMenu);
         final JMenuItem newDirAction = new JMenuItem("Set Root Directory...");
         settingsMenu.add(newDirAction);
-        newDirAction.setActionCommand("ChangeRootDirectory");
+        newDirAction.setActionCommand(CHANGE_ROOT_DIRECTORY_COMMAND);
         newDirAction.addActionListener(this);
         final JMenuItem filterAction = new JMenuItem("Set Filter...");
         settingsMenu.add(filterAction);
-        filterAction.setActionCommand("SetFilter");
+        filterAction.setActionCommand(SET_FILTER_COMMAND);
         filterAction.addActionListener(this);
         final JMenuItem metricsAction = new JMenuItem("Select Metrics...");
         settingsMenu.add(metricsAction);
-        metricsAction.setActionCommand("SelectMetrics");
+        metricsAction.setActionCommand(SELECT_METRICS_COMMAND);
         metricsAction.addActionListener(this);
         final JMenuItem aboutAction = new JMenuItem("About...");
         settingsMenu.add(aboutAction);
-        aboutAction.setActionCommand("About");
+        aboutAction.setActionCommand(ABOUT_COMMAND);
         aboutAction.addActionListener(this);
         return menuBar;
     }
 
     /**
      * Sets the report units to be displayed.
+     *
      * @param reportUnits the report units to be displayed.
      */
     private void setReportUnits(final List<ReportUnit> reportUnits) {
@@ -662,8 +697,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         controlPanel.add(ctmmTraitLogoLabel, Box.CENTER_ALIGNMENT);
         controlPanel.add(Box.createRigidArea(DIMENSION_10X0));
 
-        final String status = pipelineStatus + " | | | | | Number of report units = " + orderedReportUnits.size();
-        statusPanel = new JPanel(new GridLayout(1, 1));
+        final String status = getExtendedPipelineStatus();
+        statusPanel = new JPanel();
         statusField = new JTextField(status);
         statusField.setFont(Constants.DEFAULT_FONT);
 //        statusField.setBackground(Color.CYAN);
@@ -773,6 +808,15 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         sortOptionPanel.add(sortDescendingButton, Box.CENTER_ALIGNMENT);
         sortOptionPanel.add(Box.createRigidArea(DIMENSION_5X0));
         return sortOptionPanel;
+    }
+
+    /**
+     * Get the pipeline status extended with the number of report units.
+     *
+     * @return the pipeline status extended with the number of report units.
+     */
+    private String getExtendedPipelineStatus() {
+        return pipelineStatus + " | | | | | Number of report units: " + orderedReportUnits.size();
     }
 
     /**
@@ -925,13 +969,13 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private void handleMenuActions(final String actionCommand) {
         switch (actionCommand) {
-            case "ChangeRootDirectory":
+            case CHANGE_ROOT_DIRECTORY_COMMAND:
                 new DataEntryForm(this, appProperties).displayRootDirectoryChooser();
                 break;
-            case "SetFilter":
+            case SET_FILTER_COMMAND:
                 new DataEntryForm(this, appProperties).displayDateFilterEntryForm();
                 break;
-            case "SelectMetrics":
+            case SELECT_METRICS_COMMAND:
                 // Display ChooseMetricsForm to select metrics to display.
                 final JFrame metricsForm = new ChooseMetricsForm(this, metricsParser, selectedMetrics.keySet());
                 metricsForm.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -939,7 +983,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                 RefineryUtilities.centerFrameOnScreen(metricsForm);
                 metricsForm.setVisible(true);
                 break;
-            case "About":
+            case ABOUT_COMMAND:
                 final AboutFrame aboutFrame = new AboutFrame();
                 aboutFrame.setVisible(true);
                 aboutFrame.revalidate();
@@ -1048,7 +1092,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      *
      * TODO: clarify when we use reportNumber, reportUnit.getReportNum() - 1 and reportUnit.getReportNum(). [Freek]
      * [Pravin] reportUnit.getReportNum() - 1 represents report index. Index is used for array operations. 
-     * I have added reportIndex variable and getReportIndex method in ReportUnit to avoid repetitive calls to reportUnit.getReportNum() - 1.
+     * I have added reportIndex variable and getReportIndex method in ReportUnit to avoid repetitive calls to
+     * reportUnit.getReportNum() - 1.
      *
      * @param reportUnit the report unit.
      * @param reportNumber the report number.
@@ -1058,7 +1103,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 
         final ChartPanel chartPanel = new ChartPanel(reportUnit.getChartUnit().getTicChart());
         chartPanel.addChartMouseListener(this);
-        chartPanel.setPreferredSize(new Dimension(CHART_PANEL_WIDTH, CHART_HEIGHT - 10));
+        chartPanel.setPreferredSize(new Dimension(CHART_PANEL_WIDTH, ACTUAL_CHART_HEIGHT));
         chartPanelList.add(chartPanel);
 
         final JPanel reportIdPanel = createReportIdPanel(reportUnit);
@@ -1085,7 +1130,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         chartFrame.addMouseListener(this);
         desktopPane.add(chartFrame);
         logger.fine("yCoordinate = " + yCoordinate);
-        yCoordinate += CHART_HEIGHT + 15;
+        yCoordinate += REPORT_ROW_HEIGHT;
     }
 
     /**
