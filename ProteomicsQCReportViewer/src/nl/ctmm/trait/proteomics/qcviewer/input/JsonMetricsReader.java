@@ -51,8 +51,13 @@ public class JsonMetricsReader {
         final Map<String, String> metricsValues = new HashMap<>();
         try {
             final JSONObject jsonObject = (JSONObject) new JSONParser().parse(new FileReader(jsonFile));
-            // TODO: can we read the available metrics from the json file instead of using allMetricsMap? [Freek]
-            //[Pravin] The json file does not always contain all the metrics and their values. 
+            /* TODO: can we read the available metrics from the json file instead of using allMetricsMap? [Freek]
+            [Pravin] The json file does not always contain all the metrics and their values.
+            e.g. In case one of the pipeline stages do not work as expected (such as spectral search)
+            then corresponding metrics are not written to the json file. No metrics information 
+            will be written to the json file in case of erroneous RAW data. 
+            Hence I prefer to use allMetricsMap.  
+            */ 
             for (final String key : allMetricsMap.keySet()) {
                 //Initialize metricsValues to N/A
                 String paramValue = "N/A";
