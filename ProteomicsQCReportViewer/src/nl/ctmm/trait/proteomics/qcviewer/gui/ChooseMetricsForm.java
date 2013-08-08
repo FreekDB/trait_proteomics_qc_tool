@@ -32,6 +32,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.TransferHandler;
 
 import nl.ctmm.trait.proteomics.qcviewer.input.MetricsParser;
+import nl.ctmm.trait.proteomics.qcviewer.utils.PropertyFileWriter;
 
 /**
  * The class for displaying the metrics selection form with a drag and drop user interface.
@@ -229,7 +230,7 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
      public void actionPerformed(final ActionEvent actionEvent) {
         logger.fine("DataEntryFrame Action command = " + actionEvent.getActionCommand());
         if (actionEvent.getActionCommand().equals("OK")) {
-            metricsParser.updateMetricsToDisplay(selectedMetricsListModel);
+            PropertyFileWriter.updateMetricsSelection(selectedMetricsListModel);
             viewerFrame.updateSelectedMetrics(new ArrayList<>(selectedMetricsListModel.getModel()));
             dispose();
         }

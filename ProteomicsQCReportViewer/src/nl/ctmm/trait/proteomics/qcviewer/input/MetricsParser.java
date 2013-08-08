@@ -29,13 +29,6 @@ public class MetricsParser {
     private static final Logger logger = Logger.getLogger(MetricsParser.class.getName());
 
     /**
-     * The application properties.
-     * <p/>
-     * TODO: maybe it's better to put the responsibility for writing properties in a separate Settings class? [Freek]
-     */
-    private Properties appProperties;
-
-    /**
      * The map with all metrics supported by the NIST QC pipeline. The keys are "category:code" strings and the values
      * are descriptions of the metrics.
      * <p/>
@@ -46,10 +39,9 @@ public class MetricsParser {
     /**
      * Construct a metrics parser.
      *
-     * @param appProperties the application properties.
      */
-    public MetricsParser(final Properties appProperties) {
-        this.appProperties = appProperties;
+    public MetricsParser() {
+
     }
 
     /**
@@ -88,26 +80,4 @@ public class MetricsParser {
         }
     }
 
-    /**
-     * Update metrics in the report frame and update the TopColumnNamesV2 property in the application properties file.
-     *
-     * TODO: looks like updating the GUI is done elsewhere. If that's the case, we can rename this method. [Freek]
-     *
-     * @param selectedMetrics a sorted list containing the names of the selected metrics.
-     */
-    public void updateMetricsToDisplay(final SortedListModel selectedMetrics) {
-        String selectedMetricsString = "";
-        for (int metricIndex = 0; metricIndex < selectedMetrics.getSize(); metricIndex++) {
-            selectedMetricsString += selectedMetrics.getElementAt(metricIndex) + ",";
-        }
-        appProperties.setProperty(Constants.PROPERTY_TOP_COLUMN_NAMESV2, selectedMetricsString);
-        try {
-            final FileOutputStream outputStream = new FileOutputStream(FilenameUtils.normalize(Constants.PROPERTIES_FILE_NAME));
-            appProperties.store(outputStream, null);
-            outputStream.close();
-        } catch (final IOException e) {
-            final String message = "Something went wrong while writing the application properties file: %s.";
-            logger.log(Level.SEVERE, String.format(message, Constants.PROPERTIES_FILE_NAME), e);
-        }
-    }
 }

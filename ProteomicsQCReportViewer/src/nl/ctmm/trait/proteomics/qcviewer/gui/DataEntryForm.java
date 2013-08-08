@@ -27,6 +27,7 @@ import javax.swing.JTextField;
 
 import nl.ctmm.trait.proteomics.qcviewer.Main;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
+import nl.ctmm.trait.proteomics.qcviewer.utils.PropertyFileWriter;
 
 import org.apache.commons.io.FilenameUtils;
 import org.jfree.ui.RefineryUtilities;
@@ -199,27 +200,11 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
             preferredRootDirectory = FilenameUtils.normalize(chooser.getSelectedFile().getAbsolutePath());
            logger.fine("You chose to open this folder: " +
         		   FilenameUtils.normalize(chooser.getSelectedFile().getAbsolutePath()));
-            updatePreferredRootDirectory(preferredRootDirectory);
+            PropertyFileWriter.updatePreferredRootDirectory(preferredRootDirectory);
             dispose();
             Main.getInstance().updateReportViewer();
         } 
      }
-    
-     /**
-      * Save selected root directory in the application properties file
-      * @param newRootDirectory Root directory selected by user
-      */
-    private void updatePreferredRootDirectory(String newRootDirectory) {
-        logger.fine("Changing root directory to " + newRootDirectory);
-        appProperties.setProperty(Constants.PROPERTY_ROOT_FOLDER, newRootDirectory);
-        try {
-            FileOutputStream out = new FileOutputStream(FilenameUtils.normalize(Constants.PROPERTIES_FILE_NAME));
-            appProperties.store(out, null);
-            out.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
     
     /**
      * Process user input events for the class DataEntryForm
@@ -300,16 +285,8 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
                         if (sdf.parse(date1).compareTo(sdf.parse(date2))>0) {
                             JOptionPane.showMessageDialog(null, "From date " + date1 + " is > To date " + date2, "Error",JOptionPane.ERROR_MESSAGE);
                         } else {
-                            dispose();
-                            appProperties.setProperty(Constants.PROPERTY_SHOW_REPORTS_FROM_DATE, date1);
-                            appProperties.setProperty(Constants.PROPERTY_SHOW_REPORTS_TILL_DATE, date2);
-                            try {
-                                FileOutputStream out = new FileOutputStream(FilenameUtils.normalize(Constants.PROPERTIES_FILE_NAME));
-                                appProperties.store(out, null);
-                                out.close();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
+                            PropertyFileWriter.updateFromAndTillDates(date1, date2);
+                            dispose();               
                             Main.getInstance().updateReportViewer();
                         }
                     } catch (ParseException e) {

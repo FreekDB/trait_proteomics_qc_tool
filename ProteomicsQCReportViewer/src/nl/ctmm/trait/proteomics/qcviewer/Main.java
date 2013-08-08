@@ -24,6 +24,7 @@ import nl.ctmm.trait.proteomics.qcviewer.input.ProgressLogReader;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportReader;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnit;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
+import nl.ctmm.trait.proteomics.qcviewer.utils.PropertyFileWriter;
 
 import org.apache.commons.io.FilenameUtils;
 import org.jfree.ui.RefineryUtilities;
@@ -175,7 +176,7 @@ public class Main {
     public void runReportViewer() {
         prepareAllLoggers();
         applicationProperties = loadProperties();
-        metricsParser = new MetricsParser(applicationProperties);
+        metricsParser = new MetricsParser();
         preferredRootDirectory = applicationProperties.getProperty(Constants.PROPERTY_ROOT_FOLDER);
         logger.fine("in Main preferredRootDirectory = " + preferredRootDirectory);
         dataEntryForm = new DataEntryForm(this, applicationProperties);
@@ -285,6 +286,7 @@ public class Main {
         } catch (final IOException e) {
             logger.log(Level.SEVERE, "Loading of application properties failed.", e);
         }
+        PropertyFileWriter.setApplicationProperties(appProperties); 
         return appProperties;
     }
 
