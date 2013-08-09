@@ -1,7 +1,6 @@
 package nl.ctmm.trait.proteomics.qcviewer.utils;
 
 import java.awt.Font;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 /**
@@ -167,4 +166,14 @@ public interface Constants {
      * The poll interval in milliseconds for checking the QC pipeline log file.
      */
     int POLL_INTERVAL_PIPELINE_LOG = 5000;
+
+    /**
+     * Separator used in metrics definitions.
+     */
+    String METRICS_SEPARATOR = ":";
+
+    /**
+     * The OK button text and action command.
+     */
+    String OK_BUTTON_TEXT = "OK";
 }

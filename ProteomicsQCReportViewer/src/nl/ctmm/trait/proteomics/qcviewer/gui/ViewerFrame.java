@@ -377,11 +377,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private static final int METRIC_LABEL_HEIGHT = 30;
 
     /**
-     * Separator used in the metrics definition file.
-     */
-    private static final String METRICS_SEPARATOR = ":";
-
-    /**
      * Prefix used for the action command of the metrics details buttons.
      */
     private static final String DETAILS_ACTION_PREFIX = "Details-";
@@ -560,9 +555,9 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         selectedMetrics = new HashMap<>();
         // Extract keys and names of the selected metrics.
         for (final String selectedMetricData : selectedMetricsData) {
-            final StringTokenizer dataTokenizer = new StringTokenizer(selectedMetricData, METRICS_SEPARATOR);
-            final String metricKey = dataTokenizer.nextToken() + METRICS_SEPARATOR + dataTokenizer.nextToken();
-            final String metricName = dataTokenizer.nextToken();
+            final StringTokenizer tokenizer = new StringTokenizer(selectedMetricData, Constants.METRICS_SEPARATOR);
+            final String metricKey = tokenizer.nextToken() + Constants.METRICS_SEPARATOR + tokenizer.nextToken();
+            final String metricName = tokenizer.nextToken();
             selectedMetrics.put(metricKey, metricName);
         }
     }
@@ -1325,7 +1320,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * @param selectedMetricsData the data of the selected metrics (keys and names).
      */
     public void updateSelectedMetrics(final List<String> selectedMetricsData) {
-      //Update control frame to display newly selected metrics
+        // Update the control frame to display the newly selected metrics.
         logger.fine("In updateSelectedMetrics - refreshing metrics values..");
         parseSelectedMetricsData(selectedMetricsData);
         for (final ReportUnit reportUnit : reportUnits) {
