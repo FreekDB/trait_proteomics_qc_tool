@@ -27,6 +27,7 @@
         <!-- Dependency versions. -->
         <cglib.version>3.0</cglib.version>
         <commons-io.version>2.4</commons-io.version>
+        <apache-commons-io.version>1.3.2</apache-commons-io.version>
         <commons-lang.version>2.6</commons-lang.version>
         <guava.version>14.0.1</guava.version>
         <hamcrest.version>1.3</hamcrest.version>
@@ -41,13 +42,14 @@
         <maven-checkstyle-plugin.version>2.10</maven-checkstyle-plugin.version>
         <maven-jxr-plugin.version>2.3</maven-jxr-plugin.version>
         <maven-resources-plugin.version>2.6</maven-resources-plugin.version>
+        <maven-dependency-plugin.version>2.5.1</maven-dependency-plugin.version>
     </properties>
 
     <build>
         <sourceDirectory>src</sourceDirectory>
         <testSourceDirectory>test</testSourceDirectory>
         <directory>target</directory>
-
+    
         <plugins>
             <!-- Specify Java 7 for sources and targets (.class files). -->
             <plugin>
@@ -58,7 +60,48 @@
                     <target>1.7</target>
                 </configuration>
             </plugin>
-
+            
+            <!-- Use maven-jar-plugin to create executable jar using mvn package -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>nl.ctmm.trait.proteomics.qcviewer.Main</mainClass>
+                            <classpathPrefix>dependency-jars/</classpathPrefix>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            
+            <!-- Use maven-dependency-plugin to add dependencies to the classpath of executable jar -->
+            <!-- Referred to article http://www.mkyong.com/maven/how-to-create-a-jar-file-with-maven/ -->
+            <!-- TODO: Include resources directories and files while creating executable jar -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>${maven-dependency-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                        <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeGroupIds>cglib,com.google.guava,org.apache.directory.studio,commons-lang,
+                                org.hamcrest,org.javassist,com.toedter,org.jfree,com.googlecode.json-simple,
+                                junit,org.mockito,commons-io
+                            </includeGroupIds>
+                            <outputDirectory>${project.build.directory}/dependency-jars/</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
             <!-- Run Checkstyle in the verify phase. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -87,10 +130,36 @@
             </plugin>
 
             <!-- Use maven-resources-plugin version 2.6 (> 2.5) to remove "[debug] execute contextualize" message. -->
+            <!--  Referred to http://maven.apache.org/plugins/maven-resources-plugin/examples/copy-resources.html -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>${maven-resources-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target</outputDirectory>
+                            <resources>
+                            <!-- TODO Copy images to images directory -->>
+                                <resource>
+                                    <directory>${basedir}/images</directory>
+                                </resource>
+                                <resource>
+                                    <directory>${basedir}</directory>
+                                    <includes>
+                                        <include>appProperties</include>
+                                        <include>MetricsListing.txt</include>
+                                    </includes>
+                                </resource>
+                            </resources>              
+                        </configuration>            
+                    </execution>
+                </executions>
             </plugin>
 
         </plugins>
@@ -116,6 +185,12 @@
             <groupId>org.apache.directory.studio</groupId>
             <artifactId>org.apache.commons.io</artifactId>
             <version>${commons-io.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${apache-commons-io.version}</version>
         </dependency>
 
         <dependency>
