@@ -336,13 +336,44 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private static final int LOGO_HEIGHT = 100;
 
-    private static final int STATUS_PANEL_WIDTH = 1333;
-    private static final int STATUS_PANEL_HEIGHT = 20;
-    private static final int CONTROL_PANEL_WIDTH = 1333;
-    private static final int CONTROL_PANEL_HEIGHT = 140;
+    /**
+     * Preferred width of the control frame.
+     */
     private static final int CONTROL_FRAME_WIDTH = 1333;
+
+    /**
+     * Preferred height of the control frame.
+     */
     private static final int CONTROL_FRAME_HEIGHT = 165;
+
+    /**
+     * Preferred width of the control panel.
+     */
+    private static final int CONTROL_PANEL_WIDTH = 1333;
+
+    /**
+     * Preferred height of the control panel.
+     */
+    private static final int CONTROL_PANEL_HEIGHT = 140;
+
+    /**
+     * Preferred width of the status panel.
+     */
+    private static final int STATUS_PANEL_WIDTH = 1333;
+
+    /**
+     * Preferred height of the status panel.
+     */
+    private static final int STATUS_PANEL_HEIGHT = 20;
+
+    /**
+     * Width of a metric label.
+     */
     private static final int METRIC_LABEL_WIDTH = 200;
+
+    /**
+     * Height of a metric label.
+     */
     private static final int METRIC_LABEL_HEIGHT = 30;
 
     /**
@@ -385,17 +416,51 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private static final String CHART_FRAME_TITLE_PREFIX = "Chart ";
 
-    private JDesktopPane desktopPane = new ScrollDesktop();
-    private JDesktopPane ticGraphPane = new ScrollDesktop();
-    //necessary for zooming
-    private List<ChartPanel> chartPanelList = new ArrayList<>();
-    private List<Boolean> reportIsSelected = new ArrayList<>();
-    private JFormattedTextField minText;
-    private JFormattedTextField maxText;
-    //preserve original report units
+    /**
+     * The main desktop pane with the TIC graphs of all the reports.
+     */
+    private final JDesktopPane desktopPane = new ScrollDesktop();
+
+    /**
+     * The bottom pane showing the enlarged TIC graph of the selected report.
+     */
+    private final JDesktopPane ticGraphPane = new ScrollDesktop();
+
+    /**
+     * The list with all chart panels to be able to zoom all TIC graphs.
+     */
+    private final List<ChartPanel> chartPanelList = new ArrayList<>();
+
+    /**
+     * Whether a report is selected for comparison.
+     */
+    private final List<Boolean> reportIsSelected = new ArrayList<>();
+
+    /**
+     * The text field for specifying the start percentage for zooming along the x axis.
+     */
+    private final JFormattedTextField minText = new JFormattedTextField(NumberFormat.getInstance());
+
+    /**
+     * The text field for specifying the end percentage for zooming along the x axis.
+     */
+    private final JFormattedTextField maxText = new JFormattedTextField(NumberFormat.getInstance());
+
+    /**
+     * The reports to be displayed.
+     */
     private List<ReportUnit> reportUnits = new ArrayList<>();
+
     //use this list for display and other operations
+
+    /**
+     * The reports sorted according to the selected options.
+     */
     private List<ReportUnit> orderedReportUnits = new ArrayList<>();
+
+    /**
+     * Map from reports to the corresponding metrics panels. This map is used when updating the selected metrics.
+     */
     private final Map<ReportUnit, JPanel> reportUnitToMetricsPanel = new HashMap<>();
 
     /**
@@ -403,16 +468,57 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private Map<String, String> selectedMetrics;
 
+    /**
+     * The current sort criteria (key and order).
+     */
     private String currentSortCriteria = "";
+
+    /**
+     * The new sort criteria (key and order).
+     *
+     * TODO: do we need current and new sort criteria as fields? [Freek]
+     */
     private String newSortCriteria = "";
+
+    /**
+     * The application properties.
+     */
     private Properties appProperties;
+
+    /**
+     * The parser for reading the metrics.
+     */
     private MetricsParser metricsParser;
+
+    /**
+     * The status of the QC pipeline.
+     */
     private String pipelineStatus;
-    private JSplitPane splitPane1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-    private JSplitPane splitPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+
+    /**
+     * The text field showing the QC pipeline status.
+     */
     private JTextField statusField;
-    private JPanel statusPanel;
-    private JPanel sortPanel = new JPanel();
+
+    /**
+     * The split pane that contains the control panel and the rest of the GUI.
+     */
+    private JSplitPane splitPane1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+
+    /**
+     * The split pane that contains the main table of reports and the bottom pane showing the enlarged TIC graph of the
+     * selected report.
+     */
+    private JSplitPane splitPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+
+    /**
+     * The sort panel that contains all the sorting controls.
+     */
+    private final JPanel sortPanel = new JPanel();
+
+    /**
+     * The y coordinate used while laying out the reports in the main table.
+     */
     private int yCoordinate;
 
     /**
@@ -622,21 +728,18 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         controlFrame.setBorder(null);
         controlFrame.setBackground(Color.WHITE);
 
-        final JPanel controlPanel = createControlPanel();
-
-        final String status = getExtendedPipelineStatus();
-        statusPanel = new JPanel();
-        statusField = new JTextField(status);
+        statusField = new JTextField(getExtendedPipelineStatus());
         statusField.setFont(Constants.DEFAULT_FONT);
 //        statusField.setBackground(Color.CYAN);
         statusField.setHorizontalAlignment(JTextField.CENTER);
         statusField.setEditable(false);
+        final JPanel statusPanel = new JPanel();
         statusPanel.add(statusField);
         statusPanel.setPreferredSize(new Dimension(STATUS_PANEL_WIDTH, STATUS_PANEL_HEIGHT));
 
         controlFrame.getContentPane().setLayout(new BoxLayout(controlFrame.getContentPane(), BoxLayout.Y_AXIS));
         controlFrame.getContentPane().add(Box.createRigidArea(DIMENSION_5X0));
-        controlFrame.getContentPane().add(controlPanel, BorderLayout.CENTER);
+        controlFrame.getContentPane().add(createControlPanel(), BorderLayout.CENTER);
         controlFrame.getContentPane().add(Box.createRigidArea(DIMENSION_5X0));
         controlFrame.getContentPane().add(statusPanel, BorderLayout.CENTER);
         controlFrame.getContentPane().add(Box.createRigidArea(DIMENSION_5X0));
@@ -736,11 +839,9 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                 zoomMinMax();
             }
         };
-        minText = new JFormattedTextField(NumberFormat.getInstance());
         minText.setValue(ZOOM_X_AXIS_DEFAULT_START);
         minText.addActionListener(zoomMinMaxActionListener);
         minText.setMaximumSize(new Dimension(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT));
-        maxText = new JFormattedTextField(NumberFormat.getInstance());
         maxText.setValue(ZOOM_X_AXIS_DEFAULT_END);
         maxText.addActionListener(zoomMinMaxActionListener);
         maxText.setMaximumSize(new Dimension(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT));
@@ -799,9 +900,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * Create sort panel displaying sort metrics and sort order buttons.
      */
     private void createOrUpdateSortPanel() {
-        if (sortPanel != null) {
-            sortPanel.removeAll();
-        }
+        sortPanel.removeAll();
         final ButtonGroup sortOptionsButtonGroup = new ButtonGroup();
         sortPanel.setLayout(new GridLayout(selectedMetrics.size() / 2 + 1, 2));
         sortPanel.setBackground(Color.WHITE);
@@ -883,9 +982,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private void setTicGraphPaneChart(final int reportNum) {
         logger.fine("ViewerFrame setTicGraphPaneChart " + reportNum);
-        if (ticGraphPane != null) {
-            ticGraphPane.removeAll();
-        }
+        ticGraphPane.removeAll();
         // Create the visible chart panel.
         final ChartPanel chartPanel = new ChartPanel(reportUnits.get(reportNum).getChartUnit().getTicChart());
         chartPanel.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, 2 * CHART_HEIGHT));
@@ -1086,7 +1183,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             //Check checkbox flag status and group those reports together at the beginning of orderedReportUnits
             //Add all selected reports first i refers to original report number
             final ArrayList<ReportUnit> deselectedReports = new ArrayList<>();
-            for (int reportIndex = 0; reportIndex < reportIsSelected.size(); ++reportIndex) {
+            for (int reportIndex = 0; reportIndex < reportIsSelected.size(); reportIndex++) {
                 if (reportIsSelected.get(reportIndex)) {
                     logger.fine("Selected report index = " + reportIndex);
                     orderedReportUnits.add(reportUnits.get(reportIndex));
@@ -1094,7 +1191,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                     deselectedReports.add(reportUnits.get(reportIndex));
                 }
             }
-            // Later add all deselected reports.
+            // Now add all deselected reports.
             orderedReportUnits.addAll(deselectedReports);
             final int selectedIndex = ascending ? 0 : orderedReportUnits.size() - 1;
             prepareChartsInOrder(ascending);
@@ -1113,9 +1210,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private void prepareChartsInOrder(final boolean ascending) {
         logger.fine("ViewerFrame prepareChartsInOrder");
-        if (chartPanelList != null) {
-            chartPanelList.clear();
-        }
+        chartPanelList.clear();
         yCoordinate = 0;
         logger.fine("No. of orderedReportUnits = " + orderedReportUnits.size());
         for (int reportIndex = 0; reportIndex < orderedReportUnits.size(); reportIndex++) {
