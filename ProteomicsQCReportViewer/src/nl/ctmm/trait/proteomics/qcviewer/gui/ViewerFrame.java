@@ -107,20 +107,23 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     /**
      * The height of a chart from one report in the list and some extra space.
      *
-     * TODO: see whether Checkstyle can accept a minus or plus in a constant definition. [Freek]
+     * The Checkstyle MagicNumberCheck currently only allows the multiplication operator to be used in constant
+     * expressions (& also unary plus and minus). See the ALLOWED_PATH_TOKENTYPES array in the MagicNumberCheck class:
+     * http://checkstyle.hg.sourceforge.net/hgweb/checkstyle/checkstyle/file/a485366ec8c3/src/checkstyle/com/puppycrawl/
+     *     tools/checkstyle/checks/coding/MagicNumberCheck.java
+     *
      * TODO: rename this constant since it's not equal to the actual chart height. [Freek]
      */
+    // CHECKSTYLE_OFF: MagicNumberCheck
     private static final int CHART_HEIGHT = REPORT_ROW_HEIGHT - 15;
+    // CHECKSTYLE_ON: MagicNumberCheck
 
     /**
      * Actual height of a chart from one report in the list.
      */
+    // CHECKSTYLE_OFF: MagicNumberCheck
     private static final int ACTUAL_CHART_HEIGHT = (int) (CHART_HEIGHT - 10);
-
-    /**
-     * Default height for the viewer application.
-     */
-    private static final int VIEWER_HEIGHT = CHART_HEIGHT * 10;
+    // CHECKSTYLE_ON: MagicNumberCheck
 
     /**
      * Width of the left panel for each report in the list, with the report number, the metrics details button and the
@@ -139,14 +142,33 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private static final int CHART_PANEL_WIDTH = 800;
 
     /**
-     * Initial width of the viewer frame.
+     * Initial width of the desktop pane.
      */
     private static final int DESKTOP_PANE_WIDTH = 1270;
+
+    /**
+     * Default width for the viewer application.
+     */
+    // CHECKSTYLE_OFF: MagicNumberCheck
+    private static final int VIEWER_WIDTH = DESKTOP_PANE_WIDTH + 25;
+    // CHECKSTYLE_ON: MagicNumberCheck
+
+    /**
+     * Default height for the viewer application.
+     */
+    private static final int VIEWER_HEIGHT = CHART_HEIGHT * 10;
 
     /**
      * Default divider location of the top split pane, which separates the top control panel from the rest of the GUI.
      */
     private static final int SPLIT_PANE_1_DIVIDER_LOCATION = 185;
+
+    /**
+     * Default width for the top split pane, which separates the top control panel from the rest of the GUI.
+     */
+    // CHECKSTYLE_OFF: MagicNumberCheck
+    private static final int SPLIT_PANE_1_WIDTH = DESKTOP_PANE_WIDTH + 15;
+    // CHECKSTYLE_ON: MagicNumberCheck
 
     /**
      * Default height for the top split pane, which separates the top control panel from the rest of the GUI.
@@ -314,13 +336,44 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private static final int LOGO_HEIGHT = 100;
 
-    private static final int STATUS_PANEL_WIDTH = 1333;
-    private static final int STATUS_PANEL_HEIGHT = 20;
-    private static final int CONTROL_PANEL_WIDTH = 1333;
-    private static final int CONTROL_PANEL_HEIGHT = 140;
+    /**
+     * Preferred width of the control frame.
+     */
     private static final int CONTROL_FRAME_WIDTH = 1333;
+
+    /**
+     * Preferred height of the control frame.
+     */
     private static final int CONTROL_FRAME_HEIGHT = 165;
+
+    /**
+     * Preferred width of the control panel.
+     */
+    private static final int CONTROL_PANEL_WIDTH = 1333;
+
+    /**
+     * Preferred height of the control panel.
+     */
+    private static final int CONTROL_PANEL_HEIGHT = 140;
+
+    /**
+     * Preferred width of the status panel.
+     */
+    private static final int STATUS_PANEL_WIDTH = 1333;
+
+    /**
+     * Preferred height of the status panel.
+     */
+    private static final int STATUS_PANEL_HEIGHT = 20;
+
+    /**
+     * Width of a metric label.
+     */
     private static final int METRIC_LABEL_WIDTH = 200;
+
+    /**
+     * Height of a metric label.
+     */
     private static final int METRIC_LABEL_HEIGHT = 30;
 
     /**
@@ -363,17 +416,51 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private static final String CHART_FRAME_TITLE_PREFIX = "Chart ";
 
-    private JDesktopPane desktopPane = new ScrollDesktop();
-    private JDesktopPane ticGraphPane = new ScrollDesktop();
-    //necessary for zooming
-    private List<ChartPanel> chartPanelList = new ArrayList<>();
-    private List<Boolean> reportIsSelected = new ArrayList<>();
-    private JFormattedTextField minText;
-    private JFormattedTextField maxText;
-    //preserve original report units
+    /**
+     * The main desktop pane with the TIC graphs of all the reports.
+     */
+    private final JDesktopPane desktopPane = new ScrollDesktop();
+
+    /**
+     * The bottom pane showing the enlarged TIC graph of the selected report.
+     */
+    private final JDesktopPane ticGraphPane = new ScrollDesktop();
+
+    /**
+     * The list with all chart panels to be able to zoom all TIC graphs.
+     */
+    private final List<ChartPanel> chartPanelList = new ArrayList<>();
+
+    /**
+     * Whether a report is selected for comparison.
+     */
+    private final List<Boolean> reportIsSelected = new ArrayList<>();
+
+    /**
+     * The text field for specifying the start percentage for zooming along the x axis.
+     */
+    private final JFormattedTextField minText = new JFormattedTextField(NumberFormat.getInstance());
+
+    /**
+     * The text field for specifying the end percentage for zooming along the x axis.
+     */
+    private final JFormattedTextField maxText = new JFormattedTextField(NumberFormat.getInstance());
+
+    /**
+     * The reports to be displayed.
+     */
     private List<ReportUnit> reportUnits = new ArrayList<>();
+
     //use this list for display and other operations
+
+    /**
+     * The reports sorted according to the selected options.
+     */
     private List<ReportUnit> orderedReportUnits = new ArrayList<>();
+
+    /**
+     * Map from reports to the corresponding metrics panels. This map is used when updating the selected metrics.
+     */
     private final Map<ReportUnit, JPanel> reportUnitToMetricsPanel = new HashMap<>();
 
     /**
@@ -381,16 +468,57 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private Map<String, String> selectedMetrics;
 
+    /**
+     * The current sort criteria (key and order).
+     */
     private String currentSortCriteria = "";
+
+    /**
+     * The new sort criteria (key and order).
+     *
+     * TODO: do we need current and new sort criteria as fields? [Freek]
+     */
     private String newSortCriteria = "";
+
+    /**
+     * The application properties.
+     */
     private Properties appProperties;
+
+    /**
+     * The parser for reading the metrics.
+     */
     private MetricsParser metricsParser;
+
+    /**
+     * The status of the QC pipeline.
+     */
     private String pipelineStatus;
-    private JSplitPane splitPane1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-    private JSplitPane splitPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+
+    /**
+     * The text field showing the QC pipeline status.
+     */
     private JTextField statusField;
-    private JPanel statusPanel;
-    private JPanel sortPanel = new JPanel();
+
+    /**
+     * The split pane that contains the control panel and the rest of the GUI.
+     */
+    private JSplitPane splitPane1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+
+    /**
+     * The split pane that contains the main table of reports and the bottom pane showing the enlarged TIC graph of the
+     * selected report.
+     */
+    private JSplitPane splitPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+
+    /**
+     * The sort panel that contains all the sorting controls.
+     */
+    private final JPanel sortPanel = new JPanel();
+
+    /**
+     * The y coordinate used while laying out the reports in the main table.
+     */
     private int yCoordinate;
 
     /**
@@ -408,7 +536,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                        final String pipelineStatus) {
         super(title);
         logger.fine("ViewerFrame constructor");
-        setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 25, VIEWER_HEIGHT));
+        setPreferredSize(new Dimension(VIEWER_WIDTH, VIEWER_HEIGHT));
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.metricsParser = metricsParser;
         this.appProperties = appProperties;
@@ -522,7 +650,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         //hide-show feature
         splitPane1.setOneTouchExpandable(true);
         splitPane1.setDividerLocation(SPLIT_PANE_1_DIVIDER_LOCATION);
-        splitPane1.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH + 15, SPLIT_PANE_1_HEIGHT));
+        splitPane1.setPreferredSize(new Dimension(SPLIT_PANE_1_WIDTH, SPLIT_PANE_1_HEIGHT));
         getContentPane().add(splitPane1, "Center");
         setJMenuBar(createMenuBar());
     }
@@ -578,11 +706,9 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private void setOrderedReportUnits(final List<ReportUnit> reportUnits) {
         logger.fine("ViewerFrame setOrderedReportUnits No. of reportUnits = " + reportUnits.size());
-        if (orderedReportUnits != null) {
-            orderedReportUnits.clear();
-            orderedReportUnits.addAll(reportUnits);
-            logger.fine("ViewerFrame setOrderedReportUnits No. of ordered reportUnits = " + orderedReportUnits.size());
-        }
+        orderedReportUnits.clear();
+        orderedReportUnits.addAll(reportUnits);
+        logger.fine("ViewerFrame setOrderedReportUnits No. of ordered reportUnits = " + orderedReportUnits.size());
     }
 
     /**
@@ -593,6 +719,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private JInternalFrame getControlFrame() {
         logger.fine("ViewerFrame getControlFrame");
         logger.fine("CTMM TraIT logo file is " + Constants.CTMM_TRAIT_LOGO_FILE_NAME);
+
         final JInternalFrame controlFrame = new JInternalFrame("Control Panel", true);
         final javax.swing.plaf.InternalFrameUI ifu = controlFrame.getUI();
         ((javax.swing.plaf.basic.BasicInternalFrameUI)ifu).setNorthPane(null);
@@ -601,6 +728,72 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         controlFrame.setBorder(null);
         controlFrame.setBackground(Color.WHITE);
 
+        statusField = new JTextField(getExtendedPipelineStatus());
+        statusField.setFont(Constants.DEFAULT_FONT);
+//        statusField.setBackground(Color.CYAN);
+        statusField.setHorizontalAlignment(JTextField.CENTER);
+        statusField.setEditable(false);
+        final JPanel statusPanel = new JPanel();
+        statusPanel.add(statusField);
+        statusPanel.setPreferredSize(new Dimension(STATUS_PANEL_WIDTH, STATUS_PANEL_HEIGHT));
+
+        controlFrame.getContentPane().setLayout(new BoxLayout(controlFrame.getContentPane(), BoxLayout.Y_AXIS));
+        controlFrame.getContentPane().add(Box.createRigidArea(DIMENSION_5X0));
+        controlFrame.getContentPane().add(createControlPanel(), BorderLayout.CENTER);
+        controlFrame.getContentPane().add(Box.createRigidArea(DIMENSION_5X0));
+        controlFrame.getContentPane().add(statusPanel, BorderLayout.CENTER);
+        controlFrame.getContentPane().add(Box.createRigidArea(DIMENSION_5X0));
+        controlFrame.pack();
+        controlFrame.setLocation(0, 0);
+        controlFrame.setResizable(false);
+        controlFrame.setVisible(true);
+        return controlFrame;
+    }
+
+    /**
+     * Create the top control panel.
+     *
+     * @return the top control panel.
+     */
+    private JPanel createControlPanel() {
+        final JPanel controlPanel = new JPanel();
+        controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.X_AXIS));
+        controlPanel.setBackground(Color.WHITE);
+        controlPanel.add(Box.createRigidArea(DIMENSION_10X0));
+        controlPanel.add(createLogoLabel(Constants.OPL_LOGO_FILE_NAME), Box.CENTER_ALIGNMENT);
+        controlPanel.add(Box.createRigidArea(DIMENSION_10X0));
+        controlPanel.add(createZoomPanel(), Box.CENTER_ALIGNMENT);
+        controlPanel.add(Box.createRigidArea(DIMENSION_10X0));
+        createOrUpdateSortPanel();
+        controlPanel.add(sortPanel, Box.CENTER_ALIGNMENT);
+        controlPanel.add(Box.createRigidArea(DIMENSION_10X0));
+        controlPanel.add(createLogoLabel(Constants.CTMM_TRAIT_LOGO_FILE_NAME), Box.CENTER_ALIGNMENT);
+        controlPanel.add(Box.createRigidArea(DIMENSION_10X0));
+        controlPanel.setPreferredSize(new Dimension(CONTROL_PANEL_WIDTH, CONTROL_PANEL_HEIGHT));
+        return controlPanel;
+    }
+
+    /**
+     * Create the zoom panel with all zoom controls.
+     *
+     * @return the zoom panel with all zoom controls.
+     */
+    private JPanel createZoomPanel() {
+        final JPanel zoomPanel = new JPanel();
+        zoomPanel.setLayout(new GridLayout(2, 1));
+        zoomPanel.setBackground(Color.WHITE);
+        zoomPanel.add(createZoomButtonsPanel(), 0);
+        zoomPanel.add(createZoomXAxisPanel(), 1);
+        zoomPanel.setMinimumSize(new Dimension(ZOOM_PANEL_WIDTH, ZOOM_PANEL_HEIGHT));
+        return zoomPanel;
+    }
+
+    /**
+     * Create the panel with the zoom in, original and out buttons.
+     *
+     * @return the panel with the zoom in, original and out buttons.
+     */
+    private JPanel createZoomButtonsPanel() {
         // Zoom all - in, original, out
         final JButton inButton = new JButton(ZOOM_IN_BUTTON_TEXT);
         inButton.setActionCommand(ZOOM_IN_COMMAND);
@@ -616,110 +809,74 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         zoomGroup.add(originalButton);
         zoomGroup.add(outButton);
 
-        final JPanel zoomPanelButtons = new JPanel();
-        zoomPanelButtons.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),
+        final JPanel zoomButtonsPanel = new JPanel();
+        zoomButtonsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),
                                                                     "Zoom All TIC Charts"));
-        zoomPanelButtons.setLayout(new BoxLayout(zoomPanelButtons, BoxLayout.X_AXIS));
-        zoomPanelButtons.add(Box.createRigidArea(DIMENSION_5X0));
+        zoomButtonsPanel.setLayout(new BoxLayout(zoomButtonsPanel, BoxLayout.X_AXIS));
+        zoomButtonsPanel.add(Box.createRigidArea(DIMENSION_5X0));
         inButton.setMinimumSize(new Dimension(ZOOM_BUTTON_WIDTH, ZOOM_BUTTON_HEIGHT));
-        zoomPanelButtons.add(inButton, Box.CENTER_ALIGNMENT);
-        zoomPanelButtons.add(Box.createRigidArea(DIMENSION_5X0));
+        zoomButtonsPanel.add(inButton, Box.CENTER_ALIGNMENT);
+        zoomButtonsPanel.add(Box.createRigidArea(DIMENSION_5X0));
         originalButton.setMinimumSize(new Dimension(ZOOM_BUTTON_WIDTH, ZOOM_BUTTON_HEIGHT));
-        zoomPanelButtons.add(originalButton, Box.CENTER_ALIGNMENT);
-        zoomPanelButtons.add(Box.createRigidArea(DIMENSION_5X0));
+        zoomButtonsPanel.add(originalButton, Box.CENTER_ALIGNMENT);
+        zoomButtonsPanel.add(Box.createRigidArea(DIMENSION_5X0));
         outButton.setMinimumSize(new Dimension(ZOOM_BUTTON_WIDTH, ZOOM_BUTTON_HEIGHT));
-        zoomPanelButtons.add(outButton, Box.CENTER_ALIGNMENT);
-        zoomPanelButtons.add(Box.createRigidArea(DIMENSION_5X0));
-        zoomPanelButtons.setBackground(Color.WHITE);
-        
-        // Zoom all - Min, Max and Submit
-        final JLabel minLabel = new JLabel("Min: ");
-        minText = new JFormattedTextField(NumberFormat.getInstance());
+        zoomButtonsPanel.add(outButton, Box.CENTER_ALIGNMENT);
+        zoomButtonsPanel.add(Box.createRigidArea(DIMENSION_5X0));
+        zoomButtonsPanel.setBackground(Color.WHITE);
+        zoomButtonsPanel.setMinimumSize(new Dimension(ZOOM_PANEL_WIDTH, ZOOM_PANEL_FORM_HEIGHT));
+        return zoomButtonsPanel;
+    }
+
+    /**
+     * Create the panel with the x axis zoom controls.
+     *
+     * @return the panel with the x axis zoom controls.
+     */
+    private JPanel createZoomXAxisPanel() {
+        final ActionListener zoomMinMaxActionListener = new ActionListener() {
+            public void actionPerformed(final ActionEvent e) {
+                zoomMinMax();
+            }
+        };
         minText.setValue(ZOOM_X_AXIS_DEFAULT_START);
-        minText.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                zoomMinMax();
-            }
-        });
-        final JLabel maxLabel = new JLabel("Max: ");
-        maxText = new JFormattedTextField(NumberFormat.getInstance());
+        minText.addActionListener(zoomMinMaxActionListener);
+        minText.setMaximumSize(new Dimension(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT));
         maxText.setValue(ZOOM_X_AXIS_DEFAULT_END);
-        maxText.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                zoomMinMax();
-            }
-        });
+        maxText.addActionListener(zoomMinMaxActionListener);
+        maxText.setMaximumSize(new Dimension(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT));
         final JButton zoomButton = new JButton(ZOOM_X_AXIS_BUTTON_TEXT);
         zoomButton.setActionCommand(ZOOM_MIN_MAX_COMMAND);
         zoomButton.addActionListener(this);
-        final JPanel zoomPanelForm = new JPanel();
-        final Border border = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Zoom Along X Axis");
-        zoomPanelForm.setBorder(border);
-        zoomPanelForm.setLayout(new BoxLayout(zoomPanelForm, BoxLayout.X_AXIS));
-        zoomPanelForm.add(Box.createRigidArea(DIMENSION_10X0));
-        zoomPanelForm.add(minLabel, Box.CENTER_ALIGNMENT);
-        zoomPanelForm.add(Box.createRigidArea(DIMENSION_5X0));
-        minText.setMaximumSize(new Dimension(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT));
-        zoomPanelForm.add(minText, Box.CENTER_ALIGNMENT);
-        zoomPanelForm.add(Box.createRigidArea(DIMENSION_5X0));
-        zoomPanelForm.add(maxLabel, Box.CENTER_ALIGNMENT);
-        zoomPanelForm.add(Box.createRigidArea(DIMENSION_5X0));
-        maxText.setMaximumSize(new Dimension(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT));
-        zoomPanelForm.add(maxText, Box.CENTER_ALIGNMENT);
-        zoomPanelForm.add(Box.createRigidArea(DIMENSION_10X0));
         zoomButton.setMinimumSize(new Dimension(ZOOM_BUTTON_WIDTH, ZOOM_BUTTON_HEIGHT));
-        zoomPanelForm.add(zoomButton, Box.CENTER_ALIGNMENT);
-        zoomPanelForm.add(Box.createRigidArea(DIMENSION_5X0));
-        zoomPanelForm.setBackground(Color.WHITE);
+        final JPanel zoomXAxisPanel = new JPanel();
+        final Border border = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Zoom Along X Axis");
+        zoomXAxisPanel.setBorder(border);
+        zoomXAxisPanel.setLayout(new BoxLayout(zoomXAxisPanel, BoxLayout.X_AXIS));
+        fillZoomXAxisPanel(zoomButton, zoomXAxisPanel);
+        zoomXAxisPanel.setBackground(Color.WHITE);
+        zoomXAxisPanel.setMinimumSize(new Dimension(ZOOM_PANEL_WIDTH, ZOOM_PANEL_FORM_HEIGHT));
+        return zoomXAxisPanel;
+    }
 
-        final JPanel zoomPanel = new JPanel();
-        zoomPanel.setLayout(new GridLayout(2, 1));
-        zoomPanel.setBackground(Color.WHITE);
-        zoomPanelButtons.setMinimumSize(new Dimension(ZOOM_PANEL_WIDTH, ZOOM_PANEL_FORM_HEIGHT));
-        zoomPanel.add(zoomPanelButtons, 0);
-        zoomPanelForm.setMinimumSize(new Dimension(ZOOM_PANEL_WIDTH, ZOOM_PANEL_FORM_HEIGHT));
-        zoomPanel.add(zoomPanelForm, 1);
-
-        final JLabel oplLogoLabel = createLogoLabel(Constants.OPL_LOGO_FILE_NAME);
-        final JLabel ctmmTraitLogoLabel = createLogoLabel(Constants.CTMM_TRAIT_LOGO_FILE_NAME);
-
-        final JPanel controlPanel = new JPanel();
-        controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.X_AXIS));
-        controlPanel.setBackground(Color.WHITE);
-        controlPanel.add(Box.createRigidArea(DIMENSION_10X0));
-        controlPanel.add(oplLogoLabel, Box.CENTER_ALIGNMENT);
-        controlPanel.add(Box.createRigidArea(DIMENSION_10X0));
-        zoomPanel.setMinimumSize(new Dimension(ZOOM_PANEL_WIDTH, ZOOM_PANEL_HEIGHT));
-        controlPanel.add(zoomPanel, Box.CENTER_ALIGNMENT);
-        controlPanel.add(Box.createRigidArea(DIMENSION_10X0));
-        createOrUpdateSortPanel();
-        controlPanel.add(sortPanel, Box.CENTER_ALIGNMENT);
-        controlPanel.add(Box.createRigidArea(DIMENSION_10X0));
-        controlPanel.add(ctmmTraitLogoLabel, Box.CENTER_ALIGNMENT);
-        controlPanel.add(Box.createRigidArea(DIMENSION_10X0));
-
-        final String status = getExtendedPipelineStatus();
-        statusPanel = new JPanel();
-        statusField = new JTextField(status);
-        statusField.setFont(Constants.DEFAULT_FONT);
-//        statusField.setBackground(Color.CYAN);
-        statusField.setHorizontalAlignment(JTextField.CENTER);
-        statusField.setEditable(false);
-        statusPanel.add(statusField);
-
-        controlFrame.getContentPane().setLayout(new BoxLayout(controlFrame.getContentPane(), BoxLayout.Y_AXIS));
-        controlFrame.getContentPane().add(Box.createRigidArea(DIMENSION_5X0));
-        controlPanel.setPreferredSize(new Dimension(CONTROL_PANEL_WIDTH, CONTROL_PANEL_HEIGHT));
-        controlFrame.getContentPane().add(controlPanel, BorderLayout.CENTER);
-        controlFrame.getContentPane().add(Box.createRigidArea(DIMENSION_5X0));
-        statusPanel.setPreferredSize(new Dimension(STATUS_PANEL_WIDTH, STATUS_PANEL_HEIGHT));
-        controlFrame.getContentPane().add(statusPanel, BorderLayout.CENTER);
-        controlFrame.getContentPane().add(Box.createRigidArea(DIMENSION_5X0));
-        controlFrame.pack();
-        controlFrame.setLocation(0, 0);
-        controlFrame.setResizable(false);
-        controlFrame.setVisible(true);
-        return controlFrame;
+    /**
+     * Add the proper controls to the zoom x axis panel.
+     *
+     * @param zoomButton the zoom x axis button.
+     * @param zoomXAxisPanel the zoom x axis panel.
+     */
+    private void fillZoomXAxisPanel(final JButton zoomButton, final JPanel zoomXAxisPanel) {
+        zoomXAxisPanel.add(Box.createRigidArea(DIMENSION_10X0));
+        zoomXAxisPanel.add(new JLabel("Min: "), Box.CENTER_ALIGNMENT);
+        zoomXAxisPanel.add(Box.createRigidArea(DIMENSION_5X0));
+        zoomXAxisPanel.add(minText, Box.CENTER_ALIGNMENT);
+        zoomXAxisPanel.add(Box.createRigidArea(DIMENSION_5X0));
+        zoomXAxisPanel.add(new JLabel("Max: "), Box.CENTER_ALIGNMENT);
+        zoomXAxisPanel.add(Box.createRigidArea(DIMENSION_5X0));
+        zoomXAxisPanel.add(maxText, Box.CENTER_ALIGNMENT);
+        zoomXAxisPanel.add(Box.createRigidArea(DIMENSION_10X0));
+        zoomXAxisPanel.add(zoomButton, Box.CENTER_ALIGNMENT);
+        zoomXAxisPanel.add(Box.createRigidArea(DIMENSION_5X0));
     }
 
     /**
@@ -743,9 +900,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * Create sort panel displaying sort metrics and sort order buttons.
      */
     private void createOrUpdateSortPanel() {
-        if (sortPanel != null) {
-            sortPanel.removeAll();
-        }
+        sortPanel.removeAll();
         final ButtonGroup sortOptionsButtonGroup = new ButtonGroup();
         sortPanel.setLayout(new GridLayout(selectedMetrics.size() / 2 + 1, 2));
         sortPanel.setBackground(Color.WHITE);
@@ -827,9 +982,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private void setTicGraphPaneChart(final int reportNum) {
         logger.fine("ViewerFrame setTicGraphPaneChart " + reportNum);
-        if (ticGraphPane != null) {
-            ticGraphPane.removeAll();
-        }
+        ticGraphPane.removeAll();
         // Create the visible chart panel.
         final ChartPanel chartPanel = new ChartPanel(reportUnits.get(reportNum).getChartUnit().getTicChart());
         chartPanel.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, 2 * CHART_HEIGHT));
@@ -1007,56 +1160,43 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         final String sortOrder = sortCriteriaTokenizer.nextToken();
         logger.fine("Sort requested according to " + sortKey + " order " + sortOrder);
         //Remove currently ordered report units and recreate them according to sort criteria
-        if (orderedReportUnits != null) {
-            orderedReportUnits.clear();
-        }
-        if (desktopPane != null) {
-            // A new chart frame will be given to every report.
-            desktopPane.removeAll();
-        }
-        if (!SORT_ORDER_COMPARE.equals(sortKey)) { //sortKey is other than Compare
+        orderedReportUnits.clear();
+        // A new chart frame will be given to every report.
+        desktopPane.removeAll();
+        final boolean ascending = sortOrder.equals(SORT_ORDER_ASCENDING);
+        if (!SORT_ORDER_COMPARE.equals(sortKey)) {
             /* TODO: can we use Collections.sort with a custom comparator here? [Freek]
                [Pravin] ReportUnit.java now implements Comparable<ReportUnit> interface.
                Added a comparator in ReportUnit.java to compare report units.
                Removed compareTo(thisUnit, otherUnit) method from ReportUnit.java. 
                ViewerFrame.java now uses Collections.sort() method to sort reports. 
             */
-            boolean ascending = true; 
-            if (sortOrder.equals(SORT_ORDER_DESCENDING)) {
-                ascending = false;
-            }
             //Copy reportUnits to orderedReportUnits
-            orderedReportUnits =  new ArrayList<ReportUnit>(reportUnits);
-            //Sort orderedReportUnits according to sortKey and sort order - ascending/descnding
+            orderedReportUnits.addAll(reportUnits);
+            //Sort orderedReportUnits according to sortKey and sort order - ascending/descending
             Collections.sort(orderedReportUnits, ReportUnit.getReportUnitComparator(sortKey, ascending));
             //Create chart frames and add them to the desktop pane.
             prepareChartsInOrder(true);
             // Set first report graph in the Tic Pane. 
             setTicGraphPaneChart(orderedReportUnits.get(0).getReportIndex());
-        } else if (SORT_ORDER_COMPARE.equals(sortKey)) { //sortKey is Compare
+        } else if (SORT_ORDER_COMPARE.equals(sortKey)) {
             //Check checkbox flag status and group those reports together at the beginning of orderedReportUnits
             //Add all selected reports first i refers to original report number
-            for (int i = 0; i < reportIsSelected.size(); ++i) {
-                if (reportIsSelected.get(i)) {
-                    logger.fine("Selected report index = " + i);
-                    orderedReportUnits.add(reportUnits.get(i));
+            final ArrayList<ReportUnit> deselectedReports = new ArrayList<>();
+            for (int reportIndex = 0; reportIndex < reportIsSelected.size(); reportIndex++) {
+                if (reportIsSelected.get(reportIndex)) {
+                    logger.fine("Selected report index = " + reportIndex);
+                    orderedReportUnits.add(reportUnits.get(reportIndex));
+                } else {
+                    deselectedReports.add(reportUnits.get(reportIndex));
                 }
             }
-            //Later add all deselected reports 
-            for (int i = 0; i < reportIsSelected.size(); ++i) {
-                if (!reportIsSelected.get(i)) {
-                    orderedReportUnits.add(reportUnits.get(i));
-                }
-            }
-            if (sortOrder.equals(SORT_ORDER_ASCENDING)) {
-                prepareChartsInOrder(true);
-                // Set first report graph in the Tic Pane. 
-                setTicGraphPaneChart(orderedReportUnits.get(0).getReportIndex());
-            } else if (sortOrder.equals(SORT_ORDER_DESCENDING)) {
-                prepareChartsInOrder(false);
-                // Set last report graph in the Tic Pane.
-                setTicGraphPaneChart(orderedReportUnits.get(orderedReportUnits.size() - 1).getReportIndex());
-            }
+            // Now add all deselected reports.
+            orderedReportUnits.addAll(deselectedReports);
+            final int selectedIndex = ascending ? 0 : orderedReportUnits.size() - 1;
+            prepareChartsInOrder(ascending);
+            // Show the TIC graph of the first or last report in the bottom TIC pane.
+            setTicGraphPaneChart(orderedReportUnits.get(selectedIndex).getReportIndex());
         }
         currentSortCriteria = newSortCriteria;
         newSortCriteria = "";
@@ -1070,9 +1210,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private void prepareChartsInOrder(final boolean ascending) {
         logger.fine("ViewerFrame prepareChartsInOrder");
-        if (chartPanelList != null) {
-            chartPanelList.clear();
-        }
+        chartPanelList.clear();
         yCoordinate = 0;
         logger.fine("No. of orderedReportUnits = " + orderedReportUnits.size());
         for (int reportIndex = 0; reportIndex < orderedReportUnits.size(); reportIndex++) {
