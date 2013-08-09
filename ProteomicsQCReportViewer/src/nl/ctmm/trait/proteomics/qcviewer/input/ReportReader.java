@@ -77,7 +77,7 @@ public class ReportReader extends JFrame {
                     logger.fine("Msrun = " + msRunDirectory.getName());
                     long datetime = msRunDirectory.lastModified();
                     Date d = new Date(datetime);
-                    SimpleDateFormat sdf = new SimpleDateFormat(Constants.SIMPLE_DATE_FORMAT_STRING);
+                    SimpleDateFormat sdf = Constants.DATE_FORMAT;
                     String dateString = sdf.format(d);
                     try {
                         d = sdf.parse(dateString);

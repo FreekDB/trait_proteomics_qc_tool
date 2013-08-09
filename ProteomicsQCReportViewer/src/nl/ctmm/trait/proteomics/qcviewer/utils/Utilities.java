@@ -86,10 +86,16 @@ public class Utilities {
                                            final int height) {
         logger.fine("scaleImage: width: " + width + " height: " + height);
 
-        // TODO: can we do the scaling once and save the images of the right size? [Freek]
-        // TODO: are there classes in the standard Java libraries or third party libraries that do this scaling? [Freek]
-        //return image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-
+        /* TODO: can we do the scaling once and save the images of the right size? [Freek]
+         * This is a good idea. [Pravin]  
+         * 
+         * TODO: are there classes in the standard Java libraries or third party libraries that do this scaling? [Freek]
+         * return image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+         * This article describes use of Greaphics2D.drawImage() [Pravin]
+         * http://www.mkyong.com/java/how-to-resize-an-image-in-java/
+         * imgscalr is Java image scaling library available under Apache 2 License. 
+         * http://www.thebuzzmedia.com/software/imgscalr-java-image-scaling-library/
+         */
         final BufferedImage scaledImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         final Graphics2D graphics2D = scaledImage.createGraphics();
         graphics2D.setColor(Color.white);

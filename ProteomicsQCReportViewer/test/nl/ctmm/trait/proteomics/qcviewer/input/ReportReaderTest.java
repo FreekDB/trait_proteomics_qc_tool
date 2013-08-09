@@ -24,7 +24,7 @@ public class ReportReaderTest {
      */
     @Before
     public void setUp() {
-        reportReader = new ReportReader(new MetricsParser(null));
+        reportReader = new ReportReader(new MetricsParser());
     }
     
     /**

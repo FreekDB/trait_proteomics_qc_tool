@@ -72,15 +72,24 @@ public interface Constants {
      *
      * TODO: use DATE_FORMAT below instead of this string? [Freek]
      * 
-     * [Pravin] The SIMPLE_DATE_FORMAT_STRING is used as it is. 
-     * e.g. fromDateChooser.setDateFormatString(Constants.SIMPLE_DATE_FORMAT_STRING);
+     * [Pravin] Following occurrences of SIMPLE_DATE_FORMAT_STRING can not be 
+     * replaced by DATE_FORMAT, since JDateChooser does not support using
+     * SimpleDateFormat. It supports setDateFormatString. 
+     * DataEntryForm.java: 
+     * fromDateChooser.setDateFormatString(Constants.SIMPLE_DATE_FORMAT_STRING);
+     * tillDateChooser.setDateFormatString(Constants.SIMPLE_DATE_FORMAT_STRING);
+     * 
+     * Replaced one occurrence of SIMPLE_DATE_FORMAT_STRING as follows:
+     * ReportReader.java:
+     * //SimpleDateFormat sdf = new SimpleDateFormat(Constants.SIMPLE_DATE_FORMAT_STRING);
+     * SimpleDateFormat sdf = Constants.DATE_FORMAT;
      */
     String SIMPLE_DATE_FORMAT_STRING = "dd/MM/yyyy";
 
     /**
-     * Date format used for parsing dates.
+     * Simple date format used for parsing dates.
      */
-    DateFormat DATE_FORMAT = new SimpleDateFormat(SIMPLE_DATE_FORMAT_STRING);
+    SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(SIMPLE_DATE_FORMAT_STRING);
 
     /**
      * Name of the file with all QC metrics.
