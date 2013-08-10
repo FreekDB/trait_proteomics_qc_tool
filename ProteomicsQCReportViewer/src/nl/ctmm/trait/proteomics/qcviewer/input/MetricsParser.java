@@ -34,14 +34,6 @@ public class MetricsParser {
     private Map<String, String> allMetricsMap;
 
     /**
-     * Construct a metrics parser.
-     *
-     */
-    public MetricsParser() {
-
-    }
-
-    /**
      * Get all the metrics by reading them from the MetricsListing.txt file.
      *
      * @return map containing key and value of metrics.
