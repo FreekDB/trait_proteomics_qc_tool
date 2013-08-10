@@ -24,13 +24,22 @@ import org.jfree.data.xy.XYSeriesCollection;
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
 public class ChartUnit {
-	private static final Logger logger = Logger.getLogger(ChartUnit.class.getName());
-	/**
+    /**
+     * The logger for this class.
+     */
+    private static final Logger logger = Logger.getLogger(ChartUnit.class.getName());
+
+    /**
      * The list of alternating colors that is used to draw the tic charts.
      */
     private static final List<Color> GRAPH_COLORS = Arrays.asList(
             Color.BLUE, Color.DARK_GRAY, Color.GRAY, Color.MAGENTA, Color.ORANGE,
             Color.PINK, Color.LIGHT_GRAY, Color.RED, Color.GREEN);
+
+    /**
+     * The percentage amount by which the width of the bars will be trimmed.
+     */
+    private static final double TRIM_PERCENTAGE_BARS = 0.98;
 
     /**
      * The JFreeChart object used to draw this tic chart.
@@ -49,7 +58,7 @@ public class ChartUnit {
      * @param reportIndex the index of msrun report.
      * @param series the data series.
      */
-    public ChartUnit(final String msrunName, int reportIndex, final XYSeries series) {
+    public ChartUnit(final String msrunName, final int reportIndex, final XYSeries series) {
         logger.fine("In ChartUnit: reportIndex = " + reportIndex + " msrunName = " + msrunName);
         String maxIntensityString = "N/A";
         if (series != null) {
@@ -63,13 +72,14 @@ public class ChartUnit {
         final NumberAxis rangeAxis = new NumberAxis(null);
         final XYPlot plot = new XYPlot(xyDataset, domainAxis, rangeAxis, renderer);
         rangeAxis.setNumberFormatOverride(new DecimalFormat("0E00"));
-        final String title = "Index = " + reportIndex + "     msrun = " + msrunName + "     MaxIntensity = " + maxIntensityString;
+        final String title = "Index = " + reportIndex + "     msrun = " + msrunName + "     MaxIntensity = "
+                             + maxIntensityString;
         ticChart = new JFreeChart(title, Constants.CHART_TITLE_FONT, plot, false);
         // performance
         ticChart.setAntiAlias(false);
     }
 
-	/**
+    /**
      * Create a <code>XYBarRenderer</code>.
      *
      * @param reportIndex the report index, which is used for picking a color.
@@ -77,8 +87,7 @@ public class ChartUnit {
      */
     private XYBarRenderer createBarRenderer(final int reportIndex) {
         final XYBarRenderer renderer = new XYBarRenderer();
-        //Sets the percentage amount by which the bars are trimmed
-        renderer.setMargin(0.98); //Default renderer margin is 0.0
+        renderer.setMargin(TRIM_PERCENTAGE_BARS);
         renderer.setDrawBarOutline(false);
         renderer.setShadowVisible(false);
         final Color currentColor = GRAPH_COLORS.get(reportIndex % GRAPH_COLORS.size());

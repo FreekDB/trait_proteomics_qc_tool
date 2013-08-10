@@ -158,11 +158,6 @@ public class AboutFrame extends JFrame implements ActionListener {
     private static final int ICON_SIZE = 100;
 
     /**
-     * The OK button text and action command.
-     */
-    private static final String OK_BUTTON_TEXT = "OK";
-
-    /**
      * Constructor of the AboutFrame.
      */
     public AboutFrame() {
@@ -175,10 +170,10 @@ public class AboutFrame extends JFrame implements ActionListener {
         addScrollPane(mainPanel, createAboutTextArea(REFERENCES), "References", REFERENCES_HEIGHT);
         addScrollPane(mainPanel, createAboutTextArea(DETAILS), "Download & Contact Details", DETAILS_HEIGHT);
         addScrollPane(mainPanel, createAcknowledgementsPanel(), "Acknowledgements", ACKNOWLEDGEMENTS_HEIGHT);
-        final JButton okButton = new JButton(OK_BUTTON_TEXT);
+        final JButton okButton = new JButton(Constants.OK_BUTTON_TEXT);
         okButton.setSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         okButton.addActionListener(this);
-        okButton.setActionCommand(OK_BUTTON_TEXT);
+        okButton.setActionCommand(Constants.OK_BUTTON_TEXT);
         mainPanel.add(okButton);
         // Add the main panel to the frame and resize it.
         getContentPane().add(mainPanel);
@@ -266,7 +261,7 @@ public class AboutFrame extends JFrame implements ActionListener {
      */
     @Override
     public void actionPerformed(final ActionEvent actionEvent) {
-        if (OK_BUTTON_TEXT.equals(actionEvent.getActionCommand())) {
+        if (actionEvent.getActionCommand().equals(Constants.OK_BUTTON_TEXT)) {
             dispose();
         }
     }

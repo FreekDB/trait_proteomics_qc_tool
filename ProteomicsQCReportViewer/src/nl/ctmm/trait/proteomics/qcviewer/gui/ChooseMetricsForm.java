@@ -3,7 +3,6 @@ package nl.ctmm.trait.proteomics.qcviewer.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Rectangle;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
@@ -32,11 +31,12 @@ import javax.swing.ListSelectionModel;
 import javax.swing.TransferHandler;
 
 import nl.ctmm.trait.proteomics.qcviewer.input.MetricsParser;
+import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 import nl.ctmm.trait.proteomics.qcviewer.utils.PropertyFileWriter;
 
 /**
- * The class for displaying the metrics selection form with a drag and drop user interface.
- * This class uses BorderLayout
+ * The class for displaying the metrics selection form with a drag and drop user interface. This class uses BorderLayout
+ * as its layout manager (BorderLayout is the default layout manager for the Frame class).
  *
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
@@ -118,11 +118,6 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
     private ViewerFrame viewerFrame;
 
     /**
-     * The metrics parser (to pass the changes in the selected metrics to).
-     */
-    private MetricsParser metricsParser;
-
-    /**
      * Constructor of the metrics selection form.
      *
      * @param viewerFrame the parent viewer frame to pass the changes to.
@@ -133,7 +128,6 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
                              final Collection<String> selectedMetricsKeys) {
         super("Select QC-Full Metrics for MSQC Report Viewer");
         this.viewerFrame = viewerFrame;
-        this.metricsParser = metricsParser;
         // Create the list models for both selected metrics and available (not yet selected) metrics.
         createListModels(metricsParser, selectedMetricsKeys);
         // Create the list with selected metrics on the right side.
@@ -162,12 +156,10 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         availableMetricsListModel = new SortedListModel();
         final Map<String, String> metricsMap = metricsParser.getMetricsListing();
         for (final String metricKey : metricsMap.keySet()) {
+            final boolean selected = selectedMetricsKeys.contains(metricKey);
+            final SortedListModel targetListModel = selected ? selectedMetricsListModel : availableMetricsListModel;
             final String metricName = metricsMap.get(metricKey);
-            if (selectedMetricsKeys.contains(metricKey)) {
-                selectedMetricsListModel.add(metricKey + ":" + metricName);
-            } else {
-                availableMetricsListModel.add(metricKey + ":" + metricName);
-            }
+            targetListModel.add(metricKey + Constants.METRICS_SEPARATOR + metricName);
         }
     }
 
@@ -202,9 +194,9 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
      */
     private void addButtonPanel() {
         final JPanel buttonPanel = new JPanel(); 
-        final JButton okButton = new JButton("OK");
+        final JButton okButton = new JButton(Constants.OK_BUTTON_TEXT);
         okButton.addActionListener(this);
-        okButton.setActionCommand("OK");
+        okButton.setActionCommand(Constants.OK_BUTTON_TEXT);
         final JButton cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent actionEvent) {
@@ -226,10 +218,10 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
      *
      * @param actionEvent the data related to this event.
      */
-     @Override
-     public void actionPerformed(final ActionEvent actionEvent) {
+    @Override
+    public void actionPerformed(final ActionEvent actionEvent) {
         logger.fine("DataEntryFrame Action command = " + actionEvent.getActionCommand());
-        if (actionEvent.getActionCommand().equals("OK")) {
+        if (actionEvent.getActionCommand().equals(Constants.OK_BUTTON_TEXT)) {
             PropertyFileWriter.updateMetricsSelection(selectedMetricsListModel);
             viewerFrame.updateSelectedMetrics(new ArrayList<>(selectedMetricsListModel.getModel()));
             dispose();
@@ -247,27 +239,38 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         private static final long serialVersionUID = 1;
 
         /**
+         * The origin of the metric being transferred. This should be either <code>ID_AVAILABLE_METRICS</code> or
+         * <code>ID_SELECTED_METRICS</code>.
+         */
+        private String origin;
+
+        /**
          * The index of the selected metric in a GUI list.
          */
         private int selectedIndex;
 
-        private String origin;
-
+        /**
+         * Create a metric transfer handler.
+         *
+         * @param origin the origin of the metric being transferred. This should be either
+         *               <code>ID_AVAILABLE_METRICS</code> or <code>ID_SELECTED_METRICS</code>.
+         */
         public MetricTransferHandler(final String origin) {
             this.origin = origin;
         }
-        
-        public int getSourceActions(final JComponent comp) {
+
+        @Override
+        public int getSourceActions(final JComponent component) {
             return MOVE;
         }
 
+        @Override
         public boolean canImport(final TransferHandler.TransferSupport support) {
             boolean importPossible = false;
             if (support.isDrop()) {
-                if (selectedMetricsListModel.getSize() >= MAX_SELECTED_METRICS &&
-                    origin.equalsIgnoreCase(ID_SELECTED_METRICS)) {
-                    logger.fine("Limit of selected list exceeded. Max " + MAX_SELECTED_METRICS + ". Origin = " +
-                                origin);
+                if (selectedMetricsListModel.getSize() >= MAX_SELECTED_METRICS
+                    && origin.equalsIgnoreCase(ID_SELECTED_METRICS)) {
+                    logger.fine("Limit of selected list exceeded. Max " + MAX_SELECTED_METRICS + ". Origin: " + origin);
                 } else if (support.isDataFlavorSupported(DataFlavor.stringFlavor)) {
                     importPossible = (support.getSourceDropActions() & TransferHandler.MOVE) == TransferHandler.MOVE;
                     if (importPossible) {
@@ -278,22 +281,20 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
             return importPossible;
         }
 
-        public Transferable createTransferable(final JComponent comp) {
+        @Override
+        public Transferable createTransferable(final JComponent component) {
             String selection = null;
             if (origin.equalsIgnoreCase(ID_AVAILABLE_METRICS)) {
+                selection = availableMetricsList.getSelectedValue();
                 selectedIndex = availableMetricsList.getSelectedIndex();
-                if (selectedIndex >= 0 && selectedIndex < availableMetricsListModel.getSize()) {
-                    selection = availableMetricsList.getSelectedValue();
-                }
             } else if (origin.equalsIgnoreCase(ID_SELECTED_METRICS)) {
+                selection = selectedMetricsList.getSelectedValue();
                 selectedIndex = selectedMetricsList.getSelectedIndex();
-                if (selectedIndex >= 0 && selectedIndex < selectedMetricsListModel.getSize()) {
-                    selection = selectedMetricsList.getSelectedValue();
-                }
             }
             return selection != null ? new StringSelection(selection) : null;
         }
 
+        @Override
         public void exportDone(final JComponent comp, final Transferable trans, final int action) {
             if (action == MOVE) {
                 if (origin.equalsIgnoreCase(ID_AVAILABLE_METRICS)) {
@@ -304,29 +305,24 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
             }
         }
 
+        @Override
         public boolean importData(final TransferHandler.TransferSupport support) {
-            // if we can't handle the import, say so
-            if (!canImport(support)) {
-                return false;
+            boolean result = false;
+            if (canImport(support)) {
+                try {
+                    final JList list = (JList) support.getComponent();
+                    final SortedListModel model = (SortedListModel) list.getModel();
+                    model.add((String) support.getTransferable().getTransferData(DataFlavor.stringFlavor));
+                    final int index = ((JList.DropLocation) support.getDropLocation()).getIndex();
+                    list.scrollRectToVisible(list.getCellBounds(index, index));
+                    list.setSelectedIndex(index);
+                    list.requestFocusInWindow();
+                    result = true;
+                } catch (final UnsupportedFlavorException | IOException e) {
+                    logger.log(Level.SEVERE, "Something went wrong while selecting metrics (with drag-and-drop)", e);
+                }
             }
-            // fetch the drop location
-            final JList.DropLocation dl = (JList.DropLocation) support.getDropLocation();
-            final int index = dl.getIndex();
-            // fetch the data and bail if this fails
-            try {
-                final String data = (String) support.getTransferable().getTransferData(DataFlavor.stringFlavor);
-                final JList list = (JList) support.getComponent();
-                final SortedListModel model = (SortedListModel) list.getModel();
-                model.add(data);
-                final Rectangle rect = list.getCellBounds(index, index);
-                list.scrollRectToVisible(rect);
-                list.setSelectedIndex(index);
-                list.requestFocusInWindow();
-            } catch (final UnsupportedFlavorException | IOException e) {
-            	logger.log(Level.SEVERE, "Something went wrong while importing data", e);
-                return false;
-            }
-            return true;
+            return result;
         }  
     } 
 }

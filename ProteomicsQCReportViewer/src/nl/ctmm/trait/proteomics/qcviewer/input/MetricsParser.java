@@ -1,17 +1,14 @@
 package nl.ctmm.trait.proteomics.qcviewer.input;
 
 import java.io.BufferedReader;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import nl.ctmm.trait.proteomics.qcviewer.gui.SortedListModel;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 
 import org.apache.commons.io.FilenameUtils;
@@ -62,7 +59,8 @@ public class MetricsParser {
     private void readMetricsListing() {
         allMetricsMap = new HashMap<>();
         try {
-            final BufferedReader reader = new BufferedReader(new FileReader(FilenameUtils.normalize(Constants.METRICS_LISTING_FILE_NAME)));
+            final String fileName = FilenameUtils.normalize(Constants.METRICS_LISTING_FILE_NAME);
+            final BufferedReader reader = new BufferedReader(new FileReader(fileName));
             String line;
             while ((line = reader.readLine()) != null) {
                 final String separator = ":";
@@ -79,5 +77,4 @@ public class MetricsParser {
             logger.log(Level.SEVERE, String.format(message, Constants.METRICS_LISTING_FILE_NAME), e);
         }
     }
-
 }
