@@ -392,7 +392,7 @@ public class Main {
      * @return the list with report units.
      */
     private ArrayList<ReportUnit> getReportUnits(final String rootDirectoryName, final Date fromDate, final Date tillDate) {
-        return new ReportReader(metricsParser).retrieveReports(rootDirectoryName, fromDate, tillDate);
+        return (ArrayList<ReportUnit>) new ReportReader(metricsParser).retrieveReports(rootDirectoryName, fromDate, tillDate);
     }
 
     /**

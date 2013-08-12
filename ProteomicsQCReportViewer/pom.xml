@@ -44,6 +44,10 @@
         <maven-jxr-plugin.version>2.3</maven-jxr-plugin.version>
         <maven-resources-plugin.version>2.6</maven-resources-plugin.version>
         <maven-dependency-plugin.version>2.5.1</maven-dependency-plugin.version>
+        <!-- Resource names. -->
+        <properties.filename>appProperties</properties.filename>
+        <metricslisting.filename>MetricsListing.txt</metricslisting.filename>
+        <images.foldername>images</images.foldername>
     </properties>
 
     <build>
@@ -138,7 +142,7 @@
                 <version>${maven-resources-plugin.version}</version>
                 <executions>
                     <execution>
-                        <id>copy-resources</id>
+                        <id>copy-resources1</id>
                         <phase>package</phase>
                         <goals>
                             <goal>copy-resources</goal>
@@ -146,16 +150,28 @@
                         <configuration>
                             <outputDirectory>${basedir}/target</outputDirectory>
                             <resources>
-                            <!-- TODO Copy images to images directory -->>
-                                <resource>
-                                    <directory>${basedir}/images</directory>
-                                </resource>
                                 <resource>
                                     <directory>${basedir}</directory>
                                     <includes>
-                                        <include>appProperties</include>
-                                        <include>MetricsListing.txt</include>
+                                         <include>${properties.filename}</include>
+                                        <include>${metricslisting.filename}</include>
                                     </includes>
+                                </resource>
+                            </resources>
+                        </configuration>            
+                    </execution>
+                    <execution>
+                        <id>copy-resources2</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/${images.foldername}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/${images.foldername}</directory>
+                                    <filtering>false</filtering>
                                 </resource>
                             </resources>              
                         </configuration>            
