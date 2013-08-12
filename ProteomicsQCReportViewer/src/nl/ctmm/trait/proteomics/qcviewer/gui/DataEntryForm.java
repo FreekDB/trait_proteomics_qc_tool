@@ -269,7 +269,7 @@ public class DataEntryForm extends JFrame {
         		   FilenameUtils.normalize(chooser.getSelectedFile().getAbsolutePath()));
             PropertyFileWriter.updatePreferredRootDirectory(preferredRootDirectory);
             dispose();
-            Main.getInstance().updateReportViewer();
+            Main.getInstance().updateReportViewer(true);
         } 
      }
     
@@ -345,7 +345,7 @@ public class DataEntryForm extends JFrame {
                         } else {
                             PropertyFileWriter.updateFromAndTillDates(date1, date2);
                             dispose();               
-                            Main.getInstance().updateReportViewer();
+                            Main.getInstance().updateReportViewer(false);
                         }
                     } catch (ParseException e) {
                     	logger.log(Level.SEVERE, "Something went wrong while parsing fromDate and tillDate.", e);

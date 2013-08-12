@@ -23,7 +23,9 @@ import org.joda.time.Interval;
 
 /**
  * This class contains the logic to read the directory/file structure and prepare data to be displayed.
- *
+ * 
+ * TODO: Use HashMap<String, ReportUnit> instead of Arraylist <ReportUnit> 
+ * 
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */

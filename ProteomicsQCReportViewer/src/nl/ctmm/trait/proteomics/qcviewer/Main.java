@@ -3,6 +3,8 @@ package nl.ctmm.trait.proteomics.qcviewer;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,7 +44,10 @@ import org.jfree.ui.RefineryUtilities;
  * TODO: move test directory to source\test\java directory. [Freek]
  * TODO: move images directory (with logo image files) to source\main\resources directory. [Freek]
  * TODO: change QE*.raw file names into less descriptive names (see ProgressLogReader.parseCurrentStatus). [Freek]
- *
+ * 
+ * TODO: Use HashMap<String, ReportUnit> instead of Arraylist <ReportUnit> [Pravin]
+ * TODO: Refactor Main.java and create flowchart [Pravin]
+ *  
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
@@ -179,6 +184,9 @@ public class Main {
         applicationProperties = loadProperties();
         metricsParser = new MetricsParser();
         preferredRootDirectory = applicationProperties.getProperty(Constants.PROPERTY_ROOT_FOLDER);
+        /*Experimenting with toAbsolutePath().normalize() to make sure that root directory can be 
+         * specified like: ../ProteomicsQCPipeline/Reports. [Pravin]*/
+        preferredRootDirectory = Paths.get(preferredRootDirectory).toAbsolutePath().normalize().toString();
         logger.fine("in Main preferredRootDirectory = " + preferredRootDirectory);
         dataEntryForm = new DataEntryForm();
         dataEntryForm.setRootDirectoryName(preferredRootDirectory);
@@ -443,10 +451,20 @@ public class Main {
      * Update all the reports in the QC Report Viewer. It is called in the following two cases:
      * 1) New root directory is chosen.
      * 2) Change in the date range.
+     * 
+     * @param directoryChanged if true, the root directory has changed
      */
-    public void updateReportViewer() {
+    public void updateReportViewer(final Boolean directoryChanged) {
         logger.fine("Main updateReportViewer");
         preferredRootDirectory = loadProperties().getProperty(Constants.PROPERTY_ROOT_FOLDER);
+        preferredRootDirectory = Paths.get(preferredRootDirectory).toAbsolutePath().normalize().toString();
+        /* TODO: why is the call to progressLogOperations needed? [Freek]
+         * The progress log file (qc_status.log) is usually located inside the root directory.
+         * On changes to the root directory, it is required to change the log file path.
+         * Hence the call to progressLogOperations is needed to make sure that correct 
+         * qc_status.log file is to be used. 
+         */
+        if (directoryChanged) progressLogOperations();
         determineReportDateRange();
         final List<ReportUnit> displayableReportUnits = processInitialReports();
         if (displayableReportUnits.size() == 0) {
@@ -455,8 +473,6 @@ public class Main {
             dataEntryForm.displayErrorMessage(String.format(NO_REPORTS_MESSAGE, preferredRootDirectory));
             dataEntryForm.displayRootDirectoryChooser();
         } else {
-            // TODO: why is the call to progressLogOperations needed? [Freek]
-            progressLogOperations();
             // Refresh ViewerFrame with new Report Units.
             frame.updateReportUnits(displayableReportUnits, progressLogReader.getCurrentStatus(), true);
         }
