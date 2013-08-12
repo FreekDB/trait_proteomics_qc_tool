@@ -5,8 +5,6 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
@@ -23,9 +21,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.JTextPane;
 
 import nl.ctmm.trait.proteomics.qcviewer.Main;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
@@ -37,14 +33,15 @@ import org.jfree.ui.RefineryUtilities;
 import com.toedter.calendar.JDateChooser;
 
 /**
- * Consists of following forms to accept user input: PreferredRootDirectory - from which to read QC reports,
- * Date selection form to select dates for showing QC reports within those dates.
+ * This class is responsible for several dialogs:
+ * - the one that is shown while the reports are read during initialization;
+ * - the form that is used to change the top directory from which the QC reports are read;
+ * - the form that is used to select dates for filtering the QC reports to be shown.
  *
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
-
-public class DataEntryForm extends JFrame implements ActionListener, Runnable{
+public class DataEntryForm extends JFrame {
     /**
      * The version number for (de)serialization of this class (UID: universal identifier).
      */
@@ -278,22 +275,9 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
         		   FilenameUtils.normalize(chooser.getSelectedFile().getAbsolutePath()));
             PropertyFileWriter.updatePreferredRootDirectory(preferredRootDirectory);
             dispose();
-            Main.getInstance().updateReportViewer();
+            Main.getInstance().updateReportViewer(true);
         } 
      }
-    
-    /**
-     * Process user input events for the class DataEntryForm
-     */
-    @Override
-     public void actionPerformed(ActionEvent ae) {
-        logger.fine("DataEntryFrame Action command = " + ae.getActionCommand());
-    }
-
-    @Override
-    public void run() {
-        displayInitialDialog();
-    }
     
     /**
      * Display date filter form to select From Date and Till Date for displaying QC reports
@@ -363,7 +347,7 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
                         } else {
                             PropertyFileWriter.updateFromAndTillDates(date1, date2);
                             dispose();               
-                            Main.getInstance().updateReportViewer();
+                            Main.getInstance().updateReportViewer(false);
                         }
                     } catch (ParseException e) {
                     	logger.log(Level.SEVERE, "Something went wrong while parsing fromDate and tillDate.", e);
