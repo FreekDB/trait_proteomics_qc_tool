@@ -23,7 +23,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 import nl.ctmm.trait.proteomics.qcviewer.Main;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
