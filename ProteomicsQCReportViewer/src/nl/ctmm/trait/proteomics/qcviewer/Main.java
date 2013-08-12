@@ -3,6 +3,8 @@ package nl.ctmm.trait.proteomics.qcviewer;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -178,6 +180,9 @@ public class Main {
         applicationProperties = loadProperties();
         metricsParser = new MetricsParser();
         preferredRootDirectory = applicationProperties.getProperty(Constants.PROPERTY_ROOT_FOLDER);
+        /*Experimenting with toAbsolutePath().normalize() to make sure that root directory can be 
+         * specified like: ../ProteomicsQCPipeline/Reports. [Pravin]*/
+        preferredRootDirectory = Paths.get(preferredRootDirectory).toAbsolutePath().normalize().toString();
         logger.fine("in Main preferredRootDirectory = " + preferredRootDirectory);
         dataEntryForm = new DataEntryForm(this, applicationProperties);
         dataEntryForm.setRootDirectoryName(preferredRootDirectory);
