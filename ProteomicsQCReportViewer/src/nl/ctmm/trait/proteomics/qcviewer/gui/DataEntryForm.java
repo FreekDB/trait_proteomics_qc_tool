@@ -2,9 +2,11 @@ package nl.ctmm.trait.proteomics.qcviewer.gui;
 
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
@@ -21,7 +23,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 import nl.ctmm.trait.proteomics.qcviewer.Main;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
@@ -95,7 +96,7 @@ public class DataEntryForm extends JFrame {
     /**
      * Width of the initial status dialog.
      */
-    private static final int INITIAL_DIALOG_WIDTH = 300;
+    private static final int INITIAL_DIALOG_WIDTH = 1000;
 
     /**
      * Height of the initial status dialog.
@@ -138,17 +139,23 @@ public class DataEntryForm extends JFrame {
     private static final String NO_REPORTS_MESSAGE = "No reports found in ";
     
     /**
-     * Message asking user's input to select another root directory
+     * Message asking user's input to select another root directory.
      */
     private static final String ROOT_DIRECTORY_USER_INPUT_MESSAGE = "Would you like to select another root directory?"; 
     
-    JTextField inputText; 
-    Main parentMain = null; 
-    ViewerFrame parentViewerFrame = null; 
-    Properties appProperties = null; 
-    JDialog initialDialog = null;
-    JLabel message1 = null;
-    String rootDirectoryName = "";
+    Main parentMain;
+    ViewerFrame parentViewerFrame;
+    Properties appProperties;
+
+    /**
+     * The dialog that is shown while the reports are read during initialization.
+     */
+    private JDialog initialDialog;
+
+    /**
+     * The root directory under which the QC pipeline writes the QC reports.
+     */
+    private String rootDirectoryName;
     
     /**
      * Constructor - whereas parent is Main class
@@ -181,24 +188,23 @@ public class DataEntryForm extends JFrame {
     }
     
     /**
-     * Display initial dialog while starting the QC report Viewer
+     * Display the initial dialog while starting the QC report viewer.
      */
     public void displayInitialDialog() {
-        message1 = new JLabel(Constants.HTML_OPENING_TAG + "Reading reports from " + rootDirectoryName + 
-                Constants.HTML_CLOSING_TAG);
-        initialDialog = new JDialog();
-        initialDialog.setTitle("Operation in progress");
-        initialDialog.getContentPane().add(message1);
-        initialDialog.setPreferredSize(new Dimension(INITIAL_DIALOG_WIDTH,INITIAL_DIALOG_HEIGHT));
-        RefineryUtilities.centerFrameOnScreen(initialDialog);
+        final String absolutePath = new File(rootDirectoryName).getAbsolutePath();
+        final String message = "  Reading QC reports from the QC pipeline (under the " + absolutePath + " directory).";
+        initialDialog = new JDialog((Frame) null, "Reading QC reports in progress");
+        initialDialog.getContentPane().add(new JLabel(message));
+        initialDialog.setPreferredSize(new Dimension(INITIAL_DIALOG_WIDTH, INITIAL_DIALOG_HEIGHT));
         initialDialog.pack();
+        RefineryUtilities.centerFrameOnScreen(initialDialog);
         initialDialog.setVisible(true);
         initialDialog.revalidate();
-        logger.fine("Displaying initial dialog with message " + message1.getText());
+        logger.fine("Displaying initial dialog with message " + message);
     }
     
     /**
-     * Dispose initial dialogue
+     * Dispose the initial dialogue.
      */
     public void disposeInitialDialog() {
         if (initialDialog != null) {
