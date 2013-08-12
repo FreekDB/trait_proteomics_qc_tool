@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -382,21 +381,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private static final String DETAILS_ACTION_PREFIX = "Details-";
 
     /**
-     * Dimension object for filler areas of 5x0 pixels for GUI layout.
-     */
-    private static final Dimension DIMENSION_5X0 = new Dimension(5, 0);
-
-    /**
-     * Dimension object for filler areas of 10x0 pixels for GUI layout.
-     */
-    private static final Dimension DIMENSION_10X0 = new Dimension(10, 0);
-
-    /**
-     * Dimension object for filler areas of 0x10 pixels for GUI layout.
-     */
-    private static final Dimension DIMENSION_0X10 = new Dimension(0, 10);
-
-    /**
      * Default start percentage for zooming along the x axis.
      */
     private static final int ZOOM_X_AXIS_DEFAULT_START = 10;
@@ -476,11 +460,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private String newSortCriteria = "";
 
     /**
-     * The application properties.
-     */
-    private Properties appProperties;
-
-    /**
      * The parser for reading the metrics.
      */
     private MetricsParser metricsParser;
@@ -520,21 +499,18 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * Creates a new instance of the main frame of the proteomics QC viewer.
      *
      * @param metricsParser the metrics parser to use.
-     * @param appProperties the application properties to use.
      * @param title the frame title.
      * @param reportUnits the initial report units to show.
      * @param selectedMetricsData the data of the selected metrics (keys and names).
      * @param pipelineStatus the initial pipeline status to show.
      */
-    public ViewerFrame(final MetricsParser metricsParser, final Properties appProperties, final String title,
-                       final List<ReportUnit> reportUnits, final List<String> selectedMetricsData,
-                       final String pipelineStatus) {
+    public ViewerFrame(final MetricsParser metricsParser, final String title, final List<ReportUnit> reportUnits,
+                       final List<String> selectedMetricsData, final String pipelineStatus) {
         super(title);
         logger.fine("ViewerFrame constructor");
         setPreferredSize(new Dimension(VIEWER_WIDTH, VIEWER_HEIGHT));
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.metricsParser = metricsParser;
-        this.appProperties = appProperties;
         this.pipelineStatus = pipelineStatus;
         parseSelectedMetricsData(selectedMetricsData);
         setReportUnits(reportUnits);
@@ -653,6 +629,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     /**
      * Create Menu Bar for settings and about tab.
      *
+     * TODO: the menu stops working after setting the date filter; resizing the application makes it work again? [Freek]
+     *
      * @return the menu bar.
      */
     private JMenuBar createMenuBar() {
@@ -663,7 +641,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         settingsMenu.add(newDirAction);
         newDirAction.setActionCommand(CHANGE_ROOT_DIRECTORY_COMMAND);
         newDirAction.addActionListener(this);
-        final JMenuItem filterAction = new JMenuItem("Set Filter...");
+        final JMenuItem filterAction = new JMenuItem("Set Date Filter...");
         settingsMenu.add(filterAction);
         filterAction.setActionCommand(SET_FILTER_COMMAND);
         filterAction.addActionListener(this);
@@ -733,11 +711,11 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         statusPanel.setPreferredSize(new Dimension(STATUS_PANEL_WIDTH, STATUS_PANEL_HEIGHT));
 
         controlFrame.getContentPane().setLayout(new BoxLayout(controlFrame.getContentPane(), BoxLayout.Y_AXIS));
-        controlFrame.getContentPane().add(Box.createRigidArea(DIMENSION_5X0));
+        controlFrame.getContentPane().add(Box.createRigidArea(Constants.DIMENSION_5X0));
         controlFrame.getContentPane().add(createControlPanel(), BorderLayout.CENTER);
-        controlFrame.getContentPane().add(Box.createRigidArea(DIMENSION_5X0));
+        controlFrame.getContentPane().add(Box.createRigidArea(Constants.DIMENSION_5X0));
         controlFrame.getContentPane().add(statusPanel, BorderLayout.CENTER);
-        controlFrame.getContentPane().add(Box.createRigidArea(DIMENSION_5X0));
+        controlFrame.getContentPane().add(Box.createRigidArea(Constants.DIMENSION_5X0));
         controlFrame.pack();
         controlFrame.setLocation(0, 0);
         controlFrame.setResizable(false);
@@ -754,16 +732,16 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         final JPanel controlPanel = new JPanel();
         controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.X_AXIS));
         controlPanel.setBackground(Color.WHITE);
-        controlPanel.add(Box.createRigidArea(DIMENSION_10X0));
+        controlPanel.add(Box.createRigidArea(Constants.DIMENSION_10X0));
         controlPanel.add(createLogoLabel(Constants.OPL_LOGO_FILE_NAME), Box.CENTER_ALIGNMENT);
-        controlPanel.add(Box.createRigidArea(DIMENSION_10X0));
+        controlPanel.add(Box.createRigidArea(Constants.DIMENSION_10X0));
         controlPanel.add(createZoomPanel(), Box.CENTER_ALIGNMENT);
-        controlPanel.add(Box.createRigidArea(DIMENSION_10X0));
+        controlPanel.add(Box.createRigidArea(Constants.DIMENSION_10X0));
         createOrUpdateSortPanel();
         controlPanel.add(sortPanel, Box.CENTER_ALIGNMENT);
-        controlPanel.add(Box.createRigidArea(DIMENSION_10X0));
+        controlPanel.add(Box.createRigidArea(Constants.DIMENSION_10X0));
         controlPanel.add(createLogoLabel(Constants.CTMM_TRAIT_LOGO_FILE_NAME), Box.CENTER_ALIGNMENT);
-        controlPanel.add(Box.createRigidArea(DIMENSION_10X0));
+        controlPanel.add(Box.createRigidArea(Constants.DIMENSION_10X0));
         controlPanel.setPreferredSize(new Dimension(CONTROL_PANEL_WIDTH, CONTROL_PANEL_HEIGHT));
         return controlPanel;
     }
@@ -808,16 +786,16 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         zoomButtonsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),
                                                                     "Zoom All TIC Charts"));
         zoomButtonsPanel.setLayout(new BoxLayout(zoomButtonsPanel, BoxLayout.X_AXIS));
-        zoomButtonsPanel.add(Box.createRigidArea(DIMENSION_5X0));
+        zoomButtonsPanel.add(Box.createRigidArea(Constants.DIMENSION_5X0));
         inButton.setMinimumSize(new Dimension(ZOOM_BUTTON_WIDTH, ZOOM_BUTTON_HEIGHT));
         zoomButtonsPanel.add(inButton, Box.CENTER_ALIGNMENT);
-        zoomButtonsPanel.add(Box.createRigidArea(DIMENSION_5X0));
+        zoomButtonsPanel.add(Box.createRigidArea(Constants.DIMENSION_5X0));
         originalButton.setMinimumSize(new Dimension(ZOOM_BUTTON_WIDTH, ZOOM_BUTTON_HEIGHT));
         zoomButtonsPanel.add(originalButton, Box.CENTER_ALIGNMENT);
-        zoomButtonsPanel.add(Box.createRigidArea(DIMENSION_5X0));
+        zoomButtonsPanel.add(Box.createRigidArea(Constants.DIMENSION_5X0));
         outButton.setMinimumSize(new Dimension(ZOOM_BUTTON_WIDTH, ZOOM_BUTTON_HEIGHT));
         zoomButtonsPanel.add(outButton, Box.CENTER_ALIGNMENT);
-        zoomButtonsPanel.add(Box.createRigidArea(DIMENSION_5X0));
+        zoomButtonsPanel.add(Box.createRigidArea(Constants.DIMENSION_5X0));
         zoomButtonsPanel.setBackground(Color.WHITE);
         zoomButtonsPanel.setMinimumSize(new Dimension(ZOOM_PANEL_WIDTH, ZOOM_PANEL_FORM_HEIGHT));
         return zoomButtonsPanel;
@@ -861,17 +839,17 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * @param zoomXAxisPanel the zoom x axis panel.
      */
     private void fillZoomXAxisPanel(final JButton zoomButton, final JPanel zoomXAxisPanel) {
-        zoomXAxisPanel.add(Box.createRigidArea(DIMENSION_10X0));
+        zoomXAxisPanel.add(Box.createRigidArea(Constants.DIMENSION_10X0));
         zoomXAxisPanel.add(new JLabel("Min: "), Box.CENTER_ALIGNMENT);
-        zoomXAxisPanel.add(Box.createRigidArea(DIMENSION_5X0));
+        zoomXAxisPanel.add(Box.createRigidArea(Constants.DIMENSION_5X0));
         zoomXAxisPanel.add(minText, Box.CENTER_ALIGNMENT);
-        zoomXAxisPanel.add(Box.createRigidArea(DIMENSION_5X0));
+        zoomXAxisPanel.add(Box.createRigidArea(Constants.DIMENSION_5X0));
         zoomXAxisPanel.add(new JLabel("Max: "), Box.CENTER_ALIGNMENT);
-        zoomXAxisPanel.add(Box.createRigidArea(DIMENSION_5X0));
+        zoomXAxisPanel.add(Box.createRigidArea(Constants.DIMENSION_5X0));
         zoomXAxisPanel.add(maxText, Box.CENTER_ALIGNMENT);
-        zoomXAxisPanel.add(Box.createRigidArea(DIMENSION_10X0));
+        zoomXAxisPanel.add(Box.createRigidArea(Constants.DIMENSION_10X0));
         zoomXAxisPanel.add(zoomButton, Box.CENTER_ALIGNMENT);
-        zoomXAxisPanel.add(Box.createRigidArea(DIMENSION_5X0));
+        zoomXAxisPanel.add(Box.createRigidArea(Constants.DIMENSION_5X0));
     }
 
     /**
@@ -951,13 +929,13 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         final JPanel sortOptionPanel = new JPanel();
         sortOptionPanel.setLayout(new BoxLayout(sortOptionPanel, BoxLayout.X_AXIS));
         sortOptionPanel.setBackground(Color.WHITE);
-        sortOptionPanel.add(Box.createRigidArea(DIMENSION_5X0));
+        sortOptionPanel.add(Box.createRigidArea(Constants.DIMENSION_5X0));
         sortOptionPanel.add(sortOptionLabel, Box.CENTER_ALIGNMENT);
-        sortOptionPanel.add(Box.createRigidArea(DIMENSION_5X0));
+        sortOptionPanel.add(Box.createRigidArea(Constants.DIMENSION_5X0));
         sortOptionPanel.add(sortAscendingButton, Box.CENTER_ALIGNMENT);
-        sortOptionPanel.add(Box.createRigidArea(DIMENSION_5X0));
+        sortOptionPanel.add(Box.createRigidArea(Constants.DIMENSION_5X0));
         sortOptionPanel.add(sortDescendingButton, Box.CENTER_ALIGNMENT);
-        sortOptionPanel.add(Box.createRigidArea(DIMENSION_5X0));
+        sortOptionPanel.add(Box.createRigidArea(Constants.DIMENSION_5X0));
         return sortOptionPanel;
     }
 
@@ -1119,10 +1097,10 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private void handleMenuActions(final String actionCommand) {
         switch (actionCommand) {
             case CHANGE_ROOT_DIRECTORY_COMMAND:
-                new DataEntryForm(this, appProperties).displayRootDirectoryChooser();
+                new DataEntryForm().displayRootDirectoryChooser();
                 break;
             case SET_FILTER_COMMAND:
-                new DataEntryForm(this, appProperties).displayDateFilterEntryForm();
+                new DataEntryForm().displayDateFilterEntryForm();
                 break;
             case SELECT_METRICS_COMMAND:
                 // Display ChooseMetricsForm to select metrics to display.
@@ -1301,14 +1279,14 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         reportIdPanel.setFont(Constants.DEFAULT_FONT);
         reportIdPanel.setBackground(Color.WHITE);
         reportIdPanel.setForeground(Color.WHITE);
-        reportIdPanel.add(Box.createRigidArea(DIMENSION_0X10));
+        reportIdPanel.add(Box.createRigidArea(Constants.DIMENSION_0X10));
         reportIdPanel.add(reportNumberLabel, Component.CENTER_ALIGNMENT);
-        reportIdPanel.add(Box.createRigidArea(DIMENSION_0X10));
+        reportIdPanel.add(Box.createRigidArea(Constants.DIMENSION_0X10));
         reportIdPanel.add(selectionCheckBox, Component.CENTER_ALIGNMENT);
-        reportIdPanel.add(Box.createRigidArea(DIMENSION_0X10));
+        reportIdPanel.add(Box.createRigidArea(Constants.DIMENSION_0X10));
         detailsButton.setPreferredSize(new Dimension(ZOOM_BUTTON_WIDTH, ZOOM_BUTTON_HEIGHT));
         reportIdPanel.add(detailsButton, Component.CENTER_ALIGNMENT);
-        reportIdPanel.add(Box.createRigidArea(DIMENSION_0X10));
+        reportIdPanel.add(Box.createRigidArea(Constants.DIMENSION_0X10));
         reportIdPanel.setPreferredSize(new Dimension(CHECK_PANEL_WIDTH, CHART_HEIGHT));
 
         return reportIdPanel;

@@ -171,7 +171,8 @@ public class Main {
     /**
      * Start the QC Report Viewer.
      * <p/>
-     * TODO: see whether we can update the application instead of restarting it. [Freek] Added updateReportViewer method [Pravin]
+     * TODO: see whether we can update the application instead of restarting it. [Freek]
+     * Added updateReportViewer method [Pravin]
      */
     public void runReportViewer() {
         prepareAllLoggers();
@@ -179,7 +180,7 @@ public class Main {
         metricsParser = new MetricsParser();
         preferredRootDirectory = applicationProperties.getProperty(Constants.PROPERTY_ROOT_FOLDER);
         logger.fine("in Main preferredRootDirectory = " + preferredRootDirectory);
-        dataEntryForm = new DataEntryForm(this, applicationProperties);
+        dataEntryForm = new DataEntryForm();
         dataEntryForm.setRootDirectoryName(preferredRootDirectory);
         dataEntryForm.displayInitialDialog();
         //Determine fromDate and TillDate range to select the reports
@@ -297,9 +298,9 @@ public class Main {
      */
     private List<ReportUnit> processInitialReports() {
         logger.fine("Main processInitialReports()");
-        final ArrayList<ReportUnit> reportUnits = getReportUnits(preferredRootDirectory, fromDate, tillDate);
+        final List<ReportUnit> reportUnits = getReportUnits(preferredRootDirectory, fromDate, tillDate);
         final String runningMsrunName = progressLogReader.getRunningMsrunName();
-        final ArrayList<ReportUnit> displayableReportUnits = new ArrayList<>();
+        final List<ReportUnit> displayableReportUnits = new ArrayList<>();
         //Reinitialize reportUnitsTable
         reportUnitsTable = new HashMap<>();
         //populate reportUnitsTable
@@ -390,8 +391,8 @@ public class Main {
      * @param tillDate          the end of the date range to search.
      * @return the list with report units.
      */
-    private ArrayList<ReportUnit> getReportUnits(final String rootDirectoryName, final Date fromDate, final Date tillDate) {
-        return (ArrayList<ReportUnit>) new ReportReader(metricsParser).retrieveReports(rootDirectoryName, fromDate, tillDate);
+    private List<ReportUnit> getReportUnits(final String rootDirectoryName, final Date fromDate, final Date tillDate) {
+        return new ReportReader(metricsParser).retrieveReports(rootDirectoryName, fromDate, tillDate);
     }
 
     /**
@@ -421,8 +422,7 @@ public class Main {
         logger.fine("Main startQCReportViewerGui");
         final List<String> qcParamNames = getColumnNames(appProperties, Constants.PROPERTY_TOP_COLUMN_NAMESV2);
         //Create ViewerFrame and set it visible
-        frame = new ViewerFrame(metricsParser, appProperties, Constants.APPLICATION_TITLE, reportUnits, qcParamNames,
-                                pipelineStatus);
+        frame = new ViewerFrame(metricsParser, Constants.APPLICATION_TITLE, reportUnits, qcParamNames, pipelineStatus);
         frame.pack();
         RefineryUtilities.centerFrameOnScreen(frame);
         frame.setVisible(true);
