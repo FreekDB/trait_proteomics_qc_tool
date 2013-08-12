@@ -23,7 +23,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 
 import nl.ctmm.trait.proteomics.qcviewer.Main;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
@@ -93,7 +95,6 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
      */
     private static final int DATE_FRAME_HEIGHT = 120;
     
-    
     /**
      * Width of the initial status dialog.
      */
@@ -105,6 +106,26 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
     private static final int INITIAL_DIALOG_HEIGHT = 100;    
     
     /**
+     * Width of the initial status dialog.
+     */
+    private static final int NO_REPORTS_FRAME_WIDTH = 300;
+
+    /**
+     * Height of the initial status dialog.
+     */
+    private static final int NO_REPORTS_FRAME_HEIGHT = 90;    
+
+    /**
+     * Width of the initial status dialog.
+     */
+    private static final int NO_REPORTS_TEXT_WIDTH = 300;
+
+    /**
+     * Height of the initial status dialog.
+     */
+    private static final int NO_REPORTS_TEXT_HEIGHT = 50;    
+    
+    /**
      * Dimension object for filler areas of 10x0 pixels for GUI layout.
      */
     private static final Dimension DIMENSION_10X0 = new Dimension(10, 0);
@@ -113,6 +134,16 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
      * Dimension object for filler areas of 25x0 pixels for GUI layout.
      */
     private static final Dimension DIMENSION_25X0 = new Dimension(25, 0);
+    
+    /**
+     * Message shown to the user when no reports are found.
+     */
+    private static final String NO_REPORTS_MESSAGE = "No reports found in ";
+    
+    /**
+     * Message asking user's input to select another root directory
+     */
+    private static final String ROOT_DIRECTORY_USER_INPUT_MESSAGE = "Would you like to select another root directory?"; 
     
     JTextField inputText; 
     Main parentMain = null; 
@@ -156,7 +187,8 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
      * Display initial dialog while starting the QC report Viewer
      */
     public void displayInitialDialog() {
-        message1 = new JLabel("<html>Reading reports from " + rootDirectoryName + "</html>");
+        message1 = new JLabel(Constants.HTML_OPENING_TAG + "Reading reports from " + rootDirectoryName + 
+                Constants.HTML_CLOSING_TAG);
         initialDialog = new JDialog();
         initialDialog.setTitle("Operation in progress");
         initialDialog.getContentPane().add(message1);
@@ -185,6 +217,50 @@ public class DataEntryForm extends JFrame implements ActionListener, Runnable{
     public void displayErrorMessage (String errorMessage) {
         JOptionPane.showMessageDialog(this, errorMessage,
                   "Error",JOptionPane.ERROR_MESSAGE);
+    }
+    
+    /**
+     * Display error message in a dialog
+     * @param errorMessage Error message to be shown in a dialog
+     */
+    public void displayNoReportsFoundDialogue (String preferredRootDirectory) {
+        final JLabel textLabel1 = new JLabel(Constants.HTML_OPENING_TAG + NO_REPORTS_MESSAGE + preferredRootDirectory + ". " + 
+                ROOT_DIRECTORY_USER_INPUT_MESSAGE + Constants.HTML_CLOSING_TAG, JLabel.CENTER);
+        textLabel1.setFont(Constants.DEFAULT_FONT);
+        textLabel1.setPreferredSize(new Dimension(NO_REPORTS_TEXT_WIDTH, NO_REPORTS_TEXT_HEIGHT));
+
+        JButton b1 = new JButton(Constants.YES_BUTTON_TEXT);
+        JButton b2 = new JButton(Constants.NO_BUTTON_TEXT);
+
+        JPanel p1 = new JPanel(); 
+        p1.setLayout(new BoxLayout(p1, BoxLayout.X_AXIS));
+        p1.add(Box.createRigidArea(DIMENSION_25X0));
+        b1.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        p1.add(b1, Box.CENTER_ALIGNMENT);
+        p1.add(Box.createRigidArea(DIMENSION_25X0));
+        b2.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        p1.add(b2, Box.CENTER_ALIGNMENT);
+        
+        JPanel p2 = new JPanel(new FlowLayout()); 
+        p2.add(textLabel1);
+        p2.add(p1);
+        p2.setPreferredSize(new Dimension(NO_REPORTS_FRAME_WIDTH, NO_REPORTS_FRAME_HEIGHT));
+        getContentPane().add(p2);
+        pack();
+        RefineryUtilities.centerFrameOnScreen(this);
+        setVisible(true);
+        b1.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ae) {
+                dispose();
+                displayRootDirectoryChooser();
+            }
+        });
+        b2.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ae) {
+                dispose();
+            }
+        });
+        setResizable(false);
     }
     
     /**

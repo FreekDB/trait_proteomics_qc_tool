@@ -193,8 +193,7 @@ public class Main {
         startQCReportViewerGui(applicationProperties, displayableReportUnits, pipelineStatus);
         if (displayableReportUnits.size() == 0) {
             // There are no reports in the current root directory. Obtain new directory location from the user. 
-            dataEntryForm.displayErrorMessage(String.format(NO_REPORTS_MESSAGE, preferredRootDirectory));
-            dataEntryForm.displayRootDirectoryChooser();
+            dataEntryForm.displayNoReportsFoundDialogue(preferredRootDirectory);
         } 
     }
     

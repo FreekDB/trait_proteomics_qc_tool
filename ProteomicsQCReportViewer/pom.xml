@@ -235,8 +235,10 @@
 
         <!-- TODO: it looks like JCalendar 1.4 is not available from the central Maven repository (search.maven.org).
           -  TODO: can we put it in the NBIC repository (ci.nbiceng.net/nexus)? -->
-          <!-- TODO: Find out why jcalendar1.4 does not appear in classpath entry.
-          Using jcalendar1.3.2 does not cause the problem.  -->
+          <!-- TODO: Find out why system dependency jcalendar1.4 does not appear in classpath entry.
+          Using jcalendar1.3.2 from maven repository does not cause the problem.  
+          Possible solution: 
+          http://stackoverflow.com/questions/2229757/maven-add-a-dependency-to-a-jar-by-relative-path/2230464#2230464-->
         <!-- <dependency>
             <groupId>com.toedter</groupId>
             <artifactId>jcalendar</artifactId>
