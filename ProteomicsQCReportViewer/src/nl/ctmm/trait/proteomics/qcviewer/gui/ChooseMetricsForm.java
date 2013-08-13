@@ -68,11 +68,6 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
     private static final String ID_AVAILABLE_METRICS = "availableMetricsList";
 
     /**
-     * Dimension object for filler areas of 10x0 pixels for GUI layout.
-     */
-    private static final Dimension DIMENSION_10X0 = new Dimension(10, 0);
-    
-    /**
      * Width of an individual button.
      */
     private static final int BUTTON_WIDTH = 80;
@@ -197,7 +192,7 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         final JButton okButton = new JButton(Constants.OK_BUTTON_TEXT);
         okButton.addActionListener(this);
         okButton.setActionCommand(Constants.OK_BUTTON_TEXT);
-        final JButton cancelButton = new JButton("Cancel");
+        final JButton cancelButton = new JButton(Constants.CANCEL_BUTTON_TEXT);
         cancelButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent actionEvent) {
                 dispose();
@@ -205,7 +200,7 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
         });
         okButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         buttonPanel.add(okButton);
-        buttonPanel.add(Box.createRigidArea(DIMENSION_10X0));
+        buttonPanel.add(Box.createRigidArea(Constants.DIMENSION_10X0));
         cancelButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         buttonPanel.add(cancelButton);
         buttonPanel.setBackground(Color.WHITE);

@@ -10,7 +10,6 @@ import java.io.File;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -124,15 +123,10 @@ public class DataEntryForm extends JFrame {
     private static final int NO_REPORTS_TEXT_HEIGHT = 50;    
     
     /**
-     * Dimension object for filler areas of 10x0 pixels for GUI layout.
+     * The title shown when an error has occurred.
      */
-    private static final Dimension DIMENSION_10X0 = new Dimension(10, 0);
-    
-    /**
-     * Dimension object for filler areas of 25x0 pixels for GUI layout.
-     */
-    private static final Dimension DIMENSION_25X0 = new Dimension(25, 0);
-    
+    private static final String ERROR_TITLE = "Error";
+
     /**
      * Message shown to the user when no reports are found.
      */
@@ -143,10 +137,6 @@ public class DataEntryForm extends JFrame {
      */
     private static final String ROOT_DIRECTORY_USER_INPUT_MESSAGE = "Would you like to select another root directory?"; 
     
-    Main parentMain;
-    ViewerFrame parentViewerFrame;
-    Properties appProperties;
-
     /**
      * The dialog that is shown while the reports are read during initialization.
      */
@@ -158,32 +148,20 @@ public class DataEntryForm extends JFrame {
     private String rootDirectoryName;
     
     /**
-     * Constructor - whereas parent is Main class
-     * @param parent Instance of Main class
-     * @param appProperties Application properties
+     * Construct a data entry form.
      */
-    public DataEntryForm(final Main parent, final Properties appProperties) {
+    public DataEntryForm() {
         super("DataEntry Frame");
-        this.parentMain = parent; 
-        this.appProperties = appProperties; 
     }
 
-	/**
-     * Constructor - whereas parent is ViewerFrame class
-     * @param parent Instance of ViewerFrame class
-     * @param appProperties Application properties
-     */
-    public DataEntryForm(final ViewerFrame parent, final Properties appProperties) {
-        super("DataEntry Frame");
-        this.parentViewerFrame = parent; 
-        this.appProperties = appProperties;
-    }
-    
     /**
-     * Set preferred root directory to read QC reports from
+     * Set preferred root directory to read QC reports from.
+     *
+     * TODO: pass rootDirectoryName as a parameter to displayInitialDialog. [Freek]
+     *
      * @param rootDirectoryName Name of the preferred root directory 
      */
-    public void setRootDirectoryName(String rootDirectoryName) {
+    public void setRootDirectoryName(final String rootDirectoryName) {
         this.rootDirectoryName = rootDirectoryName;
     }
     
@@ -214,58 +192,68 @@ public class DataEntryForm extends JFrame {
     }
     
     /**
-     * Display error message in a dialog
+     * Display error message in a dialog.
+     *
      * @param errorMessage Error message to be shown in a dialog
      */
-    public void displayErrorMessage (String errorMessage) {
-        JOptionPane.showMessageDialog(this, errorMessage,
-                  "Error",JOptionPane.ERROR_MESSAGE);
+    public void displayErrorMessage(final String errorMessage) {
+        JOptionPane.showMessageDialog(this, errorMessage, ERROR_TITLE, JOptionPane.ERROR_MESSAGE);
     }
     
     /**
-     * Display error message in a dialog
-     * @param errorMessage Error message to be shown in a dialog
+     * Show a message to the user that no QC reports have been found and ask whether the user wants to select another
+     * root directory.
+     *
+     * TODO: can we use JOptionPane.showConfirmDialog(null, message, "title", JOptionPane.YES_NO_OPTION)? [Freek]
+     *
+     * @param preferredRootDirectory the directory to which the QC pipeline writes the QC reports.
      */
-    public void displayNoReportsFoundDialogue (String preferredRootDirectory) {
-        final JLabel textLabel1 = new JLabel(Constants.HTML_OPENING_TAG + NO_REPORTS_MESSAGE + preferredRootDirectory + ". " + 
-                ROOT_DIRECTORY_USER_INPUT_MESSAGE + Constants.HTML_CLOSING_TAG, JLabel.CENTER);
-        textLabel1.setFont(Constants.DEFAULT_FONT);
-        textLabel1.setPreferredSize(new Dimension(NO_REPORTS_TEXT_WIDTH, NO_REPORTS_TEXT_HEIGHT));
+    public void displayNoReportsFoundDialogue(final String preferredRootDirectory) {
+        final String message = NO_REPORTS_MESSAGE + preferredRootDirectory + ". " + ROOT_DIRECTORY_USER_INPUT_MESSAGE;
+        final String htmlMessage = Constants.HTML_OPENING_TAG + message + Constants.HTML_CLOSING_TAG;
+        final JLabel messageLabel = new JLabel(htmlMessage, JLabel.CENTER);
+        messageLabel.setFont(Constants.DEFAULT_FONT);
+        messageLabel.setPreferredSize(new Dimension(NO_REPORTS_TEXT_WIDTH, NO_REPORTS_TEXT_HEIGHT));
 
-        JButton b1 = new JButton(Constants.YES_BUTTON_TEXT);
-        JButton b2 = new JButton(Constants.NO_BUTTON_TEXT);
-
-        JPanel p1 = new JPanel(); 
-        p1.setLayout(new BoxLayout(p1, BoxLayout.X_AXIS));
-        p1.add(Box.createRigidArea(DIMENSION_25X0));
-        b1.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        p1.add(b1, Box.CENTER_ALIGNMENT);
-        p1.add(Box.createRigidArea(DIMENSION_25X0));
-        b2.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        p1.add(b2, Box.CENTER_ALIGNMENT);
-        
-        JPanel p2 = new JPanel(new FlowLayout()); 
-        p2.add(textLabel1);
-        p2.add(p1);
-        p2.setPreferredSize(new Dimension(NO_REPORTS_FRAME_WIDTH, NO_REPORTS_FRAME_HEIGHT));
-        getContentPane().add(p2);
-        pack();
-        RefineryUtilities.centerFrameOnScreen(this);
-        setVisible(true);
-        b1.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
+        final JButton yesButton = new JButton(Constants.YES_BUTTON_TEXT);
+        yesButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        yesButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent actionEvent) {
                 dispose();
                 displayRootDirectoryChooser();
             }
         });
-        b2.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
+
+        final JButton noButton = new JButton(Constants.NO_BUTTON_TEXT);
+        noButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        noButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent actionEvent) {
                 dispose();
             }
         });
+
+        final JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+        buttonPanel.add(Box.createRigidArea(Constants.DIMENSION_25X0));
+        buttonPanel.add(yesButton, Box.CENTER_ALIGNMENT);
+        buttonPanel.add(Box.createRigidArea(Constants.DIMENSION_25X0));
+        buttonPanel.add(noButton, Box.CENTER_ALIGNMENT);
+        
+        final JPanel mainPanel = new JPanel(new FlowLayout());
+        mainPanel.setPreferredSize(new Dimension(NO_REPORTS_FRAME_WIDTH, NO_REPORTS_FRAME_HEIGHT));
+        mainPanel.add(messageLabel);
+        mainPanel.add(buttonPanel);
+
+        setTitle(ERROR_TITLE);
+        getContentPane().add(mainPanel);
         setResizable(false);
+        pack();
+        RefineryUtilities.centerFrameOnScreen(this);
+        setVisible(true);
     }
-    
+
     /**
      * Display chooser form to select preferred root directory
      */
@@ -317,14 +305,14 @@ public class DataEntryForm extends JFrame {
         tillDateChooser.requestFocusInWindow(); 
 
         JButton b1 = new JButton("Submit");
-        JButton b2 = new JButton("Cancel");
+        JButton b2 = new JButton(Constants.CANCEL_BUTTON_TEXT);
 
         JPanel p3 = new JPanel(); 
         p3.setLayout(new BoxLayout(p3, BoxLayout.X_AXIS));
-        p3.add(Box.createRigidArea(DIMENSION_25X0));
+        p3.add(Box.createRigidArea(Constants.DIMENSION_25X0));
         b1.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         p3.add(b1, Box.CENTER_ALIGNMENT);
-        p3.add(Box.createRigidArea(DIMENSION_10X0));
+        p3.add(Box.createRigidArea(Constants.DIMENSION_10X0));
         b2.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         p3.add(b2, Box.CENTER_ALIGNMENT);
         
@@ -333,6 +321,8 @@ public class DataEntryForm extends JFrame {
         p4.add(p2, 1);
         p4.add(p3, 2);
         p4.setPreferredSize(new Dimension(DATE_FRAME_WIDTH, DATE_FRAME_HEIGHT));
+
+        setTitle("Date Filter");
         getContentPane().add(p4);
         pack();
         RefineryUtilities.centerFrameOnScreen(this);
@@ -345,11 +335,13 @@ public class DataEntryForm extends JFrame {
                 String date2 = sdf.format(tillDateChooser.getDate());
 
                 if (date1.equals("") || date2.equals("")) {
-                    JOptionPane.showMessageDialog(null, "Press Select to choose proper date", "Error",JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Press Select to choose proper date", ERROR_TITLE,
+                                                  JOptionPane.ERROR_MESSAGE);
                 } else {
                     try {
                         if (sdf.parse(date1).compareTo(sdf.parse(date2))>0) {
-                            JOptionPane.showMessageDialog(null, "From date " + date1 + " is > To date " + date2, "Error",JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(null, "From date " + date1 + " is > To date " + date2,
+                                                          ERROR_TITLE, JOptionPane.ERROR_MESSAGE);
                         } else {
                             PropertyFileWriter.updateFromAndTillDates(date1, date2);
                             dispose();               

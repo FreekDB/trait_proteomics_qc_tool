@@ -98,11 +98,6 @@ public class DetailsFrame extends JFrame implements ActionListener {
     private static final int DETAILS_PANEL_HEIGHT = 760;
     
     /**
-     * Dimension object for filler areas of 0x10 pixels for GUI layout.
-     */
-    private static final Dimension DIMENSION_0X10 = new Dimension(0, 10);
-    
-    /**
       * Constructor
       * @param metricsListing map of all QC metrics
       * @param reportUnit Report unit consisting of all QC metrics values
@@ -161,9 +156,9 @@ public class DetailsFrame extends JFrame implements ActionListener {
         final JPanel buttonPanel = new JPanel(new FlowLayout()); 
         buttonPanel.add(submitButton);
         buttonPanel.setPreferredSize(new Dimension(BUTTON_PANEL_WIDTH, BUTTON_PANEL_HEIGHT));
-        detailsPanel.add(Box.createRigidArea(DIMENSION_0X10));
+        detailsPanel.add(Box.createRigidArea(Constants.DIMENSION_0X10));
         detailsPanel.add(buttonPanel);
-        detailsPanel.add(Box.createRigidArea(DIMENSION_0X10));
+        detailsPanel.add(Box.createRigidArea(Constants.DIMENSION_0X10));
         getContentPane().add(detailsPanel);
         setBounds(0, 0, DETAILS_FRAME_WIDTH, DETAILS_FRAME_HEIGHT + 10);
         RefineryUtilities.centerFrameOnScreen(this);

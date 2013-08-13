@@ -170,25 +170,30 @@ public interface Constants {
     String CANCEL_BUTTON_TEXT = "Cancel";
 
     /**
-     * The YES button text and action command.
+     * The Yes button text and action command.
      */
     String YES_BUTTON_TEXT = "Yes";
 
     /**
-     * The NO button text and action command.
+     * The No button text and action command.
      */
     String NO_BUTTON_TEXT = "No";
 
     /**
-     * HTML opening tag
+     * HTML opening tag.
      */
     String HTML_OPENING_TAG = "<html>";
 
     /**
-     * HTML closing tag
+     * HTML closing tag.
      */
     String HTML_CLOSING_TAG = "</html>";
     
+    /**
+     * Dimension object for filler areas of 5x0 pixels for GUI layout.
+     */
+    Dimension DIMENSION_5X0 = new Dimension(5, 0);
+
     /**
      * Dimension object for filler areas of 10x0 pixels for GUI layout.
      */
@@ -198,11 +203,6 @@ public interface Constants {
      * Dimension object for filler areas of 25x0 pixels for GUI layout.
      */
     Dimension DIMENSION_25X0 = new Dimension(25, 0);
-
-    /**
-     * Dimension object for filler areas of 0x5 pixels for GUI layout.
-     */
-    Dimension DIMENSION_0X5 = new Dimension(0, 5);
 
     /**
      * Dimension object for filler areas of 0x10 pixels for GUI layout.
