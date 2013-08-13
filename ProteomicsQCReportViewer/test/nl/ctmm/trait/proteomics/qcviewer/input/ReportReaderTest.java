@@ -2,8 +2,11 @@ package nl.ctmm.trait.proteomics.qcviewer.input;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
@@ -44,7 +47,9 @@ public class ReportReaderTest {
         } catch (ParseException e) { 
             System.out.println("Unparsable using " + sdf);
         }
-        final List<ReportUnit> reports = reportReader.retrieveReports("QCReports", fromDate, tillDate);
+        //TODO: Change unit test to support Map<String, ReportUnit>
+        final List<String> reportUnitsKeys = new ArrayList<String>();
+        final List<ReportUnit> reports = new ArrayList<ReportUnit> (reportReader.retrieveReports("QCReports", "", reportUnitsKeys, fromDate, tillDate).values());
         assertEquals("There should be 4 report units.", 4, reports.size());
         // Examine one report unit in detail.
         final ReportUnit reportUnit2 = reports.get(1);
@@ -70,7 +75,8 @@ public class ReportReaderTest {
         } catch (ParseException e) { 
             System.out.println("Unparsable using " + sdf);
         }
-        final List<ReportUnit> reportUnits = reportReader.retrieveReports("nonExistingDirectory", fromDate, tillDate);
+        final List<String> reportUnitsKeys = new ArrayList<String>();
+        final List<ReportUnit> reportUnits = new ArrayList<ReportUnit> (reportReader.retrieveReports("nonExistingDirectory", "", reportUnitsKeys, fromDate, tillDate).values());
         assertEquals(0, reportUnits.size());
     }
 }

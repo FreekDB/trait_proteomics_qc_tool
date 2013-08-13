@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -71,19 +73,26 @@ public class ReportReader extends JFrame {
      * relevant data.
      *
      * @param rootDirectoryName the root directory that contains the year directories.
+     * @param runningMsrunName 
+     * @param reportUnitsKeys 
      * @param fromDate the start of the date range to search.
      * @param tillDate the end of the date range to search.
      * @return a list with report units.
+     * 
+     * TODO: Return hashmap of report units
      */
-    public List<ReportUnit> retrieveReports(final String rootDirectoryName, final Date fromDate,
-                                            final Date tillDate) {
+    public Map<String, ReportUnit> retrieveReports(final String rootDirectoryName, final String runningMsrunName, final List<String> reportUnitsKeys, 
+            final Date fromDate, final Date tillDate) {
         /*The directory has three levels - year, month and msrun.
         The msrun directory may contain following three files of importance:
         1) metrics.json: String file containing values of all QC metrics in json object format 
         2) msrun*_ticmatrix.csv
         */
-//        String allErrorMessages = "";
-        final List<ReportUnit> reportUnits = new ArrayList<>();
+        //String allErrorMessages = "";
+        if (reportUnitsKeys != null) {
+            currentReportNum = reportUnitsKeys.size();
+        } else currentReportNum = 0; 
+        final Map<String, ReportUnit> reportUnitsTable = new HashMap<>();
         logger.log(Level.ALL, "Root folder = " + rootDirectoryName);
         for (final File yearDirectory : getYearDirectories(FilenameUtils.normalize(rootDirectoryName))) {
             logger.fine("Year = " + yearDirectory.getName());
@@ -100,7 +109,16 @@ public class ReportReader extends JFrame {
                             errorFlag = true;
                             //allErrorMessages += errorMessage + "\n";
                         }
-                        reportUnits.add(createReportUnit(msRunDirectory.getName(), dataFiles, errorFlag));
+                        String msrunName = msRunDirectory.getName().trim();
+                        //Exclude report unit with running msrun name 
+                        //Avoid creating duplicate reports by using !reportUnitsKeys.contains(msrunName)
+                        if (!runningMsrunName.equals(msrunName) && !reportUnitsKeys.contains(msrunName)) {
+                            reportUnitsTable.put(msrunName, createReportUnit(msRunDirectory.getName(), dataFiles, errorFlag));
+                            logger.fine("Added report with msrunName = " + msrunName);
+                        } else {
+                            logger.fine("Skipped report with msrunName = " + msrunName + " " +
+                            		"runningMsrunName = " + runningMsrunName);
+                        }
                     } 
                 }
             }
@@ -112,7 +130,7 @@ public class ReportReader extends JFrame {
             //JOptionPane.showMessageDialog(this, allErrorMessages, "MSQC Check Warning Messages",
             //                              JOptionPane.ERROR_MESSAGE);
         }*/
-        return reportUnits;
+        return reportUnitsTable;
     }
 
     /**
