@@ -178,6 +178,24 @@ public class Main {
     }
 
     /**
+     * Get the from date.
+     *
+     * @return the from date.
+     */
+    public Date getFromDate() {
+        return fromDate;
+    }
+
+    /**
+     * Get the till date.
+     *
+     * @return the till date.
+     */
+    public Date getTillDate() {
+        return tillDate;
+    }
+
+    /**
      * Start the QC Report Viewer.
      * <p/>
      * TODO: see whether we can update the application instead of restarting it. [Freek]
@@ -186,15 +204,15 @@ public class Main {
     public void runReportViewer() {
         prepareAllLoggers();
         applicationProperties = loadProperties();
-        metricsParser = new MetricsParser();
         preferredRootDirectory = applicationProperties.getProperty(Constants.PROPERTY_ROOT_FOLDER);
         /*Experimenting with toAbsolutePath().normalize() to make sure that root directory can be 
          * specified like: ../ProteomicsQCPipeline/Reports. [Pravin]*/
         preferredRootDirectory = Paths.get(preferredRootDirectory).toAbsolutePath().normalize().toString();
-        logger.fine("in Main preferredRootDirectory = " + preferredRootDirectory);
         dataEntryForm = new DataEntryForm();
         dataEntryForm.setRootDirectoryName(preferredRootDirectory);
         dataEntryForm.displayInitialDialog();
+        logger.fine("in Main preferredRootDirectory = " + preferredRootDirectory);
+        metricsParser = new MetricsParser();
         //Determine fromDate and TillDate range to select the reports
         determineReportDateRange();
         //Monitor pipeline status file to periodically obtain pipeline status
@@ -211,9 +229,9 @@ public class Main {
         //Maintain reportUnitsKeys
         reportUnitsKeys = new ArrayList<String> (reportUnitsTable.keySet());
         logger.fine("Size of report units keys = " + reportUnitsKeys);
-        dataEntryForm.disposeInitialDialog();
         //Start main user interface
         startQCReportViewerGui(applicationProperties, displayableReportUnits, pipelineStatus);
+        dataEntryForm.disposeInitialDialog();
         if (displayableReportUnits.size() == 0) {
             // There are no reports in the current root directory. Obtain new directory location from the user. 
             dataEntryForm.displayNoReportsFoundDialogue(preferredRootDirectory);
@@ -425,7 +443,7 @@ public class Main {
      * @param directoryChanged if true, the root directory has changed
      */
     
-    public void updateReportViewer(final Boolean directoryChanged) {
+    public void updateReportViewer(final boolean directoryChanged) {
         logger.fine("Main updateReportViewer");
         preferredRootDirectory = loadProperties().getProperty(Constants.PROPERTY_ROOT_FOLDER);
         preferredRootDirectory = Paths.get(preferredRootDirectory).toAbsolutePath().normalize().toString();

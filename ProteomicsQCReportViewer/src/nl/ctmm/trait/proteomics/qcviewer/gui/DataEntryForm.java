@@ -3,14 +3,10 @@ package nl.ctmm.trait.proteomics.qcviewer.gui;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.text.ParseException;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.Box;
@@ -37,6 +33,10 @@ import com.toedter.calendar.JDateChooser;
  * - the one that is shown while the reports are read during initialization;
  * - the form that is used to change the top directory from which the QC reports are read;
  * - the form that is used to select dates for filtering the QC reports to be shown.
+ *
+ * TODO: can we use JDialog instead of JFrame (that way we can set the owner to the viewer frame)? [Freek]
+ * TODO: "extending JDialog is as bad as extending JFrame" see
+ *       http://stackoverflow.com/questions/15429653/how-to-set-the-jframe-as-a-parent-to-the-jdialog [Freek]
  *
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
@@ -81,7 +81,17 @@ public class DataEntryForm extends JFrame {
      * Height of the from and till date panels.
      */
     private static final int DATE_PANEL_HEIGHT = 20;
-    
+
+    /**
+     * Width of the from and till date panels.
+     */
+    private static final int DATE_LABEL_WIDTH = 80;
+
+    /**
+     * Height of the from and till date panels.
+     */
+    private static final int DATE_LABEL_HEIGHT = DATE_PANEL_HEIGHT;
+
     /**
      * Width of the Data Entry Form for selecting dates.
      */
@@ -255,109 +265,136 @@ public class DataEntryForm extends JFrame {
     }
 
     /**
-     * Display chooser form to select preferred root directory
+     * Display chooser form to select the preferred root directory.
      */
-     public void displayRootDirectoryChooser () {
-     JFileChooser chooser = new JFileChooser();
-         chooser.setName("Select Preferred Root Directory");
-        chooser.setFileSelectionMode( JFileChooser.DIRECTORIES_ONLY);
-        int returnVal = chooser.showOpenDialog(null);
-        String preferredRootDirectory = null;
-        if(returnVal == JFileChooser.APPROVE_OPTION) {
-            preferredRootDirectory = FilenameUtils.normalize(chooser.getSelectedFile().getAbsolutePath());
-           logger.fine("You chose to open this folder: " +
-        		   FilenameUtils.normalize(chooser.getSelectedFile().getAbsolutePath()));
+    public void displayRootDirectoryChooser() {
+        final JFileChooser chooser = new JFileChooser();
+        chooser.setName("Select Preferred Root Directory");
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+            logger.fine("You chose to open this folder: "
+                        + FilenameUtils.normalize(chooser.getSelectedFile().getAbsolutePath()));
+            final String preferredRootDirectory = FilenameUtils.normalize(chooser.getSelectedFile().getAbsolutePath());
             PropertyFileWriter.updatePreferredRootDirectory(preferredRootDirectory);
-            dispose();
             Main.getInstance().updateReportViewer(true);
-        } 
-     }
+            dispose();
+        }
+    }
     
     /**
-     * Display date filter form to select From Date and Till Date for displaying QC reports
+     * Display the date filter form to select the from and till date for filtering QC reports.
      */
     public void displayDateFilterEntryForm() {
-        JLabel label1 = new JLabel("From Date:");
-        JPanel p1 = new JPanel(new FlowLayout()); 
-        p1.setPreferredSize(new Dimension(DATE_PANEL_WIDTH, DATE_PANEL_HEIGHT));
-        p1.add(label1);
-        final JDateChooser fromDateChooser = new JDateChooser();
-        fromDateChooser.setDateFormatString(Constants.SIMPLE_DATE_FORMAT_STRING);
-        //Set current date - 2 weeks in fromDate
-        Calendar now = Calendar.getInstance();
-        now.add(Calendar.DATE, -14); 
-        Date fromDate = now.getTime();
-        fromDateChooser.setDate(fromDate);
-        fromDateChooser.getDateEditor().setEnabled(false);
-        fromDateChooser.setPreferredSize(new Dimension(DATE_CHOOSER_WIDTH, DATE_CHOOSER_HEIGHT));
-        p1.add(fromDateChooser);
-        fromDateChooser.requestFocusInWindow(); 
-        JLabel label2 = new JLabel("    Till Date:");
-        JPanel p2 = new JPanel(new FlowLayout()); 
-        p2.add(label2);
-        final JDateChooser tillDateChooser = new JDateChooser();
-        tillDateChooser.setDateFormatString(Constants.SIMPLE_DATE_FORMAT_STRING);
-        //Set current date
-        tillDateChooser.setDate(new Date());
-        tillDateChooser.getDateEditor().setEnabled(false);
-        tillDateChooser.setPreferredSize(new Dimension(DATE_CHOOSER_WIDTH, DATE_CHOOSER_HEIGHT));
-        p2.add(tillDateChooser);
-        tillDateChooser.requestFocusInWindow(); 
-
-        JButton b1 = new JButton("Submit");
-        JButton b2 = new JButton(Constants.CANCEL_BUTTON_TEXT);
-
-        JPanel p3 = new JPanel(); 
-        p3.setLayout(new BoxLayout(p3, BoxLayout.X_AXIS));
-        p3.add(Box.createRigidArea(Constants.DIMENSION_25X0));
-        b1.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        p3.add(b1, Box.CENTER_ALIGNMENT);
-        p3.add(Box.createRigidArea(Constants.DIMENSION_10X0));
-        b2.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        p3.add(b2, Box.CENTER_ALIGNMENT);
-        
-        JPanel p4 = new JPanel(new GridLayout(3,1)); 
-        p4.add(p1, 0);
-        p4.add(p2, 1);
-        p4.add(p3, 2);
-        p4.setPreferredSize(new Dimension(DATE_FRAME_WIDTH, DATE_FRAME_HEIGHT));
-
         setTitle("Date Filter");
-        getContentPane().add(p4);
+        final JDateChooser fromDateChooser = createDateChooser(Main.getInstance().getFromDate());
+        final JDateChooser tillDateChooser = createDateChooser(Main.getInstance().getTillDate());
+
+        final JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.add(Box.createRigidArea(Constants.DIMENSION_0X5));
+        mainPanel.add(createDatePanel("From Date:", fromDateChooser));
+        mainPanel.add(Box.createRigidArea(Constants.DIMENSION_0X5));
+        mainPanel.add(createDatePanel("Till Date:", tillDateChooser));
+        mainPanel.add(Box.createRigidArea(Constants.DIMENSION_0X10));
+        mainPanel.add(createButtonPanel(fromDateChooser, tillDateChooser));
+        mainPanel.add(Box.createRigidArea(Constants.DIMENSION_0X5));
+
+        mainPanel.setPreferredSize(new Dimension(DATE_FRAME_WIDTH, DATE_FRAME_HEIGHT));
+        getContentPane().add(mainPanel);
         pack();
         RefineryUtilities.centerFrameOnScreen(this);
         setVisible(true);
-        b1.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat(
-                        Constants.SIMPLE_DATE_FORMAT_STRING);
-            	String date1 = sdf.format(fromDateChooser.getDate());
-                String date2 = sdf.format(tillDateChooser.getDate());
+    }
 
-                if (date1.equals("") || date2.equals("")) {
-                    JOptionPane.showMessageDialog(null, "Press Select to choose proper date", ERROR_TITLE,
-                                                  JOptionPane.ERROR_MESSAGE);
+    /**
+     * Create a date chooser and set the right properties.
+     *
+     * @param initialDate the initial date to be displayed.
+     * @return the date chooser.
+     */
+    private JDateChooser createDateChooser(final Date initialDate) {
+        final JDateChooser dateChooser = new JDateChooser();
+        dateChooser.setDateFormatString(Constants.SIMPLE_DATE_FORMAT_STRING);
+        dateChooser.setDate(initialDate);
+        dateChooser.getDateEditor().setEnabled(false);
+        dateChooser.setPreferredSize(new Dimension(DATE_CHOOSER_WIDTH, DATE_CHOOSER_HEIGHT));
+        return dateChooser;
+    }
+
+    /**
+     * Create a date panel with a label and a date chooser.
+     *
+     * @param labelText the text for the label.
+     * @param dateChooser the date chooser to add.
+     * @return the date panel.
+     */
+    private JPanel createDatePanel(final String labelText, final JDateChooser dateChooser) {
+        final JPanel datePanel = new JPanel(new FlowLayout());
+        datePanel.setPreferredSize(new Dimension(DATE_PANEL_WIDTH, DATE_PANEL_HEIGHT));
+        final JLabel dateLabel = new JLabel(labelText);
+        dateLabel.setPreferredSize(new Dimension(DATE_LABEL_WIDTH, DATE_LABEL_HEIGHT));
+        dateLabel.setFont(Constants.DEFAULT_FONT);
+        datePanel.add(dateLabel);
+        datePanel.add(dateChooser);
+        dateChooser.requestFocusInWindow();
+        return datePanel;
+    }
+
+    /**
+     * Create the panel with the OK & Cancel buttons and create the action listeners for both buttons.
+     *
+     * @param fromDateChooser the from date chooser.
+     * @param tillDateChooser the till date chooser.
+     * @return the button panel.
+     */
+    private JPanel createButtonPanel(final JDateChooser fromDateChooser, final JDateChooser tillDateChooser) {
+        final JButton okButton = new JButton(Constants.OK_BUTTON_TEXT);
+        okButton.setFont(Constants.DEFAULT_FONT);
+        okButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        okButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent actionEvent) {
+                final String fromDate = Constants.DATE_FORMAT.format(fromDateChooser.getDate());
+                final String tillDate = Constants.DATE_FORMAT.format(tillDateChooser.getDate());
+                if (!"".equals(fromDate) && !"".equals(tillDate)) {
+                    if (!fromDateChooser.getDate().after(tillDateChooser.getDate())) {
+                        PropertyFileWriter.updateFromAndTillDates(fromDate, tillDate);
+                        Main.getInstance().updateReportViewer(false);
+                        dispose();
+                    } else {
+                        showErrorMessage("From date " + fromDate + " is after till date " + tillDate);
+                    }
                 } else {
-                    try {
-                        if (sdf.parse(date1).compareTo(sdf.parse(date2))>0) {
-                            JOptionPane.showMessageDialog(null, "From date " + date1 + " is > To date " + date2,
-                                                          ERROR_TITLE, JOptionPane.ERROR_MESSAGE);
-                        } else {
-                            PropertyFileWriter.updateFromAndTillDates(date1, date2);
-                            dispose();               
-                            Main.getInstance().updateReportViewer(false);
-                        }
-                    } catch (ParseException e) {
-                    	logger.log(Level.SEVERE, "Something went wrong while parsing fromDate and tillDate.", e);
-                    } 
+                    showErrorMessage("Please fill in both dates");
                 }
             }
         });
-        b2.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
+
+        final JButton cancelButton = new JButton(Constants.CANCEL_BUTTON_TEXT);
+        cancelButton.setFont(Constants.DEFAULT_FONT);
+        cancelButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent actionEvent) {
                 dispose();
             }
         });
-        setResizable(false);
+
+        final JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+        buttonPanel.add(Box.createRigidArea(Constants.DIMENSION_25X0));
+        buttonPanel.add(okButton, Box.CENTER_ALIGNMENT);
+        buttonPanel.add(Box.createRigidArea(Constants.DIMENSION_10X0));
+        buttonPanel.add(cancelButton, Box.CENTER_ALIGNMENT);
+        return buttonPanel;
+    }
+
+    /**
+     * Show an error message to the user.
+     *
+     * @param errorMessage the error message to show.
+     */
+    private void showErrorMessage(final String errorMessage) {
+        JOptionPane.showMessageDialog(this, errorMessage, ERROR_TITLE, JOptionPane.ERROR_MESSAGE);
     }
 }
