@@ -66,15 +66,6 @@ public class ReportUnit implements Comparable<ReportUnit>{
     /**
      * Get the value of parameter reportNum
      *
-     * @param reportNum Serial number of current ReportUnit
-     */
-    public void setReportNum(final int reportNum) {
-        this.reportNum = reportNum;
-    }
-    
-    /**
-     * Get the value of parameter reportNum
-     *
      * @return Serial number of current ReportUnit
      */
     public int getReportNum() {

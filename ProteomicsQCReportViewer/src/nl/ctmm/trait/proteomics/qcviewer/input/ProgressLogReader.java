@@ -76,18 +76,13 @@ public class ProgressLogReader implements FileChangeListener {
      * Parses the current status from the log file and initiate a timer to monitor changes in the log file.
      *
      * @param progressLogFilePath path to the progress log file.
+     * 
+     * @return true if logFile exists, false if logFile doesn't exist 
      */
-    public void setProgressLogFile(final String progressLogFilePath) {
+    public boolean setProgressLogFile(final String progressLogFilePath) {
         logFile = new File(FilenameUtils.normalize(progressLogFilePath));
-        parseCurrentStatus(logFile);
-        logger.fine("Current QC Pipeline Status: " + currentStatus);
-        if (timer != null) {
-            timer.cancel();
-        }
-        // Create a timer and run the timer thread as daemon.
-        timer = new Timer(true);
-        final StatusMonitorTask task = new StatusMonitorTask();
-        timer.schedule(task, Constants.POLL_INTERVAL_PIPELINE_LOG, Constants.POLL_INTERVAL_PIPELINE_LOG);
+        return parseCurrentStatus(logFile);
+        
     }
 
     /**
@@ -133,8 +128,11 @@ public class ProgressLogReader implements FileChangeListener {
      * 2013-05-28 13:04:16.180000    QE1_yymmdd_OPLmmmm_AndYetAnotherResearchProject.raw    completed
      *
      * @param logFile the log file to parse.
+     * 
+     * @return true if logFile exists, false if logFile doesn't exist 
+     * 
      */
-    private void parseCurrentStatus(final File logFile) {
+    private boolean parseCurrentStatus(final File logFile) {
         final String lastLine = getLastLine(logFile);
         // Hopefully not the Y2K problem!!!!
         if (lastLine != null && lastLine.startsWith("20")) {
@@ -162,9 +160,14 @@ public class ProgressLogReader implements FileChangeListener {
             }
         } else if (lastLine == null) {
             currentStatus = "Logfile doesn't exist. | | | | | Configured file path: " + logFile.getAbsolutePath();
+            logger.fine("Current QC Pipeline Status: " + currentStatus);
+            return false; 
         } else {
             currentStatus = "QC pipeline logfile " + Constants.PROGRESS_LOG_FILE_NAME + " appears to be empty.";
+            logger.fine("Current QC Pipeline Status: " + currentStatus);
+            return true;
         }
+        return true; 
     }
 
     /**
@@ -174,6 +177,10 @@ public class ProgressLogReader implements FileChangeListener {
      * @return the last line read from the file.
      */
     private String getLastLine(final File logFile) {
+        //Return null if logFile doesn't exist in the filesystem
+        if (!logFile.exists()) {
+            return null;
+        }
         String lastLine = "";
         try {
             final InputStreamReader streamReader = new InputStreamReader(new FileInputStream(logFile));
@@ -219,7 +226,22 @@ public class ProgressLogReader implements FileChangeListener {
         lineTokenizer.nextToken();
         return lineTokenizer.nextToken().trim();
     }
-
+    
+    /*
+     * Create a timer and run the timer thread as daemon to monitor progress log file 
+     * periodically. The monitor task consists of reading pipeline status from the log file 
+     * and notify status to the Main class.       * 
+     */
+    public void startProgressLogFileMonitor() {
+        if (timer != null) {
+            timer.cancel();
+        }
+        // Create a timer and run the timer thread as daemon.
+        timer = new Timer(true);
+        final StatusMonitorTask task = new StatusMonitorTask();
+        timer.schedule(task, Constants.POLL_INTERVAL_PIPELINE_LOG, Constants.POLL_INTERVAL_PIPELINE_LOG);
+    }
+    
     /**
      * TODO: check whether this can be removed (if frequently polling the log file is good enough).
      *

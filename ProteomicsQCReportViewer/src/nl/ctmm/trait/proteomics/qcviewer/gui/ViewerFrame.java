@@ -495,6 +495,9 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private int yCoordinate;
 
+    /*TODO: Display report units in order of their report number.
+     * Use Collection.sort(...) according to report number 
+     */
     /**
      * Creates a new instance of the main frame of the proteomics QC viewer.
      *
@@ -563,11 +566,15 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         }
         final int reportIndexOffset = reportUnits.size();
         if (newReportUnits.size() > 0) {
+            //Initialize reportIsSelected 
+            for (int reportIndex = 0; reportIndex < newReportUnits.size(); reportIndex++) {
+                reportIsSelected.add(false);
+            }
+            
             for (int reportIndex = 0; reportIndex < newReportUnits.size(); reportIndex++) {
                 final ReportUnit thisUnit = newReportUnits.get(reportIndex);
                 reportUnits.add(thisUnit);
                 orderedReportUnits.add(thisUnit);
-                reportIsSelected.add(false);
                 addChartFrame(thisUnit, reportIndexOffset + reportIndex);
             }
             desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, reportUnits.size() * REPORT_ROW_HEIGHT));
