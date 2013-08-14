@@ -222,8 +222,9 @@ public class Main {
         //Determine absolute path of preferred root directory
         normalizePreferredRootDirectory();
         dataEntryForm = new DataEntryForm();
-        dataEntryForm.setRootDirectoryName(preferredRootDirectory);
-        dataEntryForm.displayInitialDialog();
+        dataEntryForm.displayInitialDialog(preferredRootDirectory);
+        logger.fine("in Main preferredRootDirectory = " + preferredRootDirectory);
+        metricsParser = new MetricsParser();
         //Determine fromDate and TillDate range to select the reports
         determineReportDateRange();
         //Set progress log reader and running msrun name

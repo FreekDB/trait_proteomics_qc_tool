@@ -153,11 +153,6 @@ public class DataEntryForm extends JFrame {
     private JDialog initialDialog;
 
     /**
-     * The root directory under which the QC pipeline writes the QC reports.
-     */
-    private String rootDirectoryName;
-    
-    /**
      * Construct a data entry form.
      */
     public DataEntryForm() {
@@ -165,20 +160,11 @@ public class DataEntryForm extends JFrame {
     }
 
     /**
-     * Set preferred root directory to read QC reports from.
-     *
-     * TODO: pass rootDirectoryName as a parameter to displayInitialDialog. [Freek]
-     *
-     * @param rootDirectoryName Name of the preferred root directory 
-     */
-    public void setRootDirectoryName(final String rootDirectoryName) {
-        this.rootDirectoryName = rootDirectoryName;
-    }
-    
-    /**
      * Display the initial dialog while starting the QC report viewer.
+     *
+     * @param rootDirectoryName name of the preferred root directory.
      */
-    public void displayInitialDialog() {
+    public void displayInitialDialog(final String rootDirectoryName) {
         final String absolutePath = new File(rootDirectoryName).getAbsolutePath();
         final String message = "  Reading QC reports from the QC pipeline (under the " + absolutePath + " directory).";
         initialDialog = new JDialog((Frame) null, "Reading QC reports in progress");
