@@ -60,30 +60,30 @@ public class Main {
      */
     private static final Main INSTANCE = new Main();
 
-//    /**
-//     * Message written to the logger when a report is skipped.
-//     */
-//    private static final String SKIPPED_REPORT_MESSAGE = "Skipped report unit %s. Logfile says it is running %s.";
-
     /**
      * Message written to the logger to show the number of reports.
      */
     private static final String NUMBER_OF_REPORTS_MESSAGE = "Number of reports is %s.";
-
-//    /**
-//     * Message written to the logger to show the updated number of reports.
-//     */
-//    private static final String NEW_NUMBER_OF_REPORTS_MESSAGE = "Updated %s entries. New number of reports is %s.";
-
+    
+    /**
+     * Message written to the logger when log file is not found.
+     */
+    private static final String LOG_FILE_NOT_FOUND_MESSAGE = "progress log file not found. Configured path: %s";
     /**
      * Message written to the logger when no reports are found.
      */
     private static final String NO_REPORTS_MESSAGE = "No reports found in %s.";
 
     /**
-     * Message written to the logger when no reports are found.
+     * Message written to the logger to report number of report unit keys.
      */
     private static final String SIZE_REPORTS_KEYS_MESSAGE = "Size of report units keys: %d.";
+    
+    /**
+     * Message written to the logger when something goes wrong while processing dates
+     */
+    private static final String INCORRECT_DATES_MESSAGE = "Something went wrong while processing " +
+    		"fromDate and tillDate";
 
     /**
      * The application properties such as root folder and default metrics to show.
@@ -224,8 +224,6 @@ public class Main {
         normalizePreferredRootDirectory();
         dataEntryForm = new DataEntryForm();
         dataEntryForm.displayInitialDialog(preferredRootDirectory);
-        logger.fine("in Main preferredRootDirectory = " + preferredRootDirectory);
-        metricsParser = new MetricsParser();
         //Determine fromDate and TillDate range to select the reports
         determineReportDateRange();
         //Set progress log reader and running msrun name
@@ -237,10 +235,8 @@ public class Main {
         logger.fine(String.format(NUMBER_OF_REPORTS_MESSAGE, reportUnitsTable.size()));
         final List<ReportUnit> displayableReportUnits = new ArrayList<>(reportUnitsTable.values());
         //Sort displayableReportUnits in ascending order of report index
-        Collections.sort(displayableReportUnits, ReportUnit.getReportUnitComparator(Constants.SORT_KEY_REPORT_INDEX, true));
-        //Maintain reportUnitsKeys
-        reportUnitsKeys = new ArrayList<>(reportUnitsTable.keySet());
-        logger.fine(String.format(SIZE_REPORTS_KEYS_MESSAGE, reportUnitsKeys.size()));
+        Collections.sort(displayableReportUnits, ReportUnit.getReportUnitComparator
+                        (Constants.SORT_KEY_REPORT_INDEX, true));
         //Start main user interface
         startQCReportViewerGui(applicationProperties, displayableReportUnits, pipelineStatus);
         dataEntryForm.disposeInitialDialog();
@@ -250,7 +246,7 @@ public class Main {
         } else {
             //Maintain reportUnitsKeys
             reportUnitsKeys = new ArrayList<>(reportUnitsTable.keySet());
-            logger.fine("Size of report units keys = " + reportUnitsKeys);
+            logger.fine(String.format(SIZE_REPORTS_KEYS_MESSAGE, reportUnitsKeys.size()));
         }
         startProgressLogFileMonitor();
     }
@@ -268,8 +264,8 @@ public class Main {
             runningMsrunName = progressLogReader.getRunningMsrunName();
         }
     }
-
-    /**
+    
+     /**
      * Determine the date range for displaying reports.
      */
     private void determineReportDateRange() {
@@ -284,7 +280,7 @@ public class Main {
             } catch (final ParseException e) {
                 fromDate = null;
                 tillDate = null;
-                logger.log(Level.SEVERE, "Something went wrong while processing fromDate and tillDate", e);
+                logger.log(Level.SEVERE, INCORRECT_DATES_MESSAGE, e);
             }
         }
         if (tillDate == null) {
@@ -324,7 +320,7 @@ public class Main {
                 currentProgressLogFilePath = progressLogFilePath; 
             } catch (final FileNotFoundException e1) {
                 e1.printStackTrace();
-                logger.fine("progress log file not found. Configured path: " + progressLogFilePath);
+                logger.fine(String.format(LOG_FILE_NOT_FOUND_MESSAGE, progressLogFilePath));
                 return false;
             } //Refresh period is 5 seconds
             return true;
@@ -398,7 +394,8 @@ public class Main {
         } else {
             final List<ReportUnit> newReportUnits = new ArrayList<>(reportUnitsTable.values());
             //Sort newReportUnits in ascending order of report index
-            Collections.sort(newReportUnits, ReportUnit.getReportUnitComparator(Constants.SORT_KEY_REPORT_INDEX, true));
+            Collections.sort(newReportUnits, ReportUnit.getReportUnitComparator
+                            (Constants.SORT_KEY_REPORT_INDEX, true));
             //Maintain reportUnitsKeys
             reportUnitsKeys.addAll(new ArrayList<>(reportUnitsTable.keySet()));
             logger.fine(String.format(SIZE_REPORTS_KEYS_MESSAGE, reportUnitsKeys.size()));
@@ -488,12 +485,9 @@ public class Main {
      * Update all the reports in the QC Report Viewer. It is called in the following two cases:
      * 1) New root directory is chosen.
      * 2) Change in the date range.
-     *
      * TODO: can we decrease code duplication between the runReportViewer and updateReportViewer methods? [Freek]
      * [Pravin] Splitted common code in intuitive functions normalizePreferredRootDirectory(), 
      * setProgressLogReaderAndRunningMsrunName() and startProgressLogFileMonitor().
-     * 
-     *    
      * @param directoryChanged if true, the root directory has changed
      */
     public void updateReportViewer(final boolean directoryChanged) {
@@ -514,13 +508,14 @@ public class Main {
         } else {
             //Maintain reportUnitsKeys
             reportUnitsKeys = new ArrayList<>(reportUnitsTable.keySet());
+            logger.fine(String.format(SIZE_REPORTS_KEYS_MESSAGE, reportUnitsKeys.size()));
             final List<ReportUnit> displayableReportUnits = new ArrayList<>(reportUnitsTable.values());
             //Sort displayableReportUnits in ascending order of report index
-            Collections.sort(displayableReportUnits, ReportUnit.getReportUnitComparator(Constants.SORT_KEY_REPORT_INDEX, true));
+            Collections.sort(displayableReportUnits, ReportUnit.getReportUnitComparator
+                            (Constants.SORT_KEY_REPORT_INDEX, true));
             // Refresh ViewerFrame with new Report Units.
             frame.updateReportUnits(displayableReportUnits, progressLogReader.getCurrentStatus(), true);
         }
         startProgressLogFileMonitor();
     }
-    
 }
