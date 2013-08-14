@@ -214,8 +214,7 @@ public class Main {
          * specified like: ../ProteomicsQCPipeline/Reports. [Pravin]*/
         preferredRootDirectory = Paths.get(preferredRootDirectory).toAbsolutePath().normalize().toString();
         dataEntryForm = new DataEntryForm();
-        dataEntryForm.setRootDirectoryName(preferredRootDirectory);
-        dataEntryForm.displayInitialDialog();
+        dataEntryForm.displayInitialDialog(preferredRootDirectory);
         logger.fine("in Main preferredRootDirectory = " + preferredRootDirectory);
         metricsParser = new MetricsParser();
         //Determine fromDate and TillDate range to select the reports
