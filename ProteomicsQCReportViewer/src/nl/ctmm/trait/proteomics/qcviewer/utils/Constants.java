@@ -205,6 +205,11 @@ public interface Constants {
     Dimension DIMENSION_25X0 = new Dimension(25, 0);
 
     /**
+     * Dimension object for filler areas of 0x5 pixels for GUI layout.
+     */
+    Dimension DIMENSION_0X5 = new Dimension(0, 5);
+
+    /**
      * Dimension object for filler areas of 0x10 pixels for GUI layout.
      */
     Dimension DIMENSION_0X10 = new Dimension(0, 10);
