@@ -55,6 +55,7 @@ public class Main {
      * The logger for this class.
      */
     private static final Logger logger = Logger.getLogger(Main.class.getName());
+
     /**
      * This is the singleton instance of this class.
      */
@@ -358,7 +359,7 @@ public class Main {
         } catch (final IOException e) {
             logger.log(Level.SEVERE, "Loading of application properties failed.", e);
         }
-        PropertyFileWriter.setApplicationProperties(appProperties); 
+        PropertyFileWriter.getInstance().setApplicationProperties(appProperties);
         return appProperties;
     }
 
