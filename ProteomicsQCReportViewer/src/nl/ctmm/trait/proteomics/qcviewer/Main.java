@@ -32,7 +32,7 @@ import org.jfree.ui.RefineryUtilities;
 /**
  * The class that starts the QC Report Viewer.
  *
- * TODO: fix JCalendar dependency:
+ * TODO: fix JCalendar dependency: [Freek]
  * http://search.maven.org/#artifactdetails%7Ccom.toedter%7Cjcalendar%7C1.3.2%7Cjar
  * http://mvnrepository.com/artifact/com.toedter/jcalendar
  * https://ci.nbiceng.net/nexus/index.html#view-repositories;thirdparty~uploadPanel
@@ -59,25 +59,30 @@ public class Main {
      */
     private static final Main INSTANCE = new Main();
 
-    /**
-     * Message written to the logger when a report is skipped.
-     */
-    private static final String SKIPPED_REPORT_MESSAGE = "Skipped report unit %s. Logfile says it is running %s.";
+//    /**
+//     * Message written to the logger when a report is skipped.
+//     */
+//    private static final String SKIPPED_REPORT_MESSAGE = "Skipped report unit %s. Logfile says it is running %s.";
 
     /**
      * Message written to the logger to show the number of reports.
      */
     private static final String NUMBER_OF_REPORTS_MESSAGE = "Number of reports is %s.";
 
-    /**
-     * Message written to the logger to show the updated number of reports.
-     */
-    private static final String NEW_NUMBER_OF_REPORTS_MESSAGE = "Updated %s entries. New number of reports is %s.";
+//    /**
+//     * Message written to the logger to show the updated number of reports.
+//     */
+//    private static final String NEW_NUMBER_OF_REPORTS_MESSAGE = "Updated %s entries. New number of reports is %s.";
 
     /**
      * Message written to the logger when no reports are found.
      */
     private static final String NO_REPORTS_MESSAGE = "No reports found in %s.";
+
+    /**
+     * Message written to the logger when no reports are found.
+     */
+    private static final String SIZE_REPORTS_KEYS = "Size of report units keys: %d.";
 
     /**
      * The application properties such as root folder and default metrics to show.
@@ -229,7 +234,7 @@ public class Main {
         final List<ReportUnit> displayableReportUnits = new ArrayList<>(reportUnitsTable.values());
         //Maintain reportUnitsKeys
         reportUnitsKeys = new ArrayList<>(reportUnitsTable.keySet());
-        logger.fine("Size of report units keys = " + reportUnitsKeys);
+        logger.fine(String.format(SIZE_REPORTS_KEYS, reportUnitsKeys.size()));
         //Start main user interface
         startQCReportViewerGui(applicationProperties, displayableReportUnits, pipelineStatus);
         dataEntryForm.disposeInitialDialog();
@@ -367,7 +372,7 @@ public class Main {
             final List<ReportUnit> newReportUnits = new ArrayList<>(reportUnitsTable.values());
             //Maintain reportUnitsKeys
             reportUnitsKeys.addAll(new ArrayList<>(reportUnitsTable.keySet()));
-            logger.fine("Size of report units keys = " + reportUnitsKeys);
+            logger.fine(String.format(SIZE_REPORTS_KEYS, reportUnitsKeys.size()));
             reportUnitsTable.clear(); 
             //Refresh ViewerFrame with new Report Units
             frame.updateReportUnits(newReportUnits, newPipelineStatus, false);
@@ -465,14 +470,14 @@ public class Main {
         }
         determineReportDateRange();
         reportUnitsKeys.clear();
-        logger.fine("Size of report units keys = " + reportUnitsKeys);
+        logger.fine(String.format(SIZE_REPORTS_KEYS, reportUnitsKeys.size()));
         //Obtain initial set of reports according to date filter
         final Map<String, ReportUnit> reportUnitsTable = getReportUnits(preferredRootDirectory, runningMsrunName,
                                                                         fromDate, tillDate);
         logger.fine(String.format(NUMBER_OF_REPORTS_MESSAGE, reportUnitsTable.size()));
         //Maintain reportUnitsKeys
         reportUnitsKeys = new ArrayList<>(reportUnitsTable.keySet());
-        logger.fine("Size of report units keys = " + reportUnitsKeys);
+        logger.fine(String.format(SIZE_REPORTS_KEYS, reportUnitsKeys.size()));
         final List<ReportUnit> displayableReportUnits = new ArrayList<>(reportUnitsTable.values());
         if (displayableReportUnits.size() == 0) {
             // There exist no reports in selected root directory conforming date range.
