@@ -80,9 +80,9 @@ public class Main {
     private static final String NO_REPORTS_MESSAGE = "No reports found in %s.";
 
     /**
-     * Message written to the logger when no reports are found.
+     * Message written to the logger to report number of report unit keys.
      */
-    private static final String SIZE_REPORTS_KEYS = "Size of report units keys: %d.";
+    private static final String SIZE_REPORTS_KEYS_MESSAGE = "Size of report units keys: %d.";
 
     /**
      * The application properties such as root folder and default metrics to show.
@@ -233,7 +233,7 @@ public class Main {
         final List<ReportUnit> displayableReportUnits = new ArrayList<>(reportUnitsTable.values());
         //Maintain reportUnitsKeys
         reportUnitsKeys = new ArrayList<>(reportUnitsTable.keySet());
-        logger.fine(String.format(SIZE_REPORTS_KEYS, reportUnitsKeys.size()));
+        logger.fine(String.format(SIZE_REPORTS_KEYS_MESSAGE, reportUnitsKeys.size()));
         //Start main user interface
         startQCReportViewerGui(applicationProperties, displayableReportUnits, pipelineStatus);
         dataEntryForm.disposeInitialDialog();
@@ -371,7 +371,7 @@ public class Main {
             final List<ReportUnit> newReportUnits = new ArrayList<>(reportUnitsTable.values());
             //Maintain reportUnitsKeys
             reportUnitsKeys.addAll(new ArrayList<>(reportUnitsTable.keySet()));
-            logger.fine(String.format(SIZE_REPORTS_KEYS, reportUnitsKeys.size()));
+            logger.fine(String.format(SIZE_REPORTS_KEYS_MESSAGE, reportUnitsKeys.size()));
             reportUnitsTable.clear(); 
             //Refresh ViewerFrame with new Report Units
             frame.updateReportUnits(newReportUnits, newPipelineStatus, false);
@@ -469,14 +469,14 @@ public class Main {
         }
         determineReportDateRange();
         reportUnitsKeys.clear();
-        logger.fine(String.format(SIZE_REPORTS_KEYS, reportUnitsKeys.size()));
+        logger.fine(String.format(SIZE_REPORTS_KEYS_MESSAGE, reportUnitsKeys.size()));
         //Obtain initial set of reports according to date filter
         final Map<String, ReportUnit> reportUnitsTable = getReportUnits(preferredRootDirectory, runningMsrunName,
                                                                         fromDate, tillDate);
         logger.fine(String.format(NUMBER_OF_REPORTS_MESSAGE, reportUnitsTable.size()));
         //Maintain reportUnitsKeys
         reportUnitsKeys = new ArrayList<>(reportUnitsTable.keySet());
-        logger.fine(String.format(SIZE_REPORTS_KEYS, reportUnitsKeys.size()));
+        logger.fine(String.format(SIZE_REPORTS_KEYS_MESSAGE, reportUnitsKeys.size()));
         final List<ReportUnit> displayableReportUnits = new ArrayList<>(reportUnitsTable.values());
         if (displayableReportUnits.size() == 0) {
             // There exist no reports in selected root directory conforming date range.
