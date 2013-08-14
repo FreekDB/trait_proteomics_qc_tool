@@ -326,6 +326,11 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private static final String SORT_ORDER_COMPARE = SORT_ORDER_COMPARE_LABEL;
 
     /**
+     * The label used for the compare selected reports sort radio button.
+     */
+    private static final String SORT_ORDER_REPORT_INDEX_LABEL = "Report Index";
+    
+    /**
      * Width of the OPL and CTMM TraIT logos on the top left and top right of the application.
      */
     private static final int LOGO_WIDTH = 179;
@@ -448,14 +453,11 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private Map<String, String> selectedMetrics;
 
     /**
-     * The current sort criteria (key and order).
-     */
-    private String currentSortCriteria = "";
-
-    /**
      * The new sort criteria (key and order).
      *
      * TODO: do we need current and new sort criteria as fields? [Freek]
+     * 
+     * We need new sort criteria field. Removed current sort criteria. 
      */
     private String newSortCriteria = "";
 
@@ -895,6 +897,9 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         // Add sorting option for comparing selected reports.
         sortPanel.add(createSortOptionPanel(SORT_ORDER_COMPARE_LABEL, SORT_ORDER_COMPARE, sortOptionsButtonGroup,
                                             false));
+        // Add sorting option for displaying selected reports as per report index
+        sortPanel.add(createSortOptionPanel(SORT_ORDER_REPORT_INDEX_LABEL, Constants.SORT_KEY_REPORT_INDEX, 
+                                            sortOptionsButtonGroup, false));
     }
 
     /**
@@ -924,7 +929,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         sortOptionsButtonGroup.add(sortAscendingButton);
         if (firstSortOption) {
             sortAscendingButton.setSelected(true);
-            currentSortCriteria = sortAscendingButton.getActionCommand();
         }
         // Create the sort descending button.
         final JRadioButton sortDescendingButton = new JRadioButton(SORT_ORDER_DESCENDING_LABEL, false);
@@ -1131,7 +1135,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * Sort displayed report units according to user assigned sort criteria.
      */
     private void sortChartFrameList() {
-        logger.fine("sortChartFrameList From " + currentSortCriteria + " To " + newSortCriteria);
+        logger.fine("sortChartFrameList according to " + newSortCriteria);
         final StringTokenizer sortCriteriaTokenizer = new StringTokenizer(newSortCriteria, SORT_COMMAND_SEPARATOR);
         sortCriteriaTokenizer.nextToken();
         //e.g. generic:date
@@ -1178,7 +1182,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             // Show the TIC graph of the first or last report in the bottom TIC pane.
             setTicGraphPaneChart(orderedReportUnits.get(selectedIndex).getReportIndex());
         }
-        currentSortCriteria = newSortCriteria;
         newSortCriteria = "";
     }
 

@@ -98,8 +98,6 @@ public class ReportReader extends JFrame {
      * @param fromDate the start of the date range to search.
      * @param tillDate the end of the date range to search.
      * @return a list with report units.
-     * 
-     * TODO: Return hashmap of report units
      */
     public Map<String, ReportUnit> retrieveReports(final String rootDirectoryName, final String runningMsrunName, final List<String> reportUnitsKeys, 
             final Date fromDate, final Date tillDate) {

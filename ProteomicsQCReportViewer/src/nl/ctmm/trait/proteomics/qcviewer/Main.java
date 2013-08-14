@@ -8,6 +8,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -82,7 +83,7 @@ public class Main {
     /**
      * Message written to the logger when no reports are found.
      */
-    private static final String SIZE_REPORTS_KEYS = "Size of report units keys: %d.";
+    private static final String SIZE_REPORTS_KEYS_MESSAGE = "Size of report units keys: %d.";
 
     /**
      * The application properties such as root folder and default metrics to show.
@@ -235,9 +236,11 @@ public class Main {
         final Map<String, ReportUnit> reportUnitsTable = getDisplayableReportUnitsTable();
         logger.fine(String.format(NUMBER_OF_REPORTS_MESSAGE, reportUnitsTable.size()));
         final List<ReportUnit> displayableReportUnits = new ArrayList<>(reportUnitsTable.values());
+        //Sort displayableReportUnits in ascending order of report index
+        Collections.sort(displayableReportUnits, ReportUnit.getReportUnitComparator(Constants.SORT_KEY_REPORT_INDEX, true));
         //Maintain reportUnitsKeys
         reportUnitsKeys = new ArrayList<>(reportUnitsTable.keySet());
-        logger.fine(String.format(SIZE_REPORTS_KEYS, reportUnitsKeys.size()));
+        logger.fine(String.format(SIZE_REPORTS_KEYS_MESSAGE, reportUnitsKeys.size()));
         //Start main user interface
         startQCReportViewerGui(applicationProperties, displayableReportUnits, pipelineStatus);
         dataEntryForm.disposeInitialDialog();
@@ -394,9 +397,11 @@ public class Main {
             dataEntryForm.displayRootDirectoryChooser();
         } else {
             final List<ReportUnit> newReportUnits = new ArrayList<>(reportUnitsTable.values());
+            //Sort newReportUnits in ascending order of report index
+            Collections.sort(newReportUnits, ReportUnit.getReportUnitComparator(Constants.SORT_KEY_REPORT_INDEX, true));
             //Maintain reportUnitsKeys
             reportUnitsKeys.addAll(new ArrayList<>(reportUnitsTable.keySet()));
-            logger.fine(String.format(SIZE_REPORTS_KEYS, reportUnitsKeys.size()));
+            logger.fine(String.format(SIZE_REPORTS_KEYS_MESSAGE, reportUnitsKeys.size()));
             reportUnitsTable.clear(); 
             //Refresh ViewerFrame with new Report Units
             frame.updateReportUnits(newReportUnits, newPipelineStatus, false);
@@ -510,6 +515,8 @@ public class Main {
             //Maintain reportUnitsKeys
             reportUnitsKeys = new ArrayList<>(reportUnitsTable.keySet());
             final List<ReportUnit> displayableReportUnits = new ArrayList<>(reportUnitsTable.values());
+            //Sort displayableReportUnits in ascending order of report index
+            Collections.sort(displayableReportUnits, ReportUnit.getReportUnitComparator(Constants.SORT_KEY_REPORT_INDEX, true));
             // Refresh ViewerFrame with new Report Units.
             frame.updateReportUnits(displayableReportUnits, progressLogReader.getCurrentStatus(), true);
         }

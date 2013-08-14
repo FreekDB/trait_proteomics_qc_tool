@@ -9,6 +9,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.ctmm.trait.proteomics.qcviewer.gui.ChartUnit;
+import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 
 import org.jfree.data.xy.XYSeries;
 
@@ -274,6 +275,17 @@ public class ReportUnit implements Comparable<ReportUnit>{
         return new Comparator<ReportUnit>() {
             @Override
             public int compare(final ReportUnit reportUnit1, final ReportUnit reportUnit2) {
+                /*Needs following special provision to sort according to report index
+                 * since call to getMetricsValueFromKey(sortKey) returns N/A for report index  
+                 */
+                if (sortKey.equals(Constants.SORT_KEY_REPORT_INDEX)) {
+                    if (reportUnit1.getReportIndex() > reportUnit2.getReportIndex()) {
+                        return ascending ? 1 : -1; 
+                    } else if (reportUnit1.getReportIndex() < reportUnit2.getReportIndex()) {
+                        return ascending ? -1 : 1; 
+                    } else
+                        return 0; //equal reportIndex
+                }  
                 final String value1 = reportUnit1.getMetricsValueFromKey(sortKey);
                 final String value2 = reportUnit2.getMetricsValueFromKey(sortKey);
                 try {
@@ -283,21 +295,14 @@ public class ReportUnit implements Comparable<ReportUnit>{
                         return ascending ? 1 : -1; //if ascending = true, return 1 else return -1
                     } else if (value1.equals("N/A")) { //otherValue is valid and present
                         return ascending ? -1 : 1; //if ascending = true, return -1 else return 1
-                    } else if (sortKey.equals("No.")) {
-                        if (reportUnit1.reportNum > reportUnit2.reportNum) {
-                            return ascending ? 1 : -1; 
-                        } else if (reportUnit1.reportNum < reportUnit2.reportNum) {
-                            return ascending ? -1 : 1; 
-                        } else
-                            return 0; //equal reportNum
-                    } else if (sortKey.equals("generic:f_size")) {
+                    } else if (sortKey.equals(Constants.SORT_KEY_FILE_SIZE)) {
                         if (reportUnit1.fileSize > reportUnit2.fileSize) {
                             return ascending ? 1 : -1; 
                         } else if (reportUnit1.fileSize < reportUnit2.fileSize) {
                             return ascending ? -1 : 1; 
                         } else
                             return 0;
-                    } else if (sortKey.equals("generic:ms1_spectra")) {
+                    } else if (sortKey.equals(Constants.SORT_KEY_MS1_SPECTRA)) {
                         int thisms1Spectra = Integer.parseInt(value1);
                         int otherms1Spectra = Integer.parseInt(value2);
                         if (thisms1Spectra > otherms1Spectra) {
@@ -305,7 +310,7 @@ public class ReportUnit implements Comparable<ReportUnit>{
                         } else if (thisms1Spectra < otherms1Spectra) {
                             return ascending ? -1 : 1; 
                         } else return 0;
-                    } else if (sortKey.equals("generic:ms2_spectra")) {
+                    } else if (sortKey.equals(Constants.SORT_KEY_MS2_SPECTRA)) {
                         int thisms2Spectra = Integer.parseInt(value1);
                         int otherms2Spectra = Integer.parseInt(value2);
                         if (thisms2Spectra > otherms2Spectra) {
@@ -313,7 +318,7 @@ public class ReportUnit implements Comparable<ReportUnit>{
                         } else if (thisms2Spectra < otherms2Spectra) {
                             return ascending ? -1 : 1; 
                         } else return 0;
-                    } else if (sortKey.equals("generic:date")) {
+                    } else if (sortKey.equals(Constants.SORT_KEY_DATE)) {
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MMM/dd - HH:mm");
                         Date thisDate = sdf.parse(reportUnit1.measured);
                         Date otherDate = sdf.parse(reportUnit2.measured);
@@ -322,13 +327,13 @@ public class ReportUnit implements Comparable<ReportUnit>{
                         } else if (thisDate.compareTo(otherDate) < 0) {
                             return ascending ? -1 : 1; 
                         } else return 0;
-                    } else if (sortKey.equals("generic:runtime")) {
+                    } else if (sortKey.equals(Constants.SORT_KEY_RUNTIME)) {
                         if (reportUnit1.runtime.compareToIgnoreCase(reportUnit2.runtime) > 0) {
                             return ascending ? 1 : -1; 
                         } else if (reportUnit1.runtime.compareToIgnoreCase(reportUnit2.runtime) < 0) {
                             return ascending ? -1 : 1; 
                         } else return 0; 
-                    } else if (sortKey.equals("maxIntensity")) {
+                    } else if (sortKey.equals(Constants.SORT_KEY_MAX_INTENSITY)) {
                         if (reportUnit1.getChartUnit().getMaxTicIntensity() > reportUnit2.getChartUnit().getMaxTicIntensity()) { 
                             return ascending ? 1 : -1; 
                         } else if (reportUnit1.getChartUnit().getMaxTicIntensity() < reportUnit2.getChartUnit().getMaxTicIntensity()) { 
