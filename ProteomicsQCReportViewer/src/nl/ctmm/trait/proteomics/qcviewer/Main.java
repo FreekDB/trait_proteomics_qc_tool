@@ -43,7 +43,7 @@ import org.jfree.ui.RefineryUtilities;
  * TODO: move images directory (with logo image files) to source\main\resources directory. [Freek]
  * TODO: change QE*.raw file names into less descriptive names (see ProgressLogReader.parseCurrentStatus). [Freek]
  * 
- * TODO: Use HashMap<String, ReportUnit> instead of Arraylist <ReportUnit> [Pravin]
+ * TODO: Use Map<String, ReportUnit> instead of ArrayList<ReportUnit> [Pravin]
  * TODO: Refactor Main.java and create flowchart [Pravin]
  *  
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
@@ -126,7 +126,7 @@ public class Main {
      * The list contains keys of reports being displayed in the main user interface.
      * This list is updated for every new report. 
      */
-    private List<String> reportUnitsKeys = new ArrayList<String>();
+    private List<String> reportUnitsKeys = new ArrayList<>();
     
     /**
      * Reader for the pipeline log file - qc_status.log from the preferredRootDirectory.
@@ -223,11 +223,12 @@ public class Main {
             runningMsrunName = progressLogReader.getRunningMsrunName();
         }
         //Obtain initial set of reports according to date filter
-        Map<String, ReportUnit> reportUnitsTable = getReportUnits(preferredRootDirectory, runningMsrunName, fromDate, tillDate);
+        final Map<String, ReportUnit> reportUnitsTable = getReportUnits(preferredRootDirectory, runningMsrunName,
+                                                                        fromDate, tillDate);
         logger.fine(String.format(NUMBER_OF_REPORTS_MESSAGE, reportUnitsTable.size()));
-        List<ReportUnit> displayableReportUnits = new ArrayList<ReportUnit>(reportUnitsTable.values());
+        final List<ReportUnit> displayableReportUnits = new ArrayList<>(reportUnitsTable.values());
         //Maintain reportUnitsKeys
-        reportUnitsKeys = new ArrayList<String> (reportUnitsTable.keySet());
+        reportUnitsKeys = new ArrayList<>(reportUnitsTable.keySet());
         logger.fine("Size of report units keys = " + reportUnitsKeys);
         //Start main user interface
         startQCReportViewerGui(applicationProperties, displayableReportUnits, pipelineStatus);
@@ -301,7 +302,9 @@ public class Main {
                 return false;
             } //Refresh period is 5 seconds
             return true;
-        } else return false;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -351,7 +354,8 @@ public class Main {
         final String runningMsrunName = progressLogReader.getRunningMsrunName();
         tillDate = Calendar.getInstance().getTime();
         // TODO: can we use the preferredRootDirectory field below? [Freek] Yes & done [Pravin]
-        final Map<String, ReportUnit> reportUnitsTable = getReportUnits(preferredRootDirectory, runningMsrunName, fromDate, tillDate);
+        final Map<String, ReportUnit> reportUnitsTable = getReportUnits(preferredRootDirectory, runningMsrunName,
+                                                                        fromDate, tillDate);
         if (reportUnitsTable.size() == 0) {
             // There exist no reports in current root directory.
             // Get new location to read reports from.
@@ -360,9 +364,9 @@ public class Main {
         } else {
             //Compare newReportUnits with reportUnits
             //TODO: Compare newReportUnitsTable and reportUnitsTable to obtain newReportUnits
-            ArrayList<ReportUnit> newReportUnits = new ArrayList<ReportUnit>(reportUnitsTable.values());
+            final List<ReportUnit> newReportUnits = new ArrayList<>(reportUnitsTable.values());
             //Maintain reportUnitsKeys
-            reportUnitsKeys.addAll(new ArrayList<String> (reportUnitsTable.keySet()));
+            reportUnitsKeys.addAll(new ArrayList<>(reportUnitsTable.keySet()));
             logger.fine("Size of report units keys = " + reportUnitsKeys);
             reportUnitsTable.clear(); 
             //Refresh ViewerFrame with new Report Units
@@ -374,13 +378,15 @@ public class Main {
      * Get the report units from the directory structure below the root directory.
      *
      * @param rootDirectoryName the root directory to search in.
-     * @param runningMsrunName 
+     * @param runningMsrunName  the name of the currently running msrun.
      * @param fromDate          the start of the date range to search.
      * @param tillDate          the end of the date range to search.
      * @return the list with report units.
      */
-    private Map<String, ReportUnit> getReportUnits(final String rootDirectoryName, final String runningMsrunName, final Date fromDate, final Date tillDate) {
-        return new ReportReader(metricsParser).retrieveReports(rootDirectoryName, runningMsrunName, reportUnitsKeys, fromDate, tillDate);
+    private Map<String, ReportUnit> getReportUnits(final String rootDirectoryName, final String runningMsrunName,
+                                                   final Date fromDate, final Date tillDate) {
+        return new ReportReader(metricsParser).retrieveReports(rootDirectoryName, runningMsrunName, reportUnitsKeys,
+                                                               fromDate, tillDate);
     }
 
     /**
@@ -439,10 +445,11 @@ public class Main {
      * Update all the reports in the QC Report Viewer. It is called in the following two cases:
      * 1) New root directory is chosen.
      * 2) Change in the date range.
+     *
+     * TODO: can we decrease code duplication between the runReportViewer and updateReportViewer methods? [Freek]
      * 
      * @param directoryChanged if true, the root directory has changed
      */
-    
     public void updateReportViewer(final boolean directoryChanged) {
         logger.fine("Main updateReportViewer");
         preferredRootDirectory = loadProperties().getProperty(Constants.PROPERTY_ROOT_FOLDER);
@@ -460,12 +467,13 @@ public class Main {
         reportUnitsKeys.clear();
         logger.fine("Size of report units keys = " + reportUnitsKeys);
         //Obtain initial set of reports according to date filter
-        Map<String, ReportUnit> reportUnitsTable = getReportUnits(preferredRootDirectory, runningMsrunName, fromDate, tillDate);
+        final Map<String, ReportUnit> reportUnitsTable = getReportUnits(preferredRootDirectory, runningMsrunName,
+                                                                        fromDate, tillDate);
         logger.fine(String.format(NUMBER_OF_REPORTS_MESSAGE, reportUnitsTable.size()));
         //Maintain reportUnitsKeys
-        reportUnitsKeys = new ArrayList<String> (reportUnitsTable.keySet());
+        reportUnitsKeys = new ArrayList<>(reportUnitsTable.keySet());
         logger.fine("Size of report units keys = " + reportUnitsKeys);
-        List<ReportUnit> displayableReportUnits = new ArrayList<ReportUnit>(reportUnitsTable.values());
+        final List<ReportUnit> displayableReportUnits = new ArrayList<>(reportUnitsTable.values());
         if (displayableReportUnits.size() == 0) {
             // There exist no reports in selected root directory conforming date range.
             // Get new location to read reports from.
