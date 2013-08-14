@@ -80,10 +80,9 @@ public class Main {
     private static final String SIZE_REPORTS_KEYS_MESSAGE = "Size of report units keys: %d.";
     
     /**
-     * Message written to the logger when something goes wrong while processing dates
+     * Message written to the logger when something goes wrong while processing dates.
      */
-    private static final String INCORRECT_DATES_MESSAGE = "Something went wrong while processing " +
-    		"fromDate and tillDate";
+    private static final String INCORRECT_DATES_MESSAGE = "Something went wrong while processing fromDate and tillDate";
 
     /**
      * The application properties such as root folder and default metrics to show.
@@ -147,7 +146,7 @@ public class Main {
     /**
      * logFileFlag represents the success/failure of progressLogReader setup. 
      */
-    private boolean logFileFlag = false; 
+    private boolean logFileFlag;
     
     /**
      * Another way to monitor the pipeline log file - qc_status.log from the preferredRootDirectory.
@@ -163,7 +162,7 @@ public class Main {
     private String preferredRootDirectory;
 
     /**
-     * Name of the RAW file being processed by the QC pipeline
+     * Name of the RAW file being processed by the QC pipeline.
      */
     private String runningMsrunName;
     
@@ -235,8 +234,7 @@ public class Main {
         logger.fine(String.format(NUMBER_OF_REPORTS_MESSAGE, reportUnitsTable.size()));
         final List<ReportUnit> displayableReportUnits = new ArrayList<>(reportUnitsTable.values());
         //Sort displayableReportUnits in ascending order of report index
-        Collections.sort(displayableReportUnits, ReportUnit.getReportUnitComparator
-                        (Constants.SORT_KEY_REPORT_INDEX, true));
+        Collections.sort(displayableReportUnits, ReportUnit.getComparator(Constants.SORT_KEY_REPORT_INDEX, true));
         //Start main user interface
         startQCReportViewerGui(applicationProperties, displayableReportUnits, pipelineStatus);
         dataEntryForm.disposeInitialDialog();
@@ -394,8 +392,7 @@ public class Main {
         } else {
             final List<ReportUnit> newReportUnits = new ArrayList<>(reportUnitsTable.values());
             //Sort newReportUnits in ascending order of report index
-            Collections.sort(newReportUnits, ReportUnit.getReportUnitComparator
-                            (Constants.SORT_KEY_REPORT_INDEX, true));
+            Collections.sort(newReportUnits, ReportUnit.getComparator(Constants.SORT_KEY_REPORT_INDEX, true));
             //Maintain reportUnitsKeys
             reportUnitsKeys.addAll(new ArrayList<>(reportUnitsTable.keySet()));
             logger.fine(String.format(SIZE_REPORTS_KEYS_MESSAGE, reportUnitsKeys.size()));
@@ -454,7 +451,7 @@ public class Main {
     }
 
     /**
-     * Start monitoring progress log file
+     * Start monitoring progress log file.
      */
     private void startProgressLogFileMonitor() {
         if (logFileFlag) {
@@ -486,7 +483,7 @@ public class Main {
      * 1) New root directory is chosen.
      * 2) Change in the date range.
      * TODO: can we decrease code duplication between the runReportViewer and updateReportViewer methods? [Freek]
-     * [Pravin] Splitted common code in intuitive functions normalizePreferredRootDirectory(), 
+     * [Pravin] Split common code in intuitive functions normalizePreferredRootDirectory(),
      * setProgressLogReaderAndRunningMsrunName() and startProgressLogFileMonitor().
      * @param directoryChanged if true, the root directory has changed
      */
@@ -511,8 +508,7 @@ public class Main {
             logger.fine(String.format(SIZE_REPORTS_KEYS_MESSAGE, reportUnitsKeys.size()));
             final List<ReportUnit> displayableReportUnits = new ArrayList<>(reportUnitsTable.values());
             //Sort displayableReportUnits in ascending order of report index
-            Collections.sort(displayableReportUnits, ReportUnit.getReportUnitComparator
-                            (Constants.SORT_KEY_REPORT_INDEX, true));
+            Collections.sort(displayableReportUnits, ReportUnit.getComparator(Constants.SORT_KEY_REPORT_INDEX, true));
             // Refresh ViewerFrame with new Report Units.
             frame.updateReportUnits(displayableReportUnits, progressLogReader.getCurrentStatus(), true);
         }

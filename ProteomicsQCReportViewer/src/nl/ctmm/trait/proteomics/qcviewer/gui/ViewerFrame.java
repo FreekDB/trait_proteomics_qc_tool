@@ -568,8 +568,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         }
         final int reportIndexOffset = reportUnits.size();
         if (newReportUnits.size() > 0) {
-            //Initialize reportIsSelected 
-            for (int reportIndex = 0; reportIndex < newReportUnits.size(); reportIndex++) {
+            for (final ReportUnit ignored : newReportUnits) {
                 reportIsSelected.add(false);
             }
             
@@ -1158,7 +1157,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             //Copy reportUnits to orderedReportUnits
             orderedReportUnits.addAll(reportUnits);
             //Sort orderedReportUnits according to sortKey and sort order - ascending/descending
-            Collections.sort(orderedReportUnits, ReportUnit.getReportUnitComparator(sortKey, ascending));
+            Collections.sort(orderedReportUnits, ReportUnit.getComparator(sortKey, ascending));
             //Create chart frames and add them to the desktop pane.
             prepareChartsInOrder(true);
             // Set first report graph in the Tic Pane. 

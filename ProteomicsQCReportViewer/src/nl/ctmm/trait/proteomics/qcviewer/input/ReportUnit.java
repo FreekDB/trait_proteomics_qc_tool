@@ -271,7 +271,7 @@ public class ReportUnit implements Comparable<ReportUnit>{
      * @param ascending whether to sort in ascending or descending order.               
      * @return the comparator to compare report units.
      */
-    public static Comparator<ReportUnit> getReportUnitComparator(final String sortKey, final boolean ascending) {
+    public static Comparator<ReportUnit> getComparator(final String sortKey, final boolean ascending) {
         return new Comparator<ReportUnit>() {
             @Override
             public int compare(final ReportUnit reportUnit1, final ReportUnit reportUnit2) {
