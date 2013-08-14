@@ -26,7 +26,6 @@ import org.joda.time.Interval;
 /**
  * This class contains the logic to read the directory/file structure and prepare data to be displayed.
  * 
- * TODO: Use HashMap<String, ReportUnit> instead of Arraylist <ReportUnit> 
  * 
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
@@ -42,6 +41,27 @@ public class ReportReader extends JFrame {
      */
     private static final long serialVersionUID = 1;
 
+    /**
+     * Message written to the logger to show the number of reports.
+     */
+    private static final String NUMBER_OF_REPORTS_MESSAGE = "Number of reports is %s.";
+    
+    /**
+     * Message written to the logger to show that a report is being added.
+     */
+    private static final String ADDED_REPORT_MESSAGE = "Added report with msrunName = %s.";
+    
+    /**
+     * Message written to the logger to show that a report is being skipped.
+     */
+    private static final String SKIPPED_REPORT_MESSAGE = "Skipped report with msrunName = %s.";
+
+    /**
+     * Message written to the logger for runningMsrunName
+     */
+    private static final String RUNNING_MSRUN_NAME_MESSAGE = "RunningMsrunName = %s.";
+    
+    
     /**
      * The names of the directories the QC pipeline uses to represent the months.
      */
@@ -99,8 +119,8 @@ public class ReportReader extends JFrame {
             for (final File monthDirectory : getMonthDirectories(yearDirectory)) {
                 logger.fine("Month = " + monthDirectory.getName());
                 for (final File msRunDirectory : getMsRunDirectories(monthDirectory)) {
-                    logger.fine("Msrun = " + msRunDirectory.getName());
-                    if (new Interval(fromDate.getTime(), tillDate.getTime()).contains(msRunDirectory.lastModified())) {
+                    if (new Interval(fromDate.getTime(), tillDate.getTime())
+                    .contains(msRunDirectory.lastModified())) {
                         final File[] dataFiles = msRunDirectory.listFiles();
                         boolean errorFlag = false;
                         //Check existence of "metrics.json", "_ticmatrix.csv"
@@ -114,10 +134,10 @@ public class ReportReader extends JFrame {
                         //Avoid creating duplicate reports by using !reportUnitsKeys.contains(msrunName)
                         if (!runningMsrunName.equals(msrunName) && !reportUnitsKeys.contains(msrunName)) {
                             reportUnitsTable.put(msrunName, createReportUnit(msRunDirectory.getName(), dataFiles, errorFlag));
-                            logger.fine("Added report with msrunName = " + msrunName);
+                            logger.fine(String.format(ADDED_REPORT_MESSAGE, msrunName));
                         } else {
-                            logger.fine("Skipped report with msrunName = " + msrunName + " " +
-                            		"runningMsrunName = " + runningMsrunName);
+                            logger.fine(String.format(SKIPPED_REPORT_MESSAGE, msrunName));
+                            logger.fine(String.format(RUNNING_MSRUN_NAME_MESSAGE, runningMsrunName));
                         }
                     } 
                 }
@@ -130,6 +150,7 @@ public class ReportReader extends JFrame {
             //JOptionPane.showMessageDialog(this, allErrorMessages, "MSQC Check Warning Messages",
             //                              JOptionPane.ERROR_MESSAGE);
         }*/
+        logger.fine(String.format(NUMBER_OF_REPORTS_MESSAGE, reportUnitsTable.size()));
         return reportUnitsTable;
     }
 

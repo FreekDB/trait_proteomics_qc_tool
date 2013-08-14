@@ -139,6 +139,11 @@ public class Main {
     private String currentProgressLogFilePath;
 
     /**
+     * logFileFlag represents the success/failure of progressLogReader setup. 
+     */
+    private boolean logFileFlag = false; 
+    
+    /**
      * Another way to monitor the pipeline log file - qc_status.log from the preferredRootDirectory.
      * <p/>
      * TODO: this can probably be removed because ProgressLogReader is sufficient. Check with Sander and Thang first.
@@ -151,6 +156,11 @@ public class Main {
      */
     private String preferredRootDirectory;
 
+    /**
+     * Name of the RAW file being processed by the QC pipeline
+     */
+    private String runningMsrunName;
+    
     /**
      * The constructor is private so only the singleton instance can be used.
      */
@@ -204,46 +214,50 @@ public class Main {
     public void runReportViewer() {
         prepareAllLoggers();
         applicationProperties = loadProperties();
-        preferredRootDirectory = applicationProperties.getProperty(Constants.PROPERTY_ROOT_FOLDER);
-        /*Experimenting with toAbsolutePath().normalize() to make sure that root directory can be 
-         * specified like: ../ProteomicsQCPipeline/Reports. [Pravin]*/
-        preferredRootDirectory = Paths.get(preferredRootDirectory).toAbsolutePath().normalize().toString();
+        //Determine absolute path of preferred root directory
+        normalizePreferredRootDirectory();
         dataEntryForm = new DataEntryForm();
         dataEntryForm.setRootDirectoryName(preferredRootDirectory);
         dataEntryForm.displayInitialDialog();
-        logger.fine("in Main preferredRootDirectory = " + preferredRootDirectory);
-        metricsParser = new MetricsParser();
         //Determine fromDate and TillDate range to select the reports
         determineReportDateRange();
-        //Monitor pipeline status file to periodically obtain pipeline status
-        final boolean logFileFlag = setProgressLogReader();
-        //Check whether pipeline is processing RAW file - using runningMsrunName
-        String runningMsrunName = "";
-        if (logFileFlag) {
-            runningMsrunName = progressLogReader.getRunningMsrunName();
-        }
-        //Obtain initial set of reports according to date filter
-        final Map<String, ReportUnit> reportUnitsTable = getReportUnits(preferredRootDirectory, runningMsrunName,
-                                                                        fromDate, tillDate);
+        //Set progress log reader and running msrun name
+        setProgressLogReaderAndRunningMsrunName();
+        metricsParser = new MetricsParser();
+
+        //Obtain displayable set of reports 
+        final Map<String, ReportUnit> reportUnitsTable = getDisplayableReportUnitsTable();
         logger.fine(String.format(NUMBER_OF_REPORTS_MESSAGE, reportUnitsTable.size()));
         final List<ReportUnit> displayableReportUnits = new ArrayList<>(reportUnitsTable.values());
-        //Maintain reportUnitsKeys
-        reportUnitsKeys = new ArrayList<>(reportUnitsTable.keySet());
-        logger.fine("Size of report units keys = " + reportUnitsKeys);
         //Start main user interface
         startQCReportViewerGui(applicationProperties, displayableReportUnits, pipelineStatus);
         dataEntryForm.disposeInitialDialog();
-        if (displayableReportUnits.size() == 0) {
+        if (reportUnitsTable.size() == 0) {
             // There are no reports in the current root directory. Obtain new directory location from the user. 
             dataEntryForm.displayNoReportsFoundDialogue(preferredRootDirectory);
-        } 
-        //Start monitoring progress log file after starting main user interface
-        if (logFileFlag) {
-            progressLogReader.startProgressLogFileMonitor();
+        } else {
+            //Maintain reportUnitsKeys
+            reportUnitsKeys = new ArrayList<>(reportUnitsTable.keySet());
+            logger.fine("Size of report units keys = " + reportUnitsKeys);
         }
+        startProgressLogFileMonitor();
     }
     
-       /**
+    /**
+     * Setup progressLogReader to read current pipeline status.
+     * Check whether pipeline is processing RAW file. If yes, determine
+     * name of the RAW file being processed - represented by runningMsrunName. 
+     */
+    private void setProgressLogReaderAndRunningMsrunName() {
+        //Monitor pipeline status file to periodically obtain pipeline status
+        logFileFlag = setProgressLogReader();
+        //Check whether pipeline is processing RAW file - using runningMsrunName
+        if (logFileFlag) {
+            runningMsrunName = progressLogReader.getRunningMsrunName();
+        }
+    }
+
+    /**
      * Determine the date range for displaying reports.
      */
     private void determineReportDateRange() {
@@ -343,6 +357,16 @@ public class Main {
     }
 
     /**
+     * Read preferred root directory from the application properties and 
+     * normalize its absolute path.  
+     */
+    private void normalizePreferredRootDirectory() {
+        preferredRootDirectory = loadProperties().getProperty(Constants.PROPERTY_ROOT_FOLDER);
+        preferredRootDirectory = Paths.get(preferredRootDirectory).toAbsolutePath().normalize().toString();
+        logger.fine("in Main preferredRootDirectory = " + preferredRootDirectory);
+    }
+    
+    /**
      * Progress log file has changed. Refresh the application automatically on this notification.
      *
      * @param newPipelineStatus the new status of the QC pipeline.
@@ -351,19 +375,15 @@ public class Main {
         /* The tillDate has to be updated as currentTime - since the pipeline status has changed.
         * FromDate could be specified by the user
         */
-        final String runningMsrunName = progressLogReader.getRunningMsrunName();
+        runningMsrunName = progressLogReader.getRunningMsrunName();
         tillDate = Calendar.getInstance().getTime();
-        // TODO: can we use the preferredRootDirectory field below? [Freek] Yes & done [Pravin]
-        final Map<String, ReportUnit> reportUnitsTable = getReportUnits(preferredRootDirectory, runningMsrunName,
-                                                                        fromDate, tillDate);
+        final Map<String, ReportUnit> reportUnitsTable = getDisplayableReportUnitsTable(); 
         if (reportUnitsTable.size() == 0) {
             // There exist no reports in current root directory.
             // Get new location to read reports from.
             dataEntryForm.displayErrorMessage(String.format(NO_REPORTS_MESSAGE, preferredRootDirectory));
             dataEntryForm.displayRootDirectoryChooser();
         } else {
-            //Compare newReportUnits with reportUnits
-            //TODO: Compare newReportUnitsTable and reportUnitsTable to obtain newReportUnits
             final List<ReportUnit> newReportUnits = new ArrayList<>(reportUnitsTable.values());
             //Maintain reportUnitsKeys
             reportUnitsKeys.addAll(new ArrayList<>(reportUnitsTable.keySet()));
@@ -376,17 +396,17 @@ public class Main {
 
     /**
      * Get the report units from the directory structure below the root directory.
-     *
-     * @param rootDirectoryName the root directory to search in.
-     * @param runningMsrunName  the name of the currently running msrun.
-     * @param fromDate          the start of the date range to search.
-     * @param tillDate          the end of the date range to search.
-     * @return the list with report units.
+     * @return the list with report units. 
      */
-    private Map<String, ReportUnit> getReportUnits(final String rootDirectoryName, final String runningMsrunName,
-                                                   final Date fromDate, final Date tillDate) {
-        return new ReportReader(metricsParser).retrieveReports(rootDirectoryName, runningMsrunName, reportUnitsKeys,
-                                                               fromDate, tillDate);
+    private Map<String, ReportUnit> getDisplayableReportUnitsTable() {
+        /** preferredRootDirectory the root directory to search in.
+        * runningMsrunName  the name of the currently running msrun.
+        * reportUnitsKeys   list containing names of report units being displayed.
+        * fromDate          the start of the date range to search.
+        * tillDate          the end of the date range to search.
+        * */
+        return new ReportReader(metricsParser).retrieveReports(preferredRootDirectory, runningMsrunName, 
+                reportUnitsKeys, fromDate, tillDate);
     }
 
     /**
@@ -423,6 +443,15 @@ public class Main {
     }
 
     /**
+     * Start monitoring progress log file
+     */
+    private void startProgressLogFileMonitor() {
+        if (logFileFlag) {
+            progressLogReader.startProgressLogFileMonitor();
+        }
+    }
+    
+    /**
      * Get a property with a comma-separated string with column names and convert it into a list of strings.
      *
      * @param applicationProperties the application properties.
@@ -447,45 +476,35 @@ public class Main {
      * 2) Change in the date range.
      *
      * TODO: can we decrease code duplication between the runReportViewer and updateReportViewer methods? [Freek]
+     * [Pravin] Splitted common code in intuitive functions normalizePreferredRootDirectory(), 
+     * setProgressLogReaderAndRunningMsrunName() and startProgressLogFileMonitor().
      * 
+     *    
      * @param directoryChanged if true, the root directory has changed
      */
     public void updateReportViewer(final boolean directoryChanged) {
         logger.fine("Main updateReportViewer");
-        preferredRootDirectory = loadProperties().getProperty(Constants.PROPERTY_ROOT_FOLDER);
-        preferredRootDirectory = Paths.get(preferredRootDirectory).toAbsolutePath().normalize().toString();
-        boolean logFileFlag = false; 
-        //Check whether pipeline is processing RAW file - using runningMsrunName
-        String runningMsrunName = "";
+        normalizePreferredRootDirectory(); 
         if (directoryChanged) {
-            logFileFlag = setProgressLogReader();
-            if (logFileFlag) {
-                runningMsrunName = progressLogReader.getRunningMsrunName();
-            }
+            setProgressLogReaderAndRunningMsrunName();
         }
         determineReportDateRange();
+        //Clear reportUnitsKeys 
         reportUnitsKeys.clear();
-        logger.fine("Size of report units keys = " + reportUnitsKeys);
-        //Obtain initial set of reports according to date filter
-        final Map<String, ReportUnit> reportUnitsTable = getReportUnits(preferredRootDirectory, runningMsrunName,
-                                                                        fromDate, tillDate);
+        //Obtain set of reports to be displayed in the viewer
+        final Map<String, ReportUnit> reportUnitsTable = getDisplayableReportUnitsTable();
         logger.fine(String.format(NUMBER_OF_REPORTS_MESSAGE, reportUnitsTable.size()));
-        //Maintain reportUnitsKeys
-        reportUnitsKeys = new ArrayList<>(reportUnitsTable.keySet());
-        logger.fine("Size of report units keys = " + reportUnitsKeys);
-        final List<ReportUnit> displayableReportUnits = new ArrayList<>(reportUnitsTable.values());
-        if (displayableReportUnits.size() == 0) {
+        if (reportUnitsTable.size() == 0) {
             // There exist no reports in selected root directory conforming date range.
-            // Get new location to read reports from.
-            dataEntryForm.displayErrorMessage(String.format(NO_REPORTS_MESSAGE, preferredRootDirectory));
-            dataEntryForm.displayRootDirectoryChooser();
+            dataEntryForm.displayNoReportsFoundDialogue(preferredRootDirectory);
         } else {
+            //Maintain reportUnitsKeys
+            reportUnitsKeys = new ArrayList<>(reportUnitsTable.keySet());
+            final List<ReportUnit> displayableReportUnits = new ArrayList<>(reportUnitsTable.values());
             // Refresh ViewerFrame with new Report Units.
             frame.updateReportUnits(displayableReportUnits, progressLogReader.getCurrentStatus(), true);
         }
-        //Start monitoring progress log file after updating main user interface
-        if (logFileFlag) {
-            progressLogReader.startProgressLogFileMonitor();
-        }
+        startProgressLogFileMonitor();
     }
+    
 }
