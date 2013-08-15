@@ -113,30 +113,15 @@ public class DataEntryForm extends JFrame {
     private static final int INITIAL_DIALOG_HEIGHT = 100;    
     
     /**
-     * Width of the initial status dialog.
-     */
-    private static final int NO_REPORTS_FRAME_WIDTH = 300;
-
-    /**
-     * Height of the initial status dialog.
-     */
-    private static final int NO_REPORTS_FRAME_HEIGHT = 90;    
-
-    /**
-     * Width of the initial status dialog.
-     */
-    private static final int NO_REPORTS_TEXT_WIDTH = 300;
-
-    /**
-     * Height of the initial status dialog.
-     */
-    private static final int NO_REPORTS_TEXT_HEIGHT = 50;    
-    
-    /**
      * The title shown when an error has occurred.
      */
     private static final String ERROR_TITLE = "Error";
 
+    /**
+     * The title of no reports found dialog.
+     */
+    private static final String NO_REPORTS_TITLE = "No reports found";
+    
     /**
      * Message shown to the user when no reports are found.
      */
@@ -145,7 +130,48 @@ public class DataEntryForm extends JFrame {
     /**
      * Message asking user's input to select another root directory.
      */
-    private static final String ROOT_DIRECTORY_USER_INPUT_MESSAGE = "Would you like to select another root directory?"; 
+    private static final String ROOT_DIRECTORY_USER_INPUT_MESSAGE = "Would you like to select another root directory?";
+
+    /**
+     * Message displayed in the no reports dialog.
+     */
+    private static final String NO_REPORTS_DIALOG_MESSAGE = NO_REPORTS_MESSAGE + "%s. " + ROOT_DIRECTORY_USER_INPUT_MESSAGE;
+
+    /**
+     * Name of the root directory chooser 
+     */
+    private static final String ROOT_DIRECTORY_CHOOSER_NAME = "Select Preferred Root Directory";
+
+    /**
+     * Message written to the logger after selecting new root directory. 
+     */
+    private static final String SELECTED_ROOT_DIRECTORY_MESSAGE = "You chose to open this folder: %s";
+
+    /**
+     * Title of the date filter form
+     */
+    private static final String DATE_FILTER_FORM_TITLE = "Date Filter";
+
+    /**
+     * Label of from date chooser component
+     */
+    private static final String FROM_DATE_LABEL = "From Date:";
+
+    /**
+     * Label of till date chooser component
+     */
+    private static final String TILL_DATE_LABEL = "Till Date:";
+
+    /**
+     * Message shown if date fields are empty
+     */
+    protected static final String EMPTY_DATES_MESSAGE = "Please fill in both dates"; 
+    
+    /**
+     * Message shown if from date is after till date
+     */
+    
+    protected static final String INCORRECT_DATES_MESSAGE = "From Date: %s is after Till Date: %s";
     
     /**
      * The dialog that is shown while the reports are read during initialization.
@@ -201,53 +227,18 @@ public class DataEntryForm extends JFrame {
      * root directory.
      *
      * TODO: can we use JOptionPane.showConfirmDialog(null, message, "title", JOptionPane.YES_NO_OPTION)? [Freek]
+     * Done. Thank you for the tip. [Pravin]
      *
      * @param preferredRootDirectory the directory to which the QC pipeline writes the QC reports.
      */
     public void displayNoReportsFoundDialogue(final String preferredRootDirectory) {
-        final String message = NO_REPORTS_MESSAGE + preferredRootDirectory + ". " + ROOT_DIRECTORY_USER_INPUT_MESSAGE;
-        final String htmlMessage = Constants.HTML_OPENING_TAG + message + Constants.HTML_CLOSING_TAG;
-        final JLabel messageLabel = new JLabel(htmlMessage, JLabel.CENTER);
-        messageLabel.setFont(Constants.DEFAULT_FONT);
-        messageLabel.setPreferredSize(new Dimension(NO_REPORTS_TEXT_WIDTH, NO_REPORTS_TEXT_HEIGHT));
-
-        final JButton yesButton = new JButton(Constants.YES_BUTTON_TEXT);
-        yesButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        yesButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent actionEvent) {
-                dispose();
-                displayRootDirectoryChooser();
-            }
-        });
-
-        final JButton noButton = new JButton(Constants.NO_BUTTON_TEXT);
-        noButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        noButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent actionEvent) {
-                dispose();
-            }
-        });
-
-        final JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
-        buttonPanel.add(Box.createRigidArea(Constants.DIMENSION_25X0));
-        buttonPanel.add(yesButton, Box.CENTER_ALIGNMENT);
-        buttonPanel.add(Box.createRigidArea(Constants.DIMENSION_25X0));
-        buttonPanel.add(noButton, Box.CENTER_ALIGNMENT);
+        final String message = String.format(NO_REPORTS_DIALOG_MESSAGE, preferredRootDirectory);
+        final int reply = JOptionPane.showConfirmDialog(null, message, NO_REPORTS_TITLE, JOptionPane.YES_NO_OPTION);
         
-        final JPanel mainPanel = new JPanel(new FlowLayout());
-        mainPanel.setPreferredSize(new Dimension(NO_REPORTS_FRAME_WIDTH, NO_REPORTS_FRAME_HEIGHT));
-        mainPanel.add(messageLabel);
-        mainPanel.add(buttonPanel);
-
-        setTitle(ERROR_TITLE);
-        getContentPane().add(mainPanel);
-        setResizable(false);
-        pack();
-        RefineryUtilities.centerFrameOnScreen(this);
-        setVisible(true);
+        if (reply == JOptionPane.YES_OPTION)
+        {
+            displayRootDirectoryChooser();
+        }
     }
 
     /**
@@ -255,11 +246,11 @@ public class DataEntryForm extends JFrame {
      */
     public void displayRootDirectoryChooser() {
         final JFileChooser chooser = new JFileChooser();
-        chooser.setName("Select Preferred Root Directory");
+        chooser.setName(ROOT_DIRECTORY_CHOOSER_NAME);
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-            logger.fine("You chose to open this folder: "
-                        + FilenameUtils.normalize(chooser.getSelectedFile().getAbsolutePath()));
+            logger.fine(String.format(SELECTED_ROOT_DIRECTORY_MESSAGE, 
+                    FilenameUtils.normalize(chooser.getSelectedFile().getAbsolutePath())));
             final String preferredRootDirectory = FilenameUtils.normalize(chooser.getSelectedFile().getAbsolutePath());
             PropertyFileWriter.getInstance().updatePreferredRootDirectory(preferredRootDirectory);
             Main.getInstance().updateReportViewer(true);
@@ -271,16 +262,16 @@ public class DataEntryForm extends JFrame {
      * Display the date filter form to select the from and till date for filtering QC reports.
      */
     public void displayDateFilterEntryForm() {
-        setTitle("Date Filter");
+        setTitle(DATE_FILTER_FORM_TITLE);
         final JDateChooser fromDateChooser = createDateChooser(Main.getInstance().getFromDate());
         final JDateChooser tillDateChooser = createDateChooser(Main.getInstance().getTillDate());
 
         final JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.add(Box.createRigidArea(Constants.DIMENSION_0X5));
-        mainPanel.add(createDatePanel("From Date:", fromDateChooser));
+        mainPanel.add(createDatePanel(FROM_DATE_LABEL, fromDateChooser));
         mainPanel.add(Box.createRigidArea(Constants.DIMENSION_0X5));
-        mainPanel.add(createDatePanel("Till Date:", tillDateChooser));
+        mainPanel.add(createDatePanel(TILL_DATE_LABEL, tillDateChooser));
         mainPanel.add(Box.createRigidArea(Constants.DIMENSION_0X10));
         mainPanel.add(createButtonPanel(fromDateChooser, tillDateChooser));
         mainPanel.add(Box.createRigidArea(Constants.DIMENSION_0X5));
@@ -348,10 +339,10 @@ public class DataEntryForm extends JFrame {
                         Main.getInstance().updateReportViewer(false);
                         dispose();
                     } else {
-                        showErrorMessage("From date " + fromDate + " is after till date " + tillDate);
+                        showErrorMessage(String.format(INCORRECT_DATES_MESSAGE, fromDate, tillDate));
                     }
                 } else {
-                    showErrorMessage("Please fill in both dates");
+                    showErrorMessage(EMPTY_DATES_MESSAGE);
                 }
             }
         });
