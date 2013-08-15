@@ -30,7 +30,7 @@ import org.apache.commons.lang.time.DurationFormatUtils;
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
-public class ProgressLogReader implements FileChangeListener {
+public class ProgressLogReader {
     /**
     * The logger for this class.
     */
@@ -238,19 +238,6 @@ public class ProgressLogReader implements FileChangeListener {
         timer = new Timer(true);
         final StatusMonitorTask task = new StatusMonitorTask();
         timer.schedule(task, Constants.POLL_INTERVAL_PIPELINE_LOG, Constants.POLL_INTERVAL_PIPELINE_LOG);
-    }
-    
-    /**
-     * TODO: check whether this can be removed (if frequently polling the log file is good enough). [Freek]
-     *
-     * @param logFile the log file that has changed.
-     */
-    @Override
-    public void fileChanged(final File logFile) {
-        logger.fine("ProgressLogReader: logFile changed. Refreshing current status..");
-        parseCurrentStatus(logFile);
-        logger.fine("Now current status is " + getCurrentStatus());
-        Main.getInstance().notifyProgressLogFileChanged(getCurrentStatus());
     }
     
     /**

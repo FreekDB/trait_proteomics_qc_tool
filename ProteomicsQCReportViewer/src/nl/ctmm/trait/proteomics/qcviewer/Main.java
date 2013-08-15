@@ -1,7 +1,6 @@
 package nl.ctmm.trait.proteomics.qcviewer;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.text.ParseException;
@@ -20,7 +19,6 @@ import java.util.logging.Logger;
 import nl.ctmm.trait.proteomics.qcviewer.gui.DataEntryForm;
 import nl.ctmm.trait.proteomics.qcviewer.gui.ViewerFrame;
 import nl.ctmm.trait.proteomics.qcviewer.input.MetricsParser;
-import nl.ctmm.trait.proteomics.qcviewer.input.ProgressLogMonitor;
 import nl.ctmm.trait.proteomics.qcviewer.input.ProgressLogReader;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportReader;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnit;
@@ -134,23 +132,10 @@ public class Main {
     private ProgressLogReader progressLogReader;
 
     /**
-     * Record progressLogFilePath to remove listener in progressLogMonitor.
-     */
-    private String currentProgressLogFilePath;
-
-    /**
      * logFileFlag represents the success/failure of progressLogReader setup. 
      */
     private boolean logFileFlag;
     
-    /**
-     * Another way to monitor the pipeline log file - qc_status.log from the preferredRootDirectory.
-     * <p/>
-     * TODO: this can probably be removed because ProgressLogReader is sufficient. Check with Sander and Thang first.
-     */
-    @SuppressWarnings("FieldCanBeLocal")
-    private ProgressLogMonitor progressLogMonitor;
-
     /**
      * The directory to which the QC pipeline writes the QC reports.
      */
@@ -289,8 +274,7 @@ public class Main {
 
     /**
      * Determine progress log file path.
-     * Setup progressLogReader to read current pipeline status.
-     * Setup progressLogMonitor to monitor changes to progress log file.
+     * Setup progressLogReader to read current pipeline status periodically.
      * 
      * @return true if progress log file exists, otherwise return false. 
      */
@@ -301,23 +285,9 @@ public class Main {
         progressLogReader = ProgressLogReader.getInstance(); 
         if (progressLogReader.setProgressLogFile(progressLogFilePath)) {
             pipelineStatus = progressLogReader.getCurrentStatus();
-            //Start the progress log monitor to monitor qc_status.log file
-            // TODO: keep a reference to this progressLogMonitor (declare as a field)? [Freek]
-            progressLogMonitor = ProgressLogMonitor.getInstance();
-            try {
-                if (currentProgressLogFilePath != null) {
-                    progressLogMonitor.removeFileChangeListener(progressLogReader, currentProgressLogFilePath);
-                }
-                progressLogMonitor.addFileChangeListener(progressLogReader, progressLogFilePath,
-                                                         Constants.POLL_INTERVAL_PIPELINE_LOG);
-                currentProgressLogFilePath = progressLogFilePath; 
-            } catch (final FileNotFoundException e1) {
-                e1.printStackTrace();
-                logger.fine(String.format(LOG_FILE_NOT_FOUND_MESSAGE, progressLogFilePath));
-                return false;
-            } //Refresh period is 5 seconds
             return true;
         } else {
+            logger.fine(String.format(LOG_FILE_NOT_FOUND_MESSAGE, progressLogFilePath));
             return false;
         }
     }
