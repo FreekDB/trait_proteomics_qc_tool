@@ -139,7 +139,7 @@ public class DataEntryForm extends JDialog {
     private static final String NO_REPORTS_DIALOG_MESSAGE = NO_REPORTS_MESSAGE + "%s. " + ROOT_DIRECTORY_USER_INPUT_MESSAGE;
 
     /**
-     * Name of the root directory chooser 
+     * Name of the root directory chooser.
      */
     private static final String ROOT_DIRECTORY_CHOOSER_NAME = "Select Preferred Root Directory";
 
@@ -149,30 +149,29 @@ public class DataEntryForm extends JDialog {
     private static final String SELECTED_ROOT_DIRECTORY_MESSAGE = "You chose to open this folder: %s";
 
     /**
-     * Title of the date filter form
+     * Title of the date filter form.
      */
     private static final String DATE_FILTER_FORM_TITLE = "Date Filter";
 
     /**
-     * Label of from date chooser component
+     * Label of from date chooser component.
      */
     private static final String FROM_DATE_LABEL = "From Date:";
 
     /**
-     * Label of till date chooser component
+     * Label of till date chooser component.
      */
     private static final String TILL_DATE_LABEL = "Till Date:";
 
     /**
-     * Message shown if date fields are empty
+     * Message shown if date fields are empty.
      */
-    protected static final String EMPTY_DATES_MESSAGE = "Please fill in both dates"; 
+    private static final String EMPTY_DATES_MESSAGE = "Please fill in both dates";
     
     /**
-     * Message shown if from date is after till date
+     * Message shown if from date is after till date.
      */
-    
-    protected static final String INCORRECT_DATES_MESSAGE = "From Date: %s is after Till Date: %s";
+    private static final String INCORRECT_DATES_MESSAGE = "From Date: %s is after Till Date: %s";
     
     /**
      * The dialog that is shown while the reports are read during initialization.
@@ -183,16 +182,16 @@ public class DataEntryForm extends JDialog {
      * Construct a data entry form.
      */
     public DataEntryForm() {
-        
     }
-    
+
     /**
      * Construct a data entry form with ViewerFrame as parent.
+     *
+     * @param parent the viewer frame.
      */
-    public DataEntryForm(ViewerFrame parent) {
+    public DataEntryForm(final ViewerFrame parent) {
         super(parent);
     }
-    
 
     /**
      * Display the initial dialog while starting the QC report viewer.
@@ -243,9 +242,7 @@ public class DataEntryForm extends JDialog {
     public void displayNoReportsFoundDialogue(final String preferredRootDirectory) {
         final String message = String.format(NO_REPORTS_DIALOG_MESSAGE, preferredRootDirectory);
         final int reply = JOptionPane.showConfirmDialog(null, message, NO_REPORTS_TITLE, JOptionPane.YES_NO_OPTION);
-        
-        if (reply == JOptionPane.YES_OPTION)
-        {
+        if (reply == JOptionPane.YES_OPTION) {
             displayRootDirectoryChooser();
         }
     }
