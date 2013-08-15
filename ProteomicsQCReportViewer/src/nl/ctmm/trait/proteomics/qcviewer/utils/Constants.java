@@ -40,6 +40,11 @@ public interface Constants {
      * Default property value for the folder to retrieve QC reports from.
      */
     String DEFAULT_ROOT_FOLDER = "QCReports";
+    
+    /**
+     * Not available string
+     */
+    String NOT_AVAILABLE_STRING = "N/A";
 
     /**
      * Name of the progress log file to monitor for new QC reports.
@@ -62,6 +67,22 @@ public interface Constants {
      */
     String PROPERTY_SHOW_REPORTS_TILL_DATE = "ShowReportsTillDate";
 
+    /**
+     * Report error message label when one or more report files not found.
+     */
+    String REPORT_ERROR_MISSING_FILES = "Missing files";
+    
+    /**
+     * Report error message label when one or more metrics are not available.
+     */
+    String REPORT_ERROR_MISSING_METRICS = "Missing metrics";
+    
+    /**
+     * Report error message label when one or more report files not found 
+     * and one or more metrics are not available.
+     */
+    String REPORT_ERROR_MISSING_FILES_METRICS = "Missing files & metrics";
+    
 //    String DEFAULT_REPORTS_DISPLAY_PERIOD = "DefaultReportsDisplayPeriod";
 //    String DEFAULT_REPORTS_DISPLAY_PERIOD_VALUE = "14"; //show reports from last two weeks by default
 

@@ -1,6 +1,8 @@
 package nl.ctmm.trait.proteomics.qcviewer.input;
 
 import java.awt.image.BufferedImage;
+
+import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Utilities;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -37,11 +39,11 @@ public class ReportUnitTest {
         Double fileSize = -1.0;
         assertEquals(REPORT_NUMBER, reportUnit.getReportNum());
         assertEquals(fileSize, reportUnit.getFileSize());
-        assertEquals("N/A", reportUnit.getFileSizeString());
-        assertEquals("N/A", reportUnit.getMs1Spectra());
-        assertEquals("N/A", reportUnit.getMs2Spectra());
-        assertEquals("N/A", reportUnit.getMeasured());
-        assertEquals("N/A", reportUnit.getRuntime());
+        assertEquals(Constants.NOT_AVAILABLE_STRING, reportUnit.getFileSizeString());
+        assertEquals(Constants.NOT_AVAILABLE_STRING, reportUnit.getMs1Spectra());
+        assertEquals(Constants.NOT_AVAILABLE_STRING, reportUnit.getMs2Spectra());
+        assertEquals(Constants.NOT_AVAILABLE_STRING, reportUnit.getMeasured());
+        assertEquals(Constants.NOT_AVAILABLE_STRING, reportUnit.getRuntime());
     }
 
     /**

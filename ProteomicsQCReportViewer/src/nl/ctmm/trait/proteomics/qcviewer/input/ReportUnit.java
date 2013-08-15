@@ -27,13 +27,17 @@ public class ReportUnit implements Comparable<ReportUnit>{
 
     private int reportNum = -1;
     private int reportIndex = -1; 
-    private String fileSizeString = "N/A";
+    private String fileSizeString = Constants.NOT_AVAILABLE_STRING;
     private String msrunName = ""; 
     private Double fileSize = -1.0;
-    private String ms1Spectra = "N/A";
-    private String ms2Spectra = "N/A";
-    private String measured = "N/A";
-    private String runtime = "N/A";
+    private String ms1Spectra = Constants.NOT_AVAILABLE_STRING;
+    private String ms2Spectra = Constants.NOT_AVAILABLE_STRING;
+    private String measured = Constants.NOT_AVAILABLE_STRING;
+    private String runtime = Constants.NOT_AVAILABLE_STRING;
+    /**
+     * String describing report error if files or values are missing
+     */
+    private String reportErrorString = "";
 
     private boolean errorFlag = false; //to signify that one or more files belonging to this report are missing
     
@@ -61,7 +65,7 @@ public class ReportUnit implements Comparable<ReportUnit>{
      * @param key metrics key in String format
      */
     public String getMetricsValueFromKey(final String key) {
-        return (metricsValues != null && metricsValues.containsKey(key)) ? metricsValues.get(key) : "N/A";
+        return (metricsValues != null && metricsValues.containsKey(key)) ? metricsValues.get(key) : Constants.NOT_AVAILABLE_STRING;
     }
 
     /**
@@ -150,11 +154,29 @@ public class ReportUnit implements Comparable<ReportUnit>{
      * @param fileSizeString size of the RAW MS data file (in MB)
      */
     public void setFileSizeString(final String fileSizeString) {
-        fileSize = (fileSizeString != null && !fileSizeString.equals("N/A") && !fileSizeString.trim().isEmpty())
+        fileSize = (fileSizeString != null && !fileSizeString.equals(Constants.NOT_AVAILABLE_STRING) 
+                && !fileSizeString.trim().isEmpty())
                    ? Double.parseDouble(fileSizeString)
                    : null;
     }
 
+    /**
+     * Set report error string
+     * @param report error string
+     */
+    public void setReportErrorString(final String reportErrorString) {
+        this.reportErrorString = reportErrorString;
+    }
+    
+    /**
+     * Get report error string
+     * @return report error string
+     */
+    public String getReportErrorString() {
+        return reportErrorString;
+    }
+    
+    
     /**
      * Get the value of parameter ms1Spectra
      *
@@ -291,9 +313,11 @@ public class ReportUnit implements Comparable<ReportUnit>{
                 try {
                     if (value1.equals(value2)) {
                         return 0; 
-                    } else if (value2.equals("N/A")) { //thisValue is valid and present
+                    } else if (value2.equals(Constants.NOT_AVAILABLE_STRING)) { 
+                      //value1 is valid and present
                         return ascending ? 1 : -1; //if ascending = true, return 1 else return -1
-                    } else if (value1.equals("N/A")) { //otherValue is valid and present
+                    } else if (value1.equals(Constants.NOT_AVAILABLE_STRING)) { 
+                      //value2 is valid and present
                         return ascending ? -1 : 1; //if ascending = true, return -1 else return 1
                     } else if (sortKey.equals(Constants.SORT_KEY_FILE_SIZE)) {
                         if (reportUnit1.fileSize > reportUnit2.fileSize) {

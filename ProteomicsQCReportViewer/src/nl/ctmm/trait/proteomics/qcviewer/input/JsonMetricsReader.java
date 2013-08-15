@@ -9,6 +9,8 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -60,7 +62,7 @@ public class JsonMetricsReader {
             */ 
             for (final String key : allMetricsMap.keySet()) {
                 //Initialize metricsValues to N/A
-                String paramValue = "N/A";
+                String paramValue = Constants.NOT_AVAILABLE_STRING;
                 //Split the key into jsonObject and parameters
                 final StringTokenizer keyTokenizer = new StringTokenizer(key, ":");
                 final String objectName = keyTokenizer.nextToken();

@@ -60,7 +60,7 @@ public class ChartUnit {
      */
     public ChartUnit(final String msrunName, final int reportIndex, final XYSeries series) {
         logger.fine("In ChartUnit: reportIndex = " + reportIndex + " msrunName = " + msrunName);
-        String maxIntensityString = "N/A";
+        String maxIntensityString = Constants.NOT_AVAILABLE_STRING;
         if (series != null) {
             maxIntensity = series.getMaxY();
             maxIntensityString = new DecimalFormat("0.0000E0").format(maxIntensity);

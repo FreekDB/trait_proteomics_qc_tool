@@ -147,7 +147,7 @@ public class DetailsFrame extends JFrame implements ActionListener {
             final String[] row = new String[columnNames.length];
             row[0] = metricsData.getKey();
             row[1] = metricsData.getValue();
-            row[2] = (metricsValues != null) ? metricsValues.get(metricsData.getKey()) : "N/A";
+            row[2] = (metricsValues != null) ? metricsValues.get(metricsData.getKey()) : Constants.NOT_AVAILABLE_STRING;
             dataValues[metricIndex] = row;
             metricIndex++;
         }

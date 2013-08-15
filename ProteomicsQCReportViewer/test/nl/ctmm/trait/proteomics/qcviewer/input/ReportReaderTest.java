@@ -9,6 +9,8 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
+import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -55,11 +57,11 @@ public class ReportReaderTest {
         final ReportUnit reportUnit2 = reports.get(1);
         assertEquals(2, reportUnit2.getReportNum());
         // TODO: look into why these values below are all not available. [Freek]
-        assertEquals("N/A", reportUnit2.getFileSizeString());
-        assertEquals("N/A", reportUnit2.getMs1Spectra());
-        assertEquals("N/A", reportUnit2.getMs2Spectra());
-        assertEquals("N/A", reportUnit2.getMeasured());
-        assertEquals("N/A", reportUnit2.getRuntime());
+        assertEquals(Constants.NOT_AVAILABLE_STRING, reportUnit2.getFileSizeString());
+        assertEquals(Constants.NOT_AVAILABLE_STRING, reportUnit2.getMs1Spectra());
+        assertEquals(Constants.NOT_AVAILABLE_STRING, reportUnit2.getMs2Spectra());
+        assertEquals(Constants.NOT_AVAILABLE_STRING, reportUnit2.getMeasured());
+        assertEquals(Constants.NOT_AVAILABLE_STRING, reportUnit2.getRuntime());
     }
 
     /**
