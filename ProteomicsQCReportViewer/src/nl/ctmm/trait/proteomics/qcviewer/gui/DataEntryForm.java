@@ -261,7 +261,7 @@ public class DataEntryForm extends JFrame {
             logger.fine("You chose to open this folder: "
                         + FilenameUtils.normalize(chooser.getSelectedFile().getAbsolutePath()));
             final String preferredRootDirectory = FilenameUtils.normalize(chooser.getSelectedFile().getAbsolutePath());
-            PropertyFileWriter.updatePreferredRootDirectory(preferredRootDirectory);
+            PropertyFileWriter.getInstance().updatePreferredRootDirectory(preferredRootDirectory);
             Main.getInstance().updateReportViewer(true);
             dispose();
         }
@@ -344,7 +344,7 @@ public class DataEntryForm extends JFrame {
                 final String tillDate = Constants.DATE_FORMAT.format(tillDateChooser.getDate());
                 if (!"".equals(fromDate) && !"".equals(tillDate)) {
                     if (!fromDateChooser.getDate().after(tillDateChooser.getDate())) {
-                        PropertyFileWriter.updateFromAndTillDates(fromDate, tillDate);
+                        PropertyFileWriter.getInstance().updateFromAndTillDates(fromDate, tillDate);
                         Main.getInstance().updateReportViewer(false);
                         dispose();
                     } else {

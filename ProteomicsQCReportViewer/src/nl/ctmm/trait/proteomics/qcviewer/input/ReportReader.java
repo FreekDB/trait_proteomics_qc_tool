@@ -15,8 +15,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-import javax.swing.JFrame;
-
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 
 import org.apache.commons.io.FilenameUtils;
@@ -26,21 +24,16 @@ import org.joda.time.Interval;
 /**
  * This class contains the logic to read the directory/file structure and prepare data to be displayed.
  * 
- * TODO: Use HashMap<String, ReportUnit> instead of Arraylist <ReportUnit> 
+ * TODO: Use Map<String, ReportUnit> instead of ArrayList<ReportUnit>. [Pravin]
  * 
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
-public class ReportReader extends JFrame {
+public class ReportReader {
     /**
      * The logger for this class.
      */
     private static final Logger logger = Logger.getLogger(ReportReader.class.getName());
-
-    /**
-     * The version number for (de)serialization of this class (UID: universal identifier).
-     */
-    private static final long serialVersionUID = 1;
 
     /**
      * The names of the directories the QC pipeline uses to represent the months.
@@ -73,23 +66,22 @@ public class ReportReader extends JFrame {
      * relevant data.
      *
      * @param rootDirectoryName the root directory that contains the year directories.
-     * @param runningMsrunName 
-     * @param reportUnitsKeys 
+     * @param runningMsrunName the ms run name of the raw file that is currently being processed by the QC pipeline.
+     * @param reportUnitsKeys the msrun names of the reports that are already retrieved in the past.
      * @param fromDate the start of the date range to search.
      * @param tillDate the end of the date range to search.
      * @return a list with report units.
      */
-    public Map<String, ReportUnit> retrieveReports(final String rootDirectoryName, final String runningMsrunName, final List<String> reportUnitsKeys, 
-            final Date fromDate, final Date tillDate) {
+    public Map<String, ReportUnit> retrieveReports(final String rootDirectoryName, final String runningMsrunName,
+                                                   final List<String> reportUnitsKeys, final Date fromDate,
+                                                   final Date tillDate) {
         /*The directory has three levels - year, month and msrun.
         The msrun directory may contain following three files of importance:
         1) metrics.json: String file containing values of all QC metrics in json object format 
         2) msrun*_ticmatrix.csv
         */
         //String allErrorMessages = "";
-        if (reportUnitsKeys != null) {
-            currentReportNum = reportUnitsKeys.size();
-        } else currentReportNum = 0; 
+        currentReportNum = (reportUnitsKeys != null) ? reportUnitsKeys.size() : 0;
         final Map<String, ReportUnit> reportUnitsTable = new HashMap<>();
         logger.log(Level.ALL, "Root folder = " + rootDirectoryName);
         for (final File yearDirectory : getYearDirectories(FilenameUtils.normalize(rootDirectoryName))) {
@@ -100,22 +92,22 @@ public class ReportReader extends JFrame {
                     logger.fine("Msrun = " + msRunDirectory.getName());
                     if (new Interval(fromDate.getTime(), tillDate.getTime()).contains(msRunDirectory.lastModified())) {
                         final File[] dataFiles = msRunDirectory.listFiles();
-                        boolean errorFlag = false;
-                        //Check existence of "metrics.json", "_ticmatrix.csv"
-                        final String errorMessage = checkDataFilesAvailability(msRunDirectory.getName(), dataFiles);
-                        if (!"".equals(errorMessage)) {
-                            errorFlag = true;
-                            //allErrorMessages += errorMessage + "\n";
-                        }
-                        String msrunName = msRunDirectory.getName().trim();
-                        //Exclude report unit with running msrun name 
-                        //Avoid creating duplicate reports by using !reportUnitsKeys.contains(msrunName)
-                        if (!runningMsrunName.equals(msrunName) && !reportUnitsKeys.contains(msrunName)) {
-                            reportUnitsTable.put(msrunName, createReportUnit(msRunDirectory.getName(), dataFiles, errorFlag));
+                        // TODO: detect errors by checking the metricsValues and ticChartUnit fields. [Freek]
+//                        boolean errorFlag = false;
+//                        //Check existence of "metrics.json", "_ticmatrix.csv"
+//                        final String errorMessage = checkDataFilesAvailability(msRunDirectory.getName(), dataFiles);
+//                        if (!"".equals(errorMessage)) {
+//                            errorFlag = true;
+//                            //allErrorMessages += errorMessage + "\n";
+//                        }
+                        final String msrunName = msRunDirectory.getName().trim();
+                        if (!skipMsrun(msrunName, runningMsrunName, reportUnitsKeys)) {
+                            final ReportUnit report = createReportUnit(msRunDirectory.getName(), dataFiles, false);
+                            reportUnitsTable.put(msrunName, report);
                             logger.fine("Added report with msrunName = " + msrunName);
                         } else {
-                            logger.fine("Skipped report with msrunName = " + msrunName + " " +
-                            		"runningMsrunName = " + runningMsrunName);
+                            logger.fine("Skipped report with msrunName = " + msrunName
+                                        + " runningMsrunName = " + runningMsrunName);
                         }
                     } 
                 }
@@ -131,51 +123,63 @@ public class ReportReader extends JFrame {
         return reportUnitsTable;
     }
 
-    /**
-     * Check whether the report directory contains "metrics.json", and "_ticmatrix.csv" files.
-     *
-     * @param msrunName Folder containing QC Report.
-     * @param dataFiles list of files in folder msrunName.
-     * @return errorMessage if the "metrics.json", and "_ticmatrix.csv" files not found.
-     */
-    private String checkDataFilesAvailability(final String msrunName, final File[] dataFiles) {
-        boolean metrics = false;
-        boolean ticMatrix = false;
-        for (final File dataFile : dataFiles) {
-            final String dataFileName = dataFile.getName();
-            if (dataFile.isFile()) {
-                logFileName(dataFileName);
-                if (Constants.METRICS_JSON_FILE_NAME.equals(dataFileName)) {
-                    metrics = true;
-                } else if (dataFileName.endsWith(Constants.TIC_MATRIX_FILE_NAME_SUFFIX)) {
-                    ticMatrix = true;
-                }
-            }
-        }
-        return determineErrorMessage(msrunName, metrics, ticMatrix);
-    }
+//    /**
+//     * Check whether the report directory contains "metrics.json", and "_ticmatrix.csv" files.
+//     *
+//     * @param msrunName Folder containing QC Report.
+//     * @param dataFiles list of files in folder msrunName.
+//     * @return errorMessage if the "metrics.json", and "_ticmatrix.csv" files not found.
+//     */
+//    private String checkDataFilesAvailability(final String msrunName, final File[] dataFiles) {
+//        boolean metrics = false;
+//        boolean ticMatrix = false;
+//        for (final File dataFile : dataFiles) {
+//            final String dataFileName = dataFile.getName();
+//            if (dataFile.isFile()) {
+//                logFileName(dataFileName);
+//                if (Constants.METRICS_JSON_FILE_NAME.equals(dataFileName)) {
+//                    metrics = true;
+//                } else if (dataFileName.endsWith(Constants.TIC_MATRIX_FILE_NAME_SUFFIX)) {
+//                    ticMatrix = true;
+//                }
+//            }
+//        }
+//        return determineErrorMessage(msrunName, metrics, ticMatrix);
+//    }
+
+//    /**
+//     * Determine the error message, which will be empty if everything is correct.
+//     *
+//     * @param msrunName the name of the msrun.
+//     * @param metrics whether metrics were found.
+//     * @param ticMatrix whether a TIC matrix was found.
+//     * @return the error message or an empty string.
+//     */
+//    private String determineErrorMessage(final String msrunName, final boolean metrics, final boolean ticMatrix) {
+//        String errorMessage = "";
+//        if (!metrics || !ticMatrix) {
+//            errorMessage = "<html>In Folder " + msrunName + " following file types are missing:";
+//            if (!metrics) {
+//                errorMessage += Constants.METRICS_JSON_FILE_NAME + ' ';
+//            }
+//            if (!ticMatrix) {
+//                errorMessage += Constants.TIC_MATRIX_FILE_NAME_SUFFIX + ' ';
+//            }
+//            errorMessage += "</html>";
+//        }
+//        return errorMessage;
+//    }
 
     /**
-     * Determine the error message, which will be empty if everything is correct.
+     * Determine whether a msrun should be skipped.
      *
      * @param msrunName the name of the msrun.
-     * @param metrics whether metrics were found.
-     * @param ticMatrix whether a TIC matrix was found.
-     * @return the error message or an empty string.
+     * @param runningMsrunName the ms run name of the raw file that is currently being processed by the QC pipeline.
+     * @param reportKeys the msrun names of the reports that are already retrieved in the past.
+     * @return whether the msrun should be skipped.
      */
-    private String determineErrorMessage(final String msrunName, final boolean metrics, final boolean ticMatrix) {
-        String errorMessage = "";
-        if (!metrics || !ticMatrix) {
-            errorMessage = "<html>In Folder " + msrunName + " following file types are missing:";
-            if (!metrics) {
-                errorMessage += Constants.METRICS_JSON_FILE_NAME + ' ';
-            }
-            if (!ticMatrix) {
-                errorMessage += Constants.TIC_MATRIX_FILE_NAME_SUFFIX + ' ';
-            }
-            errorMessage += "</html>";
-        }
-        return errorMessage;
+    private boolean skipMsrun(final String msrunName, final String runningMsrunName, final List<String> reportKeys) {
+        return runningMsrunName.equals(msrunName) || ((reportKeys != null) && reportKeys.contains(msrunName));
     }
 
     /**

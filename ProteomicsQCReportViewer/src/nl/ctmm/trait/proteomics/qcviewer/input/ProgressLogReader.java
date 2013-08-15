@@ -76,13 +76,11 @@ public class ProgressLogReader implements FileChangeListener {
      * Parses the current status from the log file and initiate a timer to monitor changes in the log file.
      *
      * @param progressLogFilePath path to the progress log file.
-     * 
-     * @return true if logFile exists, false if logFile doesn't exist 
+     * @return true if the log file exists or false otherwise.
      */
     public boolean setProgressLogFile(final String progressLogFilePath) {
         logFile = new File(FilenameUtils.normalize(progressLogFilePath));
         return parseCurrentStatus(logFile);
-        
     }
 
     /**
@@ -128,11 +126,10 @@ public class ProgressLogReader implements FileChangeListener {
      * 2013-05-28 13:04:16.180000    QE1_yymmdd_OPLmmmm_AndYetAnotherResearchProject.raw    completed
      *
      * @param logFile the log file to parse.
-     * 
-     * @return true if logFile exists, false if logFile doesn't exist 
-     * 
+     * @return true if the log file exists or false otherwise.
      */
     private boolean parseCurrentStatus(final File logFile) {
+        boolean result = true;
         final String lastLine = getLastLine(logFile);
         // Hopefully not the Y2K problem!!!!
         if (lastLine != null && lastLine.startsWith("20")) {
@@ -158,16 +155,18 @@ public class ProgressLogReader implements FileChangeListener {
                 logger.log(Level.WARNING, message, e);
                 currentStatus = message + ": " + e.getMessage();
             }
-        } else if (lastLine == null) {
-            currentStatus = "Logfile doesn't exist. | | | | | Configured file path: " + logFile.getAbsolutePath();
-            logger.fine("Current QC Pipeline Status: " + currentStatus);
-            return false; 
         } else {
-            currentStatus = "QC pipeline logfile " + Constants.PROGRESS_LOG_FILE_NAME + " appears to be empty.";
-            logger.fine("Current QC Pipeline Status: " + currentStatus);
-            return true;
+            final String currentStatusMessage = "Current QC Pipeline Status: %s";
+            if (lastLine == null) {
+                currentStatus = "Logfile doesn't exist. | | | | | Configured file path: " + logFile.getAbsolutePath();
+                logger.fine(String.format(currentStatusMessage, currentStatus));
+                result = false;
+            } else {
+                currentStatus = "QC pipeline logfile " + Constants.PROGRESS_LOG_FILE_NAME + " appears to be empty.";
+                logger.fine(String.format(currentStatusMessage, currentStatus));
+            }
         }
-        return true; 
+        return result;
     }
 
     /**
@@ -227,10 +226,9 @@ public class ProgressLogReader implements FileChangeListener {
         return lineTokenizer.nextToken().trim();
     }
     
-    /*
-     * Create a timer and run the timer thread as daemon to monitor progress log file 
-     * periodically. The monitor task consists of reading pipeline status from the log file 
-     * and notify status to the Main class.       * 
+    /**
+     * Create a timer and run the timer thread as daemon to monitor progress log file periodically. The monitor task
+     * consists of reading pipeline status from the log file and notify status to the Main class.
      */
     public void startProgressLogFileMonitor() {
         if (timer != null) {
@@ -243,7 +241,7 @@ public class ProgressLogReader implements FileChangeListener {
     }
     
     /**
-     * TODO: check whether this can be removed (if frequently polling the log file is good enough).
+     * TODO: check whether this can be removed (if frequently polling the log file is good enough). [Freek]
      *
      * @param logFile the log file that has changed.
      */

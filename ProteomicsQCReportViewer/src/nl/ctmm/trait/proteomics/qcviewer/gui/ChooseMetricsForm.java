@@ -217,7 +217,7 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
     public void actionPerformed(final ActionEvent actionEvent) {
         logger.fine("DataEntryFrame Action command = " + actionEvent.getActionCommand());
         if (actionEvent.getActionCommand().equals(Constants.OK_BUTTON_TEXT)) {
-            PropertyFileWriter.updateMetricsSelection(selectedMetricsListModel);
+            PropertyFileWriter.getInstance().updateMetricsSelection(selectedMetricsListModel);
             viewerFrame.updateSelectedMetrics(new ArrayList<>(selectedMetricsListModel.getModel()));
             dispose();
         }
