@@ -14,7 +14,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -37,11 +36,13 @@ import com.toedter.calendar.JDateChooser;
  * TODO: can we use JDialog instead of JFrame (that way we can set the owner to the viewer frame)? [Freek]
  * TODO: "extending JDialog is as bad as extending JFrame" see
  *       http://stackoverflow.com/questions/15429653/how-to-set-the-jframe-as-a-parent-to-the-jdialog [Freek]
+ *       
+ *       http://stackoverflow.com/questions/5552833/what-is-the-difference-between-a-jframe-and-a-jdialog
  *
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
-public class DataEntryForm extends JFrame {
+public class DataEntryForm extends JDialog {
     /**
      * The version number for (de)serialization of this class (UID: universal identifier).
      */
@@ -182,8 +183,16 @@ public class DataEntryForm extends JFrame {
      * Construct a data entry form.
      */
     public DataEntryForm() {
-        super("DataEntry Frame");
+        
     }
+    
+    /**
+     * Construct a data entry form with ViewerFrame as parent.
+     */
+    public DataEntryForm(ViewerFrame parent) {
+        super(parent);
+    }
+    
 
     /**
      * Display the initial dialog while starting the QC report viewer.

@@ -1107,10 +1107,10 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private void handleMenuActions(final String actionCommand) {
         switch (actionCommand) {
             case CHANGE_ROOT_DIRECTORY_COMMAND:
-                new DataEntryForm().displayRootDirectoryChooser();
+                new DataEntryForm(this).displayRootDirectoryChooser();
                 break;
             case SET_FILTER_COMMAND:
-                new DataEntryForm().displayDateFilterEntryForm();
+                new DataEntryForm(this).displayDateFilterEntryForm();
                 break;
             case SELECT_METRICS_COMMAND:
                 // Display ChooseMetricsForm to select metrics to display.
