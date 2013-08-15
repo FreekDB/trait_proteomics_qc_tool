@@ -41,6 +41,7 @@ import org.jfree.ui.RefineryUtilities;
  * TODO: move test directory to source\test\java directory. [Freek]
  * TODO: move images directory (with logo image files) to source\main\resources directory. [Freek]
  * TODO: change QE*.raw file names into less descriptive names (see ProgressLogReader.parseCurrentStatus). [Freek]
+ * TODO: make all sort radio buttons visible again. [Freek]
  * 
  * TODO: Use Map<String, ReportUnit> instead of ArrayList<ReportUnit> [Pravin]
  * TODO: Refactor Main.java and create flowchart [Pravin]

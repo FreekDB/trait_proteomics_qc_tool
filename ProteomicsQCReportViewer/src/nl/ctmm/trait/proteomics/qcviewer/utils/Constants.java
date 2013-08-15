@@ -42,7 +42,7 @@ public interface Constants {
     String DEFAULT_ROOT_FOLDER = "QCReports";
     
     /**
-     * Not available string
+     * Not available string.
      */
     String NOT_AVAILABLE_STRING = "N/A";
 
@@ -56,7 +56,6 @@ public interface Constants {
      */
     String PROPERTY_TOP_COLUMN_NAMESV2 = "TopColumnNamesV2";
 
-
     /**
      * Property name for the start date of the QC reports to show.
      */
@@ -68,47 +67,9 @@ public interface Constants {
     String PROPERTY_SHOW_REPORTS_TILL_DATE = "ShowReportsTillDate";
 
     /**
-     * Report error message label when one or more report files not found.
-     */
-    String REPORT_ERROR_MISSING_FILES = "Missing files";
-    
-    /**
-     * Report error message label when one or more metrics are not available.
-     */
-    String REPORT_ERROR_MISSING_METRICS = "Missing metrics";
-    
-    /**
-     * Report error message label when one or more report files not found 
-     * and one or more metrics are not available.
-     */
-    String REPORT_ERROR_MISSING_FILES_METRICS = "Missing files & metrics";
-    
-//    String DEFAULT_REPORTS_DISPLAY_PERIOD = "DefaultReportsDisplayPeriod";
-//    String DEFAULT_REPORTS_DISPLAY_PERIOD_VALUE = "14"; //show reports from last two weeks by default
-
-    /**
-     * Date format string used for parsing dates.
-     *
-     * TODO: use DATE_FORMAT below instead of this string? [Freek]
-     * 
-     * [Pravin] Following occurrences of SIMPLE_DATE_FORMAT_STRING can not be 
-     * replaced by DATE_FORMAT, since JDateChooser does not support using
-     * SimpleDateFormat. It supports setDateFormatString. 
-     * DataEntryForm.java: 
-     * fromDateChooser.setDateFormatString(Constants.SIMPLE_DATE_FORMAT_STRING);
-     * tillDateChooser.setDateFormatString(Constants.SIMPLE_DATE_FORMAT_STRING);
-     * 
-     * Replaced one occurrence of SIMPLE_DATE_FORMAT_STRING as follows:
-     * ReportReader.java:
-     * //SimpleDateFormat sdf = new SimpleDateFormat(Constants.SIMPLE_DATE_FORMAT_STRING);
-     * SimpleDateFormat sdf = Constants.DATE_FORMAT;
-     */
-    String SIMPLE_DATE_FORMAT_STRING = "dd/MM/yyyy";
-
-    /**
      * Simple date format used for parsing dates.
      */
-    SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(SIMPLE_DATE_FORMAT_STRING);
+    SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
 
     /**
      * Name of the file with all QC metrics.
@@ -190,26 +151,6 @@ public interface Constants {
      */
     String CANCEL_BUTTON_TEXT = "Cancel";
 
-    /**
-     * The Yes button text and action command.
-     */
-    String YES_BUTTON_TEXT = "Yes";
-
-    /**
-     * The No button text and action command.
-     */
-    String NO_BUTTON_TEXT = "No";
-
-    /**
-     * HTML opening tag.
-     */
-    String HTML_OPENING_TAG = "<html>";
-
-    /**
-     * HTML closing tag.
-     */
-    String HTML_CLOSING_TAG = "</html>";
-    
     /**
      * Dimension object for filler areas of 5x0 pixels for GUI layout.
      */

@@ -161,8 +161,9 @@ public class ReportUnit implements Comparable<ReportUnit>{
     }
 
     /**
-     * Set report error string
-     * @param report error string
+     * Set report error string.
+     *
+     * @param reportErrorString error string
      */
     public void setReportErrorString(final String reportErrorString) {
         this.reportErrorString = reportErrorString;
