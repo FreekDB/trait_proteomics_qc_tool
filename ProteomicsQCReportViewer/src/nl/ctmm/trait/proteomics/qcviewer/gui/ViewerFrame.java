@@ -48,7 +48,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import javax.swing.border.Border;
@@ -1276,15 +1275,13 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private JPanel createReportIdPanel(final ReportUnit reportUnit) {
         final JLabel reportNumberLabel = new JLabel(Integer.toString(reportUnit.getReportNum()));
-        reportNumberLabel.setFont(Constants.REPORT_NUMBER_FONT);
 
         final JButton detailsButton = new JButton("Details");
-        detailsButton.setFont(Constants.DEFAULT_FONT);
+        detailsButton.setPreferredSize(new Dimension(ZOOM_BUTTON_WIDTH, ZOOM_BUTTON_HEIGHT));
         detailsButton.setActionCommand(DETAILS_ACTION_PREFIX + reportUnit.getReportIndex());
         detailsButton.addActionListener(this);
 
         final JCheckBox selectionCheckBox = new JCheckBox(SORT_ORDER_COMPARE_LABEL);
-        selectionCheckBox.setFont(Constants.DEFAULT_FONT);
         selectionCheckBox.setBackground(Color.WHITE);
         // TODO: perhaps it's easier to use the report number here as well, since any unique id is ok? [Freek]
         // [Pravin] Using report index instead of report number
@@ -1304,26 +1301,25 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         final JLabel reportErrorLabel = new JLabel(reportUnit.getReportErrorString());
         reportErrorLabel.setFont(Constants.REPORT_ERROR_LABEL_FONT);
         reportErrorLabel.setForeground(Color.RED);
-       
+        reportErrorLabel.setMaximumSize(new Dimension(REPORT_ERROR_AREA_WIDTH, REPORT_ERROR_AREA_HEIGHT));
+
         //reportIDPanel now uses BoxLayout //TODO: issues with center alignment
         final JPanel reportIdPanel = new JPanel();
         reportIdPanel.setLayout(new BoxLayout(reportIdPanel, BoxLayout.PAGE_AXIS));
-        reportIdPanel.setFont(Constants.DEFAULT_FONT);
         reportIdPanel.setBackground(Color.WHITE);
-        reportIdPanel.setForeground(Color.WHITE);
         reportIdPanel.add(Box.createRigidArea(Constants.DIMENSION_0X10));
         reportIdPanel.add(reportNumberLabel, Component.CENTER_ALIGNMENT);
         reportIdPanel.add(Box.createRigidArea(Constants.DIMENSION_0X10));
         reportIdPanel.add(selectionCheckBox, Component.CENTER_ALIGNMENT);
         reportIdPanel.add(Box.createRigidArea(Constants.DIMENSION_0X10));
-        detailsButton.setPreferredSize(new Dimension(ZOOM_BUTTON_WIDTH, ZOOM_BUTTON_HEIGHT));
         reportIdPanel.add(detailsButton, Component.CENTER_ALIGNMENT);
         reportIdPanel.add(Box.createRigidArea(Constants.DIMENSION_0X10)); 
-        reportErrorLabel.setMaximumSize(new Dimension(REPORT_ERROR_AREA_WIDTH, 
-                REPORT_ERROR_AREA_HEIGHT));
         reportIdPanel.add(reportErrorLabel, Component.CENTER_ALIGNMENT);
         reportIdPanel.add(Box.createRigidArea(Constants.DIMENSION_0X10));
         reportIdPanel.setPreferredSize(new Dimension(CHECK_PANEL_WIDTH, CHART_HEIGHT));
+
+        Utilities.setFontContainer(reportIdPanel, Constants.DEFAULT_FONT);
+        reportNumberLabel.setFont(Constants.REPORT_NUMBER_FONT);
 
         return reportIdPanel;
     }

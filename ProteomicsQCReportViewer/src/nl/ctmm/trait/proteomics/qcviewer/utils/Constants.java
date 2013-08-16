@@ -121,12 +121,12 @@ public interface Constants {
     /**
      * The font used for the report numbers.
      */
-    Font REPORT_NUMBER_FONT = new Font(Constants.FONT_NAME, Font.BOLD, 22);
+    Font REPORT_NUMBER_FONT = new Font(FONT_NAME, Font.BOLD, 22);
 
     /**
      * The font used for the report error label.
      */
-    Font REPORT_ERROR_LABEL_FONT = new Font(Constants.FONT_NAME, Font.BOLD, 11);
+    Font REPORT_ERROR_LABEL_FONT = DEFAULT_FONT;
     
     /**
      * The font used for the titles in the charts.
@@ -274,11 +274,10 @@ public interface Constants {
      *
      * TODO: can we add SORT_KEY_MAX_INTENSITY as well {reportUnit.getChartUnit().getMaxTicIntensity()}? [Freek]
      */
-    List<String> LIST_SORT_KEYS_DOUBLE = Arrays.asList(Constants.SORT_KEY_FILE_SIZE);
+    List<String> LIST_SORT_KEYS_DOUBLE = Arrays.asList(SORT_KEY_FILE_SIZE);
 
     /**
      * List with integer sort keys: both MS1 and MS2 spectra.
      */
-    List<String> LIST_SORT_KEYS_INT = Arrays.asList(Constants.SORT_KEY_MS1_SPECTRA, Constants.SORT_KEY_MS2_SPECTRA);
-
+    List<String> LIST_SORT_KEYS_INT = Arrays.asList(SORT_KEY_MS1_SPECTRA, SORT_KEY_MS2_SPECTRA);
 }
