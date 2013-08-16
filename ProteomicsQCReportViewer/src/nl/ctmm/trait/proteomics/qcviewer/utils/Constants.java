@@ -3,6 +3,8 @@ package nl.ctmm.trait.proteomics.qcviewer.utils;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * This interface contains the most important constants of the project.
@@ -225,4 +227,16 @@ public interface Constants {
      * Sort key string to sort according to maxIntensity.
      */
     String SORT_KEY_MAX_INTENSITY = "maxIntensity";
+
+    /**
+     * List with double sort keys: file size.
+     *
+     * TODO: can we add SORT_KEY_MAX_INTENSITY as well {reportUnit.getChartUnit().getMaxTicIntensity()}? [Freek]
+     */
+    List<String> LIST_SORT_KEYS_DOUBLE = Arrays.asList(Constants.SORT_KEY_FILE_SIZE);
+
+    /**
+     * List with integer sort keys: both MS1 and MS2 spectra.
+     */
+    List<String> LIST_SORT_KEYS_INT = Arrays.asList(Constants.SORT_KEY_MS1_SPECTRA, Constants.SORT_KEY_MS2_SPECTRA);
 }
