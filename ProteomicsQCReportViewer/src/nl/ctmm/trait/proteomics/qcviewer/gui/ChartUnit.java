@@ -42,6 +42,28 @@ public class ChartUnit {
     private static final double TRIM_PERCENTAGE_BARS = 0.98;
 
     /**
+     * Message written to the logger while creating chart unit. 
+     */
+    private static final String CHART_UNIT_MESSAGE = "In ChartUnit: reportIndex = %s " +
+    		"msrunName %s maxIntensity %s";
+
+    /**
+     * Title of the TIC chart. 
+     */
+    private static final String CHART_UNIT_TITLE = "Index = %s   msrun = %s     " +
+    		"MaxIntensity = %s";
+
+    /**
+     * Decimal format for displaying max intensity string
+     */
+    private static final String MAX_INTENSITY_STRING_FORMAT = "0.0000E0";
+
+    /**
+     * Decimal format for displaying number on the range axis (y axis) of TIC chart
+     */
+    private static final String RANGE_AXIS_NUMBER_FORMAT = "0E00";
+
+    /**
      * The JFreeChart object used to draw this tic chart.
      */
     private JFreeChart ticChart;
@@ -60,22 +82,22 @@ public class ChartUnit {
      * @param series the data series.
      */
     public ChartUnit(final String msrunName, final int reportIndex, final XYSeries series) {
-        logger.fine("In ChartUnit: reportIndex = " + reportIndex + " msrunName = " + msrunName);
+
         String maxIntensityString = Constants.NOT_AVAILABLE_STRING;
         if (series != null) {
             maxIntensity = series.getMaxY();
-            maxIntensityString = new DecimalFormat("0.0000E0").format(maxIntensity);
+            maxIntensityString = new DecimalFormat(MAX_INTENSITY_STRING_FORMAT).format(maxIntensity);
         }
-        logger.fine("In ChartUnit: maxIntensity = " + maxIntensity);
+        logger.fine(String.format(CHART_UNIT_MESSAGE, reportIndex, msrunName, maxIntensity));
         final XYBarRenderer renderer = createBarRenderer(reportIndex);
         final XYSeriesCollection xyDataset = new XYSeriesCollection(series);
         //Prepare chart using plot - this is the best option to control domain and range axes
         final NumberAxis domainAxis = new NumberAxis(null);
         final NumberAxis rangeAxis = new NumberAxis(null);
         final XYPlot plot = new XYPlot(xyDataset, domainAxis, rangeAxis, renderer);
-        rangeAxis.setNumberFormatOverride(new DecimalFormat("0E00"));
-        final String title = "Index = " + reportIndex + "     msrun = " + msrunName + "     MaxIntensity = "
-                             + maxIntensityString;
+        rangeAxis.setNumberFormatOverride(new DecimalFormat(RANGE_AXIS_NUMBER_FORMAT));
+        final String title = String.format(CHART_UNIT_TITLE, reportIndex, 
+                msrunName, maxIntensityString);
         ticChart = new JFreeChart(title, Constants.CHART_TITLE_FONT, plot, false);
         // performance
         ticChart.setAntiAlias(false);
