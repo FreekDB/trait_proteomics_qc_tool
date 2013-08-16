@@ -297,7 +297,7 @@ public class DataEntryForm extends JDialog {
      */
     private JDateChooser createDateChooser(final Date initialDate) {
         final JDateChooser dateChooser = new JDateChooser();
-        dateChooser.setDateFormatString(Constants.SIMPLE_DATE_FORMAT_STRING);
+        dateChooser.setDateFormatString(Constants.DATE_FORMAT.toPattern());
         dateChooser.setDate(initialDate);
         dateChooser.getDateEditor().setEnabled(false);
         dateChooser.setPreferredSize(new Dimension(DATE_CHOOSER_WIDTH, DATE_CHOOSER_HEIGHT));

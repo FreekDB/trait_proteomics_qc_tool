@@ -3,6 +3,8 @@ package nl.ctmm.trait.proteomics.qcviewer.utils;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * This interface contains the most important constants of the project.
@@ -42,7 +44,7 @@ public interface Constants {
     String DEFAULT_ROOT_FOLDER = "QCReports";
     
     /**
-     * Not available string
+     * Not available string.
      */
     String NOT_AVAILABLE_STRING = "N/A";
 
@@ -56,7 +58,6 @@ public interface Constants {
      */
     String PROPERTY_TOP_COLUMN_NAMESV2 = "TopColumnNamesV2";
 
-
     /**
      * Property name for the start date of the QC reports to show.
      */
@@ -68,47 +69,9 @@ public interface Constants {
     String PROPERTY_SHOW_REPORTS_TILL_DATE = "ShowReportsTillDate";
 
     /**
-     * Report error message label when one or more report files not found.
-     */
-    String REPORT_ERROR_MISSING_FILES = "Missing files";
-    
-    /**
-     * Report error message label when one or more metrics are not available.
-     */
-    String REPORT_ERROR_MISSING_METRICS = "Missing metrics";
-    
-    /**
-     * Report error message label when one or more report files not found 
-     * and one or more metrics are not available.
-     */
-    String REPORT_ERROR_MISSING_FILES_METRICS = "Missing files & metrics";
-    
-//    String DEFAULT_REPORTS_DISPLAY_PERIOD = "DefaultReportsDisplayPeriod";
-//    String DEFAULT_REPORTS_DISPLAY_PERIOD_VALUE = "14"; //show reports from last two weeks by default
-
-    /**
-     * Date format string used for parsing dates.
-     *
-     * TODO: use DATE_FORMAT below instead of this string? [Freek]
-     * 
-     * [Pravin] Following occurrences of SIMPLE_DATE_FORMAT_STRING can not be 
-     * replaced by DATE_FORMAT, since JDateChooser does not support using
-     * SimpleDateFormat. It supports setDateFormatString. 
-     * DataEntryForm.java: 
-     * fromDateChooser.setDateFormatString(Constants.SIMPLE_DATE_FORMAT_STRING);
-     * tillDateChooser.setDateFormatString(Constants.SIMPLE_DATE_FORMAT_STRING);
-     * 
-     * Replaced one occurrence of SIMPLE_DATE_FORMAT_STRING as follows:
-     * ReportReader.java:
-     * //SimpleDateFormat sdf = new SimpleDateFormat(Constants.SIMPLE_DATE_FORMAT_STRING);
-     * SimpleDateFormat sdf = Constants.DATE_FORMAT;
-     */
-    String SIMPLE_DATE_FORMAT_STRING = "dd/MM/yyyy";
-
-    /**
      * Simple date format used for parsing dates.
      */
-    SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(SIMPLE_DATE_FORMAT_STRING);
+    SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
 
     /**
      * Name of the file with all QC metrics.
@@ -191,26 +154,6 @@ public interface Constants {
     String CANCEL_BUTTON_TEXT = "Cancel";
 
     /**
-     * The Yes button text and action command.
-     */
-    String YES_BUTTON_TEXT = "Yes";
-
-    /**
-     * The No button text and action command.
-     */
-    String NO_BUTTON_TEXT = "No";
-
-    /**
-     * HTML opening tag.
-     */
-    String HTML_OPENING_TAG = "<html>";
-
-    /**
-     * HTML closing tag.
-     */
-    String HTML_CLOSING_TAG = "</html>";
-    
-    /**
      * Dimension object for filler areas of 5x0 pixels for GUI layout.
      */
     Dimension DIMENSION_5X0 = new Dimension(5, 0);
@@ -284,4 +227,16 @@ public interface Constants {
      * Sort key string to sort according to maxIntensity.
      */
     String SORT_KEY_MAX_INTENSITY = "maxIntensity";
+
+    /**
+     * List with double sort keys: file size.
+     *
+     * TODO: can we add SORT_KEY_MAX_INTENSITY as well {reportUnit.getChartUnit().getMaxTicIntensity()}? [Freek]
+     */
+    List<String> LIST_SORT_KEYS_DOUBLE = Arrays.asList(Constants.SORT_KEY_FILE_SIZE);
+
+    /**
+     * List with integer sort keys: both MS1 and MS2 spectra.
+     */
+    List<String> LIST_SORT_KEYS_INT = Arrays.asList(Constants.SORT_KEY_MS1_SPECTRA, Constants.SORT_KEY_MS2_SPECTRA);
 }
