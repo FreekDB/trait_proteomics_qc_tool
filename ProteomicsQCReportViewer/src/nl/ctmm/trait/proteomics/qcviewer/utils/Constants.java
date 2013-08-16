@@ -74,6 +74,11 @@ public interface Constants {
     SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
 
     /**
+     * Simple date format used for parsing measured date.
+     */
+    SimpleDateFormat MEASURED_DATE_FORMAT = new SimpleDateFormat("yyyy/MMM/dd - HH:mm");
+
+    /**
      * Name of the file with all QC metrics.
      */
     String METRICS_LISTING_FILE_NAME = "MetricsListing.txt";
@@ -118,6 +123,11 @@ public interface Constants {
      */
     Font REPORT_NUMBER_FONT = new Font(Constants.FONT_NAME, Font.BOLD, 22);
 
+    /**
+     * The font used for the report error label.
+     */
+    Font REPORT_ERROR_LABEL_FONT = new Font(Constants.FONT_NAME, Font.BOLD, 11);
+    
     /**
      * The font used for the titles in the charts.
      */
@@ -194,6 +204,11 @@ public interface Constants {
     String TIC_MATRIX_FILE_NAME_SUFFIX = "_ticmatrix.csv";
 
     /**
+     * Report error message label when report unit contains errors
+     */
+    String REPORT_ERROR_MISSING_DATA = "Missing data";
+
+    /**
      * Sort key string to sort according to report index.
      */
     String SORT_KEY_REPORT_INDEX = "index";
@@ -204,30 +219,56 @@ public interface Constants {
     String SORT_KEY_FILE_SIZE = "generic:f_size";
 
     /**
+     * Key of the metric "generic:f_size"
+     */
+    String METRIC_KEY_FILE_SIZE = SORT_KEY_FILE_SIZE; 
+    
+    /**
      * Sort key string to sort according to number of MS1 spectra.
      */
     String SORT_KEY_MS1_SPECTRA = "generic:ms1_spectra";
 
+    /**
+     * Key of the metric "generic:ms1_spectra"
+     */
+    String METRIC_KEY_MS1_SPECTRA = SORT_KEY_MS1_SPECTRA; 
+    
     /**
      * Sort key string to sort according to number of MS2 spectra.
      */
     String SORT_KEY_MS2_SPECTRA = "generic:ms2_spectra";
 
     /**
+     * Key of the metric "generic:ms2_spectra"
+     */
+    String METRIC_KEY_MS2_SPECTRA = SORT_KEY_MS2_SPECTRA; 
+    
+    /**
      * Sort key string to sort according to report generation date.
      */
     String SORT_KEY_DATE = "generic:date";
 
+    /**
+     * Key of the metric "generic:date"
+     */
+    String METRIC_KEY_MEASURED = SORT_KEY_DATE; 
+    
+    
     /**
      * Sort key string to sort according to runtime.
      */
     String SORT_KEY_RUNTIME = "generic:runtime";
 
     /**
+     * Key of the metric "generic:runtime"
+     */
+    String METRIC_KEY_RUNTIME = SORT_KEY_RUNTIME; 
+    
+    /**
      * Sort key string to sort according to maxIntensity.
      */
     String SORT_KEY_MAX_INTENSITY = "maxIntensity";
-
+    
     /**
      * List with double sort keys: file size.
      *
@@ -239,4 +280,5 @@ public interface Constants {
      * List with integer sort keys: both MS1 and MS2 spectra.
      */
     List<String> LIST_SORT_KEYS_INT = Arrays.asList(Constants.SORT_KEY_MS1_SPECTRA, Constants.SORT_KEY_MS2_SPECTRA);
+
 }

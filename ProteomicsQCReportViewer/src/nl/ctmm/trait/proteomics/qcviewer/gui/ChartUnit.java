@@ -48,6 +48,7 @@ public class ChartUnit {
 
     /**
      * The maximum intensity, which is equal to the maximum y value in the data series.
+     * 
      */
     private double maxIntensity;
 
@@ -65,6 +66,7 @@ public class ChartUnit {
             maxIntensity = series.getMaxY();
             maxIntensityString = new DecimalFormat("0.0000E0").format(maxIntensity);
         }
+        logger.fine("In ChartUnit: maxIntensity = " + maxIntensity);
         final XYBarRenderer renderer = createBarRenderer(reportIndex);
         final XYSeriesCollection xyDataset = new XYSeriesCollection(series);
         //Prepare chart using plot - this is the best option to control domain and range axes

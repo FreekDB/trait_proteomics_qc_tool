@@ -15,6 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
+import nl.ctmm.trait.proteomics.qcviewer.gui.ChartUnit;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 
 import org.apache.commons.io.FilenameUtils;
@@ -41,6 +42,31 @@ public class ReportReader {
     private static final List<String> MONTH_DIRS = Arrays.asList(
             "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
     );
+
+    /**
+     * Message written to the logger while creating report unit.
+     */
+    private static final String CREATING_REPORT_UNIT_MESSAGE = 
+                                    "Creating report unit No. %s for msrun %s";
+
+    /**
+     * Message written to the logger while adding report unit.
+     */
+    private static final String ADDED_REPORT_MESSAGE = "Added report with msrunName %s";
+
+    /**
+     * Message written to the logger while skipping report unit.
+     */
+    private static final String SKIPPED_REPORT_MESSAGE = "Skipped report with msrunName %s " 
+                                        + " runningMsrunName %s.";
+
+    /**
+     *  Pattern used to confirm whether yearFileName is a 4 digit number or not.
+     */
+    private static final String YEAR_NUMBER_PATTERN = "[0-9][0-9][0-9][0-9]";
+
+    private static final String EXCEPTION_GRAPH_SERIES_MESSAGE = 
+                    "Something went wrong while reading graph series data";
 
     /**
      * The current report number.
@@ -76,11 +102,10 @@ public class ReportReader {
                                                    final List<String> reportUnitsKeys, final Date fromDate,
                                                    final Date tillDate) {
         /*The directory has three levels - year, month and msrun.
-        The msrun directory may contain following three files of importance:
+        The msrun directory may contain following two files of importance:
         1) metrics.json: String file containing values of all QC metrics in json object format 
-        2) msrun*_ticmatrix.csv
+        2) msrun*_ticmatrix.csv: File containing list of x and y coordinates of the TIC chart 
         */
-        //String allErrorMessages = "";
         currentReportNum = (reportUnitsKeys != null) ? reportUnitsKeys.size() : 0;
         final Map<String, ReportUnit> reportUnitsTable = new HashMap<>();
         logger.log(Level.ALL, "Root folder = " + rootDirectoryName);
@@ -92,83 +117,55 @@ public class ReportReader {
                     logger.fine("Msrun = " + msRunDirectory.getName());
                     if (new Interval(fromDate.getTime(), tillDate.getTime()).contains(msRunDirectory.lastModified())) {
                         final File[] dataFiles = msRunDirectory.listFiles();
-                        // TODO: detect errors by checking the metricsValues and ticChartUnit fields. [Freek]
-//                        boolean errorFlag = false;
-//                        //Check existence of "metrics.json", "_ticmatrix.csv"
-//                        final String errorMessage = checkDataFilesAvailability(msRunDirectory.getName(), dataFiles);
-//                        if (!"".equals(errorMessage)) {
-//                            errorFlag = true;
-//                            //allErrorMessages += errorMessage + "\n";
-//                        }
+                        boolean errorFlag = false;
+                        //Check whether "metrics.json", and "*_ticmatrix.csv" files are available 
+                        final String errorString = checkDataFilesAvailability(msRunDirectory.getName(), dataFiles);
+                        if (!"".equals(errorString)) {
+                            errorFlag = true;
+                        }
                         final String msrunName = msRunDirectory.getName().trim();
                         if (!skipMsrun(msrunName, runningMsrunName, reportUnitsKeys)) {
-                            final ReportUnit report = createReportUnit(msRunDirectory.getName(), dataFiles, false);
+                            final ReportUnit report = createReportUnit(msRunDirectory.getName(), dataFiles, 
+                                    errorFlag, errorString);
                             reportUnitsTable.put(msrunName, report);
-                            logger.fine("Added report with msrunName = " + msrunName);
+                            logger.fine(String.format(ADDED_REPORT_MESSAGE, msrunName));
                         } else {
-                            logger.fine("Skipped report with msrunName = " + msrunName
-                                        + " runningMsrunName = " + runningMsrunName);
+                            logger.fine(String.format(SKIPPED_REPORT_MESSAGE, msrunName, runningMsrunName));
                         }
                     } 
                 }
             }
         }
-        // TODO: check whether errorMessages functionality is required. [Freek]
-        /*
-         * if (!allErrorMessages.equals("")) {
-            //saveErrorMessages(allErrorMessages);
-            //JOptionPane.showMessageDialog(this, allErrorMessages, "MSQC Check Warning Messages",
-            //                              JOptionPane.ERROR_MESSAGE);
-        }*/
         return reportUnitsTable;
     }
 
-//    /**
-//     * Check whether the report directory contains "metrics.json", and "_ticmatrix.csv" files.
-//     *
-//     * @param msrunName Folder containing QC Report.
-//     * @param dataFiles list of files in folder msrunName.
-//     * @return errorMessage if the "metrics.json", and "_ticmatrix.csv" files not found.
-//     */
-//    private String checkDataFilesAvailability(final String msrunName, final File[] dataFiles) {
-//        boolean metrics = false;
-//        boolean ticMatrix = false;
-//        for (final File dataFile : dataFiles) {
-//            final String dataFileName = dataFile.getName();
-//            if (dataFile.isFile()) {
-//                logFileName(dataFileName);
-//                if (Constants.METRICS_JSON_FILE_NAME.equals(dataFileName)) {
-//                    metrics = true;
-//                } else if (dataFileName.endsWith(Constants.TIC_MATRIX_FILE_NAME_SUFFIX)) {
-//                    ticMatrix = true;
-//                }
-//            }
-//        }
-//        return determineErrorMessage(msrunName, metrics, ticMatrix);
-//    }
-
-//    /**
-//     * Determine the error message, which will be empty if everything is correct.
-//     *
-//     * @param msrunName the name of the msrun.
-//     * @param metrics whether metrics were found.
-//     * @param ticMatrix whether a TIC matrix was found.
-//     * @return the error message or an empty string.
-//     */
-//    private String determineErrorMessage(final String msrunName, final boolean metrics, final boolean ticMatrix) {
-//        String errorMessage = "";
-//        if (!metrics || !ticMatrix) {
-//            errorMessage = "<html>In Folder " + msrunName + " following file types are missing:";
-//            if (!metrics) {
-//                errorMessage += Constants.METRICS_JSON_FILE_NAME + ' ';
-//            }
-//            if (!ticMatrix) {
-//                errorMessage += Constants.TIC_MATRIX_FILE_NAME_SUFFIX + ' ';
-//            }
-//            errorMessage += "</html>";
-//        }
-//        return errorMessage;
-//    }
+    /**
+     * Check whether the report directory contains "metrics.json", and "_ticmatrix.csv" files.
+     *
+     * @param msrunName Folder containing QC Report.
+     * @param dataFiles list of files in folder msrunName.
+     * @return errorString if the "metrics.json", and "_ticmatrix.csv" files not found.
+     */
+    private String checkDataFilesAvailability(final String msrunName, final File[] dataFiles) {
+        boolean metrics = false;
+        boolean ticMatrix = false;
+        String errorString = "";
+        for (final File dataFile : dataFiles) {
+            final String dataFileName = dataFile.getName();
+            if (dataFile.isFile()) {
+                logFileName(dataFileName);
+                if (Constants.METRICS_JSON_FILE_NAME.equals(dataFileName)) {
+                    metrics = true;
+                } else if (dataFileName.endsWith(Constants.TIC_MATRIX_FILE_NAME_SUFFIX)) {
+                    ticMatrix = true;
+                }
+            }
+        }
+        if (!metrics || !ticMatrix) {
+            errorString = Constants.REPORT_ERROR_MISSING_DATA;
+        }
+        return errorString; 
+    }
 
     /**
      * Determine whether a msrun should be skipped.
@@ -199,24 +196,6 @@ public class ReportReader {
     private void logFileName(final String fileName) {
         logger.fine("File " + fileName);
     }
-
-//    /**
-//     * Save errorMessages to errorMessages.txt file
-//     * @param allErrorMessages
-//     */
-//    private void saveErrorMessages(String allErrorMessages) {
-//        try {
-//            //Save errorMessages to errorMessages.txt file
-//            FileWriter fWriter = new FileWriter(FilenameUtils.normalize("QCReports\\errorMessages.txt"), true);
-//            BufferedWriter bWriter = new BufferedWriter(fWriter);
-//            Date date = new Date();
-//            bWriter.write(date.toString() + "\n");
-//            bWriter.write(allErrorMessages + "\n");
-//            bWriter.close();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     /**
      * Retrieve the year directories in the root directory.
@@ -254,7 +233,7 @@ public class ReportReader {
         } else if (yearFile.isDirectory()) {
             logDirectoryName(yearFileName);
             // Confirm whether yearFileName is a 4 digit number or not.
-            if (Pattern.compile("[0-9][0-9][0-9][0-9]").matcher(yearFileName).matches()) {
+            if (Pattern.compile(YEAR_NUMBER_PATTERN).matcher(yearFileName).matches()) {
                 isYearDirectory = true;
             }
         }
@@ -308,26 +287,42 @@ public class ReportReader {
      * "runtime": "0:16:23", "f_size": ["File Size (MB)", "830.9"],
      * "ms1_spectra": ["MS1 Spectra", "7707 (7707)"]}}
      * 2) msrun*_ticmatrix.csv: CSV file containing x and y axis values for drawing ticGraph
-     *
+     * 
+     *  // TODO: we can detect errors by checking the metricsValues and ticChartUnit 
+     *  fields of the report unit. [Freek]
+     * 
      * @param msrunName the name of the msrun.
      * @param dataFiles the files used to initialize the report unit.
      * @param errorFlag whether an error occurred while reading the files.
+     * @param errorString 
      * @return the new report unit.
      */
-    private ReportUnit createReportUnit(final String msrunName, final File[] dataFiles, final boolean errorFlag) {
+    private ReportUnit createReportUnit(final String msrunName, final File[] dataFiles, final boolean errorFlag, final String errorString) {
         currentReportNum++;
-        logger.fine("Creating report unit No. " + currentReportNum + " for msrun " + msrunName);
+        logger.fine(String.format(CREATING_REPORT_UNIT_MESSAGE, currentReportNum, msrunName));
         final ReportUnit reportUnit = new ReportUnit(msrunName, currentReportNum);
-        // TODO: we can detect errors by checking the metricsValues and ticChartUnit fields of the report unit. [Freek]
         reportUnit.setErrorFlag(errorFlag); 
+        reportUnit.setReportErrorString(errorString);
         for (final File dataFile : dataFiles) {
             final String dataFileName = dataFile.getName();
             if (dataFile.isFile()) {
                 logFileName(dataFileName);
                 if (Constants.METRICS_JSON_FILE_NAME.equals(dataFileName)) {
-                    reportUnit.setMetricsValues(jsonMetricsReader.readJsonValues(dataFile));
+                    final Map<String, String> metricsValues = jsonMetricsReader.readJsonValues(dataFile);
+                    reportUnit.setMetricsValues(metricsValues);
+                    //One or more metricsValues are missing if any of the values is "N/A"
+                    if (metricsValues.containsValue(Constants.NOT_AVAILABLE_STRING)) {
+                        reportUnit.setErrorFlag(true); 
+                        reportUnit.setReportErrorString(Constants.REPORT_ERROR_MISSING_DATA);
+                    }
                 } else if (dataFileName.endsWith(Constants.TIC_MATRIX_FILE_NAME_SUFFIX)) {
                     reportUnit.createChartUnit(readXYSeries(msrunName, dataFile));
+                    ChartUnit ticChartUnit = reportUnit.getChartUnit();
+                    //If value maxTicIntensity is 0 then there is missing data in ChartUnit 
+                    if (ticChartUnit.getMaxTicIntensity() == 0) {
+                        reportUnit.setErrorFlag(true); 
+                        reportUnit.setReportErrorString(Constants.REPORT_ERROR_MISSING_DATA);
+                    }
                 }
             } else if (dataFile.isDirectory()) {
                 logDirectoryName(dataFileName);
@@ -365,7 +360,7 @@ public class ReportReader {
             }
             bufferedReader.close();
         } catch (final NumberFormatException | IOException e) {
-            logger.log(Level.SEVERE, "Something went wrong while reading graph series data", e);
+            logger.log(Level.SEVERE, EXCEPTION_GRAPH_SERIES_MESSAGE, e);
         }
         return series;
     }

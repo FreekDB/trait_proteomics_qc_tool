@@ -48,6 +48,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import javax.swing.border.Border;
@@ -224,7 +225,19 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * Height of min - max text box.
      */
     private static final int TEXT_BOX_HEIGHT = 20;
+    
+    /**
+     * Width of the report error area.
+     */
+    private static final int REPORT_ERROR_AREA_WIDTH = 80;
+    
+    /**
+     * Height of the report error area.
+     */
+    private static final int REPORT_ERROR_AREA_HEIGHT = 40;
 
+
+    
     /**
      * Text of the change root directory menu command.
      */
@@ -386,6 +399,11 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private static final String DETAILS_ACTION_PREFIX = "Details-";
 
     /**
+     * Prefix used for the action command of zoom buttons.
+     */
+    private static final String ZOOM_ACTION_PREFIX = "zoom";
+    
+    /**
      * Default start percentage for zooming along the x axis.
      */
     private static final int ZOOM_X_AXIS_DEFAULT_START = 10;
@@ -396,7 +414,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private static final int ZOOM_X_AXIS_DEFAULT_END = 80;
 
     /**
-     * The prefix used for the titles of the chart frames. The report number is appended to this prefix.
+     * The prefix used for the titles of the chart frames. 
+     * The report number is appended to this prefix.
      */
     private static final String CHART_FRAME_TITLE_PREFIX = "Chart ";
 
@@ -1052,13 +1071,13 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             //Parse action command to get reportUnit number
             final StringTokenizer commandTokenizer = new StringTokenizer(actionCommand, "-");
             commandTokenizer.nextToken();
-            final int reportNum = Integer.parseInt(commandTokenizer.nextToken());
-            logger.fine("Details requested for reportNum " + reportNum);
-            final ReportUnit reportUnit = reportUnits.get(reportNum - 1);
+            final int reportIndex = Integer.parseInt(commandTokenizer.nextToken());
+            logger.fine("Details requested for reportIndex " + reportIndex);
+            final ReportUnit reportUnit = reportUnits.get(reportIndex);
             final DetailsFrame detailsFrame = new DetailsFrame(metricsParser.getMetricsListing(), reportUnit);
             detailsFrame.setVisible(true);
             detailsFrame.revalidate();
-        } else if (actionCommand.toLowerCase().startsWith("zoom")) {
+        } else if (actionCommand.toLowerCase().startsWith(ZOOM_ACTION_PREFIX)) {
             handleZoomActions(actionCommand);
         } else if (actionCommand.startsWith(SORT_COMMAND_PREFIX)) {
             // Sort chart frame list according to chosen Sort criteria.
@@ -1226,7 +1245,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         //metricsPanel uses GridLayout
         final JPanel metricsPanel = createOrUpdateMetricsPanel(reportUnit, null);
         reportUnitToMetricsPanel.put(reportUnit, metricsPanel);
-
+        
         //displayPanel now uses FlowLayout
         final JPanel displayPanel = new JPanel();
         displayPanel.setLayout(new FlowLayout());
@@ -1261,7 +1280,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 
         final JButton detailsButton = new JButton("Details");
         detailsButton.setFont(Constants.DEFAULT_FONT);
-        detailsButton.setActionCommand(DETAILS_ACTION_PREFIX + reportUnit.getReportNum());
+        detailsButton.setActionCommand(DETAILS_ACTION_PREFIX + reportUnit.getReportIndex());
         detailsButton.addActionListener(this);
 
         final JCheckBox selectionCheckBox = new JCheckBox(SORT_ORDER_COMPARE_LABEL);
@@ -1282,6 +1301,10 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         selectionCheckBox.setSelected(reportIsSelected.get(reportUnit.getReportIndex()));
         selectionCheckBox.addItemListener(this);
 
+        final JLabel reportErrorLabel = new JLabel(reportUnit.getReportErrorString());
+        reportErrorLabel.setFont(Constants.REPORT_ERROR_LABEL_FONT);
+        reportErrorLabel.setForeground(Color.RED);
+       
         //reportIDPanel now uses BoxLayout //TODO: issues with center alignment
         final JPanel reportIdPanel = new JPanel();
         reportIdPanel.setLayout(new BoxLayout(reportIdPanel, BoxLayout.PAGE_AXIS));
@@ -1295,6 +1318,10 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         reportIdPanel.add(Box.createRigidArea(Constants.DIMENSION_0X10));
         detailsButton.setPreferredSize(new Dimension(ZOOM_BUTTON_WIDTH, ZOOM_BUTTON_HEIGHT));
         reportIdPanel.add(detailsButton, Component.CENTER_ALIGNMENT);
+        reportIdPanel.add(Box.createRigidArea(Constants.DIMENSION_0X10)); 
+        reportErrorLabel.setMaximumSize(new Dimension(REPORT_ERROR_AREA_WIDTH, 
+                REPORT_ERROR_AREA_HEIGHT));
+        reportIdPanel.add(reportErrorLabel, Component.CENTER_ALIGNMENT);
         reportIdPanel.add(Box.createRigidArea(Constants.DIMENSION_0X10));
         reportIdPanel.setPreferredSize(new Dimension(CHECK_PANEL_WIDTH, CHART_HEIGHT));
 
