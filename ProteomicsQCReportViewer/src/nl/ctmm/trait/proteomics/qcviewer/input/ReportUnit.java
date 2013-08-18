@@ -28,58 +28,59 @@ public class ReportUnit implements Comparable<ReportUnit> {
      */
     private static final Logger logger = Logger.getLogger(ReportUnit.class.getName());
 
+    // Temporarily enabled or disabled, see the getComparatorV2 method.
     /**
      * The date and time format for parsing the measured field.
      */
     private static final DateFormat DTF = new SimpleDateFormat("yyyy/MMM/dd - HH:mm");
 
     /**
-     * Number of the report displayed in viewer
+     * Number of the report displayed in viewer.
      */
     private int reportNum = -1;
     
     /**
-     * Index of the report displayed in viewer
+     * Index of the report displayed in viewer.
      */
     private int reportIndex = -1;
     
     /**
-     * Name of processed RAW file
+     * Name of processed RAW file.
      */
     private String msrunName = "";
     
     /**
-     * Numeric representation of RAW file size
+     * Numeric representation of RAW file size.
      */
     private double fileSize = -1.0;
     
     /**
-     * String representation of RAW file size
+     * String representation of RAW file size.
      */
     private String fileSizeString = Constants.NOT_AVAILABLE_STRING;
     
     /**
-     * Number of MS1 Spectra in the RAW file
+     * Number of MS1 Spectra in the RAW file.
      */
     private String ms1Spectra = Constants.NOT_AVAILABLE_STRING;
     
     /**
-     * Number of MS2 Spectra in the RAW file
+     * Number of MS2 Spectra in the RAW file.
      */
     private String ms2Spectra = Constants.NOT_AVAILABLE_STRING;
     
     /**
-     * Date and time at which QC pipeline has processed RAW file 
+     * Date and time at which QC pipeline has processed RAW file.
      */
     private String measured = Constants.NOT_AVAILABLE_STRING;
     
     /**
-     * Time taken by the QC pipeline to completely process RAW file
+     * Time taken by the QC pipeline to completely process RAW file.
      */
     private String runtime = Constants.NOT_AVAILABLE_STRING;
 
     /**
-     * String describing report error if files or values are missing
+     * String describing report error if files or values are missing.
      */
     private String reportErrorString = "";
     
@@ -170,22 +171,24 @@ public class ReportUnit implements Comparable<ReportUnit> {
         errorFlag = flag; 
     }
     
-    
     /**
-     * Set report error string
-     * @param report error string
+     * Set report error string.
+     *
+     * @param reportErrorString error string.
      */
     public void setReportErrorString(final String reportErrorString) {
         this.reportErrorString = reportErrorString;
     }
     
     /**
-     * Get report error string
-     * @return report error string
+     * Get report error string.
+     *
+     * @return report error string.
      */
     public String getReportErrorString() {
         return reportErrorString;
     }
+
     /**
      * Get the value of parameter fileSize as a string.
      *
@@ -228,10 +231,11 @@ public class ReportUnit implements Comparable<ReportUnit> {
      * @param fileSizeString size of the RAW MS data file (in MB).
      */
     public void setFileSizeString(final String fileSizeString) {
-        fileSize = (fileSizeString != null && !fileSizeString.equals(Constants.NOT_AVAILABLE_STRING) 
-                && !fileSizeString.trim().isEmpty())
-                   ? Double.parseDouble(fileSizeString)
-                   : null;
+        this.fileSizeString = fileSizeString;
+        this.fileSize = (fileSizeString != null && !fileSizeString.equals(Constants.NOT_AVAILABLE_STRING)
+                         && !fileSizeString.trim().isEmpty())
+                        ? Double.parseDouble(fileSizeString)
+                        : null;
     }
 
     /**
@@ -428,10 +432,20 @@ public class ReportUnit implements Comparable<ReportUnit> {
                 }
                 return 0; 
             }
+        };
+    }
 
-            /*
-             * TODO: Analyze new version of compare(...) for correct sorting mechanism 
-             * @Override
+    /**
+     * Get a comparator to compare report units.
+     *
+     * @param sortKey the key to sort on.
+     * @param ascending whether to sort in ascending or descending order.
+     * @return the comparator to compare report units.
+     */
+    public static Comparator<ReportUnit> getComparatorV2(final String sortKey, final boolean ascending) {
+        return new Comparator<ReportUnit>() {
+            // TODO: Analyze new version of compare(...) for correct sorting mechanism
+            @Override
             public int compare(final ReportUnit reportUnit1, final ReportUnit reportUnit2) {
                 int result = 0;
                 final int sortFactor = ascending ? 1 : -1;
@@ -439,40 +453,41 @@ public class ReportUnit implements Comparable<ReportUnit> {
                 // getMetricsValueFromKey(sortKey) returns "N/A" for report index.
                 if (sortKey.equals(Constants.SORT_KEY_REPORT_INDEX)) {
                     result = sortFactor * Integer.compare(reportUnit1.getReportIndex(), reportUnit2.getReportIndex());
-                }
-                final String value1 = reportUnit1.getMetricsValueFromKey(sortKey);
-                final String value2 = reportUnit2.getMetricsValueFromKey(sortKey);
-                if (value1.equals(value2)) {
-                    result = 0;
-                } else if (value2.equals(Constants.NOT_AVAILABLE_STRING)) {
-                    //value1 is valid and present
-                    result = sortFactor;
-                } else if (value1.equals(Constants.NOT_AVAILABLE_STRING)) {
-                    //value2 is valid and present
-                    result = -sortFactor;
-                } else if (Constants.LIST_SORT_KEYS_DOUBLE.contains(sortKey)) {
-                    result = sortFactor * Double.compare(Double.parseDouble(value1), Double.parseDouble(value2));
-                } else if (Constants.LIST_SORT_KEYS_INT.contains(sortKey)) {
-                    result = sortFactor * Integer.compare(Integer.parseInt(value1), Integer.parseInt(value2));
-                } else if (sortKey.equals(Constants.SORT_KEY_DATE)) {
-                    try {
-                        final Date measured1 = DTF.parse(reportUnit1.measured);
-                        final Date measured2 = DTF.parse(reportUnit2.measured);
-                        result = sortFactor * measured1.compareTo(measured2);
-                    } catch (final ParseException e) {
-                        logger.log(Level.SEVERE, "thisValue: " + value1 + "; otherValue: " + value2, e);
-                    }
-                } else if (sortKey.equals(Constants.SORT_KEY_RUNTIME)) {
-                    result = sortFactor * reportUnit1.runtime.compareToIgnoreCase(reportUnit2.runtime);
-                } else if (sortKey.equals(Constants.SORT_KEY_MAX_INTENSITY)) {
-                    final double maxTicIntensity1 = reportUnit1.getChartUnit().getMaxTicIntensity();
-                    final double maxTicIntensity2 = reportUnit2.getChartUnit().getMaxTicIntensity();
-                    result = sortFactor * Double.compare(maxTicIntensity1, maxTicIntensity2);
                 } else {
-                    result = sortFactor * Double.compare(Double.parseDouble(value1), Double.parseDouble(value2));
+                    final String value1 = reportUnit1.getMetricsValueFromKey(sortKey);
+                    final String value2 = reportUnit2.getMetricsValueFromKey(sortKey);
+                    if (value1.equals(value2)) {
+                        result = 0;
+                    } else if (value2.equals(Constants.NOT_AVAILABLE_STRING)) {
+                        //value1 is valid and present
+                        result = sortFactor;
+                    } else if (value1.equals(Constants.NOT_AVAILABLE_STRING)) {
+                        //value2 is valid and present
+                        result = -sortFactor;
+                    } else if (Constants.LIST_SORT_KEYS_DOUBLE.contains(sortKey)) {
+                        result = sortFactor * Double.compare(Double.parseDouble(value1), Double.parseDouble(value2));
+                    } else if (Constants.LIST_SORT_KEYS_INT.contains(sortKey)) {
+                        result = sortFactor * Integer.compare(Integer.parseInt(value1), Integer.parseInt(value2));
+                    } else if (sortKey.equals(Constants.SORT_KEY_DATE)) {
+                        try {
+                            final Date measured1 = DTF.parse(reportUnit1.measured);
+                            final Date measured2 = DTF.parse(reportUnit2.measured);
+                            result = sortFactor * measured1.compareTo(measured2);
+                        } catch (final ParseException e) {
+                            logger.log(Level.SEVERE, "thisValue: " + value1 + "; otherValue: " + value2, e);
+                        }
+                    } else if (sortKey.equals(Constants.SORT_KEY_RUNTIME)) {
+                        result = sortFactor * reportUnit1.runtime.compareToIgnoreCase(reportUnit2.runtime);
+                    } else if (sortKey.equals(Constants.SORT_KEY_MAX_INTENSITY)) {
+                        final double maxTicIntensity1 = reportUnit1.getChartUnit().getMaxTicIntensity();
+                        final double maxTicIntensity2 = reportUnit2.getChartUnit().getMaxTicIntensity();
+                        result = sortFactor * Double.compare(maxTicIntensity1, maxTicIntensity2);
+                    } else {
+                        result = sortFactor * Double.compare(Double.parseDouble(value1), Double.parseDouble(value2));
+                    }
                 }
                 return result;
-            }*/
+            }
         };
     }
 
@@ -483,4 +498,12 @@ public class ReportUnit implements Comparable<ReportUnit> {
 //                              this.ms1Spectra + " ms2Spectra = " + this.ms2Spectra + " measured = " + measured +
 //                              " runtime = " + runtime);
 //    }
+
+
+    // For debugging purposes:
+    @Override
+    public String toString() {
+        return "Number: " + reportNum + ", file size: " + fileSizeString + ", ms1 spectra: " + ms1Spectra
+               + ", ms2 spectra: " + ms2Spectra + ", measured: " + measured + ", runtime: " + runtime;
+    }
 }
