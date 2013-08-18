@@ -1,6 +1,9 @@
 package nl.ctmm.trait.proteomics.qcviewer.utils;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -55,6 +58,7 @@ public class Utilities {
      * TODO: Remove Utilities.getNotAvailableImage()??  [Pravin]
      * The function Utilities.getNotAvailableImage() is not used in v2. It was in use for v1 of the GUI.
      */
+
     /**
      * Get the placeholder image to be shown when the actual image is not available.
      *
@@ -76,10 +80,10 @@ public class Utilities {
      * to make the scaled image fit within the width by height rectangle or {@link Utilities#SCALE_FILL} to make the
      * scaled image fill the entire rectangle (and possibly go outside it in one dimension).
      *
-     * @param image the image to be scaled.
+     * @param image     the image to be scaled.
      * @param scaleType {@link Utilities#SCALE_FIT} or {@link Utilities#SCALE_FILL}.
-     * @param width the preferred width.
-     * @param height the preferred height.
+     * @param width     the preferred width.
+     * @param height    the preferred height.
      * @return the scaled image.
      */
     public static BufferedImage scaleImage(final BufferedImage image, final int scaleType, final int width,
@@ -123,5 +127,20 @@ public class Utilities {
         graphics2D.drawRenderedImage(image, affineTransform);
         graphics2D.dispose();
         return scaledImage;
+    }
+
+    /**
+     * Set the specified font for the component and if it is a container then do it for all its child components too.
+     *
+     * @param component the component for which the font will be set (and for its children if there are any).
+     * @param font the font to set.
+     */
+    public static void setFontContainer(final Component component, final Font font) {
+        component.setFont(font);
+        if (component instanceof Container) {
+            for (final Component child : ((Container) component).getComponents()) {
+                setFontContainer(child, font);
+            }
+        }
     }
 }

@@ -40,7 +40,7 @@ public class ReportReader {
      * The names of the directories the QC pipeline uses to represent the months.
      */
     private static final List<String> MONTH_DIRS = Arrays.asList(
-            "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
     );
 
     /**
@@ -65,6 +65,9 @@ public class ReportReader {
      */
     private static final String YEAR_NUMBER_PATTERN = "[0-9][0-9][0-9][0-9]";
 
+    /**
+     * Message to log when an exception occurs while reading a TIC matrix file.
+     */
     private static final String EXCEPTION_GRAPH_SERIES_MESSAGE = 
                     "Something went wrong while reading graph series data";
 
@@ -117,16 +120,13 @@ public class ReportReader {
                     logger.fine("Msrun = " + msRunDirectory.getName());
                     if (new Interval(fromDate.getTime(), tillDate.getTime()).contains(msRunDirectory.lastModified())) {
                         final File[] dataFiles = msRunDirectory.listFiles();
-                        boolean errorFlag = false;
-                        //Check whether "metrics.json", and "*_ticmatrix.csv" files are available 
-                        final String errorString = checkDataFilesAvailability(msRunDirectory.getName(), dataFiles);
-                        if (!"".equals(errorString)) {
-                            errorFlag = true;
-                        }
+                        //Check whether "metrics.json", and "*_ticmatrix.csv" files are available
+                        final String errorString = checkDataFilesAvailability(dataFiles);
+                        final boolean errorFlag = !"".equals(errorString);
                         final String msrunName = msRunDirectory.getName().trim();
                         if (!skipMsrun(msrunName, runningMsrunName, reportUnitsKeys)) {
-                            final ReportUnit report = createReportUnit(msRunDirectory.getName(), dataFiles, 
-                                    errorFlag, errorString);
+                            final ReportUnit report = createReportUnit(msRunDirectory.getName(), dataFiles, errorFlag,
+                                                                       errorString);
                             reportUnitsTable.put(msrunName, report);
                             logger.fine(String.format(ADDED_REPORT_MESSAGE, msrunName));
                         } else {
@@ -142,11 +142,10 @@ public class ReportReader {
     /**
      * Check whether the report directory contains "metrics.json", and "_ticmatrix.csv" files.
      *
-     * @param msrunName Folder containing QC Report.
      * @param dataFiles list of files in folder msrunName.
      * @return errorString if the "metrics.json", and "_ticmatrix.csv" files not found.
      */
-    private String checkDataFilesAvailability(final String msrunName, final File[] dataFiles) {
+    private String checkDataFilesAvailability(final File[] dataFiles) {
         boolean metrics = false;
         boolean ticMatrix = false;
         String errorString = "";
@@ -294,10 +293,11 @@ public class ReportReader {
      * @param msrunName the name of the msrun.
      * @param dataFiles the files used to initialize the report unit.
      * @param errorFlag whether an error occurred while reading the files.
-     * @param errorString 
+     * @param errorString if the "metrics.json", and "_ticmatrix.csv" files not found.
      * @return the new report unit.
      */
-    private ReportUnit createReportUnit(final String msrunName, final File[] dataFiles, final boolean errorFlag, final String errorString) {
+    private ReportUnit createReportUnit(final String msrunName, final File[] dataFiles, final boolean errorFlag,
+                                        final String errorString) {
         currentReportNum++;
         logger.fine(String.format(CREATING_REPORT_UNIT_MESSAGE, currentReportNum, msrunName));
         final ReportUnit reportUnit = new ReportUnit(msrunName, currentReportNum);
@@ -306,29 +306,42 @@ public class ReportReader {
         for (final File dataFile : dataFiles) {
             final String dataFileName = dataFile.getName();
             if (dataFile.isFile()) {
-                logFileName(dataFileName);
-                if (Constants.METRICS_JSON_FILE_NAME.equals(dataFileName)) {
-                    final Map<String, String> metricsValues = jsonMetricsReader.readJsonValues(dataFile);
-                    reportUnit.setMetricsValues(metricsValues);
-                    //One or more metricsValues are missing if any of the values is "N/A"
-                    if (metricsValues.containsValue(Constants.NOT_AVAILABLE_STRING)) {
-                        reportUnit.setErrorFlag(true); 
-                        reportUnit.setReportErrorString(Constants.REPORT_ERROR_MISSING_DATA);
-                    }
-                } else if (dataFileName.endsWith(Constants.TIC_MATRIX_FILE_NAME_SUFFIX)) {
-                    reportUnit.createChartUnit(readXYSeries(msrunName, dataFile));
-                    ChartUnit ticChartUnit = reportUnit.getChartUnit();
-                    //If value maxTicIntensity is 0 then there is missing data in ChartUnit 
-                    if (ticChartUnit.getMaxTicIntensity() == 0) {
-                        reportUnit.setErrorFlag(true); 
-                        reportUnit.setReportErrorString(Constants.REPORT_ERROR_MISSING_DATA);
-                    }
-                }
+                handleQCPipelineDataFile(msrunName, reportUnit, dataFile, dataFileName);
             } else if (dataFile.isDirectory()) {
                 logDirectoryName(dataFileName);
             }
         }
         return reportUnit;
+    }
+
+    /**
+     * Handle a data file from the QC pipeline and initialize the report unit with it.
+     *
+     * @param msrunName the name of the msrun.
+     * @param reportUnit the report unit that is being created.
+     * @param dataFile a data file that is used to initialize the report unit.
+     * @param dataFileName the name of the data file.
+     */
+    private void handleQCPipelineDataFile(final String msrunName, final ReportUnit reportUnit, final File dataFile,
+                                          final String dataFileName) {
+        logFileName(dataFileName);
+        if (Constants.METRICS_JSON_FILE_NAME.equals(dataFileName)) {
+            final Map<String, String> metricsValues = jsonMetricsReader.readJsonValues(dataFile);
+            reportUnit.setMetricsValues(metricsValues);
+            //One or more metricsValues are missing if any of the values is "N/A"
+            if (metricsValues.containsValue(Constants.NOT_AVAILABLE_STRING)) {
+                reportUnit.setErrorFlag(true);
+                reportUnit.setReportErrorString(Constants.REPORT_ERROR_MISSING_DATA);
+            }
+        } else if (dataFileName.endsWith(Constants.TIC_MATRIX_FILE_NAME_SUFFIX)) {
+            reportUnit.createChartUnit(readXYSeries(msrunName, dataFile));
+            final ChartUnit ticChartUnit = reportUnit.getChartUnit();
+            //If value maxTicIntensity is 0 then there is missing data in ChartUnit
+            if (ticChartUnit.getMaxTicIntensity() == 0) {
+                reportUnit.setErrorFlag(true);
+                reportUnit.setReportErrorString(Constants.REPORT_ERROR_MISSING_DATA);
+            }
+        }
     }
 
     /**

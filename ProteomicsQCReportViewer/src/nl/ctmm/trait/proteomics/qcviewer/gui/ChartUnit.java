@@ -2,6 +2,7 @@ package nl.ctmm.trait.proteomics.qcviewer.gui;
 
 import java.awt.Color;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
@@ -44,24 +45,22 @@ public class ChartUnit {
     /**
      * Message written to the logger while creating chart unit. 
      */
-    private static final String CHART_UNIT_MESSAGE = "In ChartUnit: reportIndex = %s " +
-    		"msrunName %s maxIntensity %s";
+    private static final String CHART_UNIT_MESSAGE = "In ChartUnit: reportIndex = %s msrunName %s maxIntensity %s";
 
     /**
      * Title of the TIC chart. 
      */
-    private static final String CHART_UNIT_TITLE = "Index = %s   msrun = %s     " +
-    		"MaxIntensity = %s";
+    private static final String CHART_UNIT_TITLE = "Index = %s   msrun = %s     MaxIntensity = %s";
 
     /**
-     * Decimal format for displaying max intensity string
+     * Number format for displaying the max intensities.
      */
-    private static final String MAX_INTENSITY_STRING_FORMAT = "0.0000E0";
+    private static final NumberFormat MAX_INTENSITY_FORMAT = new DecimalFormat("0.0000E0");
 
     /**
-     * Decimal format for displaying number on the range axis (y axis) of TIC chart
+     * Number format for displaying the numbers on the range axis (y axis) of the TIC chart.
      */
-    private static final String RANGE_AXIS_NUMBER_FORMAT = "0E00";
+    private static final NumberFormat RANGE_AXIS_FORMAT = new DecimalFormat("0E00");
 
     /**
      * The JFreeChart object used to draw this tic chart.
@@ -82,11 +81,10 @@ public class ChartUnit {
      * @param series the data series.
      */
     public ChartUnit(final String msrunName, final int reportIndex, final XYSeries series) {
-
         String maxIntensityString = Constants.NOT_AVAILABLE_STRING;
         if (series != null) {
             maxIntensity = series.getMaxY();
-            maxIntensityString = new DecimalFormat(MAX_INTENSITY_STRING_FORMAT).format(maxIntensity);
+            maxIntensityString = MAX_INTENSITY_FORMAT.format(maxIntensity);
         }
         logger.fine(String.format(CHART_UNIT_MESSAGE, reportIndex, msrunName, maxIntensity));
         final XYBarRenderer renderer = createBarRenderer(reportIndex);
@@ -95,7 +93,7 @@ public class ChartUnit {
         final NumberAxis domainAxis = new NumberAxis(null);
         final NumberAxis rangeAxis = new NumberAxis(null);
         final XYPlot plot = new XYPlot(xyDataset, domainAxis, rangeAxis, renderer);
-        rangeAxis.setNumberFormatOverride(new DecimalFormat(RANGE_AXIS_NUMBER_FORMAT));
+        rangeAxis.setNumberFormatOverride(RANGE_AXIS_FORMAT);
         final String title = String.format(CHART_UNIT_TITLE, reportIndex, 
                 msrunName, maxIntensityString);
         ticChart = new JFreeChart(title, Constants.CHART_TITLE_FONT, plot, false);

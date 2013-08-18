@@ -121,12 +121,12 @@ public interface Constants {
     /**
      * The font used for the report numbers.
      */
-    Font REPORT_NUMBER_FONT = new Font(Constants.FONT_NAME, Font.BOLD, 22);
+    Font REPORT_NUMBER_FONT = new Font(FONT_NAME, Font.BOLD, 22);
 
     /**
      * The font used for the report error label.
      */
-    Font REPORT_ERROR_LABEL_FONT = new Font(Constants.FONT_NAME, Font.BOLD, 11);
+    Font REPORT_ERROR_LABEL_FONT = DEFAULT_FONT;
     
     /**
      * The font used for the titles in the charts.
@@ -204,7 +204,7 @@ public interface Constants {
     String TIC_MATRIX_FILE_NAME_SUFFIX = "_ticmatrix.csv";
 
     /**
-     * Report error message label when report unit contains errors
+     * Report error message label when report unit contains errors.
      */
     String REPORT_ERROR_MISSING_DATA = "Missing data";
 
@@ -219,7 +219,7 @@ public interface Constants {
     String SORT_KEY_FILE_SIZE = "generic:f_size";
 
     /**
-     * Key of the metric "generic:f_size"
+     * Key of the metric "generic:f_size".
      */
     String METRIC_KEY_FILE_SIZE = SORT_KEY_FILE_SIZE; 
     
@@ -229,7 +229,7 @@ public interface Constants {
     String SORT_KEY_MS1_SPECTRA = "generic:ms1_spectra";
 
     /**
-     * Key of the metric "generic:ms1_spectra"
+     * Key of the metric "generic:ms1_spectra".
      */
     String METRIC_KEY_MS1_SPECTRA = SORT_KEY_MS1_SPECTRA; 
     
@@ -239,7 +239,7 @@ public interface Constants {
     String SORT_KEY_MS2_SPECTRA = "generic:ms2_spectra";
 
     /**
-     * Key of the metric "generic:ms2_spectra"
+     * Key of the metric "generic:ms2_spectra".
      */
     String METRIC_KEY_MS2_SPECTRA = SORT_KEY_MS2_SPECTRA; 
     
@@ -249,7 +249,7 @@ public interface Constants {
     String SORT_KEY_DATE = "generic:date";
 
     /**
-     * Key of the metric "generic:date"
+     * Key of the metric "generic:date".
      */
     String METRIC_KEY_MEASURED = SORT_KEY_DATE; 
     
@@ -260,7 +260,7 @@ public interface Constants {
     String SORT_KEY_RUNTIME = "generic:runtime";
 
     /**
-     * Key of the metric "generic:runtime"
+     * Key of the metric "generic:runtime".
      */
     String METRIC_KEY_RUNTIME = SORT_KEY_RUNTIME; 
     
@@ -274,11 +274,12 @@ public interface Constants {
      *
      * TODO: can we add SORT_KEY_MAX_INTENSITY as well {reportUnit.getChartUnit().getMaxTicIntensity()}? [Freek]
      */
-    List<String> LIST_SORT_KEYS_DOUBLE = Arrays.asList(Constants.SORT_KEY_FILE_SIZE);
+    @SuppressWarnings("UnusedDeclaration")
+    List<String> LIST_SORT_KEYS_DOUBLE = Arrays.asList(SORT_KEY_FILE_SIZE);
 
     /**
      * List with integer sort keys: both MS1 and MS2 spectra.
      */
-    List<String> LIST_SORT_KEYS_INT = Arrays.asList(Constants.SORT_KEY_MS1_SPECTRA, Constants.SORT_KEY_MS2_SPECTRA);
-
+    @SuppressWarnings("UnusedDeclaration")
+    List<String> LIST_SORT_KEYS_INT = Arrays.asList(SORT_KEY_MS1_SPECTRA, SORT_KEY_MS2_SPECTRA);
 }
