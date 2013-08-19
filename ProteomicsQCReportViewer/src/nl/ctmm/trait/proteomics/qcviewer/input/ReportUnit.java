@@ -52,7 +52,7 @@ public class ReportUnit implements Comparable<ReportUnit> {
     /**
      * Numeric representation of RAW file size.
      */
-    private double fileSize = -1.0;
+    private Double fileSize;
     
     /**
      * String representation of RAW file size.
@@ -71,6 +71,8 @@ public class ReportUnit implements Comparable<ReportUnit> {
     
     /**
      * Date and time at which QC pipeline has processed RAW file.
+     *
+     * TODO: rename to measuredDateTime? See also Constants: METRIC_KEY_MEASURED = SORT_KEY_DATE. [Freek]
      */
     private String measured = Constants.NOT_AVAILABLE_STRING;
     
@@ -110,7 +112,7 @@ public class ReportUnit implements Comparable<ReportUnit> {
         this.msrunName = msrunName;
         this.reportNum = reportNum;
         reportIndex = reportNum - 1; 
-        //Create default chart unit to handle problems due to missing series data 
+        // Create default chart unit to handle problems due to missing series data.
         ticChartUnit = new ChartUnit(msrunName, reportIndex, null);
     }
 
@@ -121,9 +123,8 @@ public class ReportUnit implements Comparable<ReportUnit> {
      * @return value of metric.
      */
     public String getMetricsValueFromKey(final String key) {
-        return (metricsValues != null && metricsValues.containsKey(key))
-               ? metricsValues.get(key)
-               : Constants.NOT_AVAILABLE_STRING;
+        final boolean metricAvailable = metricsValues != null && metricsValues.containsKey(key);
+        return metricAvailable ? metricsValues.get(key) : Constants.NOT_AVAILABLE_STRING;
     }
 
     /**
@@ -214,8 +215,18 @@ public class ReportUnit implements Comparable<ReportUnit> {
      */
     public void createChartUnit(final XYSeries series) {
         ticChartUnit = new ChartUnit(msrunName, reportIndex, series);
+        setMaxIntensityMetric(Double.toString(ticChartUnit.getMaxTicIntensity()));
     }
-    
+
+    /**
+     * Set the max intensity metric value.
+     *
+     * @param maxIntensityString the max intensity.
+     */
+    public void setMaxIntensityMetric(final String maxIntensityString) {
+        setMetricValue(Constants.METRIC_KEY_MAX_INTENSITY, maxIntensityString);
+    }
+
     /**
      * Get ticChart and corresponding chart data for this report unit.
      *
@@ -228,14 +239,13 @@ public class ReportUnit implements Comparable<ReportUnit> {
     /**
      * Set the value of parameter fileSize.
      *
-     * @param fileSizeString size of the RAW MS data file (in MB).
+     * @param size size of the RAW MS data file (in MB).
      */
-    public void setFileSizeString(final String fileSizeString) {
-        this.fileSizeString = fileSizeString;
-        this.fileSize = (fileSizeString != null && !fileSizeString.equals(Constants.NOT_AVAILABLE_STRING)
-                         && !fileSizeString.trim().isEmpty())
-                        ? Double.parseDouble(fileSizeString)
-                        : null;
+    public void setFileSizeString(final String size) {
+        this.fileSizeString = size;
+        final boolean valid = size != null && !size.equals(Constants.NOT_AVAILABLE_STRING) && !size.trim().isEmpty();
+        this.fileSize = valid ? Double.parseDouble(size) : null;
+        setMetricValue(Constants.METRIC_KEY_FILE_SIZE, size);
     }
 
     /**
@@ -254,6 +264,7 @@ public class ReportUnit implements Comparable<ReportUnit> {
      */
     public void setMs1Spectra(final String ms1Spectra) {
         this.ms1Spectra = ms1Spectra;
+        setMetricValue(Constants.METRIC_KEY_MS1_SPECTRA, ms1Spectra);
     }
 
     /**
@@ -272,6 +283,7 @@ public class ReportUnit implements Comparable<ReportUnit> {
      */
     public void setMs2Spectra(final String ms2Spectra) {
         this.ms2Spectra = ms2Spectra;
+        setMetricValue(Constants.METRIC_KEY_MS2_SPECTRA, ms2Spectra);
     }
 
     /**
@@ -290,6 +302,7 @@ public class ReportUnit implements Comparable<ReportUnit> {
      */
     public void setMeasured(final String measured) {
         this.measured = measured;
+        setMetricValue(Constants.METRIC_KEY_MEASURED, measured);
     }
 
     /**
@@ -308,6 +321,7 @@ public class ReportUnit implements Comparable<ReportUnit> {
      */
     public void setRuntime(final String runtime) {
         this.runtime = runtime;
+        setMetricValue(Constants.METRIC_KEY_RUNTIME, runtime);
     }
 
     /**
@@ -318,7 +332,7 @@ public class ReportUnit implements Comparable<ReportUnit> {
     public void setMetricsValues(final Map<String, String> metricsValues) {
         if (metricsValues != null) {
             this.metricsValues = new HashMap<>(metricsValues);
-            //Set values of certain parameters to aid in the comparison
+            // Set values of certain parameters to aid in the comparison.
             this.fileSizeString = this.getMetricsValueFromKey(Constants.METRIC_KEY_FILE_SIZE);
             setFileSizeString(fileSizeString);
             this.ms1Spectra = this.getMetricsValueFromKey(Constants.METRIC_KEY_MS1_SPECTRA);
@@ -327,7 +341,20 @@ public class ReportUnit implements Comparable<ReportUnit> {
             this.runtime = this.getMetricsValueFromKey(Constants.METRIC_KEY_RUNTIME);
         }
     }
-    
+
+    /**
+     * Set an individual metric.
+     *
+     * @param key the metric key.
+     * @param value the metric value.
+     */
+    public void setMetricValue(final String key, final String value) {
+        if (metricsValues == null) {
+            metricsValues = new HashMap<>();
+        }
+        metricsValues.put(key, value);
+    }
+
     /**
      * Get map with values of QC metrics in this report.
      *
@@ -442,13 +469,15 @@ public class ReportUnit implements Comparable<ReportUnit> {
     /**
      * Get a comparator to compare report units.
      *
+     * TODO: should we store the metric type for all metrics to be able to sort correctly? [Freek]
+     *
      * @param sortKey the key to sort on.
      * @param ascending whether to sort in ascending or descending order.
      * @return the comparator to compare report units.
      */
     public static Comparator<ReportUnit> getComparatorV2(final String sortKey, final boolean ascending) {
         return new Comparator<ReportUnit>() {
-            // TODO: Analyze new version of compare(...) for correct sorting mechanism
+            // TODO: Analyze new version of compare(...) for correct sorting mechanism. [Pravin]
             @Override
             public int compare(final ReportUnit reportUnit1, final ReportUnit reportUnit2) {
                 int result = 0;
