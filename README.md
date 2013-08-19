@@ -12,4 +12,4 @@ https://github.com/CTMM-TraIT/trait_proteomics_qc_tool/blob/master/ProteomicsQCP
 
 
 For developers, we have information on GitHub and Checkstyle at the following URL:
-https://github.com/CTMM-TraIT/trait_proteomics_qc_tool/ProteomicsQCReportViewer/devinf/DevelopersInformation.md
+https://github.com/CTMM-TraIT/trait_proteomics_qc_tool/blob/master/ProteomicsQCReportViewer/devinf/DevelopersInformation.md

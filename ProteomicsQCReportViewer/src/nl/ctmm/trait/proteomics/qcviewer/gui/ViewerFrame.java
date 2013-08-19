@@ -421,6 +421,193 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private static final String CHART_FRAME_TITLE_PREFIX = "Chart ";
 
     /**
+     * Message written to the logger while invoking constructor of ViewerFrame class.
+     */
+    private static final String CONSTRUCTOR_MESSAGE = "ViewerFrame constructor";
+
+    /**
+     * Message written to the logger to show the value of yCoordinate while updating report units. 
+     */
+    private static final String YCOORDINATE_MESSAGE = "yCoordinate is: %s.";
+
+    /**
+     * Message written to the logger while assembling components of ViewerFrame. 
+     */
+    private static final String ASSEMBLE_COMPONENTS_MESSAGE = "ViewerFrame assembleComponents";
+
+    /**
+     * Title of the Settings menu bar. 
+     */
+    private static final String MENU_BAR_TITLE = "Settings";
+
+    /**
+     * Title of the Set Root Directory menu item. 
+     */
+    private static final String CHANGE_ROOT_DIRECTORY_MENU_ITEM_TITLE = "Change Root Directory...";
+
+    /**
+     * Title of the Set Date Filter menu item. 
+     */
+    private static final String SET_DATE_FILTER_MENU_ITEM_TITLE = "Set Date Filter...";
+
+    /**
+     * Title of the Select Metrics menu item. 
+     */
+    private static final String SELECT_METRICS_MENU_ITEM_TITLE = "Select Metrics...";
+
+    /**
+     * Title of the About menu item. 
+     */
+    private static final String ABOUT_MENU_ITEM_TITLE = "About...";
+
+    /**
+     * Message written to the logger to print number of report units. 
+     */
+    private static final String NUMBER_OF_REPORT_UNITS_MESSAGE = "Number of reportUnits = %s";
+
+    /**
+     * Message written to the logger to print number of ordered report units. 
+     */
+    private static final String NUMBER_OF_ORDERED_REPORT_UNITS_MESSAGE = 
+                                            "Number of ordered reportUnits = %s";
+
+    /**
+     * Title of the control panel frame. 
+     */
+    private static final String CONTROL_PANEL_TITLE = "Control Panel";
+
+    /**
+     * Title of the Zoom Buttons panel.
+     */
+    private static final String ZOOM_BUTTONS_PANEL_TITLE = "Zoom All TIC Charts";
+
+    /**
+     * Message written to the logger if exception occurs while reading logo file.         
+     */
+    private static final String LOGO_FILE_EXCEPTION_MESSAGE = "Something went " +
+                    "wrong while reading logo file %s.";
+
+    /**
+     * Label of Min text box in Zoom X Axis Panel. 
+     */
+    private static final String MIN_LABEL = "Min: ";
+
+    /**
+     * Label of Max text box in Zoom X Axis Panel. 
+     */
+    private static final String MAX_LABEL = "Max:  ";
+
+    /**
+     * Extension string to the pipeline status for displaying number of report units. 
+     */
+    private static final String STATUS_EXTENSION_STRING = " | | | | | Number of report units: ";
+
+    /**
+     * Message written to the logger if exception occurs while reading min and max zoon values.         
+     */
+    private static final String MIN_MAX_EXCEPTION_MESSAGE = 
+                    "Something went wrong while reading min and max zoom values";
+
+    /**
+     * Part of message shown to the user when min and max zoom values are incorrect. 
+     */
+    private static final String INCORRECT_MIN_MAX_MESSAGE = "Incorrect min or max.";
+
+    /**
+     * Message shown to the user while resetting min and max zoom values. 
+     */
+    private static final String RESET_MIN_MAX_MESSAGE = " Resetting to %s and %s.";
+
+    /**
+     * Message written to the logger when report details are requested. 
+     */
+    private static final String REPORT_DETAILS_MESSAGE = "Details requested for reportIndex %s.";
+
+    /**
+     * Message written to the logger in case user performs a particular action. 
+     */
+    private static final String ACTION_COMMAND_AND_EVENT_MESSAGE = "Corresponding action" +
+                    " command is %s, event class is %s";
+
+    /**
+     * Message written to the logger while setting graph in TIC Graph pane. 
+     */
+    private static final String SET_TIC_GRAPH_PANE_MESSAGE = "Setting TIC graph for report number: %s.";
+
+    /**
+     * Message written to the logger to print min and max zoom values.
+     */
+    private static final String MIN_MAX_VALUES_MESSAGE = 
+                        "minValue = %s maxValue = %s min = %s max = %s.";
+
+    /**
+     * Message written to the logger to print number of chart panels. 
+     */
+    private static final String NUMBER_OF_CHART_PANELS_MESSAGE = "Number of chart panels: %s.";
+
+    /**
+     * Message written to the logger in case of unexpected zoom action command. 
+     */
+    private static final String UNEXPECTED_ZOOM_ACTION_MESSAGE = "Unexpected zoom action: %s.";
+
+    /**
+     * Message written to the logger in case of unexpected action command. 
+     */
+    private static final String UNEXPECTED_ACTION_MESSAGE = "Unexpected action: %s.";
+
+    /**
+     * Message written to the logger displaying sort criteria, sort key and sort order. 
+     */
+    private static final String SORT_CRITERIA_MESSAGE = "Sort criteria = %s. " +
+            "Sort requested according to sortKey = %s. Sort order = %s.";
+
+    /**
+     * Message written to the logger to print index of selected report. 
+     */
+    private static final String REPORT_INDEX_MESSAGE = "Selected report index = %s.";
+
+    /**
+     * Message written to the logger while preparing charts in a particular order. 
+     */
+    private static final String CHART_ORDER_MESSAGE = "Prepare charts in ascending order = %s";
+
+    /**
+     * Message written to the logger while adding chart frame for a particular report unit. 
+     */
+    private static final String ADD_CHART_FRAME_MESSAGE = "Add chart frame for report unit: %s.";
+
+    /**
+     * Label of the Details button. 
+     */
+    private static final String DETAILS_BUTTON_LABEL = "Details";
+
+    /**
+     * Message written to the logger while refreshing metrics values according to selected metrics. 
+     */
+    private static final String REFRESH_METRICS_VALUES_MESSAGE = 
+                            "In updateSelectedMetrics - refreshing metrics values..";
+
+    /**
+     * Message written to the logger on selection of a particular check box. 
+     */
+    private static final String CHECK_BOX_SELECTION_MESSAGE = "Selected check box with name %s.";
+
+    /**
+     * Message written to the logger on de-selection of a particular check box. 
+     */
+    private static final String CHECK_BOX_DESELECTION_MESSAGE = "DeSelected check box with name %s.";
+
+    /**
+     * Message written to the logger when user clicks on a particular report frame.
+     */
+    private static final String FRAME_CLICKED_MESSAGE = "Frame title = %s, frame name = %s.";
+
+    /**
+     * Message written to the logger when user clicks mouse on particular TIC graph. 
+     */
+    private static final String GRAPH_CLICK_MESSAGE = "Graph Index from SubTitle = %s.";
+
+    /**
      * The main desktop pane with the TIC graphs of all the reports.
      */
     private final JDesktopPane desktopPane = new ScrollDesktop();
@@ -532,7 +719,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     public ViewerFrame(final MetricsParser metricsParser, final String title, final List<ReportUnit> reportUnits,
                        final List<String> selectedMetricsData, final String pipelineStatus) {
         super(title);
-        logger.fine("ViewerFrame constructor");
+        logger.fine(CONSTRUCTOR_MESSAGE);
         setPreferredSize(new Dimension(VIEWER_WIDTH, VIEWER_HEIGHT));
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.metricsParser = metricsParser;
@@ -574,7 +761,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     public void updateReportUnits(final List<ReportUnit> newReportUnits, final String newPipelineStatus,
                                   final Boolean replaceFlag) {
-        logger.fine("In updateReportUnits yCoordinate = " + yCoordinate);
+        logger.fine(String.format(YCOORDINATE_MESSAGE, yCoordinate));
         if (replaceFlag) {
             //Replace all existing reports by newReportUnits.
             reportUnits.clear();
@@ -612,7 +799,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * @param newPipelineStatus as inferred from the qc_status.log file.
      */
     public void updatePipelineStatus(final String newPipelineStatus) {
-        //logger.fine("ViewerFrame updatePipelineStatus");
         pipelineStatus = newPipelineStatus;
         statusField.setText(getExtendedPipelineStatus());
     }
@@ -622,7 +808,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * 1) ControlFrame 2) desktopPane 3) ticGraphPane 4) MenuBar
      */
     private void assembleComponents() {
-        logger.fine("ViewerFrame assembleComponents");
+        logger.fine(ASSEMBLE_COMPONENTS_MESSAGE);
         //We need two split panes to create 3 regions in the main frame
         
         //Add desktopPane for displaying graphs and other QC Control
@@ -663,21 +849,21 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private JMenuBar createMenuBar() {
         final JMenuBar menuBar = new JMenuBar();
-        final JMenu settingsMenu = new JMenu("Settings");
+        final JMenu settingsMenu = new JMenu(MENU_BAR_TITLE);
         menuBar.add(settingsMenu);
-        final JMenuItem newDirAction = new JMenuItem("Set Root Directory...");
+        final JMenuItem newDirAction = new JMenuItem(CHANGE_ROOT_DIRECTORY_MENU_ITEM_TITLE);
         settingsMenu.add(newDirAction);
         newDirAction.setActionCommand(CHANGE_ROOT_DIRECTORY_COMMAND);
         newDirAction.addActionListener(this);
-        final JMenuItem filterAction = new JMenuItem("Set Date Filter...");
+        final JMenuItem filterAction = new JMenuItem(SET_DATE_FILTER_MENU_ITEM_TITLE);
         settingsMenu.add(filterAction);
         filterAction.setActionCommand(SET_FILTER_COMMAND);
         filterAction.addActionListener(this);
-        final JMenuItem metricsAction = new JMenuItem("Select Metrics...");
+        final JMenuItem metricsAction = new JMenuItem(SELECT_METRICS_MENU_ITEM_TITLE);
         settingsMenu.add(metricsAction);
         metricsAction.setActionCommand(SELECT_METRICS_COMMAND);
         metricsAction.addActionListener(this);
-        final JMenuItem aboutAction = new JMenuItem("About...");
+        final JMenuItem aboutAction = new JMenuItem(ABOUT_MENU_ITEM_TITLE);
         settingsMenu.add(aboutAction);
         aboutAction.setActionCommand(ABOUT_COMMAND);
         aboutAction.addActionListener(this);
@@ -690,7 +876,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * @param reportUnits the report units to be displayed.
      */
     private void setReportUnits(final List<ReportUnit> reportUnits) {
-        logger.fine("ViewerFrame setReportUnits No. of reportUnits = " + reportUnits.size());
+        logger.fine(String.format(NUMBER_OF_REPORT_UNITS_MESSAGE, reportUnits.size()));
         if (this.reportUnits != null) {
             this.reportUnits.clear();
         }
@@ -706,10 +892,10 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * @param reportUnits the report units to be displayed.
      */
     private void setOrderedReportUnits(final List<ReportUnit> reportUnits) {
-        logger.fine("ViewerFrame setOrderedReportUnits No. of reportUnits = " + reportUnits.size());
+        logger.fine(String.format(NUMBER_OF_REPORT_UNITS_MESSAGE, reportUnits.size()));
         orderedReportUnits.clear();
         orderedReportUnits.addAll(reportUnits);
-        logger.fine("ViewerFrame setOrderedReportUnits No. of ordered reportUnits = " + orderedReportUnits.size());
+        logger.fine(String.format(NUMBER_OF_ORDERED_REPORT_UNITS_MESSAGE, orderedReportUnits.size()));
     }
 
     /**
@@ -718,10 +904,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * @return JInternalFrame controlFrame.
      */
     private JInternalFrame getControlFrame() {
-        logger.fine("ViewerFrame getControlFrame");
-        logger.fine("CTMM TraIT logo file is " + Constants.CTMM_TRAIT_LOGO_FILE_NAME);
-
-        final JInternalFrame controlFrame = new JInternalFrame("Control Panel", true);
+        final JInternalFrame controlFrame = new JInternalFrame(CONTROL_PANEL_TITLE, true);
         final javax.swing.plaf.InternalFrameUI ifu = controlFrame.getUI();
         ((javax.swing.plaf.basic.BasicInternalFrameUI)ifu).setNorthPane(null);
 
@@ -812,7 +995,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 
         final JPanel zoomButtonsPanel = new JPanel();
         zoomButtonsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),
-                                                                    "Zoom All TIC Charts"));
+                                                                    ZOOM_BUTTONS_PANEL_TITLE));
         zoomButtonsPanel.setLayout(new BoxLayout(zoomButtonsPanel, BoxLayout.X_AXIS));
         zoomButtonsPanel.add(Box.createRigidArea(Constants.DIMENSION_5X0));
         inButton.setMinimumSize(new Dimension(ZOOM_BUTTON_WIDTH, ZOOM_BUTTON_HEIGHT));
@@ -868,11 +1051,11 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private void fillZoomXAxisPanel(final JButton zoomButton, final JPanel zoomXAxisPanel) {
         zoomXAxisPanel.add(Box.createRigidArea(Constants.DIMENSION_10X0));
-        zoomXAxisPanel.add(new JLabel("Min: "), Box.CENTER_ALIGNMENT);
+        zoomXAxisPanel.add(new JLabel(MIN_LABEL), Box.CENTER_ALIGNMENT);
         zoomXAxisPanel.add(Box.createRigidArea(Constants.DIMENSION_5X0));
         zoomXAxisPanel.add(minText, Box.CENTER_ALIGNMENT);
         zoomXAxisPanel.add(Box.createRigidArea(Constants.DIMENSION_5X0));
-        zoomXAxisPanel.add(new JLabel("Max: "), Box.CENTER_ALIGNMENT);
+        zoomXAxisPanel.add(new JLabel(MAX_LABEL), Box.CENTER_ALIGNMENT);
         zoomXAxisPanel.add(Box.createRigidArea(Constants.DIMENSION_5X0));
         zoomXAxisPanel.add(maxText, Box.CENTER_ALIGNMENT);
         zoomXAxisPanel.add(Box.createRigidArea(Constants.DIMENSION_10X0));
@@ -891,7 +1074,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         try {
             logoImage = ImageIO.read(new File(FilenameUtils.normalize(logoFilePath)));
         } catch (final IOException e) {
-            logger.log(Level.SEVERE, "Something went wrong while reading logo file " + logoFilePath, e);
+            logger.log(Level.SEVERE, String.format(LOGO_FILE_EXCEPTION_MESSAGE, logoFilePath), e);
         }
         final Image scaledLogoImage = Utilities.scaleImage(logoImage, Utilities.SCALE_FIT, LOGO_WIDTH, LOGO_HEIGHT);
         return new JLabel(new ImageIcon(scaledLogoImage));
@@ -975,7 +1158,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * @return the pipeline status extended with the number of report units.
      */
     private String getExtendedPipelineStatus() {
-        return pipelineStatus + " | | | | | Number of report units: " + orderedReportUnits.size();
+        return pipelineStatus + STATUS_EXTENSION_STRING + orderedReportUnits.size();
     }
 
     /**
@@ -984,7 +1167,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * @param reportNum Number of QC report for which chart is to be set.
      */
     private void setTicGraphPaneChart(final int reportNum) {
-        logger.fine("ViewerFrame setTicGraphPaneChart " + reportNum);
+        logger.fine(String.format(SET_TIC_GRAPH_PANE_MESSAGE, reportNum));
         ticGraphPane.removeAll();
         // Create the visible chart panel.
         final ChartPanel chartPanel = new ChartPanel(reportUnits.get(reportNum).getChartUnit().getTicChart());
@@ -1015,13 +1198,12 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             min = Integer.parseInt(minText.getText());
             max = Integer.parseInt(maxText.getText());
         } catch (final NumberFormatException e) {
-            logger.log(Level.SEVERE, "Something went wrong while reading min and max zoom values", e);
+            logger.log(Level.SEVERE, MIN_MAX_EXCEPTION_MESSAGE, e);
             parseError = true;
         }
         if (parseError || minAndMaxAreInvalid(min, max)) {
-            final String message1 = "Incorrect min or max.";
-            final String message2 = "Resetting to " + ZOOM_X_AXIS_DEFAULT_START + " and " + ZOOM_X_AXIS_DEFAULT_END;
-            JOptionPane.showMessageDialog(this, message1 + ' ' + message2, "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, INCORRECT_MIN_MAX_MESSAGE +  
+               String.format(RESET_MIN_MAX_MESSAGE, ZOOM_X_AXIS_DEFAULT_START, ZOOM_X_AXIS_DEFAULT_END), "Error", JOptionPane.ERROR_MESSAGE);
             minText.setText(Integer.toString(ZOOM_X_AXIS_DEFAULT_START));
             maxText.setText(Integer.toString(ZOOM_X_AXIS_DEFAULT_END));
             min = ZOOM_X_AXIS_DEFAULT_START;
@@ -1049,8 +1231,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * @param max the end percentage.
      */
     private void setDomainRangeCharts(final int min, final int max) {
-        logger.fine("minValue = " + minText.getText() + " maxValue = " + maxText.getText() + " min = " + min
-                    + " max = " + max);
+        logger.fine(String.format(MIN_MAX_VALUES_MESSAGE, minText.getText(), maxText.getText(), min, max));
         for (final ChartPanel chartPanel : chartPanelList) {
             final XYPlot plot = (XYPlot) chartPanel.getChart().getPlot();
             plot.getDomainAxis().setRange(min, max);
@@ -1067,13 +1248,14 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     @Override
     public void actionPerformed(final ActionEvent actionEvent) {
         final String actionCommand = actionEvent.getActionCommand();
-        logger.fine("Corresponding action command is " + actionCommand + ", event class: " + actionEvent.getClass());
+        logger.fine(String.format(ACTION_COMMAND_AND_EVENT_MESSAGE, actionCommand, actionEvent.getClass())); 
         if (actionCommand.startsWith(DETAILS_ACTION_PREFIX)) {
             //Parse action command to get reportUnit number
             final StringTokenizer commandTokenizer = new StringTokenizer(actionCommand, "-");
             commandTokenizer.nextToken();
             final int reportIndex = Integer.parseInt(commandTokenizer.nextToken());
-            logger.fine("Details requested for reportIndex " + reportIndex);
+            logger.fine(String.format(REPORT_DETAILS_MESSAGE, reportIndex));
+            
             final ReportUnit reportUnit = reportUnits.get(reportIndex);
             final DetailsFrame detailsFrame = new DetailsFrame(metricsParser.getMetricsListing(), reportUnit);
             detailsFrame.setVisible(true);
@@ -1098,7 +1280,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         if (ZOOM_MIN_MAX_COMMAND.equals(actionCommand)) {
             zoomMinMax();
         } else {
-            logger.fine("Number of chart panels: " + chartPanelList.size());
+            logger.fine(String.format(NUMBER_OF_CHART_PANELS_MESSAGE, chartPanelList.size()));
             for (final ChartPanel chartPanel : chartPanelList) {
                 switch (actionCommand) {
                     case ZOOM_IN_COMMAND:
@@ -1111,7 +1293,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                         chartPanel.zoomOutDomain(0, 0);
                         break;
                     default:
-                        logger.warning("Unexpected zoom action: " + actionCommand);
+                        logger.warning(String.format(UNEXPECTED_ZOOM_ACTION_MESSAGE, actionCommand));
                 }
                 chartPanel.setRefreshBuffer(true);
                 chartPanel.repaint();
@@ -1146,7 +1328,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                 aboutFrame.revalidate();
                 break;
             default:
-                logger.warning("Unexpected action: " + actionCommand);
+                logger.warning(String.format(UNEXPECTED_ACTION_MESSAGE,actionCommand));
         }
     }
 
@@ -1154,14 +1336,13 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * Sort displayed report units according to user assigned sort criteria.
      */
     private void sortChartFrameList() {
-        logger.fine("sortChartFrameList according to " + newSortCriteria);
         final StringTokenizer sortCriteriaTokenizer = new StringTokenizer(newSortCriteria, SORT_COMMAND_SEPARATOR);
         sortCriteriaTokenizer.nextToken();
         //e.g. generic:date
         final String sortKey = sortCriteriaTokenizer.nextToken();
         //e.g. Asc or Des
         final String sortOrder = sortCriteriaTokenizer.nextToken();
-        logger.fine("Sort requested according to " + sortKey + " order " + sortOrder);
+        logger.fine(String.format(SORT_CRITERIA_MESSAGE, newSortCriteria, sortKey, sortOrder));
         //Remove currently ordered report units and recreate them according to sort criteria
         orderedReportUnits.clear();
         // A new chart frame will be given to every report.
@@ -1188,7 +1369,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             final ArrayList<ReportUnit> deselectedReports = new ArrayList<>();
             for (int reportIndex = 0; reportIndex < reportIsSelected.size(); reportIndex++) {
                 if (reportIsSelected.get(reportIndex)) {
-                    logger.fine("Selected report index = " + reportIndex);
+                    logger.fine(String.format(REPORT_INDEX_MESSAGE, reportIndex)); 
                     orderedReportUnits.add(reportUnits.get(reportIndex));
                 } else {
                     deselectedReports.add(reportUnits.get(reportIndex));
@@ -1211,10 +1392,10 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      *                  charts will be prepared in descending order.
      */
     private void prepareChartsInOrder(final boolean ascending) {
-        logger.fine("ViewerFrame prepareChartsInOrder");
+        logger.fine(String.format(CHART_ORDER_MESSAGE, ascending));
         chartPanelList.clear();
         yCoordinate = 0;
-        logger.fine("No. of orderedReportUnits = " + orderedReportUnits.size());
+        logger.fine(String.format(NUMBER_OF_ORDERED_REPORT_UNITS_MESSAGE, orderedReportUnits.size()));
         for (int reportIndex = 0; reportIndex < orderedReportUnits.size(); reportIndex++) {
             final int sortedIndex = ascending ? reportIndex : orderedReportUnits.size() - reportIndex - 1;
             addChartFrame(orderedReportUnits.get(sortedIndex), reportIndex);
@@ -1235,8 +1416,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * @param reportNumber the report number.
      */
     private void addChartFrame(final ReportUnit reportUnit, final int reportNumber) {
-        logger.fine("ViewerFrame addChartFrame " + reportNumber + " ");
-
+        logger.fine(String.format(ADD_CHART_FRAME_MESSAGE, reportNumber));
         final ChartPanel chartPanel = new ChartPanel(reportUnit.getChartUnit().getTicChart());
         chartPanel.addChartMouseListener(this);
         chartPanel.setPreferredSize(new Dimension(CHART_PANEL_WIDTH, ACTUAL_CHART_HEIGHT));
@@ -1265,7 +1445,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         chartFrame.setVisible(true);
         chartFrame.addMouseListener(this);
         desktopPane.add(chartFrame);
-        logger.fine("yCoordinate = " + yCoordinate);
+        logger.fine(String.format(YCOORDINATE_MESSAGE, yCoordinate));
         yCoordinate += REPORT_ROW_HEIGHT;
     }
 
@@ -1278,7 +1458,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private JPanel createReportIdPanel(final ReportUnit reportUnit) {
         final JLabel reportNumberLabel = new JLabel(Integer.toString(reportUnit.getReportNum()));
 
-        final JButton detailsButton = new JButton("Details");
+        final JButton detailsButton = new JButton(DETAILS_BUTTON_LABEL);
         detailsButton.setPreferredSize(new Dimension(ZOOM_BUTTON_WIDTH, ZOOM_BUTTON_HEIGHT));
         detailsButton.setActionCommand(DETAILS_ACTION_PREFIX + reportUnit.getReportIndex());
         detailsButton.addActionListener(this);
@@ -1333,7 +1513,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     public void updateSelectedMetrics(final List<String> selectedMetricsData) {
         // Update the control frame to display the newly selected metrics.
-        logger.fine("In updateSelectedMetrics - refreshing metrics values..");
+        logger.fine(REFRESH_METRICS_VALUES_MESSAGE);
         parseSelectedMetricsData(selectedMetricsData);
         for (final ReportUnit reportUnit : reportUnits) {
             if (reportUnitToMetricsPanel.containsKey(reportUnit)) {
@@ -1389,10 +1569,10 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             final int checkBoxFlagIndex = Integer.parseInt(thisCheckBox.getName());
             //reportIsSelected will be maintained all the time according to reportIndex
             if (itemEvent.getStateChange() == ItemEvent.SELECTED) {
-                logger.fine("Selected");
+                logger.fine(String.format(CHECK_BOX_SELECTION_MESSAGE, thisCheckBox.getName()));
                 reportIsSelected.set(checkBoxFlagIndex, true);
             } else if (itemEvent.getStateChange() == ItemEvent.DESELECTED) {
-                logger.fine("DeSelected");
+                logger.fine(String.format(CHECK_BOX_DESELECTION_MESSAGE, thisCheckBox.getName()));
                 reportIsSelected.set(checkBoxFlagIndex, false);
             }
         }
@@ -1403,7 +1583,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         final Component clickedComponent = mouseEvent.getComponent();
         if (clickedComponent instanceof JInternalFrame) {
             final JInternalFrame clickedFrame = (JInternalFrame) clickedComponent;
-            logger.fine("Frame title = " + clickedFrame.getTitle() + ", frame name = " + clickedFrame.getName());
+            logger.fine(String.format(FRAME_CLICKED_MESSAGE, clickedFrame.getTitle(), clickedFrame.getName()));
             setTicGraphPaneChart(Integer.parseInt(clickedFrame.getName()));
         }
     }
@@ -1436,7 +1616,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         // Skip first token. Second token is chart index.
         tokenizer.nextToken();
         final int index = Integer.parseInt(tokenizer.nextToken());
-        logger.fine("Graph Index from SubTitle = " + index);
+        logger.fine(String.format(GRAPH_CLICK_MESSAGE, index));
         setTicGraphPaneChart(index);
     }
 
