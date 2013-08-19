@@ -334,6 +334,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 
     /**
      * The suffix used for the compare selected reports command.
+     *
+     * TODO: rename to SORT_KEY_COMPARE (since we use order for ascending/descending) and move to Constants. [Freek]
      */
     private static final String SORT_ORDER_COMPARE = SORT_ORDER_COMPARE_LABEL;
 
@@ -1180,7 +1182,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             prepareChartsInOrder(true);
             // Set first report graph in the Tic Pane. 
             setTicGraphPaneChart(orderedReportUnits.get(0).getReportIndex());
-        } else if (SORT_ORDER_COMPARE.equals(sortKey)) {
+        } else {
             //Check checkbox flag status and group those reports together at the beginning of orderedReportUnits
             //Add all selected reports first i refers to original report number
             final ArrayList<ReportUnit> deselectedReports = new ArrayList<>();

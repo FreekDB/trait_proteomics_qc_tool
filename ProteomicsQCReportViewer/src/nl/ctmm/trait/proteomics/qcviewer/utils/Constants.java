@@ -274,12 +274,10 @@ public interface Constants {
      *
      * TODO: can we add SORT_KEY_MAX_INTENSITY as well {reportUnit.getChartUnit().getMaxTicIntensity()}? [Freek]
      */
-    @SuppressWarnings("UnusedDeclaration")
     List<String> LIST_SORT_KEYS_DOUBLE = Arrays.asList(SORT_KEY_FILE_SIZE);
 
     /**
      * List with integer sort keys: both MS1 and MS2 spectra.
      */
-    @SuppressWarnings("UnusedDeclaration")
     List<String> LIST_SORT_KEYS_INT = Arrays.asList(SORT_KEY_MS1_SPECTRA, SORT_KEY_MS2_SPECTRA);
 }

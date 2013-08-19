@@ -1,12 +1,15 @@
 package nl.ctmm.trait.proteomics.qcviewer.input;
 
-import java.awt.image.BufferedImage;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
-import nl.ctmm.trait.proteomics.qcviewer.utils.Utilities;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -65,5 +68,80 @@ public class ReportUnitTest {
         reportUnit.setFileSizeString("");
         assertNull(reportUnit.getFileSize());
     }
- 
+
+    /**
+     * Test the report unit comparator with different sort key and sort order combinations.
+     */
+    @Test
+    public void testComparator() {
+        /**
+         * Define a data structure for a single test combination: sort key, sort order and the expected reports.
+         */
+        class TestCombination {
+            public String sortKey;
+            public boolean sortOrder;
+            public List<ReportUnit> expectedReports;
+
+            TestCombination(final String sortKey, final boolean sortOrder, final List<ReportUnit> expectedReports) {
+                this.sortKey = sortKey;
+                this.sortOrder = sortOrder;
+                this.expectedReports = expectedReports;
+            }
+
+            @Override
+            public String toString() {
+                return "Sort key: " + sortKey + ", sort order: " + sortOrder + "; expected reports: " + expectedReports;
+            }
+        }
+
+        // Create some test reports.
+        final ReportUnit r1 = createReport(1);
+        final ReportUnit r2 = createReport(2);
+        final ReportUnit r3 = createReport(3);
+
+        // We will test with the following seven sort keys (the report index and the six default metrics; sort key
+        // compare [SORT_ORDER_COMPARE] is handled by the ViewerFrame class itself):
+        // SORT_KEY_REPORT_INDEX
+        // SORT_KEY_FILE_SIZE
+        // SORT_KEY_MS1_SPECTRA
+        // SORT_KEY_MS2_SPECTRA
+        // SORT_KEY_DATE
+        // SORT_KEY_RUNTIME
+        // SORT_KEY_MAX_INTENSITY
+
+        // Create the list with test combinations.
+        final List<TestCombination> testCombinations = new ArrayList<>();
+        testCombinations.add(new TestCombination(Constants.SORT_KEY_REPORT_INDEX, true, Arrays.asList(r1, r2, r3)));
+//        testCombinations.add(new TestCombination(Constants.SORT_KEY_FILE_SIZE, true, Arrays.asList(r1, r2, r3)));
+        final List<TestCombination> descendingTestCombinations = new ArrayList<>();
+        for (final TestCombination testCombination : testCombinations) {
+            final List<ReportUnit> reversedReports = new ArrayList<>(testCombination.expectedReports);
+            Collections.reverse(reversedReports);
+            descendingTestCombinations.add(new TestCombination(testCombination.sortKey, false, reversedReports));
+        }
+        testCombinations.addAll(descendingTestCombinations);
+
+        // Start testing.
+        for (final TestCombination testCombination : testCombinations) {
+            // Test V1.
+            final List<ReportUnit> reportsV1 = Arrays.asList(r2, r3, r1);
+            Collections.sort(reportsV1, ReportUnit.getComparator(testCombination.sortKey, testCombination.sortOrder));
+            assertEquals(testCombination + " V1", testCombination.expectedReports, reportsV1);
+            // Test V2.
+            final List<ReportUnit> reportsV2 = Arrays.asList(r2, r3, r1);
+            Collections.sort(reportsV2, ReportUnit.getComparatorV2(testCombination.sortKey, testCombination.sortOrder));
+            assertEquals(testCombination + " V2", testCombination.expectedReports, reportsV2);
+        }
+    }
+
+    private ReportUnit createReport(final int reportNumber) {
+        final ReportUnit report = new ReportUnit("msrun" + reportNumber, reportNumber);
+        final String reportNumberString = Integer.toString(reportNumber);
+        report.setFileSizeString(reportNumberString);
+        report.setMeasured(reportNumberString);
+        report.setMs1Spectra(reportNumberString);
+        report.setMs2Spectra(reportNumberString);
+        report.setRuntime(reportNumberString);
+        return report;
+    }
 }
