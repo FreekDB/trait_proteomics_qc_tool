@@ -3,6 +3,7 @@ package nl.ctmm.trait.proteomics.qcviewer.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GraphicsConfiguration;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
@@ -68,6 +69,25 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
     private static final String ID_AVAILABLE_METRICS = "availableMetricsList";
 
     /**
+     * Message written to the logger if exception occurs while selecting metrics.
+     */
+    private static final String SELECT_METRICS_EXCEPTION_MESSAGE = 
+                "Something went wrong while selecting metrics (with drag-and-drop).";
+    
+    /**
+     * Message written to the logger in case user tries to select more 
+     *                                              metrics than MAX_SELECTED_METRICS.
+     */
+    private static final String LIST_LIMIT_EXCEEDED_MESSAGE = 
+            "Limit of selected list exceeded. Max: %s . Origin: %s";
+    
+    /**
+     * Message written to the logger to print action command selected by the user.
+     */
+    private static final String ACTION_COMMAND_MESSAGE = 
+            "ChooseMetricsForm Action command = %s";
+    
+    /**
      * Width of an individual button.
      */
     private static final int BUTTON_WIDTH = 80;
@@ -86,7 +106,20 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
      * Height of the choose metrics form.
      */
     private static final int METRICS_FORM_HEIGHT = 340;
-    
+
+    private static final String CHOOSE_METRICS_FORM_TITLE = 
+                        "Select QC-Full Metrics for MSQC Report Viewer";
+
+    /**
+     * Title of metrics to show list area
+     */
+    private static final String METRICS_TO_SHOW_TITLE = "Drag n Drop: Metrics to Show (max %s):";
+
+    /**
+     * Title of metrics to hide list area
+     */
+    private static final String METRICS_TO_HIDE_TITLE = "Drag n Drop: Metrics to Hide:";
+
     /**
      * The GUI list with the selected metrics.
      */
@@ -121,18 +154,17 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
      */
     public ChooseMetricsForm(final ViewerFrame viewerFrame, final MetricsParser metricsParser,
                              final Collection<String> selectedMetricsKeys) {
-        super("Select QC-Full Metrics for MSQC Report Viewer");
+        super(CHOOSE_METRICS_FORM_TITLE);
         this.viewerFrame = viewerFrame;
         // Create the list models for both selected metrics and available (not yet selected) metrics.
         createListModels(metricsParser, selectedMetricsKeys);
         // Create the list with selected metrics on the right side.
         this.selectedMetricsList = new JList<>(this.selectedMetricsListModel);
-        final String titleSelected = "Drag n Drop: Metrics to Show (max " + MAX_SELECTED_METRICS + "):";
+        final String titleSelected = String.format(METRICS_TO_SHOW_TITLE, MAX_SELECTED_METRICS);
         add(createMetricsPanel(this.selectedMetricsList, ID_SELECTED_METRICS, titleSelected), BorderLayout.CENTER);
         // Create the list with available (not yet selected) metrics on the left side.
         this.availableMetricsList = new JList<>(this.availableMetricsListModel);
-        final String titleAvailable = "Drag n Drop: Metrics to Hide:";
-        add(createMetricsPanel(this.availableMetricsList, ID_AVAILABLE_METRICS, titleAvailable), BorderLayout.WEST);
+        add(createMetricsPanel(this.availableMetricsList, ID_AVAILABLE_METRICS, METRICS_TO_HIDE_TITLE), BorderLayout.WEST);
         // Add the panel with OK and Cancel buttons.
         addButtonPanel();
         // Set content pane properties.
@@ -215,14 +247,13 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
      */
     @Override
     public void actionPerformed(final ActionEvent actionEvent) {
-        logger.fine("DataEntryFrame Action command = " + actionEvent.getActionCommand());
+        logger.fine(String.format(ACTION_COMMAND_MESSAGE, actionEvent.getActionCommand()));
         if (actionEvent.getActionCommand().equals(Constants.OK_BUTTON_TEXT)) {
             PropertyFileWriter.getInstance().updateMetricsSelection(selectedMetricsListModel);
             viewerFrame.updateSelectedMetrics(new ArrayList<>(selectedMetricsListModel.getModel()));
             dispose();
         }
     }
-
 
     /**
      * This class represents a metric being transferred from one GUI list to another in a drag-and-drop action.
@@ -265,7 +296,7 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
             if (support.isDrop()) {
                 if (selectedMetricsListModel.getSize() >= MAX_SELECTED_METRICS
                     && origin.equalsIgnoreCase(ID_SELECTED_METRICS)) {
-                    logger.fine("Limit of selected list exceeded. Max " + MAX_SELECTED_METRICS + ". Origin: " + origin);
+                    logger.fine(String.format(LIST_LIMIT_EXCEEDED_MESSAGE, MAX_SELECTED_METRICS, origin));
                 } else if (support.isDataFlavorSupported(DataFlavor.stringFlavor)) {
                     importPossible = (support.getSourceDropActions() & TransferHandler.MOVE) == TransferHandler.MOVE;
                     if (importPossible) {
@@ -314,7 +345,7 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
                     list.requestFocusInWindow();
                     result = true;
                 } catch (final UnsupportedFlavorException | IOException e) {
-                    logger.log(Level.SEVERE, "Something went wrong while selecting metrics (with drag-and-drop)", e);
+                    logger.log(Level.SEVERE, SELECT_METRICS_EXCEPTION_MESSAGE, e);
                 }
             }
             return result;
