@@ -172,6 +172,23 @@ public class DataEntryForm extends JDialog {
      * Message shown if from date is after till date.
      */
     private static final String INCORRECT_DATES_MESSAGE = "From Date: %s is after Till Date: %s";
+
+    /**
+     * Message shown in the initial dialog. 
+     */
+    private static final String INITIAL_DIALOG_MESSAGE =  "  Reading QC reports from the QC " +
+                            "pipeline (under the %s directory).";
+
+    /**
+     * Title of the initial dialog. 
+     */
+    private static final String INITIAL_DIALOG_TITLE = "Reading QC reports in progress";
+
+    /**
+     * Message written to the logger while displaying initial dialog. 
+     */
+    private static final String INITIAL_DIALOG_LOGGING_MESSAGE = "Displaying " +
+                "initial dialog with message %s";
     
     /**
      * The dialog that is shown while the reports are read during initialization.
@@ -200,15 +217,15 @@ public class DataEntryForm extends JDialog {
      */
     public void displayInitialDialog(final String rootDirectoryName) {
         final String absolutePath = new File(rootDirectoryName).getAbsolutePath();
-        final String message = "  Reading QC reports from the QC pipeline (under the " + absolutePath + " directory).";
-        initialDialog = new JDialog((Frame) null, "Reading QC reports in progress");
+        final String message = String.format(INITIAL_DIALOG_MESSAGE, absolutePath);
+        initialDialog = new JDialog((Frame) null, INITIAL_DIALOG_TITLE);
         initialDialog.getContentPane().add(new JLabel(message));
         initialDialog.setPreferredSize(new Dimension(INITIAL_DIALOG_WIDTH, INITIAL_DIALOG_HEIGHT));
         initialDialog.pack();
         RefineryUtilities.centerFrameOnScreen(initialDialog);
         initialDialog.setVisible(true);
         initialDialog.revalidate();
-        logger.fine("Displaying initial dialog with message " + message);
+        logger.fine(String.format(INITIAL_DIALOG_LOGGING_MESSAGE, message));
     }
     
     /**
