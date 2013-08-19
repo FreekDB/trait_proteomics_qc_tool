@@ -42,9 +42,6 @@ import org.jfree.ui.RefineryUtilities;
  * TODO: move images directory (with logo image files) to source\main\resources directory. [Freek]
  * TODO: change QE*.raw file names into less descriptive names (see ProgressLogReader.parseCurrentStatus). [Freek]
  * TODO: make all sort radio buttons visible again. [Freek]
- * 
- * TODO: Use Map<String, ReportUnit> instead of ArrayList<ReportUnit> [Pravin]
- * TODO: Refactor Main.java and create flowchart [Pravin]
  *  
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
@@ -84,6 +81,28 @@ public class Main {
      */
     private static final String INCORRECT_DATES_MESSAGE = "Something went wrong while processing fromDate and tillDate";
 
+    /**
+     * Message written to the logger for printing from and till dates.
+     */
+    private static final String FROM_AND_TILL_DATES_MESSAGE = "fromDate = %s tillDate = %s";
+
+    /**
+     * Message written to the logger for printing progress log file path.
+     */
+    private static final String LOG_FILE_PATH_MESSAGE = "progressLogFilePath = %s";
+
+    /**
+     * Message written to the logger for printing preferred root directory.
+     */
+    private static final String PREFERRED_ROOT_DIRECTORY_MESSAGE = "Preferred root directory = %s"; 
+
+    /**
+     * Message written to the logger if the xception occurs while loading application properties.
+     */
+    private static final String APP_PROPERTIES_EXCEPTION_MESSAGE = 
+                                            "Loading of application properties failed.";
+
+    
     /**
      * The application properties such as root folder and default metrics to show.
      */
@@ -269,8 +288,7 @@ public class Main {
             fromDate = now.getTime();
             tillDate = Calendar.getInstance().getTime();
         }
-        logger.fine("fromDate = " + Constants.DATE_FORMAT.format(fromDate) + " tillDate = "
-                    + Constants.DATE_FORMAT.format(tillDate));
+        logger.fine(String.format(FROM_AND_TILL_DATES_MESSAGE, fromDate, tillDate));
     }
 
     /**
@@ -282,7 +300,7 @@ public class Main {
     private boolean setProgressLogReader() {
         final String progressLogFilePath = FilenameUtils.normalize(preferredRootDirectory + "\\"
                 + Constants.PROGRESS_LOG_FILE_NAME);
-        logger.fine("progressLogFilePath = " + progressLogFilePath);
+        logger.fine(String.format(LOG_FILE_PATH_MESSAGE, progressLogFilePath));
         progressLogReader = ProgressLogReader.getInstance(); 
         if (progressLogReader.setProgressLogFile(progressLogFilePath)) {
             pipelineStatus = progressLogReader.getCurrentStatus();
@@ -322,7 +340,7 @@ public class Main {
             appProperties.load(fileInputStream);
             fileInputStream.close();
         } catch (final IOException e) {
-            logger.log(Level.SEVERE, "Loading of application properties failed.", e);
+            logger.log(Level.SEVERE, APP_PROPERTIES_EXCEPTION_MESSAGE, e);
         }
         PropertyFileWriter.getInstance().setApplicationProperties(appProperties);
         return appProperties;
@@ -335,7 +353,7 @@ public class Main {
     private void normalizePreferredRootDirectory() {
         preferredRootDirectory = loadProperties().getProperty(Constants.PROPERTY_ROOT_FOLDER);
         preferredRootDirectory = Paths.get(preferredRootDirectory).toAbsolutePath().normalize().toString();
-        logger.fine("in Main preferredRootDirectory = " + preferredRootDirectory);
+        logger.fine(String.format(PREFERRED_ROOT_DIRECTORY_MESSAGE, preferredRootDirectory));
     }
     
     /**
@@ -407,8 +425,7 @@ public class Main {
      */
     private void startQCReportViewerGui(final Properties appProperties, final List<ReportUnit> reportUnits,
                                         final String pipelineStatus) {
-        logger.fine("Main startQCReportViewerGui");
-        final List<String> qcParamNames = getColumnNames(appProperties, Constants.PROPERTY_TOP_COLUMN_NAMESV2);
+          final List<String> qcParamNames = getColumnNames(appProperties, Constants.PROPERTY_TOP_COLUMN_NAMESV2);
         //Create ViewerFrame and set it visible
         frame = new ViewerFrame(metricsParser, Constants.APPLICATION_TITLE, reportUnits, qcParamNames, pipelineStatus);
         frame.pack();

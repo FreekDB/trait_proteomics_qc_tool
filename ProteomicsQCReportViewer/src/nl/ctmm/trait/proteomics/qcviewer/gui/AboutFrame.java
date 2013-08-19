@@ -134,7 +134,7 @@ public class AboutFrame extends JFrame implements ActionListener {
      * TODO: fix special characters. [Freek]
      */
     private static final String REFERENCES =
-            "[1] Kï¿½cher, T., Pichler, P., Swart, R. and Mechtler, K., Quality control in LC-MS/MS, Wiley "
+            "[1] Köcher, T., Pichler, P., Swart, R. and Mechtler, K., Quality control in LC-MS/MS, Wiley "
             + "Proteomics, 11(6), pp. 1026-1030, Feb 2011.\n"
             + "[2] PRIME-XS-Deliverable 13.1, Deliverable 13.1 - Suite of tools that allow automatic quality control "
             + "on the acquired data, 16 Feb 2012.\n"
@@ -142,7 +142,7 @@ public class AboutFrame extends JFrame implements ActionListener {
             + "Standards and Technology - United States Department of Commerce, June 2011, available online: "
             + "http://peptide.nist.gov/metrics/, last accessed: 22 Jan 2013.\n"
             + "[4] Rudnick P. A. et. al., Performance Metrics for Liquid Chromatography-Tandem Mass Spectrometry "
-            + "Systems in Proteomics Analyses, Molecular and Cell Proteomics, 9(2), pp. 225ï¿½241, Feb 2010.";
+            + "Systems in Proteomics Analyses, Molecular and Cell Proteomics, 9(2), pp. 225-241, Feb 2010.";
 
     /**
      * The information for getting more details about the application.
@@ -156,6 +156,8 @@ public class AboutFrame extends JFrame implements ActionListener {
      * The acknowledgement icon width and height.
      */
     private static final int ICON_SIZE = 100;
+
+    private static final String LOGO_NOT_FOUND_MESSAGE = "Logo in file %s not found.";
 
     /**
      * Constructor of the AboutFrame.
@@ -249,7 +251,7 @@ public class AboutFrame extends JFrame implements ActionListener {
             final BufferedImage bufferedImage = ImageIO.read(new File(FilenameUtils.normalize(logoPath)));
             label.setIcon(new ImageIcon(Utilities.scaleImage(bufferedImage, 0, ICON_SIZE, ICON_SIZE)));
         } catch (final IOException e) {
-            logger.log(Level.SEVERE, "Logo in file " + FilenameUtils.normalize(logoPath) + " not found.", e);
+            logger.log(Level.SEVERE, String.format(LOGO_NOT_FOUND_MESSAGE, FilenameUtils.normalize(logoPath)), e);
         }
         return label;
     }

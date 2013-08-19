@@ -34,9 +34,10 @@ public class ChartUnit {
      * The list of alternating colors that is used to draw the tic charts.
      */
     private static final List<Color> GRAPH_COLORS = Arrays.asList(
-            Color.BLUE, Color.DARK_GRAY, Color.GRAY, Color.MAGENTA, Color.ORANGE,
-            Color.PINK, Color.LIGHT_GRAY, Color.RED, Color.GREEN);
-
+            Color.BLUE, Color.DARK_GRAY, Color.GRAY);
+    /*Color.MAGENTA, Color.ORANGE,
+            Color.PINK, Color.LIGHT_GRAY, Color.RED, Color.GREEN*/
+    
     /**
      * The percentage amount by which the width of the bars will be trimmed.
      */
@@ -45,7 +46,8 @@ public class ChartUnit {
     /**
      * Message written to the logger while creating chart unit. 
      */
-    private static final String CHART_UNIT_MESSAGE = "In ChartUnit: reportIndex = %s msrunName %s maxIntensity %s";
+    private static final String CHART_UNIT_MESSAGE = "In ChartUnit: reportIndex = %s " +
+            "msrunName %s maxIntensity %s";
 
     /**
      * Title of the TIC chart. 
