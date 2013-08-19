@@ -3,7 +3,6 @@ package nl.ctmm.trait.proteomics.qcviewer.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.GraphicsConfiguration;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
@@ -106,17 +105,20 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
      * Height of the choose metrics form.
      */
     private static final int METRICS_FORM_HEIGHT = 340;
-
+    
+    /**
+     * Title of the Choose Metrics form. 
+     */
     private static final String CHOOSE_METRICS_FORM_TITLE = 
                         "Select QC-Full Metrics for MSQC Report Viewer";
 
     /**
-     * Title of metrics to show list area
+     * Title of metrics to show list area.
      */
     private static final String METRICS_TO_SHOW_TITLE = "Drag n Drop: Metrics to Show (max %s):";
 
     /**
-     * Title of metrics to hide list area
+     * Title of metrics to hide list area.
      */
     private static final String METRICS_TO_HIDE_TITLE = "Drag n Drop: Metrics to Hide:";
 

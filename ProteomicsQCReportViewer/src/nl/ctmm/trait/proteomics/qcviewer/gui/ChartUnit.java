@@ -41,13 +41,13 @@ public class ChartUnit {
     /**
      * The percentage amount by which the width of the bars will be trimmed.
      */
-    private static final double TRIM_PERCENTAGE_BARS = 0.98;
+    private static final double TRIM_PERCENTAGE_BARS = 0.98; 
 
     /**
      * Message written to the logger while creating chart unit. 
      */
-    private static final String CHART_UNIT_MESSAGE = "In ChartUnit: reportIndex = %s " +
-            "msrunName %s maxIntensity %s";
+    private static final String CHART_UNIT_MESSAGE = "In ChartUnit: reportIndex = %s " 
+                                + "msrunName %s maxIntensity %s";
 
     /**
      * Title of the TIC chart. 

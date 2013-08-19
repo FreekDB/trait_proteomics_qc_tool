@@ -111,7 +111,7 @@ public class DataEntryForm extends JDialog {
     /**
      * Height of the initial status dialog.
      */
-    private static final int INITIAL_DIALOG_HEIGHT = 100;    
+    private static final int INITIAL_DIALOG_HEIGHT = 100;
     
     /**
      * The title shown when an error has occurred.
@@ -176,8 +176,8 @@ public class DataEntryForm extends JDialog {
     /**
      * Message shown in the initial dialog. 
      */
-    private static final String INITIAL_DIALOG_MESSAGE =  "  Reading QC reports from the QC " +
-                            "pipeline (under the %s directory).";
+    private static final String INITIAL_DIALOG_MESSAGE =  "  Reading QC reports from the QC " 
+                    + "pipeline (under the %s directory).";
 
     /**
      * Title of the initial dialog. 
@@ -187,8 +187,8 @@ public class DataEntryForm extends JDialog {
     /**
      * Message written to the logger while displaying initial dialog. 
      */
-    private static final String INITIAL_DIALOG_LOGGING_MESSAGE = "Displaying " +
-                "initial dialog with message %s";
+    private static final String INITIAL_DIALOG_LOGGING_MESSAGE = "Displaying " 
+                    + "initial dialog with message %s";
     
     /**
      * The dialog that is shown while the reports are read during initialization.

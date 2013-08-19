@@ -26,6 +26,12 @@ public class MetricsParser {
     private static final Logger logger = Logger.getLogger(MetricsParser.class.getName());
 
     /**
+     * Message written to the logger in case excsption occurs while reading metrics listing. 
+     */
+    private static final String METRICS_LISTING_EXCEPTION_MESSAGE = 
+          "Something went wrong while reading the metrics definition file: %s.";
+
+    /**
      * The map with all metrics supported by the NIST QC pipeline. The keys are "category:code" strings and the values
      * are descriptions of the metrics.
      * <p/>
@@ -65,8 +71,7 @@ public class MetricsParser {
             }
             reader.close();
         } catch (final NumberFormatException | IOException e) {
-            final String message = "Something went wrong while reading the metrics definition file: %s.";
-            logger.log(Level.SEVERE, String.format(message, Constants.METRICS_LISTING_FILE_NAME), e);
+            logger.log(Level.SEVERE, String.format(METRICS_LISTING_EXCEPTION_MESSAGE, Constants.METRICS_LISTING_FILE_NAME), e);
         }
     }
 }
