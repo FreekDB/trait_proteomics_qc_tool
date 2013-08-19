@@ -484,8 +484,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     /**
      * Message written to the logger if exception occurs while reading logo file.         
      */
-    private static final String LOGO_FILE_EXCEPTION_MESSAGE = "Something went " +
-                    "wrong while reading logo file %s.";
+    private static final String LOGO_FILE_EXCEPTION_MESSAGE = "Something went " 
+                    + "wrong while reading logo file %s.";
 
     /**
      * Label of Min text box in Zoom X Axis Panel. 
@@ -526,8 +526,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     /**
      * Message written to the logger in case user performs a particular action. 
      */
-    private static final String ACTION_COMMAND_AND_EVENT_MESSAGE = "Corresponding action" +
-                    " command is %s, event class is %s";
+    private static final String ACTION_COMMAND_AND_EVENT_MESSAGE = "Corresponding action"
+                    + " command is %s, event class is %s";
 
     /**
      * Message written to the logger while setting graph in TIC Graph pane. 
@@ -558,8 +558,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     /**
      * Message written to the logger displaying sort criteria, sort key and sort order. 
      */
-    private static final String SORT_CRITERIA_MESSAGE = "Sort criteria = %s. " +
-            "Sort requested according to sortKey = %s. Sort order = %s.";
+    private static final String SORT_CRITERIA_MESSAGE = "Sort criteria = %s. "
+                    + "Sort requested according to sortKey = %s. Sort order = %s.";
 
     /**
      * Message written to the logger to print index of selected report. 
@@ -1202,8 +1202,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             parseError = true;
         }
         if (parseError || minAndMaxAreInvalid(min, max)) {
-            JOptionPane.showMessageDialog(this, INCORRECT_MIN_MAX_MESSAGE +  
-               String.format(RESET_MIN_MAX_MESSAGE, ZOOM_X_AXIS_DEFAULT_START, ZOOM_X_AXIS_DEFAULT_END), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, INCORRECT_MIN_MAX_MESSAGE
+               + String.format(RESET_MIN_MAX_MESSAGE, ZOOM_X_AXIS_DEFAULT_START, ZOOM_X_AXIS_DEFAULT_END), "Error", JOptionPane.ERROR_MESSAGE);
             minText.setText(Integer.toString(ZOOM_X_AXIS_DEFAULT_START));
             maxText.setText(Integer.toString(ZOOM_X_AXIS_DEFAULT_END));
             min = ZOOM_X_AXIS_DEFAULT_START;
@@ -1328,7 +1328,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                 aboutFrame.revalidate();
                 break;
             default:
-                logger.warning(String.format(UNEXPECTED_ACTION_MESSAGE,actionCommand));
+                logger.warning(String.format(UNEXPECTED_ACTION_MESSAGE, actionCommand));
         }
     }
 

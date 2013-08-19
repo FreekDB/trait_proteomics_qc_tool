@@ -100,21 +100,21 @@ public class DetailsFrame extends JFrame implements ActionListener {
     /**
      * Message written to the logger while creating metrics key-values dataset.
      */
-    private static final String PREPARING_DATASET_MESSAGE = "In DetailsFrame - " +
-            "preparing to create dataset for %s";
+    private static final String PREPARING_DATASET_MESSAGE = "In DetailsFrame - " 
+            + "preparing to create dataset for %s";
 
     /**
-     * Name of the metrics ID column
+     * Name of the metrics ID column.
      */
     private static final String METRICS_ID_COLUMN_NAME = null;
     
     /**
-     * Name of the description column
+     * Name of the description column.
      */
     private static final String DESCRIPTION_COLUMN_NAME = null;
 
     /**
-     * Name of the value column
+     * Name of the value column.
      */
     private static final String VALUE_COLUMN_NAME = null;
     

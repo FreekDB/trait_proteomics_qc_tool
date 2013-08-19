@@ -60,12 +60,14 @@ public class Main {
     /**
      * Message written to the logger to show the number of reports.
      */
-    private static final String NUMBER_OF_REPORTS_MESSAGE = "Number of reports is %s.";
+    private static final String NUMBER_OF_REPORTS_MESSAGE = 
+                                            "Number of reports is %s.";
     
     /**
      * Message written to the logger when log file is not found.
      */
-    private static final String LOG_FILE_NOT_FOUND_MESSAGE = "progress log file not found. Configured path: %s";
+    private static final String LOG_FILE_NOT_FOUND_MESSAGE = 
+                            "progress log file not found. Configured path: %s";
     /**
      * Message written to the logger when no reports are found.
      */
@@ -74,33 +76,40 @@ public class Main {
     /**
      * Message written to the logger to report number of report unit keys.
      */
-    private static final String SIZE_REPORTS_KEYS_MESSAGE = "Size of report units keys: %d.";
+    private static final String SIZE_REPORTS_KEYS_MESSAGE = 
+                                    "Size of report units keys: %d.";
     
     /**
-     * Message written to the logger when something goes wrong while processing dates.
+     * Message written to the logger when something goes wrong 
+     * while processing dates.
      */
-    private static final String INCORRECT_DATES_MESSAGE = "Something went wrong while processing fromDate and tillDate";
+    private static final String INCORRECT_DATES_MESSAGE = 
+            "Something went wrong while processing fromDate and tillDate";
 
     /**
      * Message written to the logger for printing from and till dates.
      */
-    private static final String FROM_AND_TILL_DATES_MESSAGE = "fromDate = %s tillDate = %s";
+    private static final String FROM_AND_TILL_DATES_MESSAGE = 
+                                            "fromDate = %s tillDate = %s";
 
     /**
      * Message written to the logger for printing progress log file path.
      */
-    private static final String LOG_FILE_PATH_MESSAGE = "progressLogFilePath = %s";
+    private static final String LOG_FILE_PATH_MESSAGE = 
+                                            "progressLogFilePath = %s";
 
     /**
      * Message written to the logger for printing preferred root directory.
      */
-    private static final String PREFERRED_ROOT_DIRECTORY_MESSAGE = "Preferred root directory = %s"; 
+    private static final String PREFERRED_ROOT_DIRECTORY_MESSAGE = 
+                                            "Preferred root directory = %s";
 
     /**
-     * Message written to the logger if the xception occurs while loading application properties.
+     * Message written to the logger if the exception occurs while 
+     * loading application properties.
      */
     private static final String APP_PROPERTIES_EXCEPTION_MESSAGE = 
-                                            "Loading of application properties failed.";
+                                    "Loading of application properties failed.";
 
     
     /**
@@ -134,8 +143,9 @@ public class Main {
     private ViewerFrame frame;
 
     /**
-     * Support for selecting the root directory to read the report units from and specifying the preferred date range.
-     * <p/>
+     * Support for selecting the root directory to read the 
+     * report units from and specifying the preferred date range.
+     *
      * TODO: do we need to keep this around or can we construct it if needed? [Freek]
      */
     private DataEntryForm dataEntryForm;
@@ -230,8 +240,10 @@ public class Main {
         metricsParser = new MetricsParser();
 
         //Obtain displayable set of reports 
-        final Map<String, ReportUnit> reportUnitsTable = getDisplayableReportUnitsTable();
-        logger.fine(String.format(NUMBER_OF_REPORTS_MESSAGE, reportUnitsTable.size()));
+        final Map<String, ReportUnit> reportUnitsTable = 
+                                        getDisplayableReportUnitsTable();
+        logger.fine(String.format(NUMBER_OF_REPORTS_MESSAGE, 
+                                           reportUnitsTable.size()));
         final List<ReportUnit> displayableReportUnits = new ArrayList<>(reportUnitsTable.values());
         //Sort displayableReportUnits in ascending order of report index
         Collections.sort(displayableReportUnits, ReportUnit.getComparator(Constants.SORT_KEY_REPORT_INDEX, true));
@@ -425,7 +437,7 @@ public class Main {
      */
     private void startQCReportViewerGui(final Properties appProperties, final List<ReportUnit> reportUnits,
                                         final String pipelineStatus) {
-          final List<String> qcParamNames = getColumnNames(appProperties, Constants.PROPERTY_TOP_COLUMN_NAMESV2);
+        final List<String> qcParamNames = getColumnNames(appProperties, Constants.PROPERTY_TOP_COLUMN_NAMESV2);
         //Create ViewerFrame and set it visible
         frame = new ViewerFrame(metricsParser, Constants.APPLICATION_TITLE, reportUnits, qcParamNames, pipelineStatus);
         frame.pack();

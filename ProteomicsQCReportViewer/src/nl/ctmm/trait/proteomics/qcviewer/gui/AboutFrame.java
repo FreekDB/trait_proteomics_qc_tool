@@ -156,7 +156,10 @@ public class AboutFrame extends JFrame implements ActionListener {
      * The acknowledgement icon width and height.
      */
     private static final int ICON_SIZE = 100;
-
+    
+    /**
+     * Message written to the logger in case of IOException while reading logo file.  
+     */
     private static final String LOGO_NOT_FOUND_MESSAGE = "Logo in file %s not found.";
 
     /**

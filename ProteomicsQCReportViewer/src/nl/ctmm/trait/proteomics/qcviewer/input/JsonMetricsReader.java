@@ -27,6 +27,22 @@ public class JsonMetricsReader {
      * The logger for this class.
      */
     private static final Logger logger = Logger.getLogger(JsonMetricsReader.class.getName());
+    
+    /**
+     * Message written to the logger in case exception occurs while reading JSON file. 
+     */
+    private static final String JSON_FILE_EXCEPTION_MESSAGE = 
+                        "Something went wrong while reading JSON file.";
+
+    /**
+     * Name of parameter generic:date.
+     */
+    private static final String DATE_PARAM_NAME = "date";
+
+    /**
+     * Name of parameter generic:runtime. 
+     */
+    private static final String RUNTIME_PARAM_NAME = "runtime";
 
     /**
      * The map with all metrics supported by the NIST QC pipeline. The keys are "category:code" strings and the values
@@ -71,7 +87,7 @@ public class JsonMetricsReader {
                 if (jsonObject.containsKey(objectName)) {
                     final JSONObject jObject = (JSONObject) jsonObject.get(objectName);
                     if (jObject.containsKey(paramName)) {
-                        if ("date".equals(paramName) || "runtime".equals(paramName)) {
+                        if (DATE_PARAM_NAME.equals(paramName) || RUNTIME_PARAM_NAME.equals(paramName)) {
                             paramValue = (String) jObject.get(paramName);
                         } else {
                             paramValue = (String) ((JSONArray) jObject.get(paramName)).get(1);
@@ -81,7 +97,7 @@ public class JsonMetricsReader {
                 metricsValues.put(key, paramValue);
             }
         } catch (final IOException | ParseException e) {
-            logger.log(Level.SEVERE, "Something went wrong while reading JSON file", e);
+            logger.log(Level.SEVERE, JSON_FILE_EXCEPTION_MESSAGE, e);
         }
         return metricsValues;
     }

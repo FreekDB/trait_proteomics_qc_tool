@@ -109,7 +109,7 @@ public class ProgressLogReader {
     public String getRunningMsrunName() {
         return runningMsrunName; 
     }
-    
+
     /**
      * Push the current pipeline status to the Main class.
      */
