@@ -14,6 +14,7 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYBarPainter;
+import org.jfree.chart.renderer.xy.XYAreaRenderer;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -41,7 +42,7 @@ public class ChartUnit {
     /**
      * The percentage amount by which the width of the bars will be trimmed.
      */
-    private static final double TRIM_PERCENTAGE_BARS = 0.98; 
+    private static final double TRIM_PERCENTAGE_BARS = 0.97; 
 
     /**
      * Message written to the logger while creating chart unit. 
@@ -89,7 +90,8 @@ public class ChartUnit {
             maxIntensityString = MAX_INTENSITY_FORMAT.format(maxIntensity);
         }
         logger.fine(String.format(CHART_UNIT_MESSAGE, reportIndex, msrunName, maxIntensity));
-        final XYBarRenderer renderer = createBarRenderer(reportIndex);
+        //final XYBarRenderer renderer = createBarRenderer(reportIndex);
+        final XYAreaRenderer renderer = createAreaRenderer(reportIndex);
         final XYSeriesCollection xyDataset = new XYSeriesCollection(series);
         //Prepare chart using plot - this is the best option to control domain and range axes
         final NumberAxis domainAxis = new NumberAxis(null);
@@ -104,11 +106,34 @@ public class ChartUnit {
     }
 
     /**
+     * Create a <code>XYAreaRenderer</code>.
+     * XYArea renderer does not display white spaces between data items. 
+     * @param reportIndex the report index, which is used for picking a color.
+     * @return the <code>XYAreaRenderer</code>.
+     */
+    private XYAreaRenderer createAreaRenderer(final int reportIndex) {
+        final XYAreaRenderer renderer = new XYAreaRenderer();
+        final Color currentColor = GRAPH_COLORS.get(reportIndex % GRAPH_COLORS.size());
+        renderer.setSeriesPaint(0, currentColor);
+        renderer.setSeriesOutlinePaint(0, currentColor);
+        renderer.setBaseFillPaint(currentColor);
+        renderer.setBasePaint(currentColor);
+        renderer.setSeriesStroke(0, null);
+        renderer.setBasePaint(Color.WHITE);
+        XYBarRenderer.setDefaultShadowsVisible(false);
+        //Add support for toolTip
+        final StandardXYToolTipGenerator toolTipGenerator = new StandardXYToolTipGenerator();
+        renderer.setBaseToolTipGenerator(toolTipGenerator);
+        return renderer;
+    }
+    
+    /**
      * Create a <code>XYBarRenderer</code>.
-     *
+     * XYArea renderer displays white spaces between data items. 
      * @param reportIndex the report index, which is used for picking a color.
      * @return the <code>XYBarRenderer</code>.
      */
+    @SuppressWarnings("unused")
     private XYBarRenderer createBarRenderer(final int reportIndex) {
         final XYBarRenderer renderer = new XYBarRenderer();
         renderer.setMargin(TRIM_PERCENTAGE_BARS);
