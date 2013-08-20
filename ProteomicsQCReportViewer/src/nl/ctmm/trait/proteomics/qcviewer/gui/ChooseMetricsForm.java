@@ -22,7 +22,7 @@ import javax.swing.BoxLayout;
 import javax.swing.DropMode;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -41,7 +41,7 @@ import nl.ctmm.trait.proteomics.qcviewer.utils.PropertyFileWriter;
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
-public class ChooseMetricsForm extends JFrame implements ActionListener {
+public class ChooseMetricsForm extends JDialog implements ActionListener {
     /**
      * The logger for this class.
      */
@@ -110,7 +110,7 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
      * Title of the Choose Metrics form. 
      */
     private static final String CHOOSE_METRICS_FORM_TITLE = 
-                        "Select QC-Full Metrics for MSQC Report Viewer";
+                        "Select Metrics";
 
     /**
      * Title of metrics to show list area.
@@ -150,14 +150,15 @@ public class ChooseMetricsForm extends JFrame implements ActionListener {
     /**
      * Constructor of the metrics selection form.
      *
-     * @param viewerFrame the parent viewer frame to pass the changes to.
+     * @param parent the parent viewer frame to pass the changes to.
      * @param metricsParser the metrics parser to get the selected metrics from and pass the changes to.
      * @param selectedMetricsKeys the list of the keys of the currently selected metrics.
      */
-    public ChooseMetricsForm(final ViewerFrame viewerFrame, final MetricsParser metricsParser,
+    public ChooseMetricsForm(final ViewerFrame parent, final MetricsParser metricsParser,
                              final Collection<String> selectedMetricsKeys) {
-        super(CHOOSE_METRICS_FORM_TITLE);
-        this.viewerFrame = viewerFrame;
+        super(parent);
+        this.viewerFrame = parent;
+        setTitle(CHOOSE_METRICS_FORM_TITLE);
         // Create the list models for both selected metrics and available (not yet selected) metrics.
         createListModels(metricsParser, selectedMetricsKeys);
         // Create the list with selected metrics on the right side.

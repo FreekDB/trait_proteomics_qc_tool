@@ -36,6 +36,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDesktopPane;
+import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
@@ -1318,14 +1319,14 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                 break;
             case SELECT_METRICS_COMMAND:
                 // Display ChooseMetricsForm to select metrics to display.
-                final JFrame metricsForm = new ChooseMetricsForm(this, metricsParser, selectedMetrics.keySet());
+                final JDialog metricsForm = new ChooseMetricsForm(this, metricsParser, selectedMetrics.keySet());
                 metricsForm.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 metricsForm.pack();
                 RefineryUtilities.centerFrameOnScreen(metricsForm);
                 metricsForm.setVisible(true);
                 break;
             case ABOUT_COMMAND:
-                final AboutFrame aboutFrame = new AboutFrame();
+                final AboutFrame aboutFrame = new AboutFrame(this);
                 aboutFrame.setVisible(true);
                 aboutFrame.revalidate();
                 break;

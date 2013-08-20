@@ -17,7 +17,7 @@ import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -35,7 +35,7 @@ import org.jfree.ui.RefineryUtilities;
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
-public class AboutFrame extends JFrame implements ActionListener {
+public class AboutFrame extends JDialog implements ActionListener {
     /**
      * The logger for this class.
      */
@@ -162,9 +162,11 @@ public class AboutFrame extends JFrame implements ActionListener {
 
     /**
      * Constructor of the AboutFrame.
+     * @param parent the parent viewer frame.
      */
-    public AboutFrame() {
-        super("About " + Constants.APPLICATION_NAME);
+    public AboutFrame(final ViewerFrame parent) {
+        super(parent);
+        setTitle("About " + Constants.APPLICATION_NAME);
         // Create the main panel with the contents of this frame.
         final JPanel mainPanel = new JPanel(); 
         mainPanel.setLayout(new FlowLayout());
