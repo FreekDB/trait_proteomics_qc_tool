@@ -1,13 +1,10 @@
 package nl.ctmm.trait.proteomics.qcviewer.input;
 
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.ctmm.trait.proteomics.qcviewer.gui.ChartUnit;
@@ -27,12 +24,6 @@ public class ReportUnit implements Comparable<ReportUnit> {
      * The logger for this class.
      */
     private static final Logger logger = Logger.getLogger(ReportUnit.class.getName());
-
-    // Temporarily enabled or disabled, see the getComparatorV2 method.
-    /**
-     * The date and time format for parsing the measured field.
-     */
-    private static final DateFormat DTF = new SimpleDateFormat("yyyy/MMM/dd - HH:mm");
 
     /**
      * Number of the report displayed in viewer.
@@ -388,8 +379,9 @@ public class ReportUnit implements Comparable<ReportUnit> {
                         return ascending ? 1 : -1; 
                     } else if (reportUnit1.getReportIndex() < reportUnit2.getReportIndex()) {
                         return ascending ? -1 : 1; 
-                    } else
-                        return 0; 
+                    } else {
+                        return 0;
+                    }
                 }  
                 final String value1 = reportUnit1.getMetricsValueFromKey(sortKey);
                 final String value2 = reportUnit2.getMetricsValueFromKey(sortKey);
@@ -397,11 +389,11 @@ public class ReportUnit implements Comparable<ReportUnit> {
                     if (value1.equals(value2)) {
                         return 0; 
                       //value1 is valid and present
-                    } else if (value2.equals("N/A")) { 
+                    } else if (value2.equals(Constants.NOT_AVAILABLE_STRING)) {
                       //if ascending = true, return 1 else return -1
                         return ascending ? 1 : -1; 
                       //otherValue is valid and present
-                    } else if (value1.equals("N/A")) { 
+                    } else if (value1.equals(Constants.NOT_AVAILABLE_STRING)) {
                       //if ascending = true, return -1 else return 1
                         return ascending ? -1 : 1; 
                     } else if (sortKey.equals(Constants.SORT_KEY_FILE_SIZE)) {
@@ -409,8 +401,9 @@ public class ReportUnit implements Comparable<ReportUnit> {
                             return ascending ? 1 : -1; 
                         } else if (reportUnit1.fileSize < reportUnit2.fileSize) {
                             return ascending ? -1 : 1; 
-                        } else
+                        } else {
                             return 0;
+                        }
                     } else if (sortKey.equals(Constants.SORT_KEY_MS1_SPECTRA)) {
                         final int thisms1Spectra = Integer.parseInt(value1);
                         final int otherms1Spectra = Integer.parseInt(value2);
@@ -418,7 +411,9 @@ public class ReportUnit implements Comparable<ReportUnit> {
                             return ascending ? 1 : -1; 
                         } else if (thisms1Spectra < otherms1Spectra) {
                             return ascending ? -1 : 1; 
-                        } else return 0;
+                        } else {
+                            return 0;
+                        }
                     } else if (sortKey.equals(Constants.SORT_KEY_MS2_SPECTRA)) {
                         final int thisms2Spectra = Integer.parseInt(value1);
                         final int otherms2Spectra = Integer.parseInt(value2);
@@ -426,7 +421,9 @@ public class ReportUnit implements Comparable<ReportUnit> {
                             return ascending ? 1 : -1; 
                         } else if (thisms2Spectra < otherms2Spectra) {
                             return ascending ? -1 : 1; 
-                        } else return 0;
+                        } else {
+                            return 0;
+                        }
                     } else if (sortKey.equals(Constants.SORT_KEY_DATE)) {
                         final Date thisDate = Constants.MEASURED_DATE_FORMAT.parse(reportUnit1.measured);
                         final Date otherDate = Constants.MEASURED_DATE_FORMAT.parse(reportUnit2.measured);
@@ -434,19 +431,25 @@ public class ReportUnit implements Comparable<ReportUnit> {
                             return ascending ? 1 : -1; 
                         } else if (thisDate.compareTo(otherDate) < 0) {
                             return ascending ? -1 : 1; 
-                        } else return 0;
+                        } else {
+                            return 0;
+                        }
                     } else if (sortKey.equals(Constants.SORT_KEY_RUNTIME)) {
                         if (reportUnit1.runtime.compareToIgnoreCase(reportUnit2.runtime) > 0) {
                             return ascending ? 1 : -1; 
                         } else if (reportUnit1.runtime.compareToIgnoreCase(reportUnit2.runtime) < 0) {
                             return ascending ? -1 : 1; 
-                        } else return 0; 
+                        } else {
+                            return 0;
+                        }
                     } else if (sortKey.equals(Constants.SORT_KEY_MAX_INTENSITY)) {
                         if (reportUnit1.getChartUnit().getMaxTicIntensity() > reportUnit2.getChartUnit().getMaxTicIntensity()) { 
                             return ascending ? 1 : -1; 
                         } else if (reportUnit1.getChartUnit().getMaxTicIntensity() < reportUnit2.getChartUnit().getMaxTicIntensity()) { 
                             return ascending ? -1 : 1; 
-                        } else return 0; 
+                        } else {
+                            return 0;
+                        }
                     } else {
                         final double thisDouble = Double.parseDouble(value1);
                         final double otherDouble = Double.parseDouble(value2);
@@ -454,9 +457,11 @@ public class ReportUnit implements Comparable<ReportUnit> {
                             return ascending ? 1 : -1; 
                         } else if (thisDouble < otherDouble) { 
                             return ascending ? -1 : 1; 
-                        } else return 0; 
+                        } else {
+                            return 0;
+                        }
                     }
-                } catch (Exception e) {
+                } catch (final ParseException e) {
                     logger.warning("Exception type " + e.getClass().toString()
                             + " thisValue = " + value1 + " otherValue = " + value2);
                     e.printStackTrace();
@@ -476,52 +481,7 @@ public class ReportUnit implements Comparable<ReportUnit> {
      * @return the comparator to compare report units.
      */
     public static Comparator<ReportUnit> getComparatorV2(final String sortKey, final boolean ascending) {
-        return new Comparator<ReportUnit>() {
-            // TODO: Analyze new version of compare(...) for correct sorting mechanism. [Pravin]
-            @Override
-            public int compare(final ReportUnit reportUnit1, final ReportUnit reportUnit2) {
-                int result = 0;
-                final int sortFactor = ascending ? 1 : -1;
-                // Needs following special provision to sort according to report index since call to
-                // getMetricsValueFromKey(sortKey) returns "N/A" for report index.
-                if (sortKey.equals(Constants.SORT_KEY_REPORT_INDEX)) {
-                    result = sortFactor * Integer.compare(reportUnit1.getReportIndex(), reportUnit2.getReportIndex());
-                } else {
-                    final String value1 = reportUnit1.getMetricsValueFromKey(sortKey);
-                    final String value2 = reportUnit2.getMetricsValueFromKey(sortKey);
-                    if (value1.equals(value2)) {
-                        result = 0;
-                    } else if (value2.equals(Constants.NOT_AVAILABLE_STRING)) {
-                        //value1 is valid and present
-                        result = sortFactor;
-                    } else if (value1.equals(Constants.NOT_AVAILABLE_STRING)) {
-                        //value2 is valid and present
-                        result = -sortFactor;
-                    } else if (Constants.LIST_SORT_KEYS_DOUBLE.contains(sortKey)) {
-                        result = sortFactor * Double.compare(Double.parseDouble(value1), Double.parseDouble(value2));
-                    } else if (Constants.LIST_SORT_KEYS_INT.contains(sortKey)) {
-                        result = sortFactor * Integer.compare(Integer.parseInt(value1), Integer.parseInt(value2));
-                    } else if (sortKey.equals(Constants.SORT_KEY_DATE)) {
-                        try {
-                            final Date measured1 = DTF.parse(reportUnit1.measured);
-                            final Date measured2 = DTF.parse(reportUnit2.measured);
-                            result = sortFactor * measured1.compareTo(measured2);
-                        } catch (final ParseException e) {
-                            logger.log(Level.SEVERE, "thisValue: " + value1 + "; otherValue: " + value2, e);
-                        }
-                    } else if (sortKey.equals(Constants.SORT_KEY_RUNTIME)) {
-                        result = sortFactor * reportUnit1.runtime.compareToIgnoreCase(reportUnit2.runtime);
-                    } else if (sortKey.equals(Constants.SORT_KEY_MAX_INTENSITY)) {
-                        final double maxTicIntensity1 = reportUnit1.getChartUnit().getMaxTicIntensity();
-                        final double maxTicIntensity2 = reportUnit2.getChartUnit().getMaxTicIntensity();
-                        result = sortFactor * Double.compare(maxTicIntensity1, maxTicIntensity2);
-                    } else {
-                        result = sortFactor * Double.compare(Double.parseDouble(value1), Double.parseDouble(value2));
-                    }
-                }
-                return result;
-            }
-        };
+        return new ReportUnitComparator(sortKey, ascending);
     }
 
 
