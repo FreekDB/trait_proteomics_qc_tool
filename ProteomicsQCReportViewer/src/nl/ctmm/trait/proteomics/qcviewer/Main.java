@@ -246,7 +246,7 @@ public class Main {
                                            reportUnitsTable.size()));
         final List<ReportUnit> displayableReportUnits = new ArrayList<>(reportUnitsTable.values());
         //Sort displayableReportUnits in ascending order of report index
-        Collections.sort(displayableReportUnits, ReportUnit.getComparator(Constants.SORT_KEY_REPORT_INDEX, true));
+        Collections.sort(displayableReportUnits, ReportUnit.getComparatorV2(Constants.SORT_KEY_REPORT_INDEX, true));
         //Start main user interface
         startQCReportViewerGui(applicationProperties, displayableReportUnits, pipelineStatus);
         dataEntryForm.disposeInitialDialog();
@@ -388,7 +388,7 @@ public class Main {
         } else {
             final List<ReportUnit> newReportUnits = new ArrayList<>(reportUnitsTable.values());
             //Sort newReportUnits in ascending order of report index
-            Collections.sort(newReportUnits, ReportUnit.getComparator(Constants.SORT_KEY_REPORT_INDEX, true));
+            Collections.sort(newReportUnits, ReportUnit.getComparatorV2(Constants.SORT_KEY_REPORT_INDEX, true));
             //Maintain reportUnitsKeys
             reportUnitsKeys.addAll(new ArrayList<>(reportUnitsTable.keySet()));
             logger.fine(String.format(SIZE_REPORTS_KEYS_MESSAGE, reportUnitsKeys.size()));
@@ -503,7 +503,7 @@ public class Main {
             logger.fine(String.format(SIZE_REPORTS_KEYS_MESSAGE, reportUnitsKeys.size()));
             final List<ReportUnit> displayableReportUnits = new ArrayList<>(reportUnitsTable.values());
             //Sort displayableReportUnits in ascending order of report index
-            Collections.sort(displayableReportUnits, ReportUnit.getComparator(Constants.SORT_KEY_REPORT_INDEX, true));
+            Collections.sort(displayableReportUnits, ReportUnit.getComparatorV2(Constants.SORT_KEY_REPORT_INDEX, true));
             // Refresh ViewerFrame with new Report Units.
             frame.updateReportUnits(displayableReportUnits, progressLogReader.getCurrentStatus(), true);
         }
