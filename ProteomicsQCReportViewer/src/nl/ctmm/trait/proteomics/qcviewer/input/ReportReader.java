@@ -355,11 +355,7 @@ public class ReportReader {
         final XYSeries series = new XYSeries(msrunName);
         try {
             final BufferedReader bufferedReader = new BufferedReader(new FileReader(ticMatrixFile));
-            //skip first line e.g. ms1Spectra,9239
-            bufferedReader.readLine();
-            //skip second line e.g. ms2Spectra,34040
-            bufferedReader.readLine();
-            //skip third line e.g. maxIntensity,7.8563E9
+            //skip first line with column names: "rt","ions"
             bufferedReader.readLine();
             String line;
             while ((line = bufferedReader.readLine()) != null) {
