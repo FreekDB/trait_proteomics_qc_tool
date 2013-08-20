@@ -252,8 +252,7 @@ public interface Constants {
      * Key of the metric "generic:date".
      */
     String METRIC_KEY_MEASURED = SORT_KEY_DATE; 
-    
-    
+
     /**
      * Sort key string to sort according to runtime.
      */
@@ -267,8 +266,15 @@ public interface Constants {
     /**
      * Sort key string to sort according to maxIntensity.
      */
-    String SORT_KEY_MAX_INTENSITY = "maxIntensity";
-    
+    String SORT_KEY_MAX_INTENSITY = "generic:maxIntensity:maxIntensity";
+
+    /**
+     * Key of the metric "generic:maxIntensity:maxIntensity".
+     *
+     * TODO: do we need a METRIC_ and SORT_ version of each key? [Freek]
+     */
+    String METRIC_KEY_MAX_INTENSITY = SORT_KEY_MAX_INTENSITY;
+
     /**
      * List with double sort keys: file size.
      *

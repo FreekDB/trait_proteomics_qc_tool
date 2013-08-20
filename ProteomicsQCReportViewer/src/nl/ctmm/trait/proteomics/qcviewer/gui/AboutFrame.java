@@ -130,11 +130,9 @@ public class AboutFrame extends JFrame implements ActionListener {
 
     /**
      * The references for the application.
-     *
-     * TODO: fix special characters. [Freek]
      */
     private static final String REFERENCES =
-            "[1] Köcher, T., Pichler, P., Swart, R. and Mechtler, K., Quality control in LC-MS/MS, Wiley "
+            "[1] KÃ¶cher, T., Pichler, P., Swart, R. and Mechtler, K., Quality control in LC-MS/MS, Wiley "
             + "Proteomics, 11(6), pp. 1026-1030, Feb 2011.\n"
             + "[2] PRIME-XS-Deliverable 13.1, Deliverable 13.1 - Suite of tools that allow automatic quality control "
             + "on the acquired data, 16 Feb 2012.\n"
