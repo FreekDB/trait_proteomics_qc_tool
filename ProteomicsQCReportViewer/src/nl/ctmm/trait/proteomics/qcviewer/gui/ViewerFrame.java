@@ -503,7 +503,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private static final String STATUS_EXTENSION_STRING = " | | | | | Number of report units: ";
 
     /**
-     * Message written to the logger if exception occurs while reading min and max zoon values.         
+     * Message written to the logger if exception occurs while reading min and max zoom values.
      */
     private static final String MIN_MAX_EXCEPTION_MESSAGE = 
                     "Something went wrong while reading min and max zoom values";
@@ -516,7 +516,9 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     /**
      * Message shown to the user while resetting min and max zoom values. 
      */
-    private static final String RESET_MIN_MAX_MESSAGE = " Resetting to %s and %s.";
+    private static final String RESET_MIN_MAX_MESSAGE = String.format(" Resetting to %s and %s.",
+                                                                      ZOOM_X_AXIS_DEFAULT_START,
+                                                                      ZOOM_X_AXIS_DEFAULT_END);
 
     /**
      * Message written to the logger when report details are requested. 
@@ -1202,8 +1204,8 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             parseError = true;
         }
         if (parseError || minAndMaxAreInvalid(min, max)) {
-            JOptionPane.showMessageDialog(this, INCORRECT_MIN_MAX_MESSAGE
-               + String.format(RESET_MIN_MAX_MESSAGE, ZOOM_X_AXIS_DEFAULT_START, ZOOM_X_AXIS_DEFAULT_END), "Error", JOptionPane.ERROR_MESSAGE);
+            final String message = INCORRECT_MIN_MAX_MESSAGE + RESET_MIN_MAX_MESSAGE;
+            JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
             minText.setText(Integer.toString(ZOOM_X_AXIS_DEFAULT_START));
             maxText.setText(Integer.toString(ZOOM_X_AXIS_DEFAULT_END));
             min = ZOOM_X_AXIS_DEFAULT_START;
