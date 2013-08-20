@@ -1361,7 +1361,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             //Copy reportUnits to orderedReportUnits
             orderedReportUnits.addAll(reportUnits);
             //Sort orderedReportUnits according to sortKey and sort order - ascending/descending
-            Collections.sort(orderedReportUnits, ReportUnit.getComparator(sortKey, ascending));
+            Collections.sort(orderedReportUnits, ReportUnit.getComparatorV2(sortKey, ascending));
             //Create chart frames and add them to the desktop pane.
             prepareChartsInOrder(true);
             // Set first report graph in the Tic Pane. 
