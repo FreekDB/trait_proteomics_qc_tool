@@ -119,6 +119,11 @@ public class DataEntryForm extends JDialog {
     private static final String ERROR_TITLE = "Error";
 
     /**
+     * The title shown while displaying information message.
+     */
+    private static final String INFORMATION_TITLE = "Information";
+
+    /**
      * The title of no reports found dialog.
      */
     private static final String NO_REPORTS_TITLE = "No reports found";
@@ -147,6 +152,16 @@ public class DataEntryForm extends JDialog {
      * Message written to the logger after selecting new root directory. 
      */
     private static final String SELECTED_ROOT_DIRECTORY_MESSAGE = "You chose to open this folder: %s";
+
+    /**
+     * Name of the directory to save exported PDF data.
+     */
+    private static final String PDF_DIRECTORY_CHOOSER_NAME = "Select directory to save exported PDF file";
+
+    /**
+     * Message written to the logger after selecting directory for saving exported PDF file. 
+     */
+    private static final String SELECTED_PDF_DIRECTORY_MESSAGE = "You chose to save PDF file in this folder: %s";
 
     /**
      * Title of the date filter form.
@@ -248,6 +263,15 @@ public class DataEntryForm extends JDialog {
     }
     
     /**
+     * Display information message in a dialog.
+     *
+     * @param informationMessage Information message to be shown in a dialog
+     */
+    public void displayInformationMessage(final String informationMessage) {
+        JOptionPane.showMessageDialog(this, informationMessage, INFORMATION_TITLE, JOptionPane.INFORMATION_MESSAGE);
+    }
+    
+    /**
      * Show a message to the user that no QC reports have been found and ask whether the user wants to select another
      * root directory.
      *
@@ -264,6 +288,25 @@ public class DataEntryForm extends JDialog {
         }
     }
 
+    /**
+     * Display chooser form to select the directory for saving PDF reports.
+     * @return preferredPDFDirectory absolute path of directory chosen by the user. 
+     */
+    public String displayPDFDirectoryChooser() {
+        String preferredPDFDirectory = "";
+        final JFileChooser chooser = new JFileChooser();
+        chooser.setName(PDF_DIRECTORY_CHOOSER_NAME);
+        chooser.setDialogTitle(PDF_DIRECTORY_CHOOSER_NAME);
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+            logger.fine(String.format(SELECTED_PDF_DIRECTORY_MESSAGE, 
+                    FilenameUtils.normalize(chooser.getSelectedFile().getAbsolutePath())));
+            preferredPDFDirectory = FilenameUtils.normalize(chooser.getSelectedFile().getAbsolutePath());
+            dispose();
+        }
+        return preferredPDFDirectory; 
+    }
+    
     /**
      * Display chooser form to select the preferred root directory.
      */

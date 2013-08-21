@@ -6,6 +6,8 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 
+import com.itextpdf.text.FontFactory;
+
 /**
  * This interface contains the most important constants of the project.
  *
@@ -122,6 +124,16 @@ public interface Constants {
      * The font used for the report numbers.
      */
     Font REPORT_NUMBER_FONT = new Font(FONT_NAME, Font.BOLD, 22);
+
+    /**
+     * The font used for the title of PDF document.
+     */
+    com.itextpdf.text.Font PDF_TITLE_FONT = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 22, Font.ITALIC); 
+
+    /**
+     * The font used for the section of PDF document.
+     */
+    com.itextpdf.text.Font PDF_SECTION_FONT = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16, Font.PLAIN); 
 
     /**
      * The font used for the report error label.

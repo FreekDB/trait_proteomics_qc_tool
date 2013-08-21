@@ -56,6 +56,7 @@ import javax.swing.border.Border;
 import nl.ctmm.trait.proteomics.qcviewer.input.MetricsParser;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnit;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
+import nl.ctmm.trait.proteomics.qcviewer.utils.ReportPDFExporter;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Utilities;
 
 import org.apache.commons.io.FilenameUtils;
@@ -64,6 +65,8 @@ import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.ui.RefineryUtilities;
+
+import com.itextpdf.text.DocumentException;
 
 /**
  * ViewerFrame with the GUI for the QC Report Viewer.
@@ -236,8 +239,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private static final int REPORT_ERROR_AREA_HEIGHT = 40;
 
-
-    
     /**
      * Text of the change root directory menu command.
      */
@@ -254,10 +255,32 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private static final String SELECT_METRICS_COMMAND = "SelectMetrics";
 
     /**
+     * Text of the Export selected reports as PDF menu command.
+     */
+    private static final String EXPORT_PDF_COMMAND = "ExportPDF";
+
+    /**
      * Text of the about menu command.
      */
     private static final String ABOUT_COMMAND = "About";
 
+    /**
+     * Error message to be shown in case exception occurs while exporting reports in PDF format.  
+     */
+    private static String PDF_EXPORT_EXCEPTION_MESSAGE = "Failed exporting report unit %s " 
+            + "to PDF format. (Multiple) exceptions occured.";
+
+    /**
+     * Message to be shown in case reports are successfully exported to PDF format.  
+     */
+    private static String PDF_EXPORT_SUCCESS_MESSAGE = "Successfully exported %d report units to PDF format.";
+    
+    /**
+     * Error message to be shown in case user does not select any reports and issue ExportPDF command.   
+     */
+    private static String PDF_EXPORT_NO_REPORTS_MESSAGE = "No reports selected for exporting to PDF format. " 
+            + "Check Compare box to select one or more reports.";
+    
     /**
      * Text of the Zoom In button.
      */
@@ -337,8 +360,9 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * The suffix used for the compare selected reports command.
      *
      * TODO: rename to SORT_KEY_COMPARE (since we use order for ascending/descending) and move to Constants. [Freek]
+     * Done. [Pravin]
      */
-    private static final String SORT_ORDER_COMPARE = SORT_ORDER_COMPARE_LABEL;
+    private static final String SORT_KEY_COMPARE = SORT_ORDER_COMPARE_LABEL;
 
     /**
      * The label used for the compare selected reports sort radio button.
@@ -455,6 +479,11 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * Title of the Select Metrics menu item. 
      */
     private static final String SELECT_METRICS_MENU_ITEM_TITLE = "Select Metrics...";
+
+    /**
+     * Title of the Export Selected Reports as PDF menu item. 
+     */
+    private static final String EXPORT_PDF_MENU_ITEM_TITLE = "Export Selected Reports as PDF...";
 
     /**
      * Title of the About menu item. 
@@ -866,6 +895,10 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         settingsMenu.add(metricsAction);
         metricsAction.setActionCommand(SELECT_METRICS_COMMAND);
         metricsAction.addActionListener(this);
+        final JMenuItem exportPDFAction = new JMenuItem(EXPORT_PDF_MENU_ITEM_TITLE);
+        settingsMenu.add(exportPDFAction);
+        exportPDFAction.setActionCommand(EXPORT_PDF_COMMAND);
+        exportPDFAction.addActionListener(this);
         final JMenuItem aboutAction = new JMenuItem(ABOUT_MENU_ITEM_TITLE);
         settingsMenu.add(aboutAction);
         aboutAction.setActionCommand(ABOUT_COMMAND);
@@ -1100,7 +1133,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
             firstSortOption = false;
         }
         // Add sorting option for comparing selected reports.
-        sortPanel.add(createSortOptionPanel(SORT_ORDER_COMPARE_LABEL, SORT_ORDER_COMPARE, sortOptionsButtonGroup,
+        sortPanel.add(createSortOptionPanel(SORT_ORDER_COMPARE_LABEL, SORT_KEY_COMPARE, sortOptionsButtonGroup,
                                             false));
         // Add sorting option for displaying selected reports as per report index
         sortPanel.add(createSortOptionPanel(SORT_ORDER_REPORT_INDEX_LABEL, Constants.SORT_KEY_REPORT_INDEX, 
@@ -1325,6 +1358,29 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                 RefineryUtilities.centerFrameOnScreen(metricsForm);
                 metricsForm.setVisible(true);
                 break;
+            case EXPORT_PDF_COMMAND:
+                //Obtain list of selected report units. 
+                final ArrayList<ReportUnit> selectedReports = new ArrayList<>();
+                for (int reportIndex = 0; reportIndex < reportIsSelected.size(); reportIndex++) {
+                    if (reportIsSelected.get(reportIndex)) {
+                        logger.fine(String.format(REPORT_INDEX_MESSAGE, reportIndex)); 
+                        selectedReports.add(reportUnits.get(reportIndex));
+                    } 
+                }
+                if (selectedReports.size() == 0) {
+                    new DataEntryForm(this).displayErrorMessage(PDF_EXPORT_NO_REPORTS_MESSAGE);
+                } else {
+                    final String preferredPDFDirectory = new DataEntryForm(this).displayPDFDirectoryChooser();
+                    for (final ReportUnit selectedReport:selectedReports) {
+                        try {
+                            ReportPDFExporter.exportReportUnitInPDFFormat(selectedReport, preferredPDFDirectory);
+                        } catch (final DocumentException | IOException e) {
+                            new DataEntryForm(this).displayErrorMessage(String.format(PDF_EXPORT_EXCEPTION_MESSAGE, selectedReport.getMsrunName()));
+                        }
+                    }
+                    new DataEntryForm(this).displayInformationMessage(String.format(PDF_EXPORT_SUCCESS_MESSAGE, selectedReports.size()));
+                }
+                break;
             case ABOUT_COMMAND:
                 final AboutFrame aboutFrame = new AboutFrame(this);
                 aboutFrame.setVisible(true);
@@ -1351,7 +1407,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         // A new chart frame will be given to every report.
         desktopPane.removeAll();
         final boolean ascending = sortOrder.equals(SORT_ORDER_ASCENDING);
-        if (!SORT_ORDER_COMPARE.equals(sortKey)) {
+        if (!SORT_KEY_COMPARE.equals(sortKey)) {
             /* TODO: can we use Collections.sort with a custom comparator here? [Freek]
                [Pravin] ReportUnit.java now implements Comparable<ReportUnit> interface.
                Added a comparator in ReportUnit.java to compare report units.
