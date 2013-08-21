@@ -3,7 +3,6 @@ package nl.ctmm.trait.proteomics.qcviewer.input;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import nl.ctmm.trait.proteomics.qcviewer.gui.ChartUnit;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
@@ -18,11 +17,6 @@ import org.jfree.data.xy.XYSeries;
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
 public class ReportUnit {
-    /**
-     * The logger for this class.
-     */
-    private static final Logger logger = Logger.getLogger(ReportUnit.class.getName());
-
     /**
      * Number of the report displayed in viewer.
      */
