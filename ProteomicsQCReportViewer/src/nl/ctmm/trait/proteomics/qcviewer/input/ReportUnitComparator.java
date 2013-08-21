@@ -100,10 +100,12 @@ public class ReportUnitComparator implements Comparator<ReportUnit> {
             }
         } else if (sortKey.equals(Constants.SORT_KEY_RUNTIME)) {
             result = sortFactor * reportUnit1.getRuntime().compareToIgnoreCase(reportUnit2.getRuntime());
-        } else if (sortKey.equals(Constants.SORT_KEY_MAX_INTENSITY)) {
-            final double maxTicIntensity1 = reportUnit1.getChartUnit().getMaxTicIntensity();
-            final double maxTicIntensity2 = reportUnit2.getChartUnit().getMaxTicIntensity();
-            result = sortFactor * Double.compare(maxTicIntensity1, maxTicIntensity2);
+        // Since ReportUnit.createChartUnit stores the max intensity in the metricsValues map, there is no need for
+        // special code for the SORT_KEY_MAX_INTENSITY.
+//        } else if (sortKey.equals(Constants.SORT_KEY_MAX_INTENSITY)) {
+//            final double maxTicIntensity1 = reportUnit1.getChartUnit().getMaxTicIntensity();
+//            final double maxTicIntensity2 = reportUnit2.getChartUnit().getMaxTicIntensity();
+//            result = sortFactor * Double.compare(maxTicIntensity1, maxTicIntensity2);
         } else {
             result = sortFactor * Double.compare(Double.parseDouble(value1), Double.parseDouble(value2));
         }
