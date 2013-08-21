@@ -72,6 +72,8 @@ public class ReportUnitTest {
 
     /**
      * Test the report unit comparator with different sort key and sort order combinations.
+     *
+     * TODO: move this test to new ReportUnitComparatorUnitTest class. [Freek]
      */
     @Test
     public void testComparator() {
@@ -93,7 +95,7 @@ public class ReportUnitTest {
         testCombinations.add(new TestCombination(Constants.SORT_KEY_MS2_SPECTRA, true, sortedReports));
         testCombinations.add(new TestCombination(Constants.SORT_KEY_DATE, true, sortedReports));
         testCombinations.add(new TestCombination(Constants.SORT_KEY_RUNTIME, true, sortedReports));
-//        testCombinations.add(new TestCombination(Constants.SORT_KEY_MAX_INTENSITY, true, sortedReports));
+        testCombinations.add(new TestCombination(Constants.SORT_KEY_MAX_INTENSITY, true, sortedReports));
 
         final List<TestCombination> descendingTestCombinations = new ArrayList<>();
         for (final TestCombination testCombination : testCombinations) {
@@ -105,10 +107,10 @@ public class ReportUnitTest {
 
         // Start testing.
         for (final TestCombination testCombination : testCombinations) {
-            // Test V1.
-            final List<ReportUnit> reportsV1 = new ArrayList<>(unsortedReports);
-            Collections.sort(reportsV1, ReportUnit.getComparator(testCombination.sortKey, testCombination.sortOrder));
-            assertEquals(testCombination + " V1", testCombination.expectedReports, reportsV1);
+//            // Test V1.
+//            final List<ReportUnit> reportsV1 = new ArrayList<>(unsortedReports);
+//            Collections.sort(reportsV1, ReportUnit.getComparator(testCombination.sortKey, testCombination.sortOrder));
+//            assertEquals(testCombination + " V1", testCombination.expectedReports, reportsV1);
             // Test V2.
             final List<ReportUnit> reportsV2 = new ArrayList<>(unsortedReports);
             Collections.sort(reportsV2, ReportUnit.getComparatorV2(testCombination.sortKey, testCombination.sortOrder));
