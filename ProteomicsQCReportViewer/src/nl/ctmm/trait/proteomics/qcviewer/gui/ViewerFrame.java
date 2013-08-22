@@ -267,18 +267,18 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     /**
      * Error message to be shown in case exception occurs while exporting reports in PDF format.  
      */
-    private static String PDF_EXPORT_EXCEPTION_MESSAGE = "Failed exporting report unit %s " 
+    private static final String PDF_EXPORT_EXCEPTION_MESSAGE = "Failed exporting report unit %s "
             + "to PDF format. (Multiple) exceptions occured.";
 
     /**
      * Message to be shown in case reports are successfully exported to PDF format.  
      */
-    private static String PDF_EXPORT_SUCCESS_MESSAGE = "Successfully exported %d report units to PDF format.";
+    private static final String PDF_EXPORT_SUCCESS_MESSAGE = "Successfully exported %d report units to PDF format.";
     
     /**
      * Error message to be shown in case user does not select any reports and issue ExportPDF command.   
      */
-    private static String PDF_EXPORT_NO_REPORTS_MESSAGE = "No reports selected for exporting to PDF format. " 
+    private static final String PDF_EXPORT_NO_REPORTS_MESSAGE = "No reports selected for exporting to PDF format. "
             + "Check Compare box to select one or more reports.";
     
     /**
@@ -1359,27 +1359,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                 metricsForm.setVisible(true);
                 break;
             case EXPORT_PDF_COMMAND:
-                //Obtain list of selected report units. 
-                final ArrayList<ReportUnit> selectedReports = new ArrayList<>();
-                for (int reportIndex = 0; reportIndex < reportIsSelected.size(); reportIndex++) {
-                    if (reportIsSelected.get(reportIndex)) {
-                        logger.fine(String.format(REPORT_INDEX_MESSAGE, reportIndex)); 
-                        selectedReports.add(reportUnits.get(reportIndex));
-                    } 
-                }
-                if (selectedReports.size() == 0) {
-                    new DataEntryForm(this).displayErrorMessage(PDF_EXPORT_NO_REPORTS_MESSAGE);
-                } else {
-                    final String preferredPDFDirectory = new DataEntryForm(this).displayPDFDirectoryChooser();
-                    for (final ReportUnit selectedReport:selectedReports) {
-                        try {
-                            ReportPDFExporter.exportReportUnitInPDFFormat(selectedReport, preferredPDFDirectory);
-                        } catch (final DocumentException | IOException e) {
-                            new DataEntryForm(this).displayErrorMessage(String.format(PDF_EXPORT_EXCEPTION_MESSAGE, selectedReport.getMsrunName()));
-                        }
-                    }
-                    new DataEntryForm(this).displayInformationMessage(String.format(PDF_EXPORT_SUCCESS_MESSAGE, selectedReports.size()));
-                }
+                handleExportPdfCommand();
                 break;
             case ABOUT_COMMAND:
                 final AboutFrame aboutFrame = new AboutFrame(this);
@@ -1388,6 +1368,37 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                 break;
             default:
                 logger.warning(String.format(UNEXPECTED_ACTION_MESSAGE, actionCommand));
+        }
+    }
+
+    /**
+     * Export all selected reports to pdf files.
+     */
+    private void handleExportPdfCommand() {
+        // Obtain list of selected report units.
+        final ArrayList<ReportUnit> selectedReports = new ArrayList<>();
+        for (int reportIndex = 0; reportIndex < reportIsSelected.size(); reportIndex++) {
+            if (reportIsSelected.get(reportIndex)) {
+                logger.fine(String.format(REPORT_INDEX_MESSAGE, reportIndex));
+                selectedReports.add(reportUnits.get(reportIndex));
+            }
+        }
+        final int reportCount = selectedReports.size();
+        // Export the selected reports to pdf files.
+        if (reportCount > 0) {
+            final String preferredPDFDirectory = new DataEntryForm(this).displayPDFDirectoryChooser();
+            for (final ReportUnit selectedReport : selectedReports) {
+                try {
+                    ReportPDFExporter.exportReportUnitInPDFFormat(selectedReport, preferredPDFDirectory);
+                } catch (final DocumentException | IOException e) {
+                    final String msrunName = selectedReport.getMsrunName();
+                    new DataEntryForm(this).displayErrorMessage(String.format(PDF_EXPORT_EXCEPTION_MESSAGE, msrunName));
+                }
+            }
+            // TODO: adjust reportCount for exceptions that occurred? [Freek]
+            new DataEntryForm(this).displayInformationMessage(String.format(PDF_EXPORT_SUCCESS_MESSAGE, reportCount));
+        } else {
+            new DataEntryForm(this).displayErrorMessage(PDF_EXPORT_NO_REPORTS_MESSAGE);
         }
     }
 

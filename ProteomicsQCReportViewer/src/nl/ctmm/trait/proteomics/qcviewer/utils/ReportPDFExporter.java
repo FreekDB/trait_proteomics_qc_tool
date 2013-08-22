@@ -2,14 +2,8 @@ package nl.ctmm.trait.proteomics.qcviewer.utils;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.logging.Logger;
-
-import javax.swing.JFileChooser;
 
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnit;
-
-import org.apache.commons.io.FilenameUtils;
 
 import com.itextpdf.text.Chapter;
 import com.itextpdf.text.Document;
@@ -25,13 +19,6 @@ import com.itextpdf.text.pdf.PdfWriter;
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
 public class ReportPDFExporter {
-
-    
-    /**
-     * The logger for this class.
-     */
-    private static final Logger logger = Logger.getLogger(ReportPDFExporter.class.getName());
-
     /**
      * PDF File type extension.  
      */
@@ -60,13 +47,15 @@ public class ReportPDFExporter {
     }
     
     /**
-     * @param selectedReports List of report units to be exported in PDF format
-     * @throws DocumentException
-     * @throws IOException
-     * @throws MalformedURLException
+     * Export a report to a pdf file.
+     *
+     * @param selectedReport the report unit to be exported in PDF format.
+     * @param preferredPDFDirectory the directory the pdf document should be exported to.
+     * @throws DocumentException TODO: explain when this exception can occur.
+     * @throws IOException TODO: explain when this exception can occur.
      */
     public static void exportReportUnitInPDFFormat(final ReportUnit selectedReport, final String preferredPDFDirectory) 
-            throws DocumentException, MalformedURLException, IOException {
+        throws DocumentException, IOException {
         /*
          * TODO:  
          * Display PDF directory chooser form. 
@@ -95,13 +84,13 @@ public class ReportPDFExporter {
         final Chapter chapter1 = new Chapter(documentTitle, 1);
         chapter1.setNumberDepth(0);
         //Creation of TIC graph section object
-        final Paragraph ticGraphSection = new Paragraph(String.format(TIC_GRAPH_SECTION_TITLE, selectedReport.getMsrunName()),
-                                        Constants.PDF_SECTION_FONT);
+        final String graphTitle = String.format(TIC_GRAPH_SECTION_TITLE, selectedReport.getMsrunName());
+        final Paragraph ticGraphSection = new Paragraph(graphTitle, Constants.PDF_SECTION_FONT);
         //TODO: Insert TIC Graph in ticGraphSection
         //Reference: viralpatel.net/blogs/generate-pie-chart-bar-graph-in-pdf-using-itext-jfreechart/
         chapter1.addSection(ticGraphSection);
-        final Paragraph metricsValuesSection = new Paragraph(String.format(METRICS_VALUES_SECTION_TITLE, selectedReport.getMsrunName()),
-                                        Constants.PDF_SECTION_FONT);
+        final String metricsTitle = String.format(METRICS_VALUES_SECTION_TITLE, selectedReport.getMsrunName());
+        final Paragraph metricsValuesSection = new Paragraph(metricsTitle, Constants.PDF_SECTION_FONT);
         //TODO: Insert metrics values table in metricsValuesSection
         //Reference: http://www.java-connect.com/itext/add-table-in-PDF-document-using-java-iText-library.html
         chapter1.addSection(metricsValuesSection);
@@ -109,7 +98,4 @@ public class ReportPDFExporter {
         document.add(chapter1);
         document.close();
     }
-    
-
-
 }
