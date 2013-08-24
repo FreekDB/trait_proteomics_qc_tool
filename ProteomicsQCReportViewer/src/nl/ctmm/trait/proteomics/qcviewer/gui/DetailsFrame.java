@@ -221,7 +221,7 @@ public class DetailsFrame extends JFrame implements ActionListener {
     /**
      * Renderer class specifying cell backgrounds for the details table.
      */
-    class DetailsTableCellRender extends DefaultTableCellRenderer {
+    private static class DetailsTableCellRender extends DefaultTableCellRenderer {
         /**
          * The version number for (de)serialization of this class (UID: universal identifier).
          */
