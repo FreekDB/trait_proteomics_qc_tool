@@ -1,9 +1,9 @@
 Developers information
 ======================
 
-The information on this page is meant for developers that want to change something about the Proteomics QC tool, send a patch with a bug fix or an improvement or are interested in finding out more about the development process in general. The Proteomics QC tool consists of two main parts: a modified version of the NIST MSQC pipeline and the Proteomics QC viewer, which provides a GUI for analyzing the QC reports produced by the pipeline.
+This page is meant for developers that want to change something about the Proteomics QC tool, send a patch with a bug fix or an improvement, or are interested in finding out more about the development process in general. The Proteomics QC tool consists of two main parts: a modified version of the [NIST MSQC pipeline](http://peptide.nist.gov/software/nist_msqc_pipeline/NIST_MSQC_Pipeline.html) and the Proteomics QC viewer, which provides a GUI for analyzing the QC reports produced by the pipeline.
 
-We currently have some information on using git & GitHub and some information on the Checkstyle code style checker that we use for checking the Java code in the Proteomics QC viewer.
+We currently have some information on using git & GitHub (for code management), Maven (for building the code), Checkstyle (code style checker) and FindBugs (static code analysis tool).
 
 
 Using git and GitHub
