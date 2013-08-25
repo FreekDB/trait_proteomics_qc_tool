@@ -91,11 +91,12 @@ public class PropertyFileWriter {
      */
     public void updateMetricsSelection(final SortedListModel selectedMetrics) {
         logger.fine("Updating metrics selection in the property file..");
-        String selectedMetricsString = "";
+        final StringBuilder selectedMetricsStringBuilder = new StringBuilder();
         for (int metricIndex = 0; metricIndex < selectedMetrics.getSize(); metricIndex++) {
-            selectedMetricsString += selectedMetrics.getElementAt(metricIndex) + ",";
+            selectedMetricsStringBuilder.append(selectedMetrics.getElementAt(metricIndex));
+            selectedMetricsStringBuilder.append(",");
         }
-        appProperties.setProperty(Constants.PROPERTY_TOP_COLUMN_NAMESV2, selectedMetricsString);
+        appProperties.setProperty(Constants.PROPERTY_TOP_COLUMN_NAMESV2, selectedMetricsStringBuilder.toString());
         saveApplicationProperties();
     }
 

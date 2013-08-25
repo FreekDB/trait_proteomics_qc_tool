@@ -185,11 +185,10 @@ public class ChooseMetricsForm extends JDialog implements ActionListener {
         selectedMetricsListModel = new SortedListModel();
         availableMetricsListModel = new SortedListModel();
         final Map<String, String> metricsMap = metricsParser.getMetricsListing();
-        for (final String metricKey : metricsMap.keySet()) {
-            final boolean selected = selectedMetricsKeys.contains(metricKey);
+        for (final Map.Entry<String, String> metricEntry : metricsMap.entrySet()) {
+            final boolean selected = selectedMetricsKeys.contains(metricEntry.getKey());
             final SortedListModel targetListModel = selected ? selectedMetricsListModel : availableMetricsListModel;
-            final String metricName = metricsMap.get(metricKey);
-            targetListModel.add(metricKey + Constants.METRICS_SEPARATOR + metricName);
+            targetListModel.add(metricEntry.getKey() + Constants.METRICS_SEPARATOR + metricEntry.getValue());
         }
     }
 

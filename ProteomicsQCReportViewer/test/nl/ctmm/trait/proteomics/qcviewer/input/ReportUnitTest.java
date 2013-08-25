@@ -3,6 +3,7 @@ package nl.ctmm.trait.proteomics.qcviewer.input;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,6 +25,8 @@ public class ReportUnitTest {
     private static final int REPORT_NUMBER = 6;
 
     private ReportUnit reportUnit;
+
+    private final SimpleDateFormat measuredDateFormat = new SimpleDateFormat("yyyy/MMM/dd - HH:mm");
 
     /**
      * Initialize a <code>ReportUnit</code>.
@@ -145,7 +148,7 @@ public class ReportUnitTest {
         report.setMs1Spectra(reportNumberString);
         report.setMs2Spectra(reportNumberString);
         final Date measuredDateTime = new DateTime(2013, 8, 18 + reportNumber, 12, 34, 56).toDate();
-        report.setMeasured(Constants.MEASURED_DATE_FORMAT.format(measuredDateTime));
+        report.setMeasured(measuredDateFormat.format(measuredDateTime));
         report.setRuntime(reportNumberString);
         report.setMaxIntensityMetric(reportNumberString);
         return report;

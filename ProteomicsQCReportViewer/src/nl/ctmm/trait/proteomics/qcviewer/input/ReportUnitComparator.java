@@ -25,7 +25,7 @@ public class ReportUnitComparator implements Comparator<ReportUnit> {
     /**
      * The date and time format for parsing the measured field.
      */
-    private static final DateFormat DTF = new SimpleDateFormat("yyyy/MMM/dd - HH:mm");
+    private final DateFormat dateTimeFormat = new SimpleDateFormat("yyyy/MMM/dd - HH:mm");
 
     /**
      * The sort key to use, for example {@link Constants#SORT_KEY_REPORT_INDEX}.
@@ -92,8 +92,8 @@ public class ReportUnitComparator implements Comparator<ReportUnit> {
             result = sortFactor * Integer.compare(Integer.parseInt(value1), Integer.parseInt(value2));
         } else if (sortKey.equals(Constants.SORT_KEY_DATE)) {
             try {
-                final Date measured1 = DTF.parse(reportUnit1.getMeasured());
-                final Date measured2 = DTF.parse(reportUnit2.getMeasured());
+                final Date measured1 = dateTimeFormat.parse(reportUnit1.getMeasured());
+                final Date measured2 = dateTimeFormat.parse(reportUnit2.getMeasured());
                 result = sortFactor * measured1.compareTo(measured2);
             } catch (final ParseException e) {
                 logger.log(Level.SEVERE, "thisValue: " + value1 + "; otherValue: " + value2, e);

@@ -37,15 +37,15 @@ public class ProgressLogReader {
     private static final Logger logger = Logger.getLogger(ProgressLogReader.class.getName());
 
     /**
-     * The date format for parsing date/time strings from the log file.
-     */
-    private static final DateFormat LOG_FILE_DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-    /**
      * The singleton instance of this class.
      */
     private static final ProgressLogReader INSTANCE = new ProgressLogReader();
-    
+
+    /**
+     * The date format for parsing date/time strings from the log file.
+     */
+    private final DateFormat logFileDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
     /**
      * The current status of the NIST QC pipeline.
      */
@@ -208,7 +208,7 @@ public class ProgressLogReader {
      * @throws ParseException if the timeStamp can not be parsed to a date/time.
      */
     private String getDuration(final String timeStamp) throws ParseException {
-        final Date logDate = LOG_FILE_DATE_TIME_FORMAT.parse(timeStamp);
+        final Date logDate = logFileDateTimeFormat.parse(timeStamp);
         return DurationFormatUtils.formatDurationWords(System.currentTimeMillis() - logDate.getTime(), true, false);
     }
 

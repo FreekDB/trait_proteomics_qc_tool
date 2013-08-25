@@ -2,7 +2,6 @@ package nl.ctmm.trait.proteomics.qcviewer.utils;
 
 import java.awt.Dimension;
 import java.awt.Font;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 
@@ -69,16 +68,6 @@ public interface Constants {
      * Property name for the end date of the QC reports to show.
      */
     String PROPERTY_SHOW_REPORTS_TILL_DATE = "ShowReportsTillDate";
-
-    /**
-     * Simple date format used for parsing dates.
-     */
-    SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
-
-    /**
-     * Simple date format used for parsing measured date.
-     */
-    SimpleDateFormat MEASURED_DATE_FORMAT = new SimpleDateFormat("yyyy/MMM/dd - HH:mm");
 
     /**
      * Name of the file with all QC metrics.

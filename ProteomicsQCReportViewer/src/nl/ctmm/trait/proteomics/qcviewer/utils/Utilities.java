@@ -9,6 +9,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -142,5 +143,16 @@ public class Utilities {
                 setFontContainer(child, font);
             }
         }
+    }
+
+    /**
+     * Create a date format with the pattern "dd/MM/yyyy".
+     *
+     * @return the date format.
+     */
+    public static SimpleDateFormat createDateFormat() {
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        dateFormat.setLenient(false);
+        return dateFormat;
     }
 }

@@ -6,6 +6,7 @@ import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Logger;
 
@@ -21,6 +22,7 @@ import javax.swing.JPanel;
 import nl.ctmm.trait.proteomics.qcviewer.Main;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 import nl.ctmm.trait.proteomics.qcviewer.utils.PropertyFileWriter;
+import nl.ctmm.trait.proteomics.qcviewer.utils.Utilities;
 
 import org.apache.commons.io.FilenameUtils;
 import org.jfree.ui.RefineryUtilities;
@@ -211,6 +213,11 @@ public class DataEntryForm extends JDialog {
     private JDialog initialDialog;
 
     /**
+     * A date format with the pattern "dd/MM/yyyy".
+     */
+    private SimpleDateFormat dateFormat = Utilities.createDateFormat();
+
+    /**
      * Construct a data entry form.
      */
     public DataEntryForm() {
@@ -357,7 +364,7 @@ public class DataEntryForm extends JDialog {
      */
     private JDateChooser createDateChooser(final Date initialDate) {
         final JDateChooser dateChooser = new JDateChooser();
-        dateChooser.setDateFormatString(Constants.DATE_FORMAT.toPattern());
+        dateChooser.setDateFormatString(dateFormat.toPattern());
         dateChooser.setDate(initialDate);
         dateChooser.getDateEditor().setEnabled(false);
         dateChooser.setPreferredSize(new Dimension(DATE_CHOOSER_WIDTH, DATE_CHOOSER_HEIGHT));
@@ -397,8 +404,8 @@ public class DataEntryForm extends JDialog {
         okButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent actionEvent) {
-                final String fromDate = Constants.DATE_FORMAT.format(fromDateChooser.getDate());
-                final String tillDate = Constants.DATE_FORMAT.format(tillDateChooser.getDate());
+                final String fromDate = dateFormat.format(fromDateChooser.getDate());
+                final String tillDate = dateFormat.format(tillDateChooser.getDate());
                 if (!"".equals(fromDate) && !"".equals(tillDate)) {
                     if (!fromDateChooser.getDate().after(tillDateChooser.getDate())) {
                         PropertyFileWriter.getInstance().updateFromAndTillDates(fromDate, tillDate);

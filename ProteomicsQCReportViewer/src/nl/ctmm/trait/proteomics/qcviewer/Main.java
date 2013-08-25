@@ -3,6 +3,7 @@ package nl.ctmm.trait.proteomics.qcviewer;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,6 +25,7 @@ import nl.ctmm.trait.proteomics.qcviewer.input.ReportReader;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnit;
 import nl.ctmm.trait.proteomics.qcviewer.utils.Constants;
 import nl.ctmm.trait.proteomics.qcviewer.utils.PropertyFileWriter;
+import nl.ctmm.trait.proteomics.qcviewer.utils.Utilities;
 
 import org.apache.commons.io.FilenameUtils;
 import org.jfree.ui.RefineryUtilities;
@@ -175,6 +177,11 @@ public class Main {
      * Name of the RAW file being processed by the QC pipeline.
      */
     private String runningMsrunName;
+
+    /**
+     * A date format with the pattern "dd/MM/yyyy".
+     */
+    private DateFormat dateFormat = Utilities.createDateFormat();
     
     /**
      * The constructor is private so only the singleton instance can be used.
@@ -208,7 +215,7 @@ public class Main {
      * @return the from date.
      */
     public Date getFromDate() {
-        return fromDate;
+        return new Date(fromDate.getTime());
     }
 
     /**
@@ -217,7 +224,7 @@ public class Main {
      * @return the till date.
      */
     public Date getTillDate() {
-        return tillDate;
+        return new Date(tillDate.getTime());
     }
 
     /**
@@ -279,14 +286,13 @@ public class Main {
      * Determine the date range for displaying reports.
      */
     private void determineReportDateRange() {
-        Constants.DATE_FORMAT.setLenient(false);
         final String reportsFromDate = applicationProperties.getProperty(Constants.PROPERTY_SHOW_REPORTS_FROM_DATE);
         final String reportsTillDate = applicationProperties.getProperty(Constants.PROPERTY_SHOW_REPORTS_TILL_DATE);
         if (!"".equals(reportsFromDate.trim()) && !"".equals(reportsFromDate.trim())) {
             // Dates are specified. Now check if the dated are valid.
             try {
-                fromDate = Constants.DATE_FORMAT.parse(reportsFromDate);
-                tillDate = Constants.DATE_FORMAT.parse(reportsTillDate);
+                fromDate = dateFormat.parse(reportsFromDate);
+                tillDate = dateFormat.parse(reportsTillDate);
             } catch (final ParseException e) {
                 fromDate = null;
                 tillDate = null;
