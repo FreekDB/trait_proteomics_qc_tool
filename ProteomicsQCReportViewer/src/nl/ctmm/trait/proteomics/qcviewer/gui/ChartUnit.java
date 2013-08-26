@@ -15,6 +15,7 @@ import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYAreaRenderer;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
+import org.jfree.chart.title.TextTitle;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
@@ -47,7 +48,7 @@ public class ChartUnit {
     /**
      * Title of the TIC chart. 
      */
-    private static final String CHART_UNIT_TITLE = "Index = %s   msrun = %s     MaxIntensity = %s";
+    private static final String CHART_UNIT_TITLE = "Index = %s      %s      MaxIntensity = %s";
 
     /**
      * Number format for displaying the max intensities.
@@ -96,6 +97,11 @@ public class ChartUnit {
         ticChart = new JFreeChart(title, Constants.CHART_TITLE_FONT, plot, false);
         // performance
         ticChart.setAntiAlias(false);
+        // Adding color to the title
+        final TextTitle chartTitle = ticChart.getTitle(); 
+        chartTitle.setPaint(Color.red);
+        ticChart.setTitle(chartTitle);
+        
     }
 
     /**

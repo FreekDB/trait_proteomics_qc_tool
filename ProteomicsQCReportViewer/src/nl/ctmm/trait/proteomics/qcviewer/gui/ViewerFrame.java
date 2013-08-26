@@ -142,12 +142,12 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     /**
      * Width of the panel with a TIC chart for each report in the list.
      */
-    private static final int CHART_PANEL_WIDTH = 800;
+    private static final int CHART_PANEL_WIDTH = 1200; 
 
     /**
      * Initial width of the desktop pane.
      */
-    private static final int DESKTOP_PANE_WIDTH = 1270;
+    private static final int DESKTOP_PANE_WIDTH = 1670; 
 
     /**
      * Default width for the viewer application.
@@ -164,7 +164,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     /**
      * Default divider location of the top split pane, which separates the top control panel from the rest of the GUI.
      */
-    private static final int SPLIT_PANE_1_DIVIDER_LOCATION = 185;
+    private static final int SPLIT_PANE_1_DIVIDER_LOCATION = 175;
 
     /**
      * Default width for the top split pane, which separates the top control panel from the rest of the GUI.
@@ -187,7 +187,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     /**
      * Width of the panel with sorting controls.
      */
-    private static final int SORT_PANEL_WIDTH = 700;
+    private static final int SORT_PANEL_WIDTH = 840; 
 
     /**
      * Height of the panel with sorting controls.
@@ -382,17 +382,17 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     /**
      * Preferred width of the control frame.
      */
-    private static final int CONTROL_FRAME_WIDTH = 1333;
+    private static final int CONTROL_FRAME_WIDTH = 1633; 
 
     /**
      * Preferred height of the control frame.
      */
-    private static final int CONTROL_FRAME_HEIGHT = 165;
+    private static final int CONTROL_FRAME_HEIGHT = 155;
 
     /**
      * Preferred width of the control panel.
      */
-    private static final int CONTROL_PANEL_WIDTH = 1333;
+    private static final int CONTROL_PANEL_WIDTH = 1633; 
 
     /**
      * Preferred height of the control panel.
@@ -402,7 +402,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     /**
      * Preferred width of the status panel.
      */
-    private static final int STATUS_PANEL_WIDTH = 1333;
+    private static final int STATUS_PANEL_WIDTH = 1633; 
 
     /**
      * Preferred height of the status panel.
@@ -412,7 +412,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     /**
      * Width of a metric label.
      */
-    private static final int METRIC_LABEL_WIDTH = 200;
+    private static final int METRIC_LABEL_WIDTH = 300; 
 
     /**
      * Height of a metric label.
@@ -979,16 +979,16 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         final JPanel controlPanel = new JPanel();
         controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.X_AXIS));
         controlPanel.setBackground(Color.WHITE);
-        controlPanel.add(Box.createRigidArea(Constants.DIMENSION_10X0));
+        controlPanel.add(Box.createRigidArea(Constants.DIMENSION_25X0));
         controlPanel.add(createLogoLabel(Constants.OPL_LOGO_FILE_NAME), Box.CENTER_ALIGNMENT);
-        controlPanel.add(Box.createRigidArea(Constants.DIMENSION_10X0));
+        controlPanel.add(Box.createRigidArea(Constants.DIMENSION_25X0));
         controlPanel.add(createZoomPanel(), Box.CENTER_ALIGNMENT);
-        controlPanel.add(Box.createRigidArea(Constants.DIMENSION_10X0));
+        controlPanel.add(Box.createRigidArea(Constants.DIMENSION_25X0));
         createOrUpdateSortPanel();
         controlPanel.add(sortPanel, Box.CENTER_ALIGNMENT);
-        controlPanel.add(Box.createRigidArea(Constants.DIMENSION_10X0));
+        controlPanel.add(Box.createRigidArea(Constants.DIMENSION_25X0));
         controlPanel.add(createLogoLabel(Constants.CTMM_TRAIT_LOGO_FILE_NAME), Box.CENTER_ALIGNMENT);
-        controlPanel.add(Box.createRigidArea(Constants.DIMENSION_10X0));
+        controlPanel.add(Box.createRigidArea(Constants.DIMENSION_25X0));
         controlPanel.setPreferredSize(new Dimension(CONTROL_PANEL_WIDTH, CONTROL_PANEL_HEIGHT));
         return controlPanel;
     }
@@ -1005,6 +1005,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         zoomPanel.add(createZoomButtonsPanel(), 0);
         zoomPanel.add(createZoomXAxisPanel(), 1);
         zoomPanel.setMinimumSize(new Dimension(ZOOM_PANEL_WIDTH, ZOOM_PANEL_HEIGHT));
+        zoomPanel.setMaximumSize(new Dimension(ZOOM_PANEL_WIDTH, ZOOM_PANEL_HEIGHT));
         return zoomPanel;
     }
 
@@ -1126,6 +1127,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         sortPanel.setBackground(Color.WHITE);
         sortPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Sort Options"));
         sortPanel.setPreferredSize(new Dimension(SORT_PANEL_WIDTH, SORT_PANEL_HEIGHT));
+        sortPanel.setMaximumSize(new Dimension(SORT_PANEL_WIDTH, SORT_PANEL_HEIGHT));
         boolean firstSortOption = true;
         for (Map.Entry<String, String> metricEntry : selectedMetrics.entrySet()) {
             sortPanel.add(createSortOptionPanel(metricEntry.getValue(), metricEntry.getKey(), sortOptionsButtonGroup,

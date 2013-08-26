@@ -131,17 +131,21 @@ public class ProgressLogReader {
      */
     public void pushPipelineStatus() {
         parseCurrentStatus(logFile);
-        logger.fine("Prior to compare:\nsavedLastLine = " + savedLastLine 
-                + "\ncurrentLastLine = " + currentLastLine);
+        
         if (!currentLastLine.equals(savedLastLine)) {
             //Maintain savedLastLine
             savedLastLine = currentLastLine; 
-            logger.fine("After compare:\nsavedLastLine= " + savedLastLine 
-                    + "\ncurrentLastLine= " + currentLastLine);
             Main.getInstance().notifyProgressLogFileChanged(currentStatus);
         } else {
             Main.getInstance().notifyUpdatePipelineStatus(currentStatus);
         }
+        /* For debug: 
+         * /*logger.fine("Prior to compare:\nsavedLastLine = " + savedLastLine 
+                + "\ncurrentLastLine = " + currentLastLine);
+         * logger.fine("After compare:\nsavedLastLine= " + savedLastLine 
+         + "\ncurrentLastLine= " + currentLastLine);
+        *
+        */
     }
 
     /**
