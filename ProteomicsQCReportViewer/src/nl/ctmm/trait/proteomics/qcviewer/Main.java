@@ -73,7 +73,7 @@ public class Main {
     /**
      * Message written to the logger when no reports are found.
      */
-    private static final String NO_REPORTS_MESSAGE = "No reports found in %s.";
+    private static final String NO_NEW_REPORTS_MESSAGE = "No new reports found in %s.";
 
     /**
      * Message written to the logger to report number of report unit keys.
@@ -387,10 +387,7 @@ public class Main {
         tillDate = Calendar.getInstance().getTime();
         final Map<String, ReportUnit> reportUnitsTable = getDisplayableReportUnitsTable(); 
         if (reportUnitsTable.size() == 0) {
-            // There exist no reports in current root directory.
-            // Get new location to read reports from.
-            dataEntryForm.displayErrorMessage(String.format(NO_REPORTS_MESSAGE, preferredRootDirectory));
-            dataEntryForm.displayRootDirectoryChooser();
+            logger.fine(String.format(NO_NEW_REPORTS_MESSAGE, preferredRootDirectory));
         } else {
             final List<ReportUnit> newReportUnits = new ArrayList<>(reportUnitsTable.values());
             //Sort newReportUnits in ascending order of report index

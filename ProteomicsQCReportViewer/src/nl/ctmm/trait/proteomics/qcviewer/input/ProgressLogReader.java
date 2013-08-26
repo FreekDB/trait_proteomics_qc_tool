@@ -52,6 +52,17 @@ public class ProgressLogReader {
     private String currentStatus = "";
 
     /**
+     * Current last line from the log file. 
+     */
+    private String currentLastLine = "";
+    
+    /**
+     *  Saved last line from the log file. 
+     *  This line will be compared with current last line to infer log file change. 
+     */
+    private String savedLastLine = "";
+    
+    /**
      * The name of the msrun that is currently being processed by the QC pipeline.
      */
     private String runningMsrunName = "";
@@ -80,7 +91,10 @@ public class ProgressLogReader {
      */
     public boolean setProgressLogFile(final String progressLogFilePath) {
         logFile = new File(FilenameUtils.normalize(progressLogFilePath));
-        return parseCurrentStatus(logFile);
+        final boolean result = parseCurrentStatus(logFile);
+        //Initialize savedLastLine
+        savedLastLine = currentLastLine;
+        return result; 
     }
 
     /**
@@ -111,11 +125,23 @@ public class ProgressLogReader {
     }
 
     /**
-     * Push the current pipeline status to the Main class.
+     * Notify current pipeline status and log file change status to the Main class.
+     * Compare current last line and saved last line for their difference. 
+     * Difference means that the log file has changed.      
      */
     public void pushPipelineStatus() {
         parseCurrentStatus(logFile);
-        Main.getInstance().notifyUpdatePipelineStatus(currentStatus);
+        logger.fine("Prior to compare:\nsavedLastLine = " + savedLastLine 
+                + "\ncurrentLastLine = " + currentLastLine);
+        if (!currentLastLine.equals(savedLastLine)) {
+            //Maintain savedLastLine
+            savedLastLine = currentLastLine; 
+            logger.fine("After compare:\nsavedLastLine= " + savedLastLine 
+                    + "\ncurrentLastLine= " + currentLastLine);
+            Main.getInstance().notifyProgressLogFileChanged(currentStatus);
+        } else {
+            Main.getInstance().notifyUpdatePipelineStatus(currentStatus);
+        }
     }
 
     /**
@@ -130,24 +156,24 @@ public class ProgressLogReader {
      */
     private boolean parseCurrentStatus(final File logFile) {
         boolean result = true;
-        final String lastLine = getLastLine(logFile);
+        currentLastLine = getLastLine(logFile);
         // Hopefully not the Y2K problem!!!!
-        if (lastLine != null && lastLine.startsWith("20")) {
+        if (currentLastLine != null && currentLastLine.startsWith("20")) {
             try {
                 // Get timestamp without microseconds.
-                final String duration = getDuration(lastLine.substring(0, lastLine.indexOf('.')));
+                final String duration = getDuration(currentLastLine.substring(0, currentLastLine.indexOf('.')));
                 runningMsrunName = "";
-                if (lastLine.endsWith("running")) {
-                    final String rawFileName = getRawFileName(lastLine);
+                if (currentLastLine.endsWith("running")) {
+                    final String rawFileName = getRawFileName(currentLastLine);
                     currentStatus = String.format("Currently analyzing %s | | | | | Active for %s", rawFileName,
                                                   duration);
                     // Remove the trailing .raw extension for runningMsrunName.
                     runningMsrunName = rawFileName.substring(0, rawFileName.length() - ".raw".length());
-                } else if (lastLine.endsWith("completed")) {
+                } else if (currentLastLine.endsWith("completed")) {
                     currentStatus = String.format("Idle.. | | | | | Inactive for %s", duration);
                 } else {
                     currentStatus = String.format("Unexpected line (%s) encountered while parsing pipeline logfile (%s)",
-                                                  lastLine, Constants.PROGRESS_LOG_FILE_NAME);
+                            currentLastLine, Constants.PROGRESS_LOG_FILE_NAME);
                 }
             } catch (final ParseException e) {
                 final String message = String.format("Exception occurred while parsing QC pipeline logfile (%s)",
@@ -157,7 +183,7 @@ public class ProgressLogReader {
             }
         } else {
             final String currentStatusMessage = "Current QC Pipeline Status: %s";
-            if (lastLine == null) {
+            if (currentLastLine == null) {
                 currentStatus = "Logfile doesn't exist. | | | | | Configured file path: " + logFile.getAbsolutePath();
                 logger.fine(String.format(currentStatusMessage, currentStatus));
                 result = false;
