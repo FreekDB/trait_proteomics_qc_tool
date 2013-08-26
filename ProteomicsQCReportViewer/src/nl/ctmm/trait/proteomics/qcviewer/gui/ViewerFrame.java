@@ -400,6 +400,16 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private static final int CONTROL_PANEL_HEIGHT = 140;
 
     /**
+     * Preferred width of the status field.
+     */
+    private static final int STATUS_FIELD_WIDTH = 1333; 
+
+    /**
+     * Preferred height of the status field.
+     */
+    private static final int STATUS_FIELD_HEIGHT = 20;
+
+    /**
      * Preferred width of the status panel.
      */
     private static final int STATUS_PANEL_WIDTH = 1633; 
@@ -407,7 +417,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     /**
      * Preferred height of the status panel.
      */
-    private static final int STATUS_PANEL_HEIGHT = 20;
+    private static final int STATUS_PANEL_HEIGHT = 30;
 
     /**
      * Width of a metric label.
@@ -950,13 +960,17 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
 
         statusField = new JTextField(getExtendedPipelineStatus());
         statusField.setFont(Constants.DEFAULT_FONT);
-//        statusField.setBackground(Color.CYAN);
+       //statusField.setBackground(Color.CYAN);
         statusField.setHorizontalAlignment(JTextField.CENTER);
         statusField.setEditable(false);
+        statusField.setPreferredSize(new Dimension(STATUS_FIELD_WIDTH, STATUS_FIELD_HEIGHT));
+        statusField.setMinimumSize(new Dimension(STATUS_FIELD_WIDTH, STATUS_FIELD_HEIGHT));
+        statusField.setMaximumSize(new Dimension(STATUS_FIELD_WIDTH, STATUS_FIELD_HEIGHT));
         final JPanel statusPanel = new JPanel();
         statusPanel.add(statusField);
         statusPanel.setPreferredSize(new Dimension(STATUS_PANEL_WIDTH, STATUS_PANEL_HEIGHT));
-
+        statusPanel.setMinimumSize(new Dimension(STATUS_PANEL_WIDTH, STATUS_PANEL_HEIGHT));
+        statusPanel.setMaximumSize(new Dimension(STATUS_PANEL_WIDTH, STATUS_PANEL_HEIGHT));
         controlFrame.getContentPane().setLayout(new BoxLayout(controlFrame.getContentPane(), BoxLayout.Y_AXIS));
         controlFrame.getContentPane().add(Box.createRigidArea(Constants.DIMENSION_5X0));
         controlFrame.getContentPane().add(createControlPanel(), BorderLayout.CENTER);
