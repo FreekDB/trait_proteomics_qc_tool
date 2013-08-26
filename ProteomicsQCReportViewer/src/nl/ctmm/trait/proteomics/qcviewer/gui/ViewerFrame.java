@@ -159,7 +159,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     /**
      * Default height for the viewer application.
      */
-    private static final int VIEWER_HEIGHT = CHART_HEIGHT * 10;
+    private static final int VIEWER_HEIGHT = 1350; 
 
     /**
      * Default divider location of the top split pane, which separates the top control panel from the rest of the GUI.
@@ -182,7 +182,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      * Default divider location of the bottom split pane, which separates the central list with the QC results from the
      * bottom panel with the larger version of the TIC graph that is selected in the central list.
      */
-    private static final int SPLIT_PANE_2_DIVIDER_LOCATION = 500;
+    private static final int SPLIT_PANE_2_DIVIDER_LOCATION = 470;
 
     /**
      * Width of the panel with sorting controls.
@@ -762,7 +762,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                        final List<String> selectedMetricsData, final String pipelineStatus) {
         super(title);
         logger.fine(CONSTRUCTOR_MESSAGE);
-        setPreferredSize(new Dimension(VIEWER_WIDTH, VIEWER_HEIGHT));
+        setMaximumSize(new Dimension(VIEWER_WIDTH, VIEWER_HEIGHT));
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.metricsParser = metricsParser;
         this.pipelineStatus = pipelineStatus;
