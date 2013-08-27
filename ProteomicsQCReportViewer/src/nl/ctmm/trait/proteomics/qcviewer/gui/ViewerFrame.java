@@ -66,8 +66,6 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.ui.RefineryUtilities;
 
-import com.itextpdf.text.DocumentException;
-
 /**
  * ViewerFrame with the GUI for the QC Report Viewer.
  *
@@ -1404,9 +1402,9 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         if (reportCount > 0) {
             final String preferredPDFDirectory = new DataEntryForm(this).displayPDFDirectoryChooser();
             for (final ReportUnit selectedReport : selectedReports) {
-                try {
-                    ReportPDFExporter.exportReportUnitInPDFFormat(selectedReport, preferredPDFDirectory);
-                } catch (final DocumentException | IOException e) {
+                final boolean result = ReportPDFExporter.exportReportUnitInPDFFormat(metricsParser.getMetricsListing(),
+                        selectedReport, preferredPDFDirectory);
+                if (!result) {
                     final String msrunName = selectedReport.getMsrunName();
                     new DataEntryForm(this).displayErrorMessage(String.format(PDF_EXPORT_EXCEPTION_MESSAGE, msrunName));
                 }

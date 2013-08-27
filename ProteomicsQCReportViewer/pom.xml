@@ -41,6 +41,7 @@
         <mockito.version>1.9.5</mockito.version>
         <powermock.version>1.5.1</powermock.version>
         <itextpdf.version>5.4.3</itextpdf.version>
+        <itext.version>4.2.1</itext.version>
         <!-- Plugin versions. -->
         <maven-checkstyle-plugin.version>2.10</maven-checkstyle-plugin.version>
         <maven-jxr-plugin.version>2.3</maven-jxr-plugin.version>
@@ -101,7 +102,7 @@
                         <configuration>
                             <includeGroupIds>cglib,com.google.guava,org.apache.directory.studio,commons-lang,
                                 org.hamcrest,org.javassist,com.toedter,org.jfree,com.googlecode.json-simple,
-                                junit,org.mockito,commons-io,joda-time,com.itextpdf
+                                junit,org.mockito,commons-io,joda-time,com.itextpdf,com.lowagie
                             </includeGroupIds>
                             <useBaseVersion>false</useBaseVersion>
                             <overWriteReleases>false</overWriteReleases>
@@ -238,6 +239,12 @@
             <groupId>com.itextpdf</groupId>
             <artifactId>itextpdf</artifactId>
             <version>${itextpdf.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.lowagie</groupId>
+            <artifactId>itext</artifactId>
+            <version>${itext.version}</version>
         </dependency>
         <!-- TODO: it looks like JCalendar 1.4 is not available from the central Maven repository (search.maven.org).
           -  TODO: can we put it in the NBIC repository (ci.nbiceng.net/nexus)? -->

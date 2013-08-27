@@ -100,6 +100,21 @@ public interface Constants {
     String CTMM_LOGO_FILE_NAME = "images\\ctmmlogo.jpg";
 
     /**
+     * Name of the metrics ID column.
+     */
+    String METRICS_ID_COLUMN_NAME = "Metrics ID";
+    
+    /**
+     * Name of the description column.
+     */
+    String DESCRIPTION_COLUMN_NAME = "Description";
+
+    /**
+     * Name of the value column.
+     */
+    String VALUE_COLUMN_NAME = "Value";
+    
+    /**
      * The name of the font used in the GUI.
      */
     String FONT_NAME = "Garamond";
@@ -117,12 +132,12 @@ public interface Constants {
     /**
      * The font used for the title of PDF document.
      */
-    com.itextpdf.text.Font PDF_TITLE_FONT = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 22, Font.ITALIC); 
+    com.itextpdf.text.Font PDF_TITLE_FONT = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14, Font.ITALIC); 
 
     /**
      * The font used for the section of PDF document.
      */
-    com.itextpdf.text.Font PDF_SECTION_FONT = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16, Font.PLAIN); 
+    com.itextpdf.text.Font PDF_SECTION_FONT = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, Font.PLAIN); 
 
     /**
      * The font used for the report error label.

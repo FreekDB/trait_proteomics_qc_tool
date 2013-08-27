@@ -48,7 +48,7 @@ public class ChartUnit {
     /**
      * Title of the TIC chart. 
      */
-    private static final String CHART_UNIT_TITLE = "Index = %s      %s      MaxIntensity = %s";
+    private static final String CHART_UNIT_TITLE = "Index = %s    %s    MaxIntensity = %s";
 
     /**
      * Number format for displaying the max intensities.

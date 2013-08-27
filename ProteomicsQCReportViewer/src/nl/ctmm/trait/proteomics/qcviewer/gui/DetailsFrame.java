@@ -102,21 +102,6 @@ public class DetailsFrame extends JFrame implements ActionListener {
      */
     private static final String PREPARING_DATASET_MESSAGE = "In DetailsFrame - " 
             + "preparing to create dataset for %s";
-
-    /**
-     * Name of the metrics ID column.
-     */
-    private static final String METRICS_ID_COLUMN_NAME = null;
-    
-    /**
-     * Name of the description column.
-     */
-    private static final String DESCRIPTION_COLUMN_NAME = null;
-
-    /**
-     * Name of the value column.
-     */
-    private static final String VALUE_COLUMN_NAME = null;
     
     /**
       * Constructor for a dialog showing metrics details.
@@ -161,7 +146,7 @@ public class DetailsFrame extends JFrame implements ActionListener {
     private DefaultTableModel fillMetricsTableModel(final Map<String, String> allMetricsMap,
                                                     final ReportUnit reportUnit) {
         // Create columns names.
-        final String columnNames[] = {METRICS_ID_COLUMN_NAME, DESCRIPTION_COLUMN_NAME, VALUE_COLUMN_NAME};
+        final String columnNames[] = {Constants.METRICS_ID_COLUMN_NAME, Constants.DESCRIPTION_COLUMN_NAME, Constants.VALUE_COLUMN_NAME};
         // Read allMetricsMap - key: metricsID, value: MetricName.
         logger.fine(String.format(PREPARING_DATASET_MESSAGE, reportUnit.getMsrunName()));
         // Create data to show inside the table.
