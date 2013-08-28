@@ -140,6 +140,16 @@ public interface Constants {
     com.itextpdf.text.Font PDF_SECTION_FONT = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, Font.PLAIN); 
 
     /**
+     * The font used for the header of metrics values table in the PDF document.
+     */
+    com.itextpdf.text.Font TABLE_HEADER_FONT = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, Font.BOLD); 
+
+    /**
+     * The font used for the content of metrics values table in the PDF document.
+     */
+    com.itextpdf.text.Font TABLE_CONTENT_FONT = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, Font.PLAIN); 
+
+    /**
      * The font used for the report error label.
      */
     Font REPORT_ERROR_LABEL_FONT = DEFAULT_FONT;

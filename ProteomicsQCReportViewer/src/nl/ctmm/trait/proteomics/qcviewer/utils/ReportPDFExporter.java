@@ -15,10 +15,12 @@ import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 
 import com.itextpdf.text.BadElementException;
+import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chapter;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
@@ -33,7 +35,6 @@ import com.itextpdf.text.pdf.PdfWriter;
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
-@SuppressWarnings("unused")
 public class ReportPDFExporter {
     
     /**
@@ -68,6 +69,11 @@ public class ReportPDFExporter {
             + "to PDF format. (Multiple) exceptions occured.";
 
     /**
+     * Error message to be written to the logger in case exception occurs while preparing metrics values table.  
+     */
+    private static final String PDF_TABLE_EXCEPTION_MESSAGE = "DocumentException occured while creating "
+            + "table for report unit %s .";
+    /**
      * Page margin of the PDF document.  
      */
     private static final int PDF_PAGE_MARGIN = 50; 
@@ -83,14 +89,24 @@ public class ReportPDFExporter {
     private static final int CHART_IMAGE_HEIGHT = 200; 
     
     /**
-     * Spacing for the metrics values table in the PDF document. 
+     * Spacing before the metrics values table in the PDF document. 
      */
-    private static final int TABLE_SPACING = 25; 
+    private static final int TABLE_SPACING = 5; 
     
     /**
      * Spacing for paragraphs in the PDF document. 
      */
     private static final int PDF_PARAGRAPH_SPACING = 25; 
+    
+    /**
+     * Width of columns in metrics values table. 
+     */
+    private static final float[] COLUMN_WIDTHS = new float[]{105, 265, 100};
+    
+    /**
+     * Total number of columns in metrics values table.
+     */
+    private static final int TOTAL_COLUMNS = 3;
     
     /**
      * Default private constructor.
@@ -108,22 +124,6 @@ public class ReportPDFExporter {
      */
     public static boolean exportReportUnitInPDFFormat(final Map<String, String> allMetricsMap, 
             final ReportUnit reportUnit, final String preferredPDFDirectory) {
-        /*
-         * TODO:  
-         * Display PDF directory chooser form. 
-         * Obtain directory location to save the reports.
-         * For every selected report unit, follow following steps:  
-         * 1) Name the PDF file -> msrunname.pdf.
-         * 2) Create PDF document.
-         * 3) Add header to the PDF document.
-         * 4) Obtain TIC Chart of the Report Unit.   
-         * 5) Add TIC Chart to the PDF document.
-         * 6) Obtain metrics listing and values table of the report unit. 
-         * 7) Add metrics listing and values table to the PDF document. 
-         * 8) Save PDF document to specified directory location. 
-         * Notify user about saving PDF reports/handle error conditions. 
-         */
-
         //Instantiation of document object
         final Document document = new Document(PageSize.A4, PDF_PAGE_MARGIN, PDF_PAGE_MARGIN, PDF_PAGE_MARGIN, PDF_PAGE_MARGIN);
         final String pdfFileName = preferredPDFDirectory + "\\" + reportUnit.getMsrunName() + FILE_TYPE_EXTENSION;
@@ -208,34 +208,45 @@ public class ReportPDFExporter {
      * @param allMetricsMap map of all QC metrics - keys and description.
      * @param reportUnit Report unit for which to create the metrics values table. 
      * @return PDF table containing metrics values of the report unit. 
-     * @throws BadElementException
+     * @throws BadElementException.
      */
     private static PdfPTable createMetricsValuesTable(final Map<String, String> allMetricsMap, final ReportUnit reportUnit) {
         /*
-         * TODO: Column size, font size and spacing of the metrics value table 
+         * TODO: Column size, font size and spacing of the metrics value table. 
          */
         // Create columns names.
         final String columnNames[] = {Constants.METRICS_ID_COLUMN_NAME, Constants.DESCRIPTION_COLUMN_NAME, Constants.VALUE_COLUMN_NAME};
-        //Creation of table object
+        //Creation of table object.
         final PdfPTable table = new PdfPTable(columnNames.length);
-        table.setSpacingBefore(TABLE_SPACING);
-        final PdfPCell c1 = new PdfPCell(new Phrase(columnNames[0]));
-        table.addCell(c1);
-        final PdfPCell c2 = new PdfPCell(new Phrase(columnNames[1]));
-        table.addCell(c2);
-        final PdfPCell c3 = new PdfPCell(new Phrase(columnNames[2]));
-        table.addCell(c3);
-        
-        // Read metricsValues corresponding to reportUnit.
-        final Map<String, String> metricsValues = reportUnit.getMetricsValues();
-        for (final Map.Entry<String, String> metricsData : allMetricsMap.entrySet()) {
-            final String[] row = new String[columnNames.length];
-            row[0] = metricsData.getKey();
-            row[1] = metricsData.getValue();
-            row[2] = (metricsValues != null) ? metricsValues.get(metricsData.getKey()) : Constants.NOT_AVAILABLE_STRING;
-            table.addCell(row[0]);
-            table.addCell(row[1]);
-            table.addCell(row[2]);
+        try {
+            table.setSpacingBefore(TABLE_SPACING);
+            // Set the table width. 
+            table.setTotalWidth(COLUMN_WIDTHS);
+            table.setLockedWidth(true);
+            //Add table header. 
+            for (int i = 0; i < TOTAL_COLUMNS; ++i) {
+                final PdfPCell headerCell = new PdfPCell(new Phrase(columnNames[i], Constants.TABLE_HEADER_FONT));
+                headerCell.setBackgroundColor(BaseColor.RED);
+                headerCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                table.addCell(headerCell);
+            }
+            // Read metricsValues corresponding to reportUnit.
+            final Map<String, String> metricsValues = reportUnit.getMetricsValues();
+            for (final Map.Entry<String, String> metricsData : allMetricsMap.entrySet()) {
+                final String[] row = new String[columnNames.length];
+                row[0] = metricsData.getKey();
+                row[1] = metricsData.getValue();
+                row[2] = (metricsValues != null) ? metricsValues.get(metricsData.getKey()) : Constants.NOT_AVAILABLE_STRING;
+                //Populate content in table cell. 
+                table.addCell(new Phrase(row[0], Constants.TABLE_CONTENT_FONT));
+                table.addCell(new Phrase(row[1], Constants.TABLE_CONTENT_FONT));
+                final PdfPCell valueCell = new PdfPCell(new Phrase(row[2], Constants.TABLE_CONTENT_FONT));
+                valueCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                table.addCell(valueCell);
+            }
+        } catch (final DocumentException e) {
+            //DocumentException signals that an error has occurred in a Document.
+            logger.log(Level.SEVERE, String.format(PDF_TABLE_EXCEPTION_MESSAGE, reportUnit.getMsrunName()), e);
         }
         return table; 
     }
