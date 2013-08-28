@@ -82,6 +82,7 @@ public class ReportPDFExporter {
      */
     private static final String PDF_TABLE_EXCEPTION_MESSAGE = "DocumentException occured while creating "
             + "table for report unit %s.";
+
     /**
      * Page margin of the PDF document.  
      */
