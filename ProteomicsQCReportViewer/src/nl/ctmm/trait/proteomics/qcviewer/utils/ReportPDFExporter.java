@@ -1,9 +1,12 @@
 package nl.ctmm.trait.proteomics.qcviewer.utils;
 
+import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,12 +16,15 @@ import nl.ctmm.trait.proteomics.qcviewer.input.ReportUnit;
 import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.title.TextTitle;
 
 import com.itextpdf.text.BadElementException;
+import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chapter;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
@@ -33,7 +39,6 @@ import com.itextpdf.text.pdf.PdfWriter;
  * @author <a href="mailto:pravin.pawar@nbic.nl">Pravin Pawar</a>
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
-@SuppressWarnings("unused")
 public class ReportPDFExporter {
     
     /**
@@ -49,13 +54,18 @@ public class ReportPDFExporter {
     /**
      * Title of the PDF document.  
      */
-    private static final String PDF_DOCUMENT_TITLE = "QC Pipeline Report for Msrun %s";
+    private static final String PDF_PAGE_TITLE = "QC Pipeline Report for Msrun %s Created on: %s";
     
     /**
      * Title of the TIC graph section in PDF document.  
      */
     private static final String TIC_GRAPH_SECTION_TITLE = "TIC Graph for Msrun %s";
 
+    /**
+     * Title of the TIC chart. 
+     */
+    private static final String TIC_GRAPH_TITLE = "%s    MaxIntensity = %s";
+    
     /**
      * Title of the Metrics values section in PDF document.  
      */
@@ -64,99 +74,106 @@ public class ReportPDFExporter {
     /**
      * Error message to be shown in case exception occurs while exporting reports in PDF format.  
      */
-    private static final String PDF_EXPORT_EXCEPTION_MESSAGE = "Failed exporting report unit %s "
+    private static final String PDF_EXPORT_EXCEPTION_MESSAGE = "Failed exporting report units "
             + "to PDF format. (Multiple) exceptions occured.";
 
     /**
+     * Error message to be written to the logger in case exception occurs while preparing metrics values table.  
+     */
+    private static final String PDF_TABLE_EXCEPTION_MESSAGE = "DocumentException occured while creating "
+            + "table for report unit %s.";
+    /**
      * Page margin of the PDF document.  
      */
-    private static final int PDF_PAGE_MARGIN = 50; 
+    private static final int PDF_PAGE_MARGIN = 30; 
     
     /**
      * Width of the TIC chart image.  
      */
-    private static final int CHART_IMAGE_WIDTH = 500; 
+    private static final int CHART_IMAGE_WIDTH = 750; 
     
     /**
      * Height of the TIC chart image.  
      */
-    private static final int CHART_IMAGE_HEIGHT = 200; 
+    private static final int CHART_IMAGE_HEIGHT = 150; 
     
     /**
-     * Spacing for the metrics values table in the PDF document. 
+     * Spacing before the metrics values table in the PDF document. 
      */
-    private static final int TABLE_SPACING = 25; 
+    private static final int TABLE_SPACING = 5; 
     
     /**
      * Spacing for paragraphs in the PDF document. 
      */
-    private static final int PDF_PARAGRAPH_SPACING = 25; 
+    private static final int PDF_PARAGRAPH_SPACING = 10; 
+    
+    /**
+     * Width of columns in metrics values table. 
+     */
+    private static final float[] COLUMN_WIDTHS = new float[]{80, 210, 80, 80, 210, 80};
+    
+    /**
+     * Total number of columns in metrics values table.
+     */
+    private static final int TOTAL_COLUMNS = 6;
     
     /**
      * Default private constructor.
      */
     private ReportPDFExporter() {
-        
     }
     
     /**
      * Export a report to a pdf file.
      * @param allMetricsMap map of all QC metrics - keys and description. 
-     * @param reportUnit the report unit to be exported in PDF format.
+     * @param selectedReports the report units to be exported in PDF format.
      * @param preferredPDFDirectory the directory the pdf document should be exported to.
-     * @return true if document is successfully created - otherwise return false. 
+     * @return Path of the created PDF document if it is successfully created - otherwise return empty string. 
      */
-    public static boolean exportReportUnitInPDFFormat(final Map<String, String> allMetricsMap, 
-            final ReportUnit reportUnit, final String preferredPDFDirectory) {
-        /*
-         * TODO:  
-         * Display PDF directory chooser form. 
-         * Obtain directory location to save the reports.
-         * For every selected report unit, follow following steps:  
-         * 1) Name the PDF file -> msrunname.pdf.
-         * 2) Create PDF document.
-         * 3) Add header to the PDF document.
-         * 4) Obtain TIC Chart of the Report Unit.   
-         * 5) Add TIC Chart to the PDF document.
-         * 6) Obtain metrics listing and values table of the report unit. 
-         * 7) Add metrics listing and values table to the PDF document. 
-         * 8) Save PDF document to specified directory location. 
-         * Notify user about saving PDF reports/handle error conditions. 
-         */
-
-        //Instantiation of document object
-        final Document document = new Document(PageSize.A4, PDF_PAGE_MARGIN, PDF_PAGE_MARGIN, PDF_PAGE_MARGIN, PDF_PAGE_MARGIN);
-        final String pdfFileName = preferredPDFDirectory + "\\" + reportUnit.getMsrunName() + FILE_TYPE_EXTENSION;
+    public static String exportReportUnitInPDFFormat(final Map<String, String> allMetricsMap, 
+            final ArrayList<ReportUnit> selectedReports, final String preferredPDFDirectory) {
+        //Obtain current timestamp. 
+        final java.util.Date date = new java.util.Date();
+        final String timestampString = new Timestamp(date.getTime()).toString();
+        //Replace all occurrences of special character ':' from time stamp since ':' is not allowed in filename. 
+        final String filenameTimestamp = timestampString.replace(':', '-'); 
+        //Instantiation of document object - landscape format using the rotate() method
+        final Document document = new Document(PageSize.A4.rotate(), PDF_PAGE_MARGIN, PDF_PAGE_MARGIN, PDF_PAGE_MARGIN, PDF_PAGE_MARGIN);
+        final String pdfFileName = preferredPDFDirectory + "\\QCReports-" + filenameTimestamp + FILE_TYPE_EXTENSION;
         try {
-          //Creation of PdfWriter object
+            //Creation of PdfWriter object
             PdfWriter writer;
             writer = PdfWriter.getInstance(document, new FileOutputStream(pdfFileName));
             document.open();
-            //Creation of chapter object
-            final Paragraph documentTitle = new Paragraph(String.format(PDF_DOCUMENT_TITLE, reportUnit.getMsrunName()), 
-                                        Constants.PDF_TITLE_FONT);
-            final Chapter chapter1 = new Chapter(documentTitle, 1);
-            chapter1.setNumberDepth(0);
-            //Creation of TIC graph section object
-            final String graphTitle = String.format(TIC_GRAPH_SECTION_TITLE, reportUnit.getMsrunName());
-            final Paragraph ticGraphSection = new Paragraph(graphTitle, Constants.PDF_SECTION_FONT);
-            ticGraphSection.setSpacingBefore(PDF_PARAGRAPH_SPACING);
-            ticGraphSection.add(Chunk.NEWLINE);
-            ticGraphSection.add(Chunk.NEWLINE);
-            //Insert TIC Graph in ticGraphSection.
-            ticGraphSection.add(createTICChartImage(writer, reportUnit));
-            chapter1.addSection(ticGraphSection);
-            final String metricsTitle = String.format(METRICS_VALUES_SECTION_TITLE, reportUnit.getMsrunName());
-            final Paragraph metricsValuesSection = new Paragraph(metricsTitle, Constants.PDF_SECTION_FONT);
-            metricsValuesSection.setSpacingBefore(PDF_PARAGRAPH_SPACING);
-            //Reference: http://www.java-connect.com/itext/add-table-in-PDF-document-using-java-iText-library.html
-            //TODO: Insert metrics values table in metricsValuesSection
-            metricsValuesSection.add(createMetricsValuesTable(allMetricsMap, reportUnit)); 
-            chapter1.addSection(metricsValuesSection);
-            //Addition of a chapter to the main document
-            document.add(chapter1);
+            for (ReportUnit reportUnit:selectedReports) {
+                //New page for each report. 
+                document.newPage();
+                //Creation of chapter object
+                final Paragraph pageTitle = new Paragraph(String.format(PDF_PAGE_TITLE, reportUnit.getMsrunName(), 
+                        timestampString), Constants.PDF_TITLE_FONT);
+                pageTitle.setAlignment(Element.ALIGN_CENTER);
+                final Chapter chapter1 = new Chapter(pageTitle, 1);
+                chapter1.setNumberDepth(0);
+                //Creation of TIC graph section object
+                final String graphTitle = String.format(TIC_GRAPH_SECTION_TITLE, reportUnit.getMsrunName());
+                final Paragraph ticGraphSection = new Paragraph(graphTitle, Constants.PDF_SECTION_FONT);
+                ticGraphSection.setSpacingBefore(PDF_PARAGRAPH_SPACING);
+                ticGraphSection.add(Chunk.NEWLINE);
+                //Insert TIC Graph in ticGraphSection.
+                ticGraphSection.add(createTICChartImage(writer, reportUnit));
+                chapter1.addSection(ticGraphSection);
+                final String metricsTitle = String.format(METRICS_VALUES_SECTION_TITLE, reportUnit.getMsrunName());
+                final Paragraph metricsValuesSection = new Paragraph(metricsTitle, Constants.PDF_SECTION_FONT);
+                metricsValuesSection.setSpacingBefore(PDF_PARAGRAPH_SPACING);
+                //Reference: http://www.java-connect.com/itext/add-table-in-PDF-document-using-java-iText-library.html
+                //TODO: Insert metrics values table in metricsValuesSection
+                metricsValuesSection.add(createMetricsValuesTable(allMetricsMap, reportUnit)); 
+                chapter1.addSection(metricsValuesSection);
+                //Addition of a chapter to the main document
+                document.add(chapter1);
+            }
             document.close();
-            return true; 
+            return pdfFileName; 
         } catch (final FileNotFoundException | DocumentException e) {
             // TODO Explain when these exception can occur.
             /* FileNotFoundException will be thrown by the FileInputStream, FileOutputStream, and 
@@ -165,8 +182,8 @@ public class ReportPDFExporter {
              * is inaccessible, for example when an attempt is made to open a read-only file for writing.
              * DocumentException Signals that an error has occurred in a Document.
              */
-            logger.log(Level.SEVERE, String.format(PDF_EXPORT_EXCEPTION_MESSAGE, reportUnit.getMsrunName()), e);
-            return false;
+            logger.log(Level.SEVERE, PDF_EXPORT_EXCEPTION_MESSAGE, e);
+            return "";
         }
     }
     
@@ -181,6 +198,10 @@ public class ReportPDFExporter {
          * Apache License, Version 2.0
          */
         final JFreeChart ticChart = reportUnit.getChartUnit().getTicChart();
+        final String titleString = String.format(TIC_GRAPH_TITLE, reportUnit.getMsrunName(), reportUnit.getChartUnit().getMaxTicIntensityString());
+        final TextTitle newTitle = new TextTitle(titleString, Constants.PDF_CHART_TITLE_FONT);
+        newTitle.setPaint(Color.red);
+        ticChart.setTitle(newTitle);
         Image chartImage = null;
         ByteArrayOutputStream byteArrayOutputStream = null;
         try {
@@ -200,6 +221,7 @@ public class ReportPDFExporter {
              */
             logger.log(Level.SEVERE, String.format(PDF_EXPORT_EXCEPTION_MESSAGE, reportUnit.getMsrunName()), e);
         } 
+        chartImage.setAlignment(Element.ALIGN_CENTER);
         return chartImage; 
     }
 
@@ -208,34 +230,46 @@ public class ReportPDFExporter {
      * @param allMetricsMap map of all QC metrics - keys and description.
      * @param reportUnit Report unit for which to create the metrics values table. 
      * @return PDF table containing metrics values of the report unit. 
-     * @throws BadElementException
+     * @throws BadElementException.
      */
     private static PdfPTable createMetricsValuesTable(final Map<String, String> allMetricsMap, final ReportUnit reportUnit) {
         /*
-         * TODO: Column size, font size and spacing of the metrics value table 
+         * TODO: Column size, font size and spacing of the metrics value table. 
          */
         // Create columns names.
-        final String columnNames[] = {Constants.METRICS_ID_COLUMN_NAME, Constants.DESCRIPTION_COLUMN_NAME, Constants.VALUE_COLUMN_NAME};
-        //Creation of table object
+        final String columnNames[] = {Constants.METRICS_ID_COLUMN_NAME, Constants.DESCRIPTION_COLUMN_NAME, Constants.VALUE_COLUMN_NAME,
+            Constants.METRICS_ID_COLUMN_NAME, Constants.DESCRIPTION_COLUMN_NAME, Constants.VALUE_COLUMN_NAME, };
+        //Creation of table object.
         final PdfPTable table = new PdfPTable(columnNames.length);
-        table.setSpacingBefore(TABLE_SPACING);
-        final PdfPCell c1 = new PdfPCell(new Phrase(columnNames[0]));
-        table.addCell(c1);
-        final PdfPCell c2 = new PdfPCell(new Phrase(columnNames[1]));
-        table.addCell(c2);
-        final PdfPCell c3 = new PdfPCell(new Phrase(columnNames[2]));
-        table.addCell(c3);
-        
-        // Read metricsValues corresponding to reportUnit.
-        final Map<String, String> metricsValues = reportUnit.getMetricsValues();
-        for (final Map.Entry<String, String> metricsData : allMetricsMap.entrySet()) {
-            final String[] row = new String[columnNames.length];
-            row[0] = metricsData.getKey();
-            row[1] = metricsData.getValue();
-            row[2] = (metricsValues != null) ? metricsValues.get(metricsData.getKey()) : Constants.NOT_AVAILABLE_STRING;
-            table.addCell(row[0]);
-            table.addCell(row[1]);
-            table.addCell(row[2]);
+        try {
+            table.setSpacingBefore(TABLE_SPACING);
+            // Set the table width. 
+            table.setTotalWidth(COLUMN_WIDTHS);
+            table.setLockedWidth(true);
+            //Add table header. 
+            for (int i = 0; i < TOTAL_COLUMNS; ++i) {
+                final PdfPCell headerCell = new PdfPCell(new Phrase(columnNames[i], Constants.TABLE_HEADER_FONT));
+                headerCell.setBackgroundColor(BaseColor.RED);
+                headerCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                table.addCell(headerCell);
+            }
+            // Read metricsValues corresponding to reportUnit.
+            final Map<String, String> metricsValues = reportUnit.getMetricsValues();
+            for (final Map.Entry<String, String> metricsData : allMetricsMap.entrySet()) {
+                final String[] row = new String[columnNames.length];
+                row[0] = metricsData.getKey();
+                row[1] = metricsData.getValue();
+                row[2] = (metricsValues != null) ? metricsValues.get(metricsData.getKey()) : Constants.NOT_AVAILABLE_STRING;
+                //Populate content in table cell. 
+                table.addCell(new Phrase(row[0], Constants.TABLE_CONTENT_FONT));
+                table.addCell(new Phrase(row[1], Constants.TABLE_CONTENT_FONT));
+                final PdfPCell valueCell = new PdfPCell(new Phrase(row[2], Constants.TABLE_CONTENT_FONT));
+                valueCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                table.addCell(valueCell);
+            }
+        } catch (final DocumentException e) {
+            //DocumentException signals that an error has occurred in a Document.
+            logger.log(Level.SEVERE, String.format(PDF_TABLE_EXCEPTION_MESSAGE, reportUnit.getMsrunName()), e);
         }
         return table; 
     }

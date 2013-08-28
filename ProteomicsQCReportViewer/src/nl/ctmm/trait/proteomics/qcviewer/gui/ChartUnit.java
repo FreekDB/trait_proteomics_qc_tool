@@ -72,6 +72,11 @@ public class ChartUnit {
     private double maxIntensity;
 
     /**
+     * The maximum intensity in String format. 
+     */
+    private String maxIntensityString; 
+    
+    /**
      * Create a chart unit with the specified msrun name, report number and data series.
      *
      * @param msrunName the name of the msrun.
@@ -79,7 +84,7 @@ public class ChartUnit {
      * @param series the data series.
      */
     public ChartUnit(final String msrunName, final int reportIndex, final XYSeries series) {
-        String maxIntensityString = Constants.NOT_AVAILABLE_STRING;
+        maxIntensityString = Constants.NOT_AVAILABLE_STRING;
         if (series != null) {
             maxIntensity = series.getMaxY();
             maxIntensityString = MAX_INTENSITY_FORMAT.format(maxIntensity);
@@ -101,7 +106,6 @@ public class ChartUnit {
         final TextTitle chartTitle = ticChart.getTitle(); 
         chartTitle.setPaint(Color.red);
         ticChart.setTitle(chartTitle);
-        
     }
 
     /**
@@ -142,5 +146,14 @@ public class ChartUnit {
      */
     public double getMaxTicIntensity() {
         return maxIntensity;
+    }
+    
+    /**
+     * Get the maximum intensity of the tic graph in String format.
+     *
+     * @return the maximum intensity of the tic graph in String format.
+     */
+    public String getMaxTicIntensityString() {
+        return maxIntensityString;
     }
 }

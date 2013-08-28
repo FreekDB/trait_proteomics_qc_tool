@@ -265,13 +265,13 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     /**
      * Error message to be shown in case exception occurs while exporting reports in PDF format.  
      */
-    private static final String PDF_EXPORT_EXCEPTION_MESSAGE = "Failed exporting report unit %s "
+    private static final String PDF_EXPORT_EXCEPTION_MESSAGE = "Failed exporting report units "
             + "to PDF format. (Multiple) exceptions occured.";
 
     /**
      * Message to be shown in case reports are successfully exported to PDF format.  
      */
-    private static final String PDF_EXPORT_SUCCESS_MESSAGE = "Successfully exported %d report units to PDF format.";
+    private static final String PDF_EXPORT_SUCCESS_MESSAGE = "Successfully exported %d report units to PDF document %s.";
     
     /**
      * Error message to be shown in case user does not select any reports and issue ExportPDF command.   
@@ -1401,16 +1401,14 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         // Export the selected reports to pdf files.
         if (reportCount > 0) {
             final String preferredPDFDirectory = new DataEntryForm(this).displayPDFDirectoryChooser();
-            for (final ReportUnit selectedReport : selectedReports) {
-                final boolean result = ReportPDFExporter.exportReportUnitInPDFFormat(metricsParser.getMetricsListing(),
-                        selectedReport, preferredPDFDirectory);
-                if (!result) {
-                    final String msrunName = selectedReport.getMsrunName();
-                    new DataEntryForm(this).displayErrorMessage(String.format(PDF_EXPORT_EXCEPTION_MESSAGE, msrunName));
-                }
+            final String result = ReportPDFExporter.exportReportUnitInPDFFormat(metricsParser.getMetricsListing(),
+                    selectedReports, preferredPDFDirectory);
+            if (result.length() == 0) {
+                new DataEntryForm(this).displayErrorMessage(PDF_EXPORT_EXCEPTION_MESSAGE);
+            } else {
+             // TODO: adjust reportCount for exceptions that occurred? [Freek]
+                new DataEntryForm(this).displayInformationMessage(String.format(PDF_EXPORT_SUCCESS_MESSAGE, reportCount, result));
             }
-            // TODO: adjust reportCount for exceptions that occurred? [Freek]
-            new DataEntryForm(this).displayInformationMessage(String.format(PDF_EXPORT_SUCCESS_MESSAGE, reportCount));
         } else {
             new DataEntryForm(this).displayErrorMessage(PDF_EXPORT_NO_REPORTS_MESSAGE);
         }

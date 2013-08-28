@@ -132,12 +132,22 @@ public interface Constants {
     /**
      * The font used for the title of PDF document.
      */
-    com.itextpdf.text.Font PDF_TITLE_FONT = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14, Font.ITALIC); 
+    com.itextpdf.text.Font PDF_TITLE_FONT = FontFactory.getFont(FontFactory.HELVETICA, 11, Font.BOLD); 
 
     /**
      * The font used for the section of PDF document.
      */
     com.itextpdf.text.Font PDF_SECTION_FONT = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, Font.PLAIN); 
+
+    /**
+     * The font used for the header of metrics values table in the PDF document.
+     */
+    com.itextpdf.text.Font TABLE_HEADER_FONT = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, Font.BOLD); 
+
+    /**
+     * The font used for the content of metrics values table in the PDF document.
+     */
+    com.itextpdf.text.Font TABLE_CONTENT_FONT = FontFactory.getFont(FontFactory.HELVETICA, 8, Font.PLAIN); 
 
     /**
      * The font used for the report error label.
@@ -148,7 +158,12 @@ public interface Constants {
      * The font used for the titles in the charts.
      */
     Font CHART_TITLE_FONT = new Font(FONT_NAME, Font.BOLD, 13);
-
+    
+    /**
+     * The font used for chart titles in the PDF document.
+     */
+    Font PDF_CHART_TITLE_FONT = new Font(FONT_NAME, Font.BOLD, 10);
+    
     /**
      * The font used for all the metrics in the details frame and the text areas in the about frame.
      */
@@ -302,4 +317,5 @@ public interface Constants {
      * List with integer sort keys: both MS1 and MS2 spectra.
      */
     List<String> LIST_SORT_KEYS_INT = Arrays.asList(SORT_KEY_MS1_SPECTRA, SORT_KEY_MS2_SPECTRA);
+
 }
