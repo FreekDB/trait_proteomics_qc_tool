@@ -220,7 +220,7 @@ public class ReportPDFExporter {
              * In this case, the PDF file can not be overwritten. 
              * BadElementException Signals an attempt to create an Element that hasn't got the right form. 
              */
-            logger.log(Level.SEVERE, String.format(PDF_EXPORT_EXCEPTION_MESSAGE, reportUnit.getMsrunName()), e);
+            logger.log(Level.SEVERE, PDF_EXPORT_EXCEPTION_MESSAGE, e);
         } 
         chartImage.setAlignment(Element.ALIGN_CENTER);
         return chartImage; 
