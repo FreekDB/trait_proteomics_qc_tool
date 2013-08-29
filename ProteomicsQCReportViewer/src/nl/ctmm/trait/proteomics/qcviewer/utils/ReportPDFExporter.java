@@ -129,6 +129,11 @@ public class ReportPDFExporter {
     private static final DateFormat CREATION_DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm");
     
     /**
+     * Error message to be written to the logger in case exception occurs while preparing TIC Graph.  
+     */
+    private static final String CLONE_EXCEPTION_MESSAGE = "Clone not supported exception occured while preparing TIC graph for %s.";
+    
+    /**
      * Default private constructor.
      */
     private ReportPDFExporter() {
@@ -207,8 +212,13 @@ public class ReportPDFExporter {
         /*Reference: http://vangjee.wordpress.com/2010/11/03/how-to-use-and-not-use-itext-and-jfreechart/
          * Apache License, Version 2.0
          */
-        final JFreeChart ticChart = reportUnit.getChartUnit().getTicChart();
-        final String titleString = reportUnit.getMsrunName();
+        JFreeChart ticChart = null;
+        try {
+            ticChart = (JFreeChart) reportUnit.getChartUnit().getTicChart().clone();
+        } catch (final CloneNotSupportedException e) {
+            logger.log(Level.SEVERE, String.format(CLONE_EXCEPTION_MESSAGE, reportUnit.getMsrunName()), e);
+        }
+        final String titleString = String.format(TIC_GRAPH_TITLE, reportUnit.getMsrunName(), reportUnit.getChartUnit().getMaxTicIntensityString());
         final TextTitle newTitle = new TextTitle(titleString, Constants.PDF_CHART_TITLE_FONT);
         newTitle.setPaint(Color.red);
         ticChart.setTitle(newTitle);
