@@ -5,9 +5,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.Array;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -119,6 +124,11 @@ public class ReportPDFExporter {
     private static final int TOTAL_COLUMNS = 6;
     
     /**
+     * The date format for adding creation date/time to the PDF document.
+     */
+    private static final DateFormat CREATION_DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+    
+    /**
      * Default private constructor.
      */
     private ReportPDFExporter() {
@@ -135,7 +145,7 @@ public class ReportPDFExporter {
             final ArrayList<ReportUnit> selectedReports, final String preferredPDFDirectory) {
         //Obtain current timestamp. 
         final java.util.Date date = new java.util.Date();
-        final String timestampString = new Timestamp(date.getTime()).toString();
+        final String timestampString = CREATION_DATE_TIME_FORMAT.format(date); 
         //Replace all occurrences of special character ':' from time stamp since ':' is not allowed in filename. 
         final String filenameTimestamp = timestampString.replace(':', '-'); 
         //Instantiation of document object - landscape format using the rotate() method
@@ -161,14 +171,14 @@ public class ReportPDFExporter {
                 ticGraphSection.setSpacingBefore(PDF_PARAGRAPH_SPACING);
                 ticGraphSection.add(Chunk.NEWLINE);
                 //Insert TIC Graph in ticGraphSection.
-                ticGraphSection.add(createTICChartImage(writer, reportUnit));
+                ticGraphSection.add(createTICChartImage(reportUnit));
                 chapter1.addSection(ticGraphSection);
                 final String metricsTitle = String.format(METRICS_VALUES_SECTION_TITLE, reportUnit.getMsrunName());
                 final Paragraph metricsValuesSection = new Paragraph(metricsTitle, Constants.PDF_SECTION_FONT);
                 metricsValuesSection.setSpacingBefore(PDF_PARAGRAPH_SPACING);
                 //Reference: http://www.java-connect.com/itext/add-table-in-PDF-document-using-java-iText-library.html
                 //TODO: Insert metrics values table in metricsValuesSection
-                metricsValuesSection.add(createMetricsValuesTable(allMetricsMap, reportUnit)); 
+                metricsValuesSection.add(createMetricsValuesTable(allMetricsMap, reportUnit));
                 chapter1.addSection(metricsValuesSection);
                 //Addition of a chapter to the main document
                 document.add(chapter1);
@@ -190,16 +200,15 @@ public class ReportPDFExporter {
     
     /**
      * Create image of the TIC Chart.
-     * @param writer PDFWriter object for the PDF document. 
      * @param reportUnit Report unit for which to create TIC chart image. 
      * @return TIC Chart image.
      */
-    private static Image createTICChartImage(final PdfWriter writer, final ReportUnit reportUnit) {
+    private static Image createTICChartImage(final ReportUnit reportUnit) {
         /*Reference: http://vangjee.wordpress.com/2010/11/03/how-to-use-and-not-use-itext-and-jfreechart/
          * Apache License, Version 2.0
          */
         final JFreeChart ticChart = reportUnit.getChartUnit().getTicChart();
-        final String titleString = String.format(TIC_GRAPH_TITLE, reportUnit.getMsrunName(), reportUnit.getChartUnit().getMaxTicIntensityString());
+        final String titleString = reportUnit.getMsrunName();
         final TextTitle newTitle = new TextTitle(titleString, Constants.PDF_CHART_TITLE_FONT);
         newTitle.setPaint(Color.red);
         ticChart.setTitle(newTitle);
@@ -244,7 +253,7 @@ public class ReportPDFExporter {
         final PdfPTable table = new PdfPTable(columnNames.length);
         try {
             table.setSpacingBefore(TABLE_SPACING);
-            // Set the table width. 
+            //Set the table width. 
             table.setTotalWidth(COLUMN_WIDTHS);
             table.setLockedWidth(true);
             //Add table header. 
@@ -254,17 +263,35 @@ public class ReportPDFExporter {
                 headerCell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 table.addCell(headerCell);
             }
-            // Read metricsValues corresponding to reportUnit.
+            //Read metricsValues corresponding to reportUnit.
             final Map<String, String> metricsValues = reportUnit.getMetricsValues();
-            for (final Map.Entry<String, String> metricsData : allMetricsMap.entrySet()) {
+            //TODO: Split allMetricsMap in two parts such that sorted rows are properly added in the table.
+            //Get all keys  
+            final Object[] keyArray = allMetricsMap.keySet().toArray();
+            //get all values
+            final Object[] valueArray = allMetricsMap.values().toArray();
+            //Calculate halfSize
+            final int halfSize = keyArray.length / 2;
+            for (int i = 0; i < halfSize; ++i) {
                 final String[] row = new String[columnNames.length];
-                row[0] = metricsData.getKey();
-                row[1] = metricsData.getValue();
-                row[2] = (metricsValues != null) ? metricsValues.get(metricsData.getKey()) : Constants.NOT_AVAILABLE_STRING;
+                row[0] = keyArray[i].toString();
+                row[1] = valueArray[i].toString();
+                row[2] = (metricsValues != null) ? metricsValues.get(keyArray[i]) : Constants.NOT_AVAILABLE_STRING;
                 //Populate content in table cell. 
                 table.addCell(new Phrase(row[0], Constants.TABLE_CONTENT_FONT));
                 table.addCell(new Phrase(row[1], Constants.TABLE_CONTENT_FONT));
-                final PdfPCell valueCell = new PdfPCell(new Phrase(row[2], Constants.TABLE_CONTENT_FONT));
+                PdfPCell valueCell = new PdfPCell(new Phrase(row[2], Constants.TABLE_CONTENT_FONT));
+                valueCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                table.addCell(valueCell);
+                // CHECKSTYLE_OFF: MagicNumberCheck
+                row[3] = keyArray[i + halfSize].toString();
+                row[4] = valueArray[i + halfSize].toString();
+                row[5] = (metricsValues != null) ? metricsValues.get(keyArray[i + halfSize]) : Constants.NOT_AVAILABLE_STRING;
+                //Populate content in table cell. 
+                table.addCell(new Phrase(row[3], Constants.TABLE_CONTENT_FONT));
+                table.addCell(new Phrase(row[4], Constants.TABLE_CONTENT_FONT));
+                valueCell = new PdfPCell(new Phrase(row[5], Constants.TABLE_CONTENT_FONT));
+                // CHECKSTYLE_ON: MagicNumberCheck
                 valueCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 table.addCell(valueCell);
             }

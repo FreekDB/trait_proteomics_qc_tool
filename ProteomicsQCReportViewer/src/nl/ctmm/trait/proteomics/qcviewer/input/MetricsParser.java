@@ -3,9 +3,9 @@ package nl.ctmm.trait.proteomics.qcviewer.input;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,7 +26,7 @@ public class MetricsParser {
     private static final Logger logger = Logger.getLogger(MetricsParser.class.getName());
 
     /**
-     * Message written to the logger in case excsption occurs while reading metrics listing. 
+     * Message written to the logger in case exception occurs while reading metrics listing. 
      */
     private static final String METRICS_LISTING_EXCEPTION_MESSAGE = 
           "Something went wrong while reading the metrics definition file: %s.";
@@ -55,7 +55,7 @@ public class MetricsParser {
      * Read all the metrics from the MetricsListing.txt file.
      */
     private void readMetricsListing() {
-        allMetricsMap = new HashMap<>();
+        allMetricsMap = new TreeMap<>();
         try {
             final String fileName = FilenameUtils.normalize(Constants.METRICS_LISTING_FILE_NAME);
             final BufferedReader reader = new BufferedReader(new FileReader(fileName));
