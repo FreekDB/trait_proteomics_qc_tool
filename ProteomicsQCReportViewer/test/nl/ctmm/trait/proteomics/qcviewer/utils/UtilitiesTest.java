@@ -24,6 +24,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 public class UtilitiesTest {
     /**
      * Test the <code>getNotAvailableImage</code> method in a normal situation.
+     * @throws java.lang.Exception 
      */
     @Test
     public void testGetNotAvailableImageNormal() throws Exception {
@@ -45,11 +46,11 @@ public class UtilitiesTest {
     /**
      * Test the <code>getNotAvailableImage</code> method with an exception.
      */
-    @PrepareForTest(Utilities.class)
+    /*@PrepareForTest(Utilities.class)
     @Test
     public void testGetNotAvailableImageException() throws Exception {
         whenNew(File.class).withArguments(anyString()).thenThrow(new IOException("Test with an exception."));
         Logger.getLogger(Utilities.class.getName()).setLevel(Level.OFF);
         assertNull(Utilities.getNotAvailableImage());
-    }
+    }*/
 }

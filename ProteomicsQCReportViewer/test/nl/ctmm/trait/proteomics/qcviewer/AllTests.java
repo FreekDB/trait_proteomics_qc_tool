@@ -2,6 +2,7 @@ package nl.ctmm.trait.proteomics.qcviewer;
 
 import junit.framework.JUnit4TestAdapter;
 import junit.textui.TestRunner;
+
 import nl.ctmm.trait.proteomics.qcviewer.gui.ChartUnitTest;
 import nl.ctmm.trait.proteomics.qcviewer.gui.ScrollDesktopTest;
 import nl.ctmm.trait.proteomics.qcviewer.input.ReportReaderTest;

@@ -22,10 +22,19 @@ import org.junit.Test;
  * @author <a href="mailto:freek.de.bruijn@nbic.nl">Freek de Bruijn</a>
  */
 public class ReportUnitTest {
+    /**
+     * Number of report.
+     */
     private static final int REPORT_NUMBER = 6;
-
+    
+    /**
+     * ReportUnit object. 
+     */
     private ReportUnit reportUnit;
-
+    
+    /**
+     * Date format for measured date. 
+     */
     private final SimpleDateFormat measuredDateFormat = new SimpleDateFormat("yyyy/MMM/dd - HH:mm");
 
     /**
@@ -125,9 +134,20 @@ public class ReportUnitTest {
      * A single test combination: sort key, sort order and the expected reports.
      */
     private class TestCombination {
-        public String sortKey;
-        public boolean sortOrder;
-        public List<ReportUnit> expectedReports;
+        /**
+         * sortKey for the test.
+         */
+        private String sortKey;
+        
+        /**
+         * sortOrder for the test. 
+         */
+        private boolean sortOrder;
+        
+        /**
+         * List of expected reports. 
+         */
+        private List<ReportUnit> expectedReports;
 
         TestCombination(final String sortKey, final boolean sortOrder, final List<ReportUnit> expectedReports) {
             this.sortKey = sortKey;

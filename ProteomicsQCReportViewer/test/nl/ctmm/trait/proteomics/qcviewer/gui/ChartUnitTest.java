@@ -24,8 +24,21 @@ public class ChartUnitTest {
      * Base directory for the TIC files.
      */
     private static final String TIC_DIRECTORY = "QCReports\\2013\\Jul\\";
-
-    private ChartUnit chartUnit1, chartUnit2, chartUnit3;
+    
+    /**
+     * ChartUnit1 for the test. 
+     */
+    private ChartUnit chartUnit1;
+    
+    /**
+     * ChartUnit2 for the test. 
+     */
+    private ChartUnit chartUnit2;
+    
+    /**
+     * ChartUnit3 for the test. 
+     */
+    private ChartUnit chartUnit3;
 
     /**
      * Initialize an <code>XYSeries</code> object and three <code>ChartUnit</code> objects.
@@ -42,7 +55,7 @@ public class ChartUnitTest {
         final File ticFileChartUnit3 = new File(FilenameUtils.normalize(directory2 + "simulated_tic_130707_b_ticmatrix.csv"));
         // public ChartUnit(final String msrunName, final int reportIndex, final XYSeries series)
         chartUnit1 = new ChartUnit(msrunName1, 0, xySeries);
-        chartUnit2 = new ChartUnit(msrunName2, 1, null); //initialize with empty series
+        chartUnit2 = new ChartUnit(msrunName2, 1, null); 
         chartUnit3 = new ChartUnit(msrunName3, 2, readXYSeries(msrunName1, ticFileChartUnit3));
     }
 
@@ -52,9 +65,9 @@ public class ChartUnitTest {
     
     @Test
     public void testGetMaxTicIntensity() {
-        double maxIntensity1 = 9.96046420611126E9;
-        double maxIntensity2 = 0.0;
-        double maxIntensity3 = 9.9600473163739E9;
+        final double maxIntensity1 = 9.96046420611126E9;
+        final double maxIntensity2 = 0.0;
+        final double maxIntensity3 = 9.9600473163739E9;
         assertEquals(0, chartUnit2.getMaxTicIntensity(), 0);
         assertEquals(maxIntensity1, chartUnit1.getMaxTicIntensity(), 10);
         assertEquals(maxIntensity2, chartUnit2.getMaxTicIntensity(), 0);
@@ -81,7 +94,7 @@ public class ChartUnitTest {
                 xySeries.add(Double.parseDouble(values[0]) / 60.0, Double.parseDouble(values[1]));
             }
             bufferedReader.close();
-        } catch (NumberFormatException | IOException e) {
+        } catch (final NumberFormatException | IOException e) {
             fail(e.getMessage());
             e.printStackTrace();
         }
