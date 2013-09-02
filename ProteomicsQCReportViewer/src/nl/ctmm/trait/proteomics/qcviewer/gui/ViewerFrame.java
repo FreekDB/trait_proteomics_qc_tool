@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -91,15 +92,61 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private static final long serialVersionUID = 1;
 
-    /*private static final List<Color> LABEL_COLORS = Arrays.asList(
-            Color.BLUE, Color.DARK_GRAY, Color.GRAY, Color.MAGENTA, Color.ORANGE, Color.RED, Color.BLACK);*/
-
     /**
      * Alternating colors used for the metrics.
      */
     private static final List<Color> LABEL_COLORS = Arrays.asList(
             Color.BLUE, Color.DARK_GRAY, Color.BLACK);
 
+    //Following are dimensions which are to be calibrated depending on the screen height and width.
+    /**
+     * Width of the panel with a TIC chart for each report in the list.
+     */
+    private static int chartPanelWidth; 
+
+    /**
+     * Initial width of the desktop pane.
+     */
+    private static int desktopPaneWidth; 
+
+    /**
+     * Default width for the viewer application.
+     */
+    private static int viewerWidth; 
+
+    /**
+     * Default height for the viewer application.
+     */
+    private static int viewerHeight; 
+
+    /**
+     * Default width for the top split pane, which separates the top control panel from the rest of the GUI.
+     */
+    private static int splitPane1Width;
+
+    /**
+     * Default height for the top split pane, which separates the top control panel from the rest of the GUI.
+     */
+    private static int splitPane1Height;
+
+    /**
+     * Default divider location of the bottom split pane, which separates the central list with the QC results from the
+     * bottom panel with the larger version of the TIC graph that is selected in the central list.
+     */
+    private static int splitPane2DividerLocation;
+    
+    /**
+     * Default width for the TIC Graph pane.
+     */
+    private static int ticGraphPaneWidth; 
+    
+    /**
+     * Default height of the TIC Graph pane.
+     */
+    private static int ticGraphPaneHeight; 
+    
+    //The dimensions from this point onwards are fixed. 
+    
     /**
      * Height of a row with information from one report in the list.
      */
@@ -138,49 +185,9 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private static final int METRICS_PANEL_WIDTH = 350;
 
     /**
-     * Width of the panel with a TIC chart for each report in the list.
-     */
-    private static final int CHART_PANEL_WIDTH = 1200; 
-
-    /**
-     * Initial width of the desktop pane.
-     */
-    private static final int DESKTOP_PANE_WIDTH = 1670; 
-
-    /**
-     * Default width for the viewer application.
-     */
-    // CHECKSTYLE_OFF: MagicNumberCheck
-    private static final int VIEWER_WIDTH = DESKTOP_PANE_WIDTH + 25;
-    // CHECKSTYLE_ON: MagicNumberCheck
-
-    /**
-     * Default height for the viewer application.
-     */
-    private static final int VIEWER_HEIGHT = 1350; 
-
-    /**
      * Default divider location of the top split pane, which separates the top control panel from the rest of the GUI.
      */
-    private static final int SPLIT_PANE_1_DIVIDER_LOCATION = 175;
-
-    /**
-     * Default width for the top split pane, which separates the top control panel from the rest of the GUI.
-     */
-    // CHECKSTYLE_OFF: MagicNumberCheck
-    private static final int SPLIT_PANE_1_WIDTH = DESKTOP_PANE_WIDTH + 15;
-    // CHECKSTYLE_ON: MagicNumberCheck
-
-    /**
-     * Default height for the top split pane, which separates the top control panel from the rest of the GUI.
-     */
-    private static final int SPLIT_PANE_1_HEIGHT = (int) (6.5 * CHART_HEIGHT);
-
-    /**
-     * Default divider location of the bottom split pane, which separates the central list with the QC results from the
-     * bottom panel with the larger version of the TIC graph that is selected in the central list.
-     */
-    private static final int SPLIT_PANE_2_DIVIDER_LOCATION = 470;
+    private static final int SPLIT_PANE_1_DIVIDER_LOCATION = 190;
 
     /**
      * Width of the panel with sorting controls.
@@ -648,6 +655,16 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private static final String GRAPH_CLICK_MESSAGE = "Graph Index from SubTitle = %s.";
 
     /**
+     * Message written to the logger for printing screen dimensions. 
+     */
+    private static final String SCREEN_DIMENSIONS_MESSAGE = "Screen dimensions are: height = %d width = %d";
+    
+    /**
+     * Number of pixels to adjust screen width for internal panels due to encapsulating them in scrollPane. 
+     */
+    private static final int WIDTH_ADJUSTMENT_PIXELS_SIZE = 15;
+
+    /**
      * The main desktop pane with the TIC graphs of all the reports.
      */
     private final JDesktopPane desktopPane = new ScrollDesktop();
@@ -760,7 +777,11 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                        final List<String> selectedMetricsData, final String pipelineStatus) {
         super(title);
         logger.fine(CONSTRUCTOR_MESSAGE);
-        setMaximumSize(new Dimension(VIEWER_WIDTH, VIEWER_HEIGHT));
+        determineVariableDimensionsValues();
+        setMinimumSize(new Dimension(viewerWidth, viewerHeight));
+        setPreferredSize(new Dimension(viewerWidth, viewerHeight));
+        setMaximumSize(new Dimension(viewerWidth, viewerHeight));
+        logger.fine("Actual viewer width = " + getWidth() + " height = " + getHeight());
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.metricsParser = metricsParser;
         this.pipelineStatus = pipelineStatus;
@@ -825,7 +846,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
                 orderedReportUnits.add(thisUnit);
                 addChartFrame(thisUnit, reportIndexOffset + reportIndex);
             }
-            desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, reportUnits.size() * REPORT_ROW_HEIGHT));
+            desktopPane.setPreferredSize(new Dimension(desktopPaneWidth, reportUnits.size() * REPORT_ROW_HEIGHT));
             //Set first report graph in the Tic Pane. 
             setTicGraphPaneChart(orderedReportUnits.get(0).getReportIndex());
         }
@@ -854,18 +875,18 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         //Add desktopPane for displaying graphs and other QC Control
         final int totalReports = orderedReportUnits.size();
         if (totalReports != 0) {
-            desktopPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, totalReports * REPORT_ROW_HEIGHT));
+            desktopPane.setPreferredSize(new Dimension(desktopPaneWidth, totalReports * REPORT_ROW_HEIGHT));
             prepareChartsInOrder(true);
             // Set initial tic Graph - specify complete chart in terms of orderedReportUnits.
             setTicGraphPaneChart(orderedReportUnits.get(0).getReportIndex());
         }
         //Display empty desktopPane and ticGraphPane
         splitPane2.add(new JScrollPane(desktopPane), 0);
-        ticGraphPane.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, 2 * CHART_HEIGHT));
+        ticGraphPane.setPreferredSize(new Dimension(ticGraphPaneWidth, ticGraphPaneHeight));
         splitPane2.add(new JScrollPane(ticGraphPane), 1);
         //hide-show feature
         splitPane2.setOneTouchExpandable(true);
-        splitPane2.setDividerLocation(SPLIT_PANE_2_DIVIDER_LOCATION);
+        splitPane2.setDividerLocation(splitPane2DividerLocation);
         //Add static (immovable) Control frame
         final JInternalFrame controlFrame = getControlFrame();
         final JScrollPane controlFrameScrollPane = new JScrollPane(controlFrame);
@@ -875,7 +896,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         //hide-show feature
         splitPane1.setOneTouchExpandable(true);
         splitPane1.setDividerLocation(SPLIT_PANE_1_DIVIDER_LOCATION);
-        splitPane1.setPreferredSize(new Dimension(SPLIT_PANE_1_WIDTH, SPLIT_PANE_1_HEIGHT));
+        splitPane1.setPreferredSize(new Dimension(splitPane1Width, splitPane1Height));
         getContentPane().add(splitPane1, "Center");
         setJMenuBar(createMenuBar());
     }
@@ -1221,12 +1242,12 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         ticGraphPane.removeAll();
         // Create the visible chart panel.
         final ChartPanel chartPanel = new ChartPanel(reportUnits.get(reportNum).getChartUnit().getTicChart());
-        chartPanel.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, 2 * CHART_HEIGHT));
+        chartPanel.setPreferredSize(new Dimension(desktopPaneWidth, 2 * CHART_HEIGHT));
         final JInternalFrame chartFrame = new JInternalFrame(CHART_FRAME_TITLE_PREFIX + reportNum, true);
         final javax.swing.plaf.InternalFrameUI ifu = chartFrame.getUI();
         ((javax.swing.plaf.basic.BasicInternalFrameUI)ifu).setNorthPane(null);
         chartFrame.getContentPane().add(chartPanel);
-        chartFrame.setPreferredSize(new Dimension(DESKTOP_PANE_WIDTH, 2 * CHART_HEIGHT));
+        chartFrame.setPreferredSize(new Dimension(desktopPaneWidth, 2 * CHART_HEIGHT));
         chartFrame.setBorder(null);
         chartFrame.pack();
         chartFrame.setLocation(0, 0);
@@ -1501,7 +1522,7 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         logger.fine(String.format(ADD_CHART_FRAME_MESSAGE, reportNumber));
         final ChartPanel chartPanel = new ChartPanel(reportUnit.getChartUnit().getTicChart());
         chartPanel.addChartMouseListener(this);
-        chartPanel.setPreferredSize(new Dimension(CHART_PANEL_WIDTH, ACTUAL_CHART_HEIGHT));
+        chartPanel.setPreferredSize(new Dimension(chartPanelWidth, ACTUAL_CHART_HEIGHT));
         chartPanelList.add(chartPanel);
 
         final JPanel reportIdPanel = createReportIdPanel(reportUnit);
@@ -1705,5 +1726,40 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     @Override
     public void chartMouseMoved(final ChartMouseEvent chartMouseEvent) {
         // This event is not used.
+    }
+    
+    /**
+     * Calculate values of variable dimensions based on screen width and height. 
+     */
+    private void determineVariableDimensionsValues() {
+        final Toolkit toolkit = Toolkit.getDefaultToolkit();
+        final Dimension dimension = toolkit.getScreenSize();
+        final int screenHeight = dimension.height;
+        final int screenWidth = dimension.width;
+        logger.fine(String.format(SCREEN_DIMENSIONS_MESSAGE, screenHeight, screenWidth));
+        //Default width for the viewer application.
+        viewerWidth = screenWidth;
+        //Default height for the viewer application.
+        viewerHeight = screenHeight  - (2 * WIDTH_ADJUSTMENT_PIXELS_SIZE); 
+        //Default width for the top split pane, which separates the top control panel from the rest of the GUI.
+        splitPane1Width = viewerWidth - WIDTH_ADJUSTMENT_PIXELS_SIZE;
+        //Initial width of the desktop pane.
+        desktopPaneWidth = splitPane1Width - WIDTH_ADJUSTMENT_PIXELS_SIZE; 
+        //Width of the panel with a TIC chart for each report in the list.
+        chartPanelWidth = desktopPaneWidth - CHECK_PANEL_WIDTH - METRICS_PANEL_WIDTH - WIDTH_ADJUSTMENT_PIXELS_SIZE;
+        //Default height for the top split pane, which separates the top control panel from the rest of the GUI.
+        splitPane1Height = viewerHeight; 
+        //Default width for the TIC Graph pane.
+        ticGraphPaneWidth = desktopPaneWidth; 
+        //Default height of the TIC Graph pane.
+        ticGraphPaneHeight = 2 * CHART_HEIGHT; 
+        /* Default divider location of the bottom split pane, which separates the central list with the QC results from the
+         * bottom panel with the larger version of the TIC graph that is selected in the central list.*/
+        splitPane2DividerLocation = viewerHeight - SPLIT_PANE_1_DIVIDER_LOCATION - ticGraphPaneHeight; 
+        logger.fine("chartPanelWidth = " + chartPanelWidth + " desktopPaneWidth = " + desktopPaneWidth 
+                + " viewerWidth = " + viewerWidth + " viewerHeight = " + viewerHeight + " splitPane1Width = " 
+                + splitPane1Width + " splitPane1Height = " + splitPane1Height + " ticGraphPaneWidth = " 
+                + ticGraphPaneWidth + " ticGraphPaneHeight = " + ticGraphPaneHeight 
+                + " splitPane2DividerLocation = " + splitPane2DividerLocation);
     }
 }
