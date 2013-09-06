@@ -30,16 +30,17 @@ _R_GRAPHICS = resource_filename(__name__, 'r_ms_graphics.R')
 
 # Paths (These should be adapted for the system they run on)
 # Location of the 'ctmm' subfolder in the Apache 'htdocs' folder
-_REPORT_DIR = normpath('E:/qc-tool-pp/trait_proteomics_qc_tool-master/ProteomicsQCPipeline/Reports')
-
+_REPORT_DIR = normpath('C:/qc-data/QCArchive27Feb/archive/htdocs/ctmm')
 # QC progress log used to log all processed RAW files (by default located within the _REPORT_DIR)
 _PROGRES_LOG = normpath('{0}/{1}'.format(_REPORT_DIR, 'qc_status.log'))
 
 # Root folder for the QC pipeline
-_QC_HOME = normpath('E:/qc-tool-pp/trait_proteomics_qc_tool-master/ProteomicsQCPipeline/QC')
+_QC_HOME = normpath('C:/qc-data/QCArchive27Feb/archive/QC')
 # NIST pipeline folder (by default located within _QC_HOME)
 # _NIST = normpath('NISTMSQCv1_2_0_CTMM')
 _NIST = normpath('NISTMSQCv1_5_0')
+# QuaMeter installation folder (by default located within _QC_HOME)
+_QUAMETER = normpath('quameter-bin-windows-x86-vc100-release-1_1_91')
 
 def qc_pipeline(indir, outdir, copylog):
     """Checks input directory for new RAW files to analyze, keeping track
@@ -96,42 +97,41 @@ def qc_pipeline(indir, outdir, copylog):
             time4 = datetime.now()
             print("@Completed Stage 2 MakingReportFolder ", time4 - time3)
             # Run QC workflow - for performance improvement, use abs_inputfile_path instead of abs_rawfile_path
-            #_raw_format_conversions(abs_rawfile_path, working_dir)
-            #print("@Stage 3: Conversion: Converting RAW file to mzXML format", datetime.now())  --remove comment for QC-lite 
-            #_raw_format_conversions(abs_inputfile_path, working_dir) --remove comment for QC-lite
-            #print("@Stage 3 completed. ", datetime.now())  --remove comment for QC-lite 			
-            #_run_nist(abs_inputfile_path, working_dir)
-            #_run_nist(indir, abs_rawfile_path, working_dir)
             time5 = datetime.now()
             print("@Stage 3: Running NIST pipeline for QC-Full", time5) 
             _run_nist(working_dir, abs_inputfile_path, working_dir)
             time6 = datetime.now()
             print("@Completed Stage 3 NISTPipeline ", time6 - time5) 
             time7 = datetime.now()
-            print("@Stage 4: Running OPLReader program on mzXML file for TIC analysis", time7) 			
+            print("@Stage 4: Running OPLReader program on mzXML file for TIC analysis", time7)             
             _run_r_script(working_dir, webdir, basename)
             time8 = datetime.now()
-            print("@Stage 4 OPLReader program completed. ", time8 - time7)  		
+            print("@Stage 4 OPLReader program completed. ", time8 - time7)          
             time9 = datetime.now()
-            print("@Stage 5: Calculating QC metrics values", time9)  
-            metrics = create_metrics(working_dir, abs_inputfile_path, t_start) 
+            print("@Stage 5: Running QuaMeter IDFree mode on the RAW file", time9) 
+            _run_quameter_idfree(abs_inputfile_path, working_dir)
             time10 = datetime.now()
-            print("@Completed Stage 5 MetricsCalculation ", time10 - time9) 
+            print("@Completed Stage 5 QuaMeterIDFree", time10 - time9) 
             time11 = datetime.now()
-            print("@Stage 6: Creating metrics report in ", webdir, time11)  
-            _create_report(webdir, basename, metrics)  
+            print("@Stage 6: Calculating QC metrics values", time11)  
+            metrics = create_metrics(working_dir, abs_inputfile_path, t_start) 
             time12 = datetime.now()
-            print("@Completed Stage 6 MetricsReport ", time12 - time11) 
-            #TODO: Selectively cleanup mzXML and other files
+            print("@Completed Stage 6 MetricsCalculation ", time12 - time11) 
             time13 = datetime.now()
-            print("@Stage 7: Cleanup copied RAW data file from ", abs_inputfile_path, time13)	
+            print("@Stage 7: Creating metrics report in ", webdir, time13)  
+            _create_report(webdir, basename, metrics)  
+            time14 = datetime.now()
+            print("@Completed Stage 7 MetricsReport ", time14 - time13) 
+            #TODO: Selectively cleanup mzXML and other files
+            time15 = datetime.now()
+            print("@Stage 8: Cleanup copied RAW data file from ", abs_inputfile_path, time15)    
             #Cleanup the abs_inputfile_path 
             os.remove(abs_inputfile_path) 
             # Cleanup (remove everything in working directory)
             _cleanup(working_dir)
-            time14 = datetime.now()
-            print("@Completed Stage 7 Cleanup ", time14 - time13)
-            print("@Total processing time (days seconds microseconds)", time14 - time1)
+            time16 = datetime.now()
+            print("@Completed Stage 8 Cleanup ", time16 - time15)
+            print("@Total processing time (days seconds microseconds)", time16 - time1)
         except subprocess.CalledProcessError, e:
             print("@error : ", e.output, datetime.now())
             output = e.output
@@ -274,7 +274,6 @@ def _run_nist(indir, rawfile, outdir):
     #nist_library = 'Speclib0_6'
     nist_library = 'Jurkat28new0.999'
     #nist_library = 'Jurkat28_0.8m'
-    #nist_library = 'Jurkat28_0.99'
     search_engine = 'SpectraST'
     mode = 'full'
     fasta = normpath('{0}/libs/{1}.fasta'.format(_NIST, nist_library))
@@ -309,6 +308,31 @@ def _run_nist(indir, rawfile, outdir):
     print ("Renaming original report file ", msqc_original, " to desired report file name ", msqc_destination, "\n")
     move(msqc_original, msqc_destination)
 
+def _run_quameter_idfree(rawfile, outdir):
+    '''
+    Starts the QuaMeter IDFree mode using a RAW file as input. 
+    http://forge.fenchurch.mc.vanderbilt.edu/scm/viewvc.php/*checkout*/trunk/doc/Manual.pdf?root=quameter
+    @param rawfile: path to the RAW file
+    @param outdir: folder used for storing intermediate QuaMeter IDFree results
+    '''
+    log.info("Running QuaMeter IDFree..")
+
+    # QuaMeter settings
+    mode = 'idfree'
+    # QuaMeter output file
+    rawfilename = split(splitext(rawfile)[0])[1]
+    quameter_output_file = join(outdir, rawfilename + '_quametermetrics.tsv')
+
+    # Run QuaMeter IDFree mode
+    # TODO error handling
+    quameter_exe = normpath('{0}/quameter.exe'.format(_QUAMETER))
+    quameter_idfree_cmd = [quameter_exe,
+                rawfile,
+                '-MetricsType', mode,
+                '-OutputFilepath', quameter_output_file,
+                '-cpus', '1']
+    print quameter_idfree_cmd
+    check_call(quameter_idfree_cmd, shell=True)
 
 def _run_r_script(outdir, webdir, basename):
     '''
@@ -318,7 +342,7 @@ def _run_r_script(outdir, webdir, basename):
     @param webdir: output directory for the graphics
     @param basename: RAW file name (without ext) used to identify mzXML file
     '''
-    log.info("Creating Graphics..")
+    log.info("Running oplReader..")
     oplreaderjar = normpath('{0}/oplreader.jar'.format(_QC_HOME))
     # Execute oplreader
     rcmd = ['java',
@@ -332,14 +356,13 @@ def _run_r_script(outdir, webdir, basename):
 
 def _create_report(webdir, basename, metrics):
     '''
-    Writes all the metrics values to json file
-    @param webdir: location in which the json file should be placed
+    Writes the metrics values to a json file. 
+    @param webdir: location in which the report (index.html) should be placed
     @param basename: RAW filename (without ext) to identify currently processed file
     @param metrics: dictionary holding all metrics (generic)
     '''
-    log.info("Creating report..")
-
-    # Store NIST metrics together with the report
+    log.info("Exporting metrics to a json file..")
+    # Store NIST and QuaMeter metrics together with the report
     export_metrics_json(metrics, webdir)
 
 
