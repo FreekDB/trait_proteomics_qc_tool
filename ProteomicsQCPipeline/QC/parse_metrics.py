@@ -154,6 +154,10 @@ def _extract_generic_metrics(rawfile, t_start):
     #cur_time = time.gmtime() #Changed by Pravin to localtime() to suite for Daylight Savings Time
     cur_time = time.localtime()
     generic_metrics['date'] = '{year}/{month}/{day} - {hour}:{min}'.format(year=time.strftime("%Y", cur_time),
+                                                                          month=time.strftime("%b", cur_time),
+                                                                          day=time.strftime("%d", cur_time),
+                                                                          hour=time.strftime("%H", cur_time),
+                                                                          min=time.strftime("%M", cur_time))
     return generic_metrics
 
 
