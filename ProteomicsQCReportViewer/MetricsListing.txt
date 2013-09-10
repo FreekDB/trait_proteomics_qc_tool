@@ -40,3 +40,47 @@ ms1:ms1-5a:Precursor m/z - Peptide Ion m/z (Median)
 ms1:ms1-1:Ion Injection Times for IDs (MS1 Median)
 ms1:ms1-5d:Precursor m/z - Peptide Ion m/z (ppm InterQ)
 ms1:ms1-3b:MS1 ID Max (Median)
+qm:XIC-WideFrac:fraction of precursor ions account for the top half of all peak width
+qm:XIC-FWHM-Q1:25%ile of peak widths for the wide XICs
+qm:XIC-FWHM-Q2:50%ile of peak widths for the wide XICs
+qm:XIC-FWHM-Q3:75%ile of peak widths for the wide XICs
+qm:XIC-Height-Q2:The log ratio for 50%ile of wide XIC heights over 25%ile of heights
+qm:XIC-Height-Q3:The log ratio for 75%ile of wide XIC heights over 50%ile of heights
+qm:XIC-Height-Q4:The log ratio for maximum of wide XIC heights over 75%ile of heights
+qm:RT-Duration:The highest scan time observed minus the lowest scan time observed
+qm:RT-TIC-Q1:The interval when the first 25% of TIC accumulates divided by RT-Duration
+qm:RT-TIC-Q2:The interval when the second 25% of TIC accumulates divided by RT-Duration
+qm:RT-TIC-Q3:The interval when the third 25% of TIC accumulates divided by RT-Duration
+qm:RT-TIC-Q4:The interval when the fourth 25% of TIC accumulates divided by RT-Duration
+qm:RT-MS-Q1:The interval for the first 25% of all MS events divided by RT-Duration
+qm:RT-MS-Q2:The interval for the second 25% of all MS events divided by RT-Duration
+qm:RT-MS-Q3:The interval for the third 25% of all MS events divided by RT-Duration
+qm:RT-MS-Q4:The interval for the fourth 25% of all MS/MS events divided by RT-Duration
+qm:RT-MSMS-Q1:The interval for the first 25% of all MS/MS events divided by RT-Duration
+qm:RT-MSMS-Q2:The interval for the second 25% of all MS/MS events divided by RT-Duration
+qm:RT-MSMS-Q3:The interval for the third 25% of all MS/MS events divided by RT-Duration
+qm:RT-MSMS-Q4:The interval for the fourth 25% of all MS/MS events divided by RT-Duration
+qm:MS1-TIC-Change-Q2:The log ratio for 50%ile of TIC changes over 25%ile of TIC changes
+qm:MS1-TIC-Change-Q3:The log ratio for 75%ile of TIC changes over 50%ile of TIC changes
+qm:MS1-TIC-Change-Q4:The log ratio for largest TIC change over 75%ile of TIC changes
+qm:MS1-TIC-Q2:The log ratio for 50%ile of TIC over 25%ile of TIC
+qm:MS1-TIC-Q3:The log ratio for 75%ile of TIC over 50%ile of TIC
+qm:MS1-TIC-Q4:The log ratio for largest TIC over 75%ile TIC
+qm:MS1-Count:Number of MS scans
+qm:MS1-Freq-Max:The fastest frequency for MS collection in any minute (Hz)
+qm:MS1-Density-Q1:The 25%ile of MS scan peak counts
+qm:MS1-Density-Q2:The 50%ile of MS scan peak counts
+qm:MS1-Density-Q3:The 75%ile of MS scan peak counts
+qm:MS2-Count:Number of MS/MS scans
+qm:MS2-Freq-Max:The fastest frequency for MS/MS collection in any minute (Hz)
+qm:MS2-Density-Q1:The 25%ile of MS/MS scan peak counts
+qm:MS2-Density-Q2:The 50%ile of MS/MS scan peak counts
+qm:MS2-Density-Q3:The 75%ile of MS/MS scan peak counts
+qm:MS2-PrecZ-1:Fraction of singly charged MS/MS precursors
+qm:MS2-PrecZ-2:Fraction of doubly charged MS/MS precursors
+qm:MS2-PrecZ-3:Fraction of triply charged MS/MS precursors
+qm:MS2-PrecZ-4:Fraction of quadruply charged MS/MS precursors
+qm:MS2-PrecZ-5:Fraction of quintuply charged MS/MS precursors
+qm:MS2-PrecZ-more:Fraction of MS/MS precursors charged higher than +5
+qm:MS2-PrecZ-likely-1:Fraction of MS/MS precursors lack known charge but look like +1s
+qm:MS2-PrecZ-likely-multi:Fraction of MS/MS precursors lack known charge but look like >+1s
