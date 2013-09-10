@@ -55,12 +55,12 @@ public class DetailsFrame extends JFrame implements ActionListener {
     /**
      * Width of the Metrics ID column.
      */
-    private static final int METRICS_ID_COLUMN_WIDTH = 120;
+    private static final int METRICS_ID_COLUMN_WIDTH = 140;
     
     /**
      * Width of the Description column.
      */
-    private static final int DESCRIPTION_COLUMN_WIDTH = 280;
+    private static final int DESCRIPTION_COLUMN_WIDTH = 400;
     
     /**
      * Width of the Value column. 
@@ -70,7 +70,7 @@ public class DetailsFrame extends JFrame implements ActionListener {
     /**
      * Width of the Details frame. 
      */
-    private static final int DETAILS_FRAME_WIDTH = 540;
+    private static final int DETAILS_FRAME_WIDTH = 680;
     
     /**
      * Height of the Details frame. 

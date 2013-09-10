@@ -326,7 +326,8 @@ public class ReportReader {
                                           final String dataFileName) {
         logFileName(dataFileName);
         if (Constants.METRICS_JSON_FILE_NAME.equals(dataFileName)) {
-            final Map<String, String> metricsValues = jsonMetricsReader.readJsonValues(dataFile);
+            Map<String, String> metricsValues = jsonMetricsReader.readJsonValuesForGenericAndNISTMetrics(dataFile);
+            metricsValues = jsonMetricsReader.readJsonValuesForQuaMeterIDFreeMetrics(dataFile, metricsValues); 
             reportUnit.setMetricsValues(metricsValues);
             //One or more metricsValues are missing if any of the values is "N/A"
             if (metricsValues.containsValue(Constants.NOT_AVAILABLE_STRING)) {

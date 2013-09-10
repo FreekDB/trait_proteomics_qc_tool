@@ -20,7 +20,7 @@ __license__ = "MIT"
 def create_metrics(working_dir, abs_rawfile, t_start):
     """
     Parses NIST metrics output file extracting relevant metrics subset
-    Parses QuaMEter metrics output file extracting relevant metrics subset
+	Parses QuaMEter metrics output file extracting relevant metrics subset
     @param abs_rawfile: absolute path to the raw results file from the mass spectrometry device
     @param dirname: the folder within the working directory
     @param t_start: timepoint at which QC pipeline started
@@ -58,7 +58,7 @@ def create_metrics(working_dir, abs_rawfile, t_start):
     if os.path.exists(quameter_metrics_file):
         #Update metrics with values from QuaMeter IDFree mode
         print ("Extracting QuaMeter metrics from TSV file..\n")
-        metrics['QuaMeter'] = _extract_quameter_idfree_metrics(quameter_metrics_file)
+        metrics['qm'] = _extract_quameter_idfree_metrics(quameter_metrics_file)
         print metrics
     else:
         log.warn("QuaMeter metrics file does not exist")
@@ -78,8 +78,8 @@ def _get_default_nist_metrics():
         'ms1': {
             'ms1-1': ['Ion Injection Times for IDs', 1, 'MS1 Median'],
             'ms1-2a': ['MS1 During Middle', 1, 'S/N Median'],
-            #'ms1-2b': ['MS1 During Middle', 2, 'TIC Median/1000'], nistms_metrics.exe
-            'ms1-2b': ['MS1 During Middle', 2, 'TIC Medi/10000'],
+            'ms1-2b': ['MS1 During Middle', 2, 'TIC Median/1000'],
+            #'ms1-2b': ['MS1 During Middle', 2, 'TIC Medi/10000'], nistms_metrics.exe
             'ms1-3a': ['MS1 ID Max', 6, '95/5 MidRT'],
             'ms1-3b': ['MS1 ID Max', 1, 'Median'],
             'ms1-5a': ['Precursor m/z - Peptide Ion m/z', 2, 'Median'],
@@ -120,8 +120,8 @@ def _get_default_nist_metrics():
             # FIXME: escaping does not work (it does in interactive Python environment)
             #'is-1a': ['MS1 During Middle', 14, 'MS1 Jumps >10x'], Modified by Pravin
             #'is-1b': ['MS1 During Middle', 15, 'MS1 Falls <.1x'], Modified by Pravin
-            'is-1a': ['MS1 During Middle', 20, 'MS1 Jumps >10x'],
-            'is-1b': ['MS1 During Middle', 21, 'MS1 Falls <.1x'],
+            'is-1a': ['MS1 During Middle', 13, 'MS1 Jumps >10x'],
+            'is-1b': ['MS1 During Middle', 14, 'MS1 Falls <.1x'],
             'is-2': ['Precursor m/z for IDs', 1, 'Median'],
             #'is-3a': ['Ion IDs by Charge State', 1, 'Charge +1'], Modified by Pravin
             #'is-3b': ['Ion IDs by Charge State', 3, 'Charge +3'], Modified by Pravin
@@ -207,17 +207,16 @@ def _extract_quameter_idfree_metrics(metrics_file):
     Return dictionary with the values found in the metrics file based upon patterns defined in default QuaMeter metrics.
     @param metrics_file: QuaMeter metrics file
     '''
-    metrics = _get_quameter_idfree_metrics()
     quameter_metrics = {}
     with open(metrics_file, 'r') as mfile:
         lines = mfile.readlines()
     per_row = []
     for line in lines:
-        per_row.append(line.split('\t'))
+        per_row.append(line.replace('\n','').split('\t'))
     quameter_metrics = zip(*per_row)
     return quameter_metrics
 
-    
+	
 def _extract_rlog_metrics(logfile):
     '''
     Return dictionary of values extracted from R logfile.

@@ -42,128 +42,116 @@ _NIST = normpath('NISTMSQCv1_5_0')
 # QuaMeter installation folder (by default located within _QC_HOME)
 _QUAMETER = normpath('quameter-bin-windows-x86-vc100-release-1_1_91')
 
-def qc_pipeline(indir, outdir, copylog):
-    """Checks input directory for new RAW files to analyze, keeping track
-    of all processed files. Once a new RAW file has been placed in this directory
-    a report will be generated with this file as input.
-    
-    If copylog is None, get a listing of all RAW files in indir and process
-    them separately
+def qc_pipeline(indir, outdir):
+    """Runs the QC pipeline on a given RAW file and generate a report with this file as input.
+ 
     @param indir: directory containing RAW files to process
     @param outdir: directory used to store temporary files
-    @param copylog: Robocopy log file location or None
+    @param rawfile: The raw file to be processed
     """
+    rawfile = _get_rawfile(indir)
+    if not rawfile:
+        log.warning('No files to process')
+        return False
+    log.info('Version 0.9.0.qc-full')
+    log.info("-----------\nProcessing:\n\t", rawfile, "\n-----------\n")
+    ## For calculating runtimes
+    t_start = time()
+    _log_progress(_PROGRES_LOG, rawfile, 'running')
+    # Set for current file and move file to output directory
+    basename = splitext(rawfile)[0]
+    working_dir = tempfile.mkdtemp(suffix='_QC', prefix=basename, dir=outdir)
+    # The following lines set the path to the RAW file to its original location
+    original_path = normpath('{0}/{1}'.format(indir, rawfile))
+    abs_rawfile_path = original_path
+    # Use the following lines to copy the RAW files to a different path before processing
+    #Copy rawfile to inputfile
+    abs_inputfile_path = working_dir + '\\' + rawfile
+    print("Indir is ", indir)
+    print("Outdir is ", outdir)
+    print("Working_dir is ", working_dir)
+    try:
+        time1 = datetime.now()
+        print("@Stage 1: Preparation: Copying rawfile to newinputfilename ", abs_rawfile_path, abs_inputfile_path, time1)   
+        shutil.copy(abs_rawfile_path, abs_inputfile_path)
+        print("Input file is ", abs_inputfile_path)
+        time2 = datetime.now()
+        print("@Completed Stage 1 copying ", time2 - time1)  
+        output = ("MSQC pipeline processing successfully completed for file ", abs_rawfile_path)
+        time3 = datetime.now()
+        print("@Stage 2: Preparation: Creating folder to write QC report in html form", time3)   
+        # Create folder to contain html report
+        webdir = _manage_paths(basename) 
+        print("Report folder is ", webdir) 
+        time4 = datetime.now()
+        print("@Completed Stage 2 MakingReportFolder ", time4 - time3)
+        # Run QC workflow - for performance improvement, use abs_inputfile_path instead of abs_rawfile_path
+        time5 = datetime.now()
+        print("@Stage 3: Running NIST pipeline for QC-Full", time5) 
+        _run_nist(working_dir, abs_inputfile_path, working_dir)
+        time6 = datetime.now()
+        print("@Completed Stage 3 NISTPipeline ", time6 - time5) 
+        time7 = datetime.now()
+        print("@Stage 4: Running OPLReader program on mzXML file for TIC analysis", time7) 			
+        _run_opl_reader(working_dir, webdir, basename)
+        time8 = datetime.now()
+        print("@Stage 4 OPLReader program completed. ", time8 - time7)  		
+        time9 = datetime.now()
+        print("@Stage 5: Running QuaMeter IDFree mode on the RAW file", time9) 
+        _run_quameter_idfree(abs_inputfile_path, working_dir)
+        time10 = datetime.now()
+        print("@Completed Stage 5 QuaMeterIDFree", time10 - time9) 
+        time11 = datetime.now()
+        print("@Stage 6: Calculating QC metrics values", time11)  
+        metrics = create_metrics(working_dir, abs_inputfile_path, t_start) 
+        time12 = datetime.now()
+        print("@Completed Stage 6 MetricsCalculation ", time12 - time11) 
+        time13 = datetime.now()
+        print("@Stage 7: Creating metrics report in ", webdir, time13)  
+        _create_report(webdir, basename, metrics)  
+        time14 = datetime.now()
+        print("@Completed Stage 7 MetricsReport ", time14 - time13)
+        time15 = datetime.now()
+        print("@Stage 8: Cleanup copied RAW data file from ", abs_inputfile_path, time15)	
+        #Cleanup the abs_inputfile_path 
+        os.remove(abs_inputfile_path) 
+        # Cleanup (remove everything in working directory)
+        _cleanup(working_dir)
+        time16 = datetime.now()
+        print("@Completed Stage 8 Cleanup ", time16 - time15)
+        print("@Total processing time (days seconds microseconds)", time16 - time1)
+    except subprocess.CalledProcessError, e:
+        print("@error : ", e.output, datetime.now())
+        output = e.output
+    except IOError as e:
+        print ("I/O error({0}): {1}".format(e.errno, e.strerror), datetime.now())
+        output = e.strerror
+    print("@output : ", output)
+    # Update log-file showing completed analysis
+    _log_progress(_PROGRES_LOG, rawfile, 'completed')
+    qc_pipeline(indir, outdir)
 
-    log.info('Version 0.2.0.qc-lite')
-
-    # Get a list of all RAW files to process
-    files = _get_filelist(indir, copylog)
-    for rawfile, status in files.iteritems():
-        if status != 'new':
-            continue
-
-        log.info("-----------\nProcessing:\n\t", rawfile, "\n-----------\n")
-        ## For calculating runtimes
-        t_start = time()
-        _log_progress(_PROGRES_LOG, rawfile, 'running')
-
-        # Set for current file and move file to output directory
-        basename = splitext(rawfile)[0]
-        working_dir = tempfile.mkdtemp(suffix='_QC', prefix=basename, dir=outdir)
-        # The following lines set the path to the RAW file to its original location
-        original_path = normpath('{0}/{1}'.format(indir, rawfile))
-        abs_rawfile_path = original_path
-        # Use the following lines to copy the RAW files to a different path before processing
-        #abs_rawfile_path = normpath('{0}/{1}'.format(working_dir, rawfile))
-        #copy(original_path, abs_rawfile_path)
-        #Copy rawfile to inputfile
-        abs_inputfile_path = working_dir + '\\' + rawfile
-        print("Indir is ", indir)
-        print("Outdir is ", outdir)
-        print("Working_dir is ", working_dir)
-        try:
-            time1 = datetime.now()
-            print("@Stage 1: Preparation: Copying rawfile to newinputfilename ", abs_rawfile_path, abs_inputfile_path, time1)   
-            shutil.copy(abs_rawfile_path, abs_inputfile_path)
-            print("Input file is ", abs_inputfile_path)
-            time2 = datetime.now()
-            print("@Completed Stage 1 copying ", time2 - time1)  
-            output = ("MSQC pipeline processing successfully completed for file ", abs_rawfile_path)
-            time3 = datetime.now()
-            print("@Stage 2: Preparation: Creating folder to write QC report in html form", time3)   
-            # Create folder to contain html report
-            webdir = _manage_paths(basename) 
-            print("Report folder is ", webdir) 
-            time4 = datetime.now()
-            print("@Completed Stage 2 MakingReportFolder ", time4 - time3)
-            # Run QC workflow - for performance improvement, use abs_inputfile_path instead of abs_rawfile_path
-            time5 = datetime.now()
-            print("@Stage 3: Running NIST pipeline for QC-Full", time5) 
-            _run_nist(working_dir, abs_inputfile_path, working_dir)
-            time6 = datetime.now()
-            print("@Completed Stage 3 NISTPipeline ", time6 - time5) 
-            time7 = datetime.now()
-            print("@Stage 4: Running OPLReader program on mzXML file for TIC analysis", time7)             
-            _run_r_script(working_dir, webdir, basename)
-            time8 = datetime.now()
-            print("@Stage 4 OPLReader program completed. ", time8 - time7)          
-            time9 = datetime.now()
-            print("@Stage 5: Running QuaMeter IDFree mode on the RAW file", time9) 
-            _run_quameter_idfree(abs_inputfile_path, working_dir)
-            time10 = datetime.now()
-            print("@Completed Stage 5 QuaMeterIDFree", time10 - time9) 
-            time11 = datetime.now()
-            print("@Stage 6: Calculating QC metrics values", time11)  
-            metrics = create_metrics(working_dir, abs_inputfile_path, t_start) 
-            time12 = datetime.now()
-            print("@Completed Stage 6 MetricsCalculation ", time12 - time11) 
-            time13 = datetime.now()
-            print("@Stage 7: Creating metrics report in ", webdir, time13)  
-            _create_report(webdir, basename, metrics)  
-            time14 = datetime.now()
-            print("@Completed Stage 7 MetricsReport ", time14 - time13) 
-            #TODO: Selectively cleanup mzXML and other files
-            time15 = datetime.now()
-            print("@Stage 8: Cleanup copied RAW data file from ", abs_inputfile_path, time15)    
-            #Cleanup the abs_inputfile_path 
-            os.remove(abs_inputfile_path) 
-            # Cleanup (remove everything in working directory)
-            _cleanup(working_dir)
-            time16 = datetime.now()
-            print("@Completed Stage 8 Cleanup ", time16 - time15)
-            print("@Total processing time (days seconds microseconds)", time16 - time1)
-        except subprocess.CalledProcessError, e:
-            print("@error : ", e.output, datetime.now())
-            output = e.output
-        except IOError as e:
-            print ("I/O error({0}): {1}".format(e.errno, e.strerror), datetime.now())
-            output = e.strerror
-        print("@output : ", output)
-        # Update log-file showing completed analysis
-        _log_progress(_PROGRES_LOG, rawfile, 'completed')
-
-def _get_filelist(indir, copylog):
+def _get_rawfile(indir):
     """
     Check status of all previously processed files to determine
-    if any new files are present to process
+    if any new files are present to process. In case there are new files to process
+    return the last modified raw file
     @param indir: directory containing the RAW file(s)
-    @param copylog: Robocopy log file, None if running in offline mode
     """
     # Read list of already processed RAW files
     files = _read_logfile(_PROGRES_LOG)
-    if copylog == None:
-        # Check indir for any new files
-        new_files = glob.glob('{}/*.[Rr][Aa][Ww]'.format(indir))
-        files = dict((split(rawfile)[1], 'new') for rawfile in new_files if split(rawfile)[1] not in files)
-    else:
-        files = _parse_robocopy_log(copylog, files)
-
-    if not files:
-        log.warning('No files to process')
-        return
-
-    return files
-
+    #print ("Read files from logfile:\n")
+    #print files
+    # Check indir for any new files
+    new_files = glob.glob('{}/*.[Rr][Aa][Ww]'.format(indir))
+    #print "Before sorting\n"
+    #print new_files
+    new_files.sort(key=lambda x: os.path.getmtime(x), reverse=True)
+    #print "After sorting\n"
+    #print new_files
+    for rawfile in new_files:
+        if split(rawfile)[1] not in files:
+            return split(rawfile)[1]
 
 def _read_logfile(logfile):
     """
@@ -187,45 +175,6 @@ def _read_logfile(logfile):
             files[name] = status.strip()
     return files
 
-
-def _parse_robocopy_log(copylog, files):
-    """ 
-    Check Robocopy logfile for new files copied
-    @param copylog: Robocopy log file
-    @param files: dictionary with already detected and processed RAW files
-    """
-    with open(copylog, 'r') as logfile:
-        loglines = logfile.readlines()
-
-    #Premise: Look between Started and Monitor lines for new files
-    #  Started : Thu Jan 19 11:08:10 2012
-    #
-    #                       6    F:\Backup\BRS\BRS2011P09\Data\E2\
-    #        New File           211.2 m    110215_13.RAW
-    #
-    #  Monitor : Waiting for 1 minutes and 1 changes...
-
-    # Parsing a file 'block'
-    for lnr_start, logline in enumerate(loglines):
-        if 'Started' not in logline:
-            continue
-        # We found the start of a new robocopy log
-        for lnr_block, logline in enumerate(loglines[lnr_start:]):
-            if 'Monitor' not in logline:
-                continue
-            # All files completed between lnr_start & lnr_start + lnr_block finished copying
-            for logline in loglines[lnr_start:lnr_block + lnr_start]:
-                if 'New File' not in logline:
-                    continue
-                # Handle new files
-                newfile = logline.split('\t')[-1].strip()
-                # If a new file has been found, set status to 'new'
-                if newfile not in files:
-                    files[newfile] = 'new'
-            break
-    return files
-
-
 def _log_progress(logfile, rawfile, status):
     '''
     Keeps track of processed RAW files, this log file is used to create a
@@ -237,7 +186,6 @@ def _log_progress(logfile, rawfile, status):
     log = '{0}\t{1}\t{2}\n'.format(str(datetime.now()), rawfile, status)
     with open(logfile, 'a') as status_log:
         status_log.write(log)
-
 
 def _manage_paths(basename):
     '''
@@ -253,7 +201,6 @@ def _manage_paths(basename):
     if not isdir(tree):
         makedirs(tree)
     return tree
-
 
 def _run_nist(indir, rawfile, outdir):
     '''
@@ -311,7 +258,7 @@ def _run_nist(indir, rawfile, outdir):
 def _run_quameter_idfree(rawfile, outdir):
     '''
     Starts the QuaMeter IDFree mode using a RAW file as input. 
-    http://forge.fenchurch.mc.vanderbilt.edu/scm/viewvc.php/*checkout*/trunk/doc/Manual.pdf?root=quameter
+	http://forge.fenchurch.mc.vanderbilt.edu/scm/viewvc.php/*checkout*/trunk/doc/Manual.pdf?root=quameter
     @param rawfile: path to the RAW file
     @param outdir: folder used for storing intermediate QuaMeter IDFree results
     '''
@@ -334,7 +281,7 @@ def _run_quameter_idfree(rawfile, outdir):
     print quameter_idfree_cmd
     check_call(quameter_idfree_cmd, shell=True)
 
-def _run_r_script(outdir, webdir, basename):
+def _run_opl_reader(outdir, webdir, basename):
     '''
     After running the NIST metrics workflow, the mzXML file created can be read in R
     and processed further (some graphics and basic metrics)
@@ -364,7 +311,6 @@ def _create_report(webdir, basename, metrics):
     log.info("Exporting metrics to a json file..")
     # Store NIST and QuaMeter metrics together with the report
     export_metrics_json(metrics, webdir)
-
 
 def _raw_format_conversions(raw_file, outdir):
     '''

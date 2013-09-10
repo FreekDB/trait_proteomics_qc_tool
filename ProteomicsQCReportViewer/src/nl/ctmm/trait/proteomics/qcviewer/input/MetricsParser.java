@@ -55,6 +55,8 @@ public class MetricsParser {
      * Read all the metrics from the MetricsListing.txt file.
      */
     private void readMetricsListing() {
+        /*Thanks to Freek for the tip to replace HashMap<> with TreeMap<> so that the metrics  
+         * keys are automatically sorted. */ 
         allMetricsMap = new TreeMap<>();
         try {
             final String fileName = FilenameUtils.normalize(Constants.METRICS_LISTING_FILE_NAME);
