@@ -5,11 +5,7 @@ Desired behavior: The QC pipeline should be invoked periodically depending on th
 
 from argparse import ArgumentParser
 from run_msqc_pipeline import qc_pipeline
-from robocopy_monitor_service import Service, instart
-from os.path import normpath
 from time import gmtime, strftime, sleep
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
 import logging
 import sys
 

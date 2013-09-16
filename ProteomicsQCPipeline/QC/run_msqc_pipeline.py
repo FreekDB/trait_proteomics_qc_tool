@@ -150,7 +150,7 @@ def _get_rawfile(indir):
     #print "After sorting\n"
     #print new_files
     for rawfile in new_files:
-        if split(rawfile)[1] not in files:
+        if (split(rawfile)[1] not in files and os.path.exists(rawfile) and os.access(rawfile, os.R_OK)):
             return split(rawfile)[1]
 
 def _read_logfile(logfile):
