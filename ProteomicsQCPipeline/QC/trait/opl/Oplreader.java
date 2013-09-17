@@ -1,5 +1,6 @@
 
 /*Read more: http://javarevisited.blogspot.com/2011/12/parse-read-xml-file-java-sax-parser.html#ixzz2Stgyyjk1*/ 
+package nl.ctmm.trait.opl; 
 
 import java.io.*;
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException; 
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
@@ -45,15 +47,15 @@ public class Oplreader  extends DefaultHandler {
      * 
      */
     
-    public static void main(String[] args) throws IOException, SAXException,
-                     ParserConfigurationException {
+    public static void main(String[] args)  {
         String indir = args[0];
         String rawbasename = args[1];
         String webdir = args[2];
         String mzXML = indir + "/" + rawbasename + ".RAW.mzXML";
         String ticmatrix_file = webdir + "/" + rawbasename + "_ticmatrix.csv";
         String rlog_file = indir + "/" + rawbasename + ".RLOG"; 
-        
+        //Create an instance of this class; it defines all the handler methods
+        Oplreader handler = new Oplreader();
         System.out.println("Indir = " + indir);
         System.out.println("rawbasename = " + rawbasename);
         System.out.println("webdir = " + webdir);
@@ -63,11 +65,14 @@ public class Oplreader  extends DefaultHandler {
         //Create a "parser factory" for creating SAX parsers
         SAXParserFactory spfac = SAXParserFactory.newInstance();
         //Now use the parser factory to create a SAXParser object
-        SAXParser sp = spfac.newSAXParser();
-        //Create an instance of this class; it defines all the handler methods
-        Oplreader handler = new Oplreader();
-        //Finally, tell the parser to parse the input and notify the handler
-        sp.parse(mzXML, handler);
+        SAXParser sp;
+        try {
+            sp = spfac.newSAXParser();
+          //Finally, tell the parser to parse the input and notify the handler
+            sp.parse(mzXML, handler);
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            e.printStackTrace();
+        }
         handler.print(ticmatrix_file, rlog_file);
     }
     
