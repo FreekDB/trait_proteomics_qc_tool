@@ -85,22 +85,53 @@ def qc_pipeline(indir, outdir):
         print("Report folder is ", webdir) 
         time4 = datetime.now()
         print("@Completed Stage 2 MakingReportFolder ", time4 - time3)
+    except IOError as e:
+        print ("I/O error({0}): {1}".format(e.errno, e.strerror), datetime.now())
+        print ("I/O error during Stage 1: Preparation and Stage 2: Preparation")
+        output = e.strerror
+    try:
         # Run QC workflow - for performance improvement, use abs_inputfile_path instead of abs_rawfile_path
         time5 = datetime.now()
         print("@Stage 3: Running NIST pipeline for QC-Full", time5) 
         _run_nist(working_dir, abs_inputfile_path, working_dir)
         time6 = datetime.now()
-        print("@Completed Stage 3 NISTPipeline ", time6 - time5) 
+        print("@Completed Stage 3 NISTPipeline ", time6 - time5)
+    except IOError as e:
+        print ("I/O error({0}): {1}".format(e.errno, e.strerror), datetime.now())
+        print ("I/O error during Stage 3: NISTPipeline")
+        output = e.strerror
+    except subprocess.CalledProcessError, e:
+        print("@error : ", e.output, datetime.now())
+        print ("CalledProcessError during Stage 3: NISTPipeline")
+        output = e.output
+    try:
         time7 = datetime.now()
         print("@Stage 4: Running OPLReader program on mzXML file for TIC analysis", time7) 			
         _run_opl_reader(working_dir, webdir, basename)
         time8 = datetime.now()
-        print("@Stage 4 OPLReader program completed. ", time8 - time7)  		
+        print("@Stage 4 OPLReader program completed. ", time8 - time7)
+    except IOError as e:
+        print ("I/O error({0}): {1}".format(e.errno, e.strerror), datetime.now())
+        print ("I/O error during Stage 4: OPLReader")
+        output = e.strerror
+    except subprocess.CalledProcessError, e:
+        print("@error : ", e.output, datetime.now())
+        print ("CalledProcessError during Stage 4: OPLReader")
+        output = e.output
+    try:
         time9 = datetime.now()
         print("@Stage 5: Running QuaMeter IDFree mode on the RAW file", time9) 
         _run_quameter_idfree(abs_inputfile_path, working_dir)
         time10 = datetime.now()
         print("@Completed Stage 5 QuaMeterIDFree", time10 - time9) 
+    except IOError as e:
+        print ("I/O error({0}): {1}".format(e.errno, e.strerror), datetime.now())
+        print ("I/O error during Stage 5: QuaMeterIDFree")
+        output = e.strerror
+    except subprocess.CalledProcessError, e:
+        print("@error : ", e.output, datetime.now())
+        print ("CalledProcessError during Stage 5: QuaMeterIDFree")
+    try:
         time11 = datetime.now()
         print("@Stage 6: Calculating QC metrics values", time11)  
         metrics = create_metrics(working_dir, abs_inputfile_path, t_start) 
@@ -111,6 +142,11 @@ def qc_pipeline(indir, outdir):
         _create_report(webdir, basename, metrics)  
         time14 = datetime.now()
         print("@Completed Stage 7 MetricsReport ", time14 - time13)
+    except IOError as e:
+        print ("I/O error({0}): {1}".format(e.errno, e.strerror), datetime.now())
+        print ("I/O error during Stage 6 and Stage 7: Create metrics report")
+        output = e.strerror
+    try:
         time15 = datetime.now()
         print("@Stage 8: Cleanup copied RAW data file from ", abs_inputfile_path, time15)	
         #Cleanup the abs_inputfile_path 
@@ -120,12 +156,8 @@ def qc_pipeline(indir, outdir):
         time16 = datetime.now()
         print("@Completed Stage 8 Cleanup ", time16 - time15)
         print("@Total processing time (days seconds microseconds)", time16 - time1)
-    except subprocess.CalledProcessError, e:
-        print("@error : ", e.output, datetime.now())
-        output = e.output
     except IOError as e:
         print ("I/O error({0}): {1}".format(e.errno, e.strerror), datetime.now())
-        output = e.strerror
     print("@output : ", output)
     # Update log-file showing completed analysis
     _log_progress(_PROGRES_LOG, rawfile, 'completed')
@@ -149,6 +181,8 @@ def _get_rawfile(indir):
     new_files.sort(key=lambda x: os.path.getmtime(x), reverse=True)
     #print "After sorting\n"
     #print new_files
+    #Delete first element from the list - the is probably being written to the disk. 
+    del new_files[0]
     for rawfile in new_files:
         if (split(rawfile)[1] not in files and os.path.exists(rawfile) and os.access(rawfile, os.R_OK)):
             return split(rawfile)[1]

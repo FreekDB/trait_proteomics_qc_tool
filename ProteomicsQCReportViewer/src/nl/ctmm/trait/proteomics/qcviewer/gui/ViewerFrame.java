@@ -665,6 +665,11 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
     private static final int WIDTH_ADJUSTMENT_PIXELS_SIZE = 15;
 
     /**
+     * Length of metrics name in the metricsPanel.
+     */
+    private static final int METRIC_STRING_LENGTH = 50;
+
+    /**
      * The main desktop pane with the TIC graphs of all the reports.
      */
     private final JDesktopPane desktopPane = new ScrollDesktop();
@@ -761,9 +766,6 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
      */
     private int yCoordinate;
 
-    /*TODO: Display report units in order of their report number.
-     * Use Collection.sort(...) according to report number 
-     */
     /**
      * Creates a new instance of the main frame of the proteomics QC viewer.
      *
@@ -1650,7 +1652,11 @@ public class ViewerFrame extends JFrame implements ActionListener, ItemListener,
         for (Map.Entry<String, String> metricEntry : selectedMetrics.entrySet()) {
             final String metricValue = reportUnit.getMetricsValueFromKey(metricEntry.getKey());
             final Color foregroundColor = LABEL_COLORS.get(metricIndex % LABEL_COLORS.size());
-            final JLabel label = new JLabel(metricEntry.getValue() + ": " + metricValue);
+            String metricName = metricEntry.getValue(); 
+            if (metricName.length() > METRIC_STRING_LENGTH) {
+                metricName = metricName.substring(0, METRIC_STRING_LENGTH) + "...";
+            }
+            final JLabel label = new JLabel(metricName + ": " + metricValue);
             label.setFont(Constants.DEFAULT_FONT);
             label.setForeground(foregroundColor);
             metricsPanel.add(label);
