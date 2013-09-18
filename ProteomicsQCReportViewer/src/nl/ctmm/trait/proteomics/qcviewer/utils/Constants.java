@@ -92,7 +92,7 @@ public interface Constants {
     /**
      * Name of the OPL logo file.
      */
-    String OPL_LOGO_FILE_NAME = "images\\opllogo.jpg";
+    String OPL_LOGO_FILE_NAME = "images\\opllogo.png";
 
     /**
      * Name of the CTMM logo file.
