@@ -59,7 +59,6 @@ def create_metrics(working_dir, abs_rawfile, t_start):
         #Update metrics with values from QuaMeter IDFree mode
         print ("Extracting QuaMeter metrics from TSV file..\n")
         metrics['qm'] = _extract_quameter_idfree_metrics(quameter_metrics_file)
-        print metrics
     else:
         log.warn("QuaMeter metrics file does not exist")
 
