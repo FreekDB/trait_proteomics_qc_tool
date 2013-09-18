@@ -39,7 +39,6 @@ def create_metrics(working_dir, abs_rawfile, t_start):
     nist_metrics_file = metrics_logs_path + '.msqc'
     rlogfile = metrics_logs_path + '.RLOG'
     quameter_metrics_file = metrics_logs_path + '_quametermetrics.tsv'
-    print ("Metrics MSQC file ", metrics_logs_path, "\nNIST RLOG file ", rlogfile, "\nMetrics QuaMeter file ", quameter_metrics_file, "\n")
 
     if os.path.exists(nist_metrics_file):
         #Update metrics with values from NIST pipeline
