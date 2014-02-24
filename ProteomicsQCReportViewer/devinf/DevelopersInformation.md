@@ -60,7 +60,7 @@ Some commonly used Maven commands are (see [Introduction to the Build Lifecycle]
 **`mvn checkstyle:checkstyle`**
 
 \# Check if there are any FindBugs violations in the source code:<br/>
-**`mvn findbugs:check`**
+**`mvn compile findbugs:check`**
 
 
 Checkstyle
@@ -74,4 +74,4 @@ It is also possible to configure a Java IDE (like Eclipse, IntelliJ or NetBeans)
 FindBugs
 --------
 
-FindBugs is a static code analysis tool like Checkstyle. If you run **`mvn findbugs:check`** in the ProteomicsQCReportViewer directory, FindBugs will generate the findbugsXml.xml file in the target directory.
+FindBugs is a static code analysis tool like Checkstyle. It works by analyzing Java bytecode (compiled class files), so compile the code before running FindBugs. If you run **`mvn compile findbugs:check`** in the ProteomicsQCReportViewer directory, FindBugs will generate the findbugsXml.xml file in the target directory.
